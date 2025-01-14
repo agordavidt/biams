@@ -44,19 +44,19 @@
                         <div class="navbar-brand-box">
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm" height="22">
+                                    <i class="fas fa-leaf me-2"></i>BIAAMS
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/logo-dark.png') }}" alt="logo-dark" height="20">
+                                    <i class="fas fa-leaf me-2"></i>BIAAMS
                                 </span>
                             </a>
-
+                                <!-- <a class="navbar-brand" href="#"><i class="fas fa-leaf me-2"></i>BIAAMS</a> -->
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm-light" height="22">
+                                    <i class="fas fa-leaf me-2"></i>BIAAMS
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/logo-light.png') }}" alt="logo-light" height="20">
+                                    <i class="fas fa-leaf me-2"></i>BIAAMS
                                 </span>
                             </a>
                         </div>
@@ -267,9 +267,9 @@
                             </li>
 
                             <li>
-                                <a href="calendar.html" class=" waves-effect">
+                                <a href="{{ route('') }}" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
-                                    <span>Calendar</span>
+                                    <span>Registration</span>
                                 </a>
                             </li>
                 

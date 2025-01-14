@@ -60,7 +60,7 @@
                 <ul class="navbar-nav ms-auto">
 
                      @if (Route::has('login'))
-                        <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
+                       
                             @auth
                                   <li class="nav-item">
                                     <a class="nav-link" href="{{ route('home') }}">Dashboard</a>
@@ -72,12 +72,12 @@
 
                                 @if (Route::has('register'))
                                  <li class="nav-item">
-                                    <a class="nav-link btn btn-light text-success ms-2" href="{{ route('register') }}">Register</a>
+                                    <a class="nav-link " href="{{ route('register') }}">Register</a>
                                 </li>
                                     
                                 @endif
                             @endauth
-                        </div>
+                        
                     @endif
 
                 </ul>
