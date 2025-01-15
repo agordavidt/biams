@@ -33,6 +33,8 @@ return new class extends Migration
             $table->text('breeding_program')->nullable();                      
             $table->timestamps();      
 
+           
+
         });
     }
 

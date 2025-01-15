@@ -29,9 +29,9 @@ return new class extends Migration
             $table->json('processed_items')->nullable(); 
             $table->decimal('processing_capacity', 8, 1)->nullable(false); 
             $table->string('equipment_type')->nullable(false); 
-            $table->text('equipment_specs')->nullable(false);      
-            
+            $table->text('equipment_specs')->nullable(false);
             $table->timestamps();
+           
            
         });
     }

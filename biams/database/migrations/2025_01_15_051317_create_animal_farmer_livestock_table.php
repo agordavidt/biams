@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('animal_farmer_livestock', function (Blueprint $table) {
             $table->id();          
-            $table->foreignId('animal_farmer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('animal_farmers_id')->constrained()->onDelete('cascade');
             $table->foreignId('livestock_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->text('facility_specs')->nullable(false);           
             $table->string('operational_capacity');
             $table->json('certifications')->nullable();
-            $table->timestamps();
+            $table->timestamps();          
             
         });
     }
