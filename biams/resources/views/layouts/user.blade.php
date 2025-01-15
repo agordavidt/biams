@@ -267,7 +267,7 @@
                             </li>
 
                             <li>
-                                <a href="{{ route('') }}" class=" waves-effect">
+                                <a href="#" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
                                     <span>Registration</span>
                                 </a>
