@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('processors', function (Blueprint $table) {
             $table->id();
-             $table->foreignId('user_id')->constrained()->onDelete('cascade');     
-
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             // Demographic fields
             $table->string('phone')->nullable(false);
             $table->date('dob')->nullable(false);
@@ -24,7 +23,6 @@ return new class extends Migration
             $table->integer('dependents')->nullable(false);
             $table->string('income_level')->nullable(false);
             $table->string('lga')->nullable(false);
-
              // Processor  fields   
             $table->json('processed_items')->nullable(); 
             $table->decimal('processing_capacity', 8, 1)->nullable(false); 
