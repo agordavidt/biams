@@ -220,9 +220,9 @@
                                 </a>
                             </li>
                 
-                            <!-- <li class="menu-title">Pages</li>                          
+                            <li class="menu-title">Pages</li>                          
                            
-                            <li class="menu-title">Components</li> -->
+                            <li class="menu-title">Components</li>
 
                              <li> <a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
                              <form action="{{ route('logout') }}" method="POST" id="logout-form"> 

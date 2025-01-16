@@ -17,7 +17,6 @@ class FarmersController extends Controller
     public function showCropFarmerForm()
     {
         $crops = Crop::all();
-        // return view('farmers', compact('crops'));
         return view('farmers.crop', compact('crops'));
     }
 
@@ -64,13 +63,18 @@ class FarmersController extends Controller
         // Attach selected crops
         $cropFarmer->crops()->sync($request->crops);
 
+        // Update user status to "pending"
+        auth()->user()->update(['status' => 'pending']);
+
+
         return redirect()->route('home')->with('success', 'Crop farmer profile updated successfully!');
     }
 
     // Show the form for animal farmers
     public function showAnimalFarmerForm()
     {
-        $livestock = Livestock::all();     
+        $livestock = Livestock::all();   
+
         return view('farmers.animal', compact('livestock'));
     }
 
@@ -112,6 +116,9 @@ class FarmersController extends Controller
 
         // Attach selected livestock
         $animalFarmer->livestock()->sync($request->livestock);
+
+        // Update user status to "pending"
+         auth()->user()->update(['status' => 'pending']);
 
         return redirect()->route('home')->with('success', 'Animal farmer profile updated successfully!');
     }
@@ -159,6 +166,9 @@ class FarmersController extends Controller
             'certifications' => $request->certifications,
         ]);
 
+        // Update user status to "pending"
+        auth()->user()->update(['status' => 'pending']);
+
         return redirect()->route('home')->with('success', 'Abattoir operator profile updated successfully!');
     }
 
@@ -203,6 +213,9 @@ class FarmersController extends Controller
             'equipment_type' => $request->equipment_type,
             'equipment_specs' => $request->equipment_specs,
         ]);
+
+        // Update user status to "pending"
+        auth()->user()->update(['status' => 'pending']);
 
         return redirect()->route('home')->with('success', 'Processor profile updated successfully!');
     }

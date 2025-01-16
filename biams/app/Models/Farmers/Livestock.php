@@ -20,3 +20,5 @@ class Livestock extends Model
         return $this->belongsToMany(AnimalFarmer::class, 'animal_farmer_livestock');
     }
 }
+
+
