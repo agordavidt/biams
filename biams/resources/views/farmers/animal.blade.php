@@ -33,6 +33,7 @@
                                     <div class="card-body">
                                         <!-- <h4 class="card-title mb-4">Demographic Inforamtion</h4> -->
                                         <form method="POST" action="{{ route('farmers.crop.store') }}">
+                                            @csrf 
                                             <div class="row">
                                                 <div class="col-lg-6">
                                                     <div>
@@ -46,13 +47,13 @@
                                                         </div>
                                                         <div class="mb-4">
                                                             <label class="form-label" for="gender">Gender</label>
-                                                            <select  class="form-control  name="gender" required>
-                                                                <option value="" disabled>Select Gender</option>
-                                                                <option value="male">Male</option>
-                                                                <option value="female">Female</option>
+                                                            <select  class="form-control"  name="gender" required>
+                                                                <option value="" >Select Gender</option>
+                                                                <option value="Male">Male</option>
+                                                                <option value="Female">Female</option>
                                                             </select>
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="education">Education Level</label>
                                                             <select  class="form-control input-mask text-left" name="education" required">
                                                                 <option value="">Select Education Level</option>
@@ -89,7 +90,7 @@
                                                           </select>
     
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="lga">Local Government Area</label>
                                                             <select class="form-control input-mask" name="lga" required>
                                                                 <option value="">Select LGA</option>                                    

@@ -1,3 +1,12 @@
+@extends('layouts.loginregister')
+@section('content')
+
+
+
+@endsection
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,59 +149,60 @@
     <div class="auth-wrapper d-flex align-items-center py-5">
         <div class="container">
             <div class="row justify-content-center">
+                 <!-- Session Status -->
+                <div class="alert alert-info mb-4" role="alert">
+                    {{ session('status') }}
+                </div>
                 <div class="col-lg-5 col-md-8">
                     <div class="auth-card">
                         <div class="card-body">
                             <div class="text-center mb-4">
                                 <i class="fas fa-seedling fa-3x text-primary mb-3"></i>
-                                <h4 class="auth-title">Welcome to AgriTech</h4>
+                                <h4 class="auth-title">Welcome to BIAAMS</h4>
                             </div>
 
-                            <form>
+                            <form method="POST" action="{{ route('login') }}">
+                            @csrf
                                 <div class="form-floating mb-3">
-                                    <input type="email" class="form-control" id="emailInput" placeholder="name@example.com">
-                                    <label for="emailInput">Email address</label>
+                                    <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" name="email" value="{{ old('email') }}" required autofocus autocomplete="email">
+                                    <label for="emailInput">{{ __('Email address') }}</label>
+                                    @error('email')
+                                        <div class="text-danger mt-2">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="form-floating mb-4 position-relative">
-                                    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
-                                    <label for="passwordInput">Password</label>
+                                    <input type="password" class="form-control" id="passwordInput" placeholder="Password" name="password" required autocomplete="current-password">
+                                    <label for="passwordInput">{{ __('Password') }}</label>
                                     <span class="password-toggle">
                                         <i class="far fa-eye"></i>
                                     </span>
+                                    @error('password')
+                                        <div class="text-danger mt-2">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
                                         <label class="form-check-label" for="rememberMe">
-                                            Remember me
+                                           {{ __('Remember me') }}
                                         </label>
                                     </div>
-                                    <a href="#" class="text-primary text-decoration-none">Forgot password?</a>
+                                    @if (Route::has('password.request'))
+                                        <a class="text-primary text-decoration-none" href="{{ route('password.request') }}">
+                                            {{ __('Forgot your password?') }}
+                                        </a>
+                                    @endif                                   
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                                <button type="submit" class="btn btn-primary w-100" >{{ __('Log in') }}</button>
                             </form>
 
-                            <div class="auth-separator">
-                                <span>or continue with</span>
-                            </div>
-
-                            <div class="social-login">
-                                <a href="#" class="social-btn">
-                                    <i class="fab fa-google"></i>
-                                </a>
-                                <a href="#" class="social-btn">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                                <a href="#" class="social-btn">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                            </div>
+                           
 
                             <div class="auth-footer">
-                                Don't have an account? <a href="register.html" class="text-primary text-decoration-none">Sign up</a>
+                                Don't have an account? <a href="{{ route('register') }}" class="text-primary text-decoration-none">Register</a>
                             </div>
                         </div>
                     </div>
@@ -217,42 +227,46 @@
                                     <h4 class="auth-title">Create Account</h4>
                                 </div>
 
-                                <form>
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-6">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="firstNameInput" placeholder="John">
-                                                <label for="firstNameInput">First Name</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="lastNameInput" placeholder="Doe">
-                                                <label for="lastNameInput">Last Name</label>
-                                            </div>
-                                        </div>
+                                <form method="POST" action="{{ route('register') }}">
+                                    @csrf
+                                    <div class="form-floating  mb-3">
+                                        <input class="form-control" id="firstNameInput" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
+                                        <label for="firstNameInput">{{ __('Name') }}</label>
+                                         @error('name')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
                                     </div>
-
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="emailInput" placeholder="name@example.com">
-                                        <label for="emailInput">Email address</label>
+                                        <input type="email" class="form-control" id="emailInput"  name="email" value="{{ old('email') }}" required autocomplete="username">
+                                        <label for="emailInput">{{ __('Email') }}</label>
+                                         @error('email')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
                                     </div>
 
                                     <div class="form-floating mb-3 position-relative">
-                                        <input type="password" class="form-control" id="passwordInput" placeholder="Password">
-                                        <label for="passwordInput">Password</label>
+                                        <input type="password" class="form-control" id="passwordInput" name="password" required autocomplete="new-password">
+                                        <label for="passwordInput">{{ __('Password') }}</label>
                                         <span class="password-toggle">
                                             <i class="far fa-eye"></i>
                                         </span>
+                                         @error('password')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
                                     </div>
 
                                     <div class="form-floating mb-4 position-relative">
-                                        <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Confirm Password">
-                                        <label for="confirmPasswordInput">Confirm Password</label>
+                                        <input type="password" class="form-control" id="confirmPasswordInput" name="password_confirmation" required autocomplete="new-password">
+                                        <label for="confirmPasswordInput">{{ __('Confirm Password') }}</label>
                                         <span class="password-toggle">
                                             <i class="far fa-eye"></i>
                                         </span>
+                                        @error('password_confirmation')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
                                     </div>
+
+                                     <input type="hidden" name="role" value="user">
 
                                     <div class="form-check mb-4">
                                         <input class="form-check-input" type="checkbox" id="termsCheck">
@@ -261,27 +275,13 @@
                                         </label>
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                                    <button type="submit" class="btn btn-primary w-100">  {{ __('Register') }}</button>
                                 </form>
 
-                                <div class="auth-separator">
-                                    <span>or register with</span>
-                                </div>
-
-                                <div class="social-login">
-                                    <a href="#" class="social-btn">
-                                        <i class="fab fa-google"></i>
-                                    </a>
-                                    <a href="#" class="social-btn">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="#" class="social-btn">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                </div>
+                                
 
                                 <div class="auth-footer">
-                                    Already have an account? <a href="login.html" class="text-primary text-decoration-none">Sign in</a>
+                                    Already have an account? <a href="{{ route('login') }}" class="text-primary text-decoration-none">Login</a>
                                 </div>
                             </div>
                         </div>

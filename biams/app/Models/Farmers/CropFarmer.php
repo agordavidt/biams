@@ -26,7 +26,7 @@ class CropFarmer extends Model
         'crops',
         'seasonal_pattern',
         'latitude',
-        'longitude',,
+        'longitude',
     ];
 
     // Define relationship with User

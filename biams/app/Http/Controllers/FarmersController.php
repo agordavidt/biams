@@ -17,7 +17,8 @@ class FarmersController extends Controller
     public function showCropFarmerForm()
     {
         $crops = Crop::all();
-        return view('farmers', compact('crops'));
+        // return view('farmers', compact('crops'));
+        return view('farmers.crop', compact('crops'));
     }
 
     // Store crop farmer data
@@ -26,7 +27,7 @@ class FarmersController extends Controller
         $request->validate([
             'phone' => 'required|string|min:10|max:15', 
             'dob' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
+            'gender' => 'required|string',
             'education' => 'required|string', 
             'household_size' => 'required|integer',
             'dependents' => 'required|integer', 
@@ -69,8 +70,8 @@ class FarmersController extends Controller
     // Show the form for animal farmers
     public function showAnimalFarmerForm()
     {
-        $livestock = Livestock::all();
-        return view('farmers', compact('livestock'));
+        $livestock = Livestock::all();     
+        return view('farmers.animal', compact('livestock'));
     }
 
     // Store animal farmer data
@@ -119,7 +120,8 @@ class FarmersController extends Controller
      // Show the form for abattoir operators
      public function showAbattoirOperatorForm()
     {
-        return view('farmers'); // Use the same view for consistency
+        // return view('farmers'); 
+        return view('farmers.abattoir');
     }
 
     // Store abattoir operator data
@@ -135,9 +137,9 @@ class FarmersController extends Controller
             'income_level' => 'required|string',
             'lga' => 'required|string',
             'facility_type' => 'required|string',
-            'facility_specs' => 'required|string', // Adjust data type as needed
-            'operational_capacity' => 'required|string', // Adjust data type as needed
-            'certifications' => 'required|string', // Adjust data type as needed
+            'facility_specs' => 'required|string',
+            'operational_capacity' => 'required|string', 
+            'certifications' => 'nullable|array', 
         ]);
 
         // Create AbattoirOperator profile
@@ -163,7 +165,8 @@ class FarmersController extends Controller
     // Show the form for processors
     public function showProcessorForm()
     {
-        return view('farmers'); // Use the same view for consistency
+        // return view('farmers');
+        return view('farmers.processor');
     }
 
     // Store processor data

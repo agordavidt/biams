@@ -32,8 +32,18 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <!-- <h4 class="card-title mb-4">Demographic Inforamtion</h4> -->
-                                        <form method="POST" action="{{ route('farmers.crop.store') }}">
+                                        <form method="POST" action="{{ route('farmers.abattoir.store') }}">
+                                            @csrf 
                                             <div class="row">
+                                                 @if ($errors->any())
+                                                    <div class="alert alert-danger">
+                                                        <ul>
+                                                            @foreach ($errors->all() as $error)
+                                                                <li>{{ $error }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                @endif
                                                 <div class="col-lg-6">
                                                     <div>
                                                         <div class="mb-4">
@@ -44,15 +54,15 @@
                                                             <label class="form-label" for="dob">Date of Birth</label>
                                                             <input type="date" class="form-control input-mask" name="dob" required>
                                                         </div>
-                                                        <div class="mb-4">
+                                                         <div class="mb-4">
                                                             <label class="form-label" for="gender">Gender</label>
-                                                            <select  class="form-control  name="gender" required>
-                                                                <option value="" disabled>Select Gender</option>
-                                                                <option value="male">Male</option>
-                                                                <option value="female">Female</option>
+                                                            <select  class="form-control"  name="gender" required>
+                                                                <option value="" >Select Gender</option>
+                                                                <option value="Male">Male</option>
+                                                                <option value="Female">Female</option>
                                                             </select>
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="education">Education Level</label>
                                                             <select  class="form-control input-mask text-left" name="education" required">
                                                                 <option value="">Select Education Level</option>
@@ -78,7 +88,7 @@
                                                             <input type="number" class="form-control input-mask" name="dependents" required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="income_level">Income Leve</label>
+                                                            <label class="form-label" for="income_level">Income Level</label>
                                                             <select  class="form-control input-mask" name="income_level" required>
                                                                <option value="">Select Income Level</option>
                                                                 <option value="0-100000">Less than ₦100,000</option>
@@ -89,7 +99,7 @@
                                                           </select>
     
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="lga">Local Government Area</label>
                                                             <select class="form-control input-mask" name="lga" required>
                                                                 <option value="">Select LGA</option>                                    
@@ -122,66 +132,43 @@
                                                 </div>
                                             </div>
                                                   <!-- <h4 class="card-title mb-4">Farm Details</h4> -->
+
+                                                  
                                             <!-- --- row 2 ----  -->
                                               <div class="row">
                                                 <div class="col-lg-6">
                                                     <div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="farm_size">Farm Size (hectares)</label>
-                                                            <input type="number" step="0.1" class="form-control input-mask" name="farm_size" required>                                                            
+                                                            <label class="form-label" for="facility_type">Facility Type</label>
+                                                            <input type="text" step="0.1" class="form-control input-mask" name="facility_type" required>                                                            
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="farming_methods">Farming Methods</label>
-                                                            <select  class="form-control input-mask" name="farming_methods" required>
-                                                                <option value="organic">Organic</option>
-                                                                <option value="conventional">Conventional</option>
-                                                                <option value="mixed">Mixed</option>
-                                                            </select>
+                                                            <label class="form-label" for="facility_specs">Facility Specs</label>
+                                                            <textarea class="form-control input-mask" name="facility_specs" required></textarea>
                                                         </div>
-                                                       
-                                                        <div class="mb-0">
-                                                            <label class="form-label" for="seasonal_pattern">Seasonal Pattern</label>
-                                                            <select  class="form-control input-mask text-left" name="seasonal_pattern" required>
-                                                               <option value="rainy">Rainy Season</option>
-                                                                <option value="dry">Dry Season</option>
-                                                                <option value="both">Both Seasons</option>
-                                                            </select>
-                                                            
-                                                        </div>
+
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6">
                                                     <div class="mt-4 mt-lg-0">
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="household_size">Geolocation</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control" name="latitude" placeholder="Latitude" readonly required>
-                                                                <input type="text" class="form-control" name="longitude" placeholder="Longitude" readonly required>
-                                                                <button type="button" class="btn btn-outline-secondary" onclick="getLocation()">
-                                                                    <i class="fas fa-map-marker-alt"></i> Get Location
-                                                                </button>
-                                                            </div>
+                                                            <label class="form-label" for="operational_capacity">Operation Capacity</label>
+                                                            <input type="text" step="0.1" class="form-control input-mask" name="operational_capacity" required>                                                            
                                                         </div>
                                                          <div class="mb-4">
-                                                            <label class="form-label" for="gender">Crop Types</label>
-                                                            <!-- <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="rice">Rice</label>
+                                                            <label class="form-label" for="gender">certifications</label>
+                                                            <div>
+                                                                    <input type="checkbox" name="certifications[]"" id="#" value="#">
+                                                                    <label >Health Certificate</label>
                                                             </div>
                                                              <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="yam">Yam</label>
+                                                                    <input type="checkbox" name="certifications[]"" id="#" value="#">
+                                                                    <label >Environmental Compliance</label>
                                                             </div>
                                                              <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="beans">Beans</label>
-                                                            </div> -->
-                                                            @foreach($crops as $crop)
-                                                                <div>
-                                                                    <input type="checkbox" name="crops[]" id="crop_{{ $crop->id }}" value="{{ $crop->id }}">
-                                                                    <label for="crop_{{ $crop->id }}">{{ $crop->name }}</label>
-                                                                </div>
-                                                            @endforeach
+                                                                    <input type="checkbox" name="certifications[]" id="#" value="#">
+                                                                    <label >Safety Compliance</label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

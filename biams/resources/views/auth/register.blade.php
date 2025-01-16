@@ -1,76 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">{{ __('Register') }}</div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('register') }}">
-                            @csrf
+@extends('layouts.loginregister')
+@section('content')
 
-                            <!-- Name -->
-                            <div class="form-group">
-                                <label for="name">{{ __('Name') }}</label>
-                                <input id="name" class="form-control" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
-                                @error('name')
-                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                @enderror
+ <div class="auth-wrapper d-flex align-items-center py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5 col-md-8">
+                        <div class="auth-card">
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <!-- <i class="fas fa-seedling fa-3x text-primary mb-3"></i> -->
+                                    <h4 class="auth-title">Create Account</h4>
+                                </div>
+
+                                <form method="POST" action="{{ route('register') }}">
+                                    @csrf
+                                    <div class="form-floating  mb-3">
+                                        <input class="form-control"  type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
+                                        <label for="firstNameInput">{{ __('Name') }}</label>
+                                         @error('name')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control"   name="email" value="{{ old('email') }}" required autocomplete="username">
+                                        <label for="emailInput">{{ __('Email') }}</label>
+                                         @error('email')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-3 position-relative">
+                                        <input type="password" class="form-control" name="password" required autocomplete="new-password">
+                                        <label for="passwordInput">{{ __('Password') }}</label>
+                                        <span class="password-toggle">
+                                            <i class="far fa-eye"></i>
+                                        </span>
+                                         @error('password')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-4 position-relative">
+                                        <input type="password" class="form-control"  name="password_confirmation" required autocomplete="new-password">
+                                        <label for="confirmPasswordInput">{{ __('Confirm Password') }}</label>
+                                        <span class="password-toggle">
+                                            <i class="far fa-eye"></i>
+                                        </span>
+                                        @error('password_confirmation')
+                                            <div class="text-danger mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                     <input type="hidden" name="role" value="user">
+
+                                    <!-- <div class="form-check mb-4">
+                                        <input class="form-check-input" type="checkbox" id="termsCheck">
+                                        <label class="form-check-label" for="termsCheck">
+                                            I agree to the <a href="#" class="text-primary">Terms & Conditions</a>
+                                        </label>
+                                    </div> -->
+
+                                    <button type="submit" class="btn btn-primary w-100">  {{ __('Register') }}</button>
+                                </form>
+
+                                
+
+                                <div class="auth-footer">
+                                    Already have an account? <a href="{{ route('login') }}" class="text-primary text-decoration-none">Login</a>
+                                </div>
                             </div>
-
-                            <!-- Email Address -->
-                            <div class="form-group">
-                                <label for="email">{{ __('Email') }}</label>
-                                <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required autocomplete="username">
-                                @error('email')
-                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Password -->
-                            <div class="form-group">
-                                <label for="password">{{ __('Password') }}</label>
-                                <input id="password" class="form-control" type="password" name="password" required autocomplete="new-password">
-                                @error('password')
-                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="form-group">
-                                <label for="password_confirmation">{{ __('Confirm Password') }}</label>
-                                <input id="password_confirmation" class="form-control" type="password" name="password_confirmation" required autocomplete="new-password">
-                                @error('password_confirmation')
-                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <input type="hidden" name="role" value="user">
-
-                            <div class="form-group d-flex justify-content-between align-items-center mt-4">
-                                <a class="text-decoration-none text-muted" href="{{ route('login') }}">
-                                    {{ __('Already registered?') }}
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Register') }}
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+@endsection

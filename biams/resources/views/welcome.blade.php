@@ -88,7 +88,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 mb-4">Benue State Agricultural Management System</h1>
+            <h1 class="display-4 mb-4">Benue State Integrated Agricultural Assets Management System</h1>
             <p class="lead mb-4">Empowering farmers with digital solutions for better agricultural management</p>
             <a href="{{ route('register') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
             <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>

@@ -4,6 +4,7 @@
 
 
 
+
         <div class="main-content"  Style="margin-left: 10%; margin-right: 5%">
 
                 <div class="page-content">
@@ -33,6 +34,18 @@
                                     <div class="card-body">
                                         <!-- <h4 class="card-title mb-4">Demographic Inforamtion</h4> -->
                                         <form method="POST" action="{{ route('farmers.crop.store') }}">
+                                            @csrf 
+
+                                          
+                                            @if ($errors->any())
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
                                             <div class="row">
                                                 <div class="col-lg-6">
                                                     <div>
@@ -46,13 +59,13 @@
                                                         </div>
                                                         <div class="mb-4">
                                                             <label class="form-label" for="gender">Gender</label>
-                                                            <select  class="form-control  name="gender" required>
-                                                                <option value="" disabled>Select Gender</option>
-                                                                <option value="male">Male</option>
-                                                                <option value="female">Female</option>
+                                                            <select  class="form-control"  name="gender" required>
+                                                                <option value="" >Select Gender</option>
+                                                                <option value="Male">Male</option>
+                                                                <option value="Female">Female</option>
                                                             </select>
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="education">Education Level</label>
                                                             <select  class="form-control input-mask text-left" name="education" required">
                                                                 <option value="">Select Education Level</option>
@@ -78,7 +91,7 @@
                                                             <input type="number" class="form-control input-mask" name="dependents" required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="income_level">Income Leve</label>
+                                                            <label class="form-label" for="income_level">Income Level</label>
                                                             <select  class="form-control input-mask" name="income_level" required>
                                                                <option value="">Select Income Level</option>
                                                                 <option value="0-100000">Less than ₦100,000</option>
@@ -89,7 +102,7 @@
                                                           </select>
     
                                                         </div>
-                                                        <div class="mb-0">
+                                                        <div class="mb-4">
                                                             <label class="form-label" for="lga">Local Government Area</label>
                                                             <select class="form-control input-mask" name="lga" required>
                                                                 <option value="">Select LGA</option>                                    
@@ -155,8 +168,8 @@
                                                         <div class="mb-4">
                                                             <label class="form-label" for="household_size">Geolocation</label>
                                                             <div class="input-group">
-                                                                <input type="text" class="form-control" name="latitude" placeholder="Latitude" readonly required>
-                                                                <input type="text" class="form-control" name="longitude" placeholder="Longitude" readonly required>
+                                                                <input type="text" class="form-control" name="latitude" placeholder="Latitude" required>
+                                                                <input type="text" class="form-control" name="longitude" placeholder="Longitude"  required>
                                                                 <button type="button" class="btn btn-outline-secondary" onclick="getLocation()">
                                                                     <i class="fas fa-map-marker-alt"></i> Get Location
                                                                 </button>

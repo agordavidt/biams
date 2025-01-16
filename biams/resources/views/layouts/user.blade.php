@@ -5,9 +5,7 @@
         
         <meta charset="utf-8" />
         <title>Dashboard | Benue e_Agriculture</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-        <meta content="Themesdesign" name="author" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">      
         <!-- App favicon -->
         <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
 
@@ -26,6 +24,81 @@
         <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
         <!-- App Css-->
         <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+
+
+        <!--- new stuff ----->
+         <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>BSAMS - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .practice-card {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .practice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .status-tracker {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-step {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .status-step::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .status-step:last-child::before {
+            display: none;
+        }
+
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .status-icon.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-icon.pending {
+            background: #ffc107;
+            color: white;
+        }
+
+        .status-icon.current {
+            background: #007bff;
+            color: white;
+        }
+
+        .modal-xl {
+            max-width: 95%;
+        }
+    </style>
+        
 
     </head>
 
@@ -61,9 +134,9 @@
                             </a>
                         </div>
 
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                        <!-- <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
                             <i class="ri-menu-2-line align-middle"></i>
-                        </button>
+                        </button> -->
 
                         <!-- App Search-->
                         <form class="app-search d-none d-lg-block">
@@ -74,134 +147,8 @@
                         </form>
 
                         <!-- <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
-                            <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
-                                Mega Menu
-                                <i class="mdi mdi-chevron-down"></i> 
-                            </button>
-                            <div class="dropdown-menu dropdown-megamenu">
-                                <div class="row">
-                                    <div class="col-sm-8">
-                
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <h5 class="font-size-14">UI Components</h5>
-                                                <ul class="list-unstyled megamenu-list">
-                                                    <li>
-                                                        <a href="javascript:void(0);">Lightbox</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Range Slider</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Sweet Alert</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Rating</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Forms</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Tables</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Charts</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <h5 class="font-size-14">Applications</h5>
-                                                <ul class="list-unstyled megamenu-list">
-                                                    <li>
-                                                        <a href="javascript:void(0);">Ecommerce</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Calendar</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Email</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Projects</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Tasks</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Contacts</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <h5 class="font-size-14">Extra Pages</h5>
-                                                <ul class="list-unstyled megamenu-list">
-                                                    <li>
-                                                        <a href="javascript:void(0);">Light Sidebar</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Compact Sidebar</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Horizontal layout</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Maintenance</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Coming Soon</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Timeline</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">FAQs</a>
-                                                    </li>
-                                        
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <h5 class="font-size-14">UI Components</h5>
-                                                <ul class="list-unstyled megamenu-list">
-                                                    <li>
-                                                        <a href="javascript:void(0);">Lightbox</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Range Slider</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Sweet Alert</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Rating</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Forms</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Tables</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);">Charts</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="col-sm-5">
-                                                <div>
-                                                    <img src="assets/images/megamenu-img.png" alt="megamenu-img" class="img-fluid mx-auto d-block">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
+                           
+                           
                         </div> -->
                     </div>
 
@@ -260,7 +207,7 @@
                             <li class="menu-title">Menu</li>
 
                             <li>
-                                <a href="index.html" class="waves-effect">
+                                <a href="{{ route('home') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
                                     <span>Dashboard</span>
                                 </a>
@@ -273,208 +220,9 @@
                                 </a>
                             </li>
                 
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-mail-send-line"></i>
-                                    <span>Email</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="email-inbox.html">Inbox</a></li>
-                                    <li><a href="email-read.html">Read Email</a></li>
-                                </ul>
-                            </li> -->
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-layout-3-line"></i>
-                                    <span>Layouts</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="true">
-                                    <li>
-                                        <a href="javascript: void(0);" class="has-arrow">Vertical</a>
-                                        <ul class="sub-menu" aria-expanded="true">
-                                            <li><a href="layouts-dark-sidebar.html">Dark Sidebar</a></li>
-                                            <li><a href="layouts-compact-sidebar.html">Compact Sidebar</a></li>
-                                            <li><a href="layouts-icon-sidebar.html">Icon Sidebar</a></li>
-                                            <li><a href="layouts-boxed.html">Boxed Layout</a></li>
-                                            <li><a href="layouts-preloader.html">Preloader</a></li>
-                                            <li><a href="layouts-colored-sidebar.html">Colored Sidebar</a></li>
-                                        </ul>
-                                    </li>
-
-                                    <li>
-                                        <a href="javascript: void(0);" class="has-arrow">Horizontal</a>
-                                        <ul class="sub-menu" aria-expanded="true">
-                                            <li><a href="layouts-horizontal.html">Horizontal</a></li>
-                                            <li><a href="layouts-hori-topbar-light.html">Topbar light</a></li>
-                                            <li><a href="layouts-hori-boxed-width.html">Boxed width</a></li>
-                                            <li><a href="layouts-hori-preloader.html">Preloader</a></li>
-                                            <li><a href="layouts-hori-colored-header.html">Colored Header</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li> -->
-
-                            <li class="menu-title">Pages</li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Authentication</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="auth-login.html">Login</a></li>
-                                    <li><a href="auth-register.html">Register</a></li>
-                                    <li><a href="auth-recoverpw.html">Recover Password</a></li>
-                                    <li><a href="auth-lock-screen.html">Lock Screen</a></li>
-                                </ul>
-                            </li>
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-profile-line"></i>
-                                    <span>Utility</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="pages-starter.html">Starter Page</a></li>
-                                    <li><a href="pages-timeline.html">Timeline</a></li>
-                                    <li><a href="pages-directory.html">Directory</a></li>
-                                    <li><a href="pages-invoice.html">Invoice</a></li>
-                                    <li><a href="pages-404.html">Error 404</a></li>
-                                    <li><a href="pages-500.html">Error 500</a></li>
-                                </ul>
-                            </li> -->
-
-                            <li class="menu-title">Components</li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-pencil-ruler-2-line"></i>
-                                    <span>UI Elements</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="ui-alerts.html">Alerts</a></li>
-                                    <li><a href="ui-buttons.html">Buttons</a></li>
-                                    <li><a href="ui-cards.html">Cards</a></li>
-                                    <li><a href="ui-carousel.html">Carousel</a></li>
-                                    <li><a href="ui-dropdowns.html">Dropdowns</a></li>
-                                    <li><a href="ui-grid.html">Grid</a></li>
-                                    <li><a href="ui-images.html">Images</a></li>
-                                    <li><a href="ui-lightbox.html">Lightbox</a></li>
-                                    <li><a href="ui-modals.html">Modals</a></li>
-                                    <li><a href="ui-offcanvas.html">Offcavas</a></li>
-                                    <li><a href="ui-progressbars.html">Progress Bars</a></li>
-                                    <li><a href="ui-tabs-accordions.html">Tabs & Accordions</a></li>
-                                    <li><a href="ui-typography.html">Typography</a></li>
-                                    <li><a href="ui-video.html">Video</a></li>
-                                    <li><a href="ui-general.html">General</a></li>
-                        
-                                </ul>
-                            </li>
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-vip-crown-2-line"></i>
-                                    <span>Advanced UI</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="advance-rangeslider.html">Range Slider</a></li>
-                                    <li><a href="advance-roundslider.html">Round Slider</a></li>
-                                    <li><a href="advance-session-timeout.html">Session Timeout</a></li>
-                                    <li><a href="advance-sweet-alert.html">Sweetalert 2</a></li>
-                                    <li><a href="advance-rating.html">Rating</a></li>
-                                    <li><a href="advance-notifications.html">Notifications</a></li>
-                                </ul>
-                            </li> -->
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-eraser-fill"></i>
-                                    <span class="badge rounded-pill bg-danger float-end">8</span>
-                                    <span>Forms</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="form-elements.html">Form Elements</a></li>
-                                    <li><a href="form-validation.html">Form Validation</a></li>
-                                    <li><a href="form-advanced.html">Form Advanced Plugins</a></li>
-                                    <li><a href="form-editors.html">Form Editors</a></li>
-                                    <li><a href="form-uploads.html">Form File Upload</a></li>
-                                    <li><a href="form-xeditable.html">Form X-editable</a></li>
-                                    <li><a href="form-wizard.html">Form Wizard</a></li>
-                                    <li><a href="form-mask.html">Form Mask</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-table-2"></i>
-                                    <span>Tables</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="tables-basic.html">Basic Tables</a></li>
-                                    <li><a href="tables-datatable.html">Data Tables</a></li>
-                                    <li><a href="tables-responsive.html">Responsive Table</a></li>
-                                    <li><a href="tables-editable.html">Editable Table</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-bar-chart-line"></i>
-                                    <span>Charts</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="charts-apex.html">Apex Charts</a></li>
-                                    <li><a href="charts-chartjs.html">Chartjs Charts</a></li>
-                                    <li><a href="charts-flot.html">Flot Charts</a></li>
-                                    <li><a href="charts-knob.html">Jquery Knob Charts</a></li>
-                                    <li><a href="charts-sparkline.html">Sparkline Charts</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-brush-line"></i>
-                                    <span>Icons</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="icons-remix.html">Remix Icons</a></li>
-                                    <li><a href="icons-materialdesign.html">Material Design</a></li>
-                                    <li><a href="icons-dripicons.html">Dripicons</a></li>
-                                    <li><a href="icons-fontawesome.html">Font awesome 5</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-map-pin-line"></i>
-                                    <span>Maps</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="maps-google.html">Google Maps</a></li>
-                                    <li><a href="maps-vector.html">Vector Maps</a></li>
-                                </ul>
-                            </li>
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-share-line"></i>
-                                    <span>Multi Level</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="true">
-                                    <li><a href="javascript: void(0);">Level 1.1</a></li>
-                                    <li><a href="javascript: void(0);" class="has-arrow">Level 1.2</a>
-                                        <ul class="sub-menu" aria-expanded="true">
-                                            <li><a href="javascript: void(0);">Level 2.1</a></li>
-                                            <li><a href="javascript: void(0);">Level 2.2</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li> -->
-                             <!-- <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Log Out</button>
-                            </form> -->
+                            <!-- <li class="menu-title">Pages</li>                          
+                           
+                            <li class="menu-title">Components</li> -->
 
                              <li> <a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
                              <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
@@ -485,8 +233,6 @@
                             </form>
                              
                             
-                                               
-
                         </ul>
                     </div>
                     <!-- Sidebar -->
@@ -527,10 +273,348 @@
 
         <!-- App js -->
         <script src="{{ asset('dashboard/js/app.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
             document.getElementById('logout-form').submit(); }); 
+
+
+
+            // Practice-specific form fields object
+            const practiceFields = {
+                crop_farming: `
+                    <h5 class="mb-3">Crop Farming Details</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Farm Size (hectares)</label>
+                            <input type="number" step="0.1" class="form-control" name="farm_size" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Farming Methods</label>
+                            <select class="form-select" name="farming_methods" required>
+                                <option value="organic">Organic</option>
+                                <option value="conventional">Conventional</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Crop Types</label>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="crops[]" value="maize">
+                                        <label class="form-check-label">Maize</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="crops[]" value="rice">
+                                        <label class="form-check-label">Rice</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="crops[]" value="cassava">
+                                        <label class="form-check-label">Cassava</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="crops[]" value="yam">
+                                        <label class="form-check-label">Yam</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Seasonal Pattern</label>
+                            <select class="form-select" name="seasonal_pattern" required>
+                                <option value="rainy">Rainy Season</option>
+                                <option value="dry">Dry Season</option>
+                                <option value="both">Both Seasons</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Geolocation</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="latitude" placeholder="Latitude" readonly required>
+                                <input type="text" class="form-control" name="longitude" placeholder="Longitude" readonly required>
+                                <button type="button" class="btn btn-outline-secondary" onclick="getLocation()">
+                                    <i class="fas fa-map-marker-alt"></i> Get Location
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                
+                animal_farming: `
+                    <h5 class="mb-3">Animal Farming Details</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Livestock Types</label>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="livestock[]" value="cattle">
+                                        <label class="form-check-label">Cattle</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="livestock[]" value="goats">
+                                        <label class="form-check-label">Goats</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="livestock[]" value="sheep">
+                                        <label class="form-check-label">Sheep</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="livestock[]" value="poultry">
+                                        <label class="form-check-label">Poultry</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Herd Size</label>
+                            <input type="number" class="form-control" name="herd_size" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Facility Type</label>
+                            <select class="form-select" name="facility_type" required>
+                                <option value="">Select Facility Type</option>
+                                <option value="intensive">Intensive</option>
+                                <option value="semi_intensive">Semi-Intensive</option>
+                                <option value="extensive">Extensive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Breeding Program Details</label>
+                            <textarea class="form-control" name="breeding_program" rows="3"></textarea>
+                        </div>
+                    </div>
+                `,
+                
+                processing: `
+                    <h5 class="mb-3">Processing Details</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Items Processed</label>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="processed_items[]" value="grains">
+                                        <label class="form-check-label">Grains</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="processed_items[]" value="tubers">
+                                        <label class="form-check-label">Tubers</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="processed_items[]" value="fruits">
+                                        <label class="form-check-label">Fruits</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="processed_items[]" value="vegetables">
+                                        <label class="form-check-label">Vegetables</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Processing Capacity (tons/day)</label>
+                            <input type="number" step="0.1" class="form-control" name="processing_capacity" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Equipment Type</label>
+                            <select class="form-select" name="equipment_type" required>
+                                <option value="">Select Equipment Type</option>
+                                <option value="manual">Manual</option>
+                                <option value="semi_automated">Semi-Automated</option>
+                                <option value="fully_automated">Fully Automated</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Equipment Specifications</label>
+                            <textarea class="form-control" name="equipment_specs" rows="3" required></textarea>
+                        </div>
+                    </div>
+                `,
+                
+                abattoir: `
+                    <h5 class="mb-3">Abattoir Details</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Daily Capacity (animals)</label>
+                            <input type="number" class="form-control" name="daily_capacity" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Facility Type</label>
+                            <select class="form-select" name="facility_type" required>
+                                <option value="">Select Facility Type</option>
+                                <option value="small">Small Scale</option>
+                                <option value="medium">Medium Scale</option>
+                                <option value="large">Large Scale</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Facility Specifications</label>
+                            <textarea class="form-control" name="facility_specs" rows="3" required></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Certifications</label>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="certifications[]" value="health">
+                                        <label class="form-check-label">Health Certificate</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="certifications[]" value="environmental">
+                                        <label class="form-check-label">Environmental Compliance</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="certifications[]" value="safety">
+                                        <label class="form-check-label">Safety Compliance</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            };
+
+            // Initialize on document ready
+            $(document).ready(function() {
+                // Initialize LGA dropdown
+                initializeLGA();
+                
+                // Handle practice card clicks
+            //     $('.practice-card').click(function() {
+            //         const practiceType = $(this).data('practice');
+            //         showPracticeForm(practiceType);
+            //     });
+                
+            //     // Handle form submission
+            //     $('#submitPractice').click(function() {
+            //         submitPracticeForm();
+            //     });
+            // });
+
+            // Initialize LGA dropdown
+            function initializeLGA() {
+                const lgas = [
+                    'ADO', 'AGATU', 'APA', 'BURUKU', 'GBOKO', 'GUMA', 'GWER EAST', 
+                    'GWER WEST', 'KATSINA-ALA', 'KONSHISHA', 'KWANDE', 'LOGO', 
+                    'MAKURDI', 'OBI', 'OGBADIBO', 'OJU', 'OHIMINI', 'OKPOKWU', 
+                    'OTUKPO', 'TARKA', 'UKUM', 'USHONGO', 'VANDEIKYA'
+                ];
+                
+                const lgaSelect = $('select[name="lga"]');
+                lgas.forEach(lga => {
+                    lgaSelect.append(`<option value="${lga}">${lga}</option>`);
+                });
+            }
+
+            // Show practice form
+            function showPracticeForm(practiceType) {
+                $('#practiceFields').html(practiceFields[practiceType]);
+                $('#practiceForm').data('practice-type', practiceType);
+                $('#practiceModal').modal('show');
+            }
+
+            // Get geolocation
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            $('input[name="latitude"]').val(position.coords.latitude);
+                            $('input[name="longitude"]').val(position.coords.longitude);
+                        },
+                        function(error) {
+                            alert('Error getting location: ' + error.message);
+                        }
+                    );
+                } else {
+                    alert('Geolocation is not supported by this browser.');
+                }
+            }
+
+            // Form validation and submission
+            function submitPracticeForm() {
+                const form = $('#practiceForm')[0];
+                
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const formData = new FormData(form);
+                formData.append('practice_type', $('#practiceForm').data('practice-type'));
+                
+                // Show loading state
+                $('#submitPractice').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
+                
+                $.ajax({
+                    url: '/api/submit-practice',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Show success message
+                        alert('Form submitted successfully!');
+                        $('#practiceModal').modal('hide');
+                        // Refresh the page or update status
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        // Show error message
+                        alert('Error submitting form: ' + xhr.responseText);
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $('#submitPractice').prop('disabled', false).text('Submit');
+                    }
+                });
+            }
+
+            // Form reset when modal is closed
+            $('#practiceModal').on('hidden.bs.modal', function() {
+                $('#practiceForm')[0].reset();
+            });
+
+            // Image preview functionality (if needed)
+            function previewImage(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+
         </script>
     </body>
 
