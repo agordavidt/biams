@@ -17,7 +17,10 @@ class AdminController extends Controller
     // Show all pending applications
     public function applicationIndex()
     {
-        $applications = User::where('status', 'pending')->get();
+        // $applications = User::where('status', 'pending')->get();
+        $applications = User::where('status', 'pending')
+                        ->where('role', 'user')
+                        ->get();
         return view('admin.applications', compact('applications'));
     }
 
