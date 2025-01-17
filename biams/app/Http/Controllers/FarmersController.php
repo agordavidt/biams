@@ -3,8 +3,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Farmers\Crop;
-use App\Models\Farmers\Livestock;
 use App\Models\Farmers\CropFarmer;
 use App\Models\Farmers\AnimalFarmer;
 use App\Models\Farmers\Processor;
@@ -16,33 +14,37 @@ class FarmersController extends Controller
     // Show the form for crop farmers
     public function showCropFarmerForm()
     {
-        $crops = Crop::all();
-        return view('farmers.crop', compact('crops'));
+     
+        return view('farmers.crop');
     }
 
     // Store crop farmer data
     public function storeCropFarmer(Request $request)
     {
+       // Validate the incoming request
         $request->validate([
-            'phone' => 'required|string|min:10|max:15', 
+            'phone' => 'required|string|min:10|max:15',
             'dob' => 'required|date',
             'gender' => 'required|string',
-            'education' => 'required|string', 
+            'education' => 'required|string',
             'household_size' => 'required|integer',
-            'dependents' => 'required|integer', 
-            'income_level' => 'required|string', 
+            'dependents' => 'required|integer',
+            'income_level' => 'required|string',
             'lga' => 'required|string',
             'farm_size' => 'required|numeric',
-            'farming_methods' => 'required|string', 
-            'seasonal_pattern' => 'required|string', 
+            'farming_methods' => 'required|string',
+            'seasonal_pattern' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'crops' => 'required|array',
-            'crops.*' => 'exists:crops,id',
-          
+            'crop' => 'required|string',
+            'other_crop' => 'nullable|string', // Optional if 'Other' is selected
+            'farm_location' => 'required|string',
         ]);
 
-        // Create CropFarmer profile
+        // Check if 'Other' crop is selected and merge it into 'crop' field
+        $crop = $request->crop === 'Other' ? $request->other_crop : $request->crop;
+
+        // Create a new CropFarmer record
         $cropFarmer = CropFarmer::create([
             'user_id' => auth()->id(),
             'phone' => $request->phone,
@@ -58,11 +60,13 @@ class FarmersController extends Controller
             'seasonal_pattern' => $request->seasonal_pattern,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
+            'farm_location' => $request->farm_location,
+            'crop' => $crop,
+            'other_crop' => $request->crop === 'Other' ? $request->other_crop : null,
         ]);
 
-        // Attach selected crops
-        $cropFarmer->crops()->sync($request->crops);
 
+       
         // Update user status to "pending"
         auth()->user()->update(['status' => 'pending']);
 
@@ -73,9 +77,9 @@ class FarmersController extends Controller
     // Show the form for animal farmers
     public function showAnimalFarmerForm()
     {
-        $livestock = Livestock::all();   
+         
 
-        return view('farmers.animal', compact('livestock'));
+        return view('farmers.animal');
     }
 
     // Store animal farmer data
@@ -114,9 +118,7 @@ class FarmersController extends Controller
             // Other fields
         ]);
 
-        // Attach selected livestock
-        $animalFarmer->livestock()->sync($request->livestock);
-
+       
         // Update user status to "pending"
          auth()->user()->update(['status' => 'pending']);
 

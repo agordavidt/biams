@@ -175,26 +175,39 @@
                                                                 </button>
                                                             </div>
                                                         </div>
+                                                          <div class="mb-4">
+                                                            <label class="form-label" for="farm_location">Farm Location</label>
+                                                            <input type="text" class="form-control input-mask" name="farm_location" required>                                                            
+                                                        </div>
                                                          <div class="mb-4">
-                                                            <label class="form-label" for="gender">Crop Types</label>
-                                                            <!-- <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="rice">Rice</label>
-                                                            </div>
-                                                             <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="yam">Yam</label>
-                                                            </div>
-                                                             <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="beans">Beans</label>
-                                                            </div> -->
-                                                            @foreach($crops as $crop)
-                                                                <div>
-                                                                    <input type="checkbox" name="crops[]" id="crop_{{ $crop->id }}" value="{{ $crop->id }}">
-                                                                    <label for="crop_{{ $crop->id }}">{{ $crop->name }}</label>
-                                                                </div>
-                                                            @endforeach
+                                                            <label class="form-label" for="crop">Crop Cultivated</label>
+                                                            <select class="form-control input-mask" name="crop" id="crops" onchange="handleOtherOption()" required>
+                                                                <option value="">Select Crop</option>                                    
+                                                                <option value="Yam">Yams</option>
+                                                                <option value="Rice">Rice</option>
+                                                                <option value="Cassava">Cassava</option>
+                                                                <option value="Maize">Maize</option>
+                                                                <option value="Soybean">Soybean</option>
+                                                                <option value="Sweet potato">Sweet potato</option>
+                                                                <option value="Sesame">Sesame</option>
+                                                                <option value="Groundnut">Groundnut</option>
+                                                                <option value="Sorghum">Sorghum</option>
+                                                                <option value="Millet">Millet</option>
+                                                                <option value="Cocoyam">Cocoyam</option>
+                                                                <option value="Oranges">Oranges</option>
+                                                                <option value="Mangoes">Mangoes</option>
+                                                                <option value="Tomatoes">Tomatoes</option>
+                                                                <option value="Citrus">Citrus</option>
+                                                                <option value="Pears">Pears</option>
+                                                                <option value="Cashew">Cashew</option>
+                                                                <option value="Pineapples">Pineapples</option>   
+                                                                <option value="Other">Other</option>                                                       
+                                                            </select>                                                           
+                                                        </div>
+                                                        <!-- Hidden input field for custom crop -->
+                                                        <div class="mb-4" id="otherCropField" style="display: none;">
+                                                            <label for="otherCrop">Specify the crop:</label>
+                                                            <input type="text" name="other_crop" id="otherCrop">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -231,5 +244,21 @@
             </div>
 
 
+
+
+            
+            <script>
+                function handleOtherOption() {
+                    const cropDropdown = document.getElementById('crops');
+                    const otherCropField = document.getElementById('otherCropField');
+
+                    // Show the input field if "Other" is selected, hide it otherwise
+                    if (cropDropdown.value === 'Other') {
+                        otherCropField.style.display = 'block';
+                    } else {
+                        otherCropField.style.display = 'none';
+                    }
+                }
+            </script>
 
 @endsection

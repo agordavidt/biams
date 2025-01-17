@@ -13,10 +13,7 @@ return new class extends Migration
     {
         Schema::create('crop_farmers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');  
-            // $table->foreignId('crop_id')->constrained()->onDelete('cascade');         
-            
-            // Demographic fields           
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('phone')->nullable(false);
             $table->date('dob')->nullable(false);
             $table->string('gender')->nullable(false);
@@ -25,14 +22,14 @@ return new class extends Migration
             $table->integer('dependents')->nullable(false);
             $table->string('income_level')->nullable(false);
             $table->string('lga')->nullable(false);
-
-             // Crop Farmer  fields   
-            $table->decimal('farm_size', 8, 1)->nullable(false); 
-            $table->string('farming_methods')->nullable(false); 
-            $table->json('crops')->nullable(); 
-            $table->string('seasonal_pattern')->nullable(false); 
-            $table->decimal('latitude', 10, 7)->nullable(false); 
-            $table->decimal('longitude', 10, 7)->nullable(false);            
+            $table->decimal('farm_size', 8, 2)->nullable(false); // Precision for hectares
+            $table->string('farming_methods')->nullable(false);
+            $table->string('seasonal_pattern')->nullable(false);
+            $table->decimal('latitude', 10, 8)->nullable(false); // Suitable for geolocation
+            $table->decimal('longitude', 11, 8)->nullable(false);
+            $table->string('farm_location')->nullable(false);
+            $table->string('crop')->nullable(false);
+            $table->string('other_crop')->nullable(true); // Only if "Other" is selected
             $table->timestamps();
         });
     }

@@ -12,7 +12,7 @@ class CropFarmer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',        
+        'user_id',
         'phone',
         'dob',
         'gender',
@@ -23,10 +23,12 @@ class CropFarmer extends Model
         'lga',
         'farm_size',
         'farming_methods',
-        'crops',
         'seasonal_pattern',
         'latitude',
         'longitude',
+        'farm_location',
+        'crop',
+        'other_crop',
     ];
 
     // Define relationship with User
@@ -34,12 +36,7 @@ class CropFarmer extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    // Define many-to-many relationship with Crop
-    public function crops()
-    {
-        return $this->belongsToMany(Crop::class, 'crop_farmer_crop');
-    }
+    
 }
 
 

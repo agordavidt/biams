@@ -34,9 +34,5 @@ class AnimalFarmer extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Define many-to-many relationship with Livestock
-    public function livestock()
-    {
-        return $this->belongsToMany(Livestock::class, 'animal_farmer_livestock');
-    }
+    
 }
