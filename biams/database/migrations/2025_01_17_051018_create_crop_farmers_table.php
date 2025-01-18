@@ -25,8 +25,8 @@ return new class extends Migration
             $table->decimal('farm_size', 8, 2)->nullable(false); // Precision for hectares
             $table->string('farming_methods')->nullable(false);
             $table->string('seasonal_pattern')->nullable(false);
-            $table->decimal('latitude', 10, 8)->nullable(false); // Suitable for geolocation
-            $table->decimal('longitude', 11, 8)->nullable(false);
+            $table->decimal('latitude', 6, 4)->nullable(false); // Suitable for geolocation
+            $table->decimal('longitude', 7, 4)->nullable(false);
             $table->string('farm_location')->nullable(false);
             $table->string('crop')->nullable(false);
             $table->string('other_crop')->nullable(true); // Only if "Other" is selected

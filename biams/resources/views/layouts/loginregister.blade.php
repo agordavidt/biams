@@ -14,7 +14,7 @@
         }
 
         body {
-            background-color:rgb(248, 250, 250);
+            background-color: #f8f9fa;
             font-family: 'Segoe UI', sans-serif;
         }
 

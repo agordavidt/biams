@@ -11,22 +11,25 @@ class AnimalFarmer extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'phone',
-        'dob',
-        'gender',
-        'education',
-        'household_size',
-        'dependents',
-        'income_level',
-        'lga',
-        // Demographic fields
-        'livestock',
-        'herd_size',
-        'facility_type',
-        'breeding_program',
-    ];
+   protected $fillable = [
+    'user_id',
+    'phone',
+    'dob',
+    'gender',
+    'education',
+    'household_size',
+    'dependents',
+    'income_level',
+    'lga',
+    // Demographic fields
+    'herd_size',
+    'facility_type',
+    'breeding_program',
+    'farm_location',
+    'livestock',
+    'other_livestock',
+];
+
 
     // Define relationship with User
     public function user()

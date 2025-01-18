@@ -2,14 +2,14 @@
 @section('content')
 
  <!-- Login Page -->
-    <div class="auth-wrapper d-flex align-items-center py-5">
+    <div class="auth-wrapper d-flex align-items-center py-5" >
         <div class="container">
             <div class="row justify-content-center">
                  <!-- Session Status -->
-                <div class="alert alert-info mb-4" role="alert">
+                <!-- <div class="alert alert-info mb-4" role="alert" >
                     {{ session('status') }}
-                </div>
-                <div class="col-lg-5 col-md-8">
+                </div> -->
+                <div class="col-lg-5 col-md-8" >
                     <div class="auth-card">
                         <div class="card-body">
                             <div class="text-center mb-4">

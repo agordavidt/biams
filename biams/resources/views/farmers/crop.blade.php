@@ -19,6 +19,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                                             <!-- <a class="btn btn-info mb-5 waves-effect waves-light" href="index.html">Back to Dashboard</a> -->
                                             <li class="breadcrumb-item active">Registration</li>
                                         </ol>
                                     </div>
@@ -246,7 +247,7 @@
 
 
 
-            
+
             <script>
                 function handleOtherOption() {
                     const cropDropdown = document.getElementById('crops');

@@ -32,7 +32,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <!-- <h4 class="card-title mb-4">Demographic Inforamtion</h4> -->
-                                        <form method="POST" action="{{ route('farmers.crop.store') }}">
+                                        <form method="POST" action="#">
                                             @csrf 
                                             <div class="row">
                                                 <div class="col-lg-6">
@@ -128,62 +128,60 @@
                                                 <div class="col-lg-6">
                                                     <div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="farm_size">Farm Size (hectares)</label>
-                                                            <input type="number" step="0.1" class="form-control input-mask" name="farm_size" required>                                                            
+                                                            <label class="form-label" for="herd_size">Herd Size</label>
+                                                            <input type="number" class="form-control input-mask" name="herd_size" id="herd_size" placeholder="Enter herd size" required>
                                                         </div>
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="farming_methods">Farming Methods</label>
-                                                            <select  class="form-control input-mask" name="farming_methods" required>
-                                                                <option value="organic">Organic</option>
-                                                                <option value="conventional">Conventional</option>
-                                                                <option value="mixed">Mixed</option>
+                                                            <label class="form-label" for="facility_type">Facility Type</label>
+                                                            <select class="form-control input-mask" name="facility_type" id="facility_type" required>
+                                                                <option value="">Select Facility Type</option>
+                                                                <option value="Open Grazing">Open Grazing</option>
+                                                                <option value="Fenced Pasture">Fenced Pasture</option>
+                                                                <option value="Zero Grazing">Zero Grazing</option>
+                                                                <option value="Indoor Housing">Indoor Housing</option>
+                                                                <option value="Other">Other</option>
                                                             </select>
                                                         </div>
                                                        
-                                                        <div class="mb-0">
-                                                            <label class="form-label" for="seasonal_pattern">Seasonal Pattern</label>
-                                                            <select  class="form-control input-mask text-left" name="seasonal_pattern" required>
-                                                               <option value="rainy">Rainy Season</option>
-                                                                <option value="dry">Dry Season</option>
-                                                                <option value="both">Both Seasons</option>
+                                                        <div class="mb-4">
+                                                            <label class="form-label" for="breeding_program">Breeding Program</label>
+                                                            <select class="form-control input-mask" name="breeding_program" id="breeding_program" required>
+                                                                <option value="">Select Breeding Program</option>
+                                                                <option value="Artificial Insemination">Artificial Insemination</option>
+                                                                <option value="Natural Mating">Natural Mating</option>
+                                                                <option value="Crossbreeding">Crossbreeding</option>
+                                                                <option value="Selective Breeding">Selective Breeding</option>
                                                             </select>
-                                                            
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6">
                                                     <div class="mt-4 mt-lg-0">
-                                                        <div class="mb-4">
-                                                            <label class="form-label" for="household_size">Geolocation</label>
-                                                            <div class="input-group">
-                                                                <input type="text" class="form-control" name="latitude" placeholder="Latitude" readonly required>
-                                                                <input type="text" class="form-control" name="longitude" placeholder="Longitude" readonly required>
-                                                                <button type="button" class="btn btn-outline-secondary" onclick="getLocation()">
-                                                                    <i class="fas fa-map-marker-alt"></i> Get Location
-                                                                </button>
-                                                            </div>
-                                                        </div>
                                                          <div class="mb-4">
-                                                            <label class="form-label" for="gender">Crop Types</label>
-                                                            <!-- <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="rice">Rice</label>
-                                                            </div>
-                                                             <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="yam">Yam</label>
-                                                            </div>
-                                                             <div>
-                                                                    <input type="checkbox" name="crops[]" id="#" value="#">
-                                                                    <label for="beans">Beans</label>
-                                                            </div> -->
-                                                            @foreach($crops as $crop)
-                                                                <div>
-                                                                    <input type="checkbox" name="crops[]" id="crop_{{ $crop->id }}" value="{{ $crop->id }}">
-                                                                    <label for="crop_{{ $crop->id }}">{{ $crop->name }}</label>
-                                                                </div>
-                                                            @endforeach
+                                                            <label class="form-label" for="farm_location">Location</label>
+                                                            <input type="text" class="form-control input-mask" name="farm_location" id="location" placeholder="Enter location" required>
                                                         </div>
+                                                        <div class="mb-4">
+                                                            <label class="form-label" for="livestock">Livestock Type</label>
+                                                            <select class="form-control input-mask" name="livestock" id="livestock" onchange="handleOtherLivestock()" required>
+                                                                <option value="">Select Livestock</option>
+                                                                <option value="Cattle">Cattle</option>
+                                                                <option value="Goats">Goats</option>
+                                                                <option value="Sheep">Sheep</option>
+                                                                <option value="Poultry">Poultry</option>
+                                                                <option value="Pigs">Pigs</option>
+                                                                <option value="Fish">Fish</option>
+                                                                <option value="Other">Other</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Hidden input for specifying "Other" livestock -->
+                                                        <div class="mb-4" id="otherLivestockField" style="display: none;">
+                                                            <label for="other_livestock">Specify the livestock type:</label>
+                                                            <input type="text" class="form-control input-mask" name="other_livestock" id="other_livestock">
+                                                        </div>
+
+                                                         
                                                     </div>
                                                 </div>
                                             </div>
@@ -209,7 +207,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">
-                                    Powered <i class="mdi mdi-heart text-danger"></i> BDIC
+                                    Powered by BDIC
                                 </div>
                             </div>
                         </div>
@@ -219,5 +217,18 @@
             </div>
 
 
+
+            <script>
+                // Handle "Other" option for Livestock
+                function handleOtherLivestock() {
+                    const livestockSelect = document.getElementById('livestock');
+                    const otherLivestockField = document.getElementById('otherLivestockField');
+                    if (livestockSelect.value === 'Other') {
+                        otherLivestockField.style.display = 'block';
+                    } else {
+                        otherLivestockField.style.display = 'none';
+                    }
+                }
+            </script>
 
 @endsection

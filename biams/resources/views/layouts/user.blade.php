@@ -187,6 +187,9 @@
                                 <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
                                 <!-- <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i> -->
                             </button>
+                             <div class="dropdown d-inline-block">
+                           
+                            </div>
                           
                         </div>                        
             

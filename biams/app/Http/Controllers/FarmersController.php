@@ -94,12 +94,19 @@ class FarmersController extends Controller
             'dependents' => 'required|integer',
             'income_level' => 'required|string',
             'lga' => 'required|string',
-            'livestock' => 'required|array',
-            'livestock.*' => 'exists:livestock,id', 
             'herd_size' => 'required|integer',
             'facility_type' => 'required|string',
-            'breeding_program' => 'required|string',           
+            'breeding_program' => 'required|string',
+            'farm_location' => 'required|string',
+            'livestock' => 'required|in:Cattle,Goats,Sheep,Poultry,Pigs,Fish,Other',
+            'other_livestock' => 'nullable|string',            
         ]);
+
+        // If 'Other' is selected for livestock, merge the value from 'other_livestock'
+          $livestock = ($request->livestock === 'Other' && $request->has('other_livestock') && $request->other_livestock) 
+            ? $request->other_livestock 
+            : $request->livestock;
+
 
         // Create AnimalFarmer profile
         $animalFarmer = AnimalFarmer::create([
@@ -115,9 +122,12 @@ class FarmersController extends Controller
             'herd_size' => $request->herd_size,
             'facility_type' => $request->facility_type,
             'breeding_program' => $request->breeding_program,
-            // Other fields
+            'farm_location' => $request->farm_location,
+            'livestock' => $request->livestock,  
+            'other_livestock' => $request->other_livestock,  
         ]);
 
+        
        
         // Update user status to "pending"
          auth()->user()->update(['status' => 'pending']);

@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('abattoir_operators', function (Blueprint $table) {
+        Schema::create('animal_farmers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');   
-            // Demographic fields
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('phone')->nullable(false);
             $table->date('dob')->nullable(false);
             $table->string('gender')->nullable(false);
@@ -23,14 +22,13 @@ return new class extends Migration
             $table->integer('dependents')->nullable(false);
             $table->string('income_level')->nullable(false);
             $table->string('lga')->nullable(false);
-            
-             // Abattoir  fields           
-            $table->string('facility_type')->nullable(false); 
-            $table->text('facility_specs')->nullable(false);           
-            $table->string('operational_capacity');
-            $table->json('certifications')->nullable();
-            $table->timestamps();          
-            
+            $table->integer('herd_size')->nullable(false);
+            $table->string('facility_type')->nullable(false);
+            $table->string('breeding_program')->nullable(false);
+            $table->string('farm_location')->nullable(false);
+            $table->string('livestock')->nullable(false);
+            $table->string('other_livestock')->nullable()->default(null); 
+            $table->timestamps();
         });
     }
 
@@ -39,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('abattoir_operators');
+        Schema::dropIfExists('animal_farmers');
     }
 };
