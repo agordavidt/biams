@@ -27,6 +27,50 @@
         <!-- App Css-->
         <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
+         <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            .status-pending {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            .status-approved {
+                background-color: #dcfce7;
+                color: #166534;
+            }
+            .status-rejected {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+            #map {
+                height: 500px;
+                width: 100%;
+                border-radius: 0.5rem;
+                border: 1px solid #e5e7eb;
+            }
+            .action-btn {
+                padding: 0.25rem;
+                border-radius: 0.375rem;
+                border: none;
+                background: transparent;
+            }
+            .action-btn:hover {
+                background-color: #f3f4f6;
+            }
+            .approve-btn:hover {
+                color: #059669;
+                background-color: #ecfdf5;
+            }
+            .reject-btn:hover {
+                color: #dc2626;
+                background-color: #fef2f2;
+            }
+    </style>
+
     </head>
 
     <body data-topbar="dark">
@@ -111,153 +155,7 @@
                             </div>
                         </div>
 
-                        <!-- <div class="dropdown d-none d-lg-inline-block ms-1">
-                            <button type="button" class="btn header-item noti-icon waves-effect"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-apps-2-line"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                                <div class="px-lg-2">
-                                    <div class="row g-0">
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/github.png') }}" alt="Github">
-                                                <span>GitHub</span>
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/bitbucket.png') }}" alt="bitbucket">
-                                                <span>Bitbucket</span>
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/dribbble.png') }}" alt="dribbble">
-                                                <span>Dribbble</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="row g-0">
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/dropbox.png') }}" alt="dropbox">
-                                                <span>Dropbox</span>
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/mail_chimp.png') }}" alt="mail_chimp">
-                                                <span>Mail Chimp</span>
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <a class="dropdown-icon-item" href="#">
-                                                <img src="{{ asset('dashboard/images/brands/slack.png') }}" alt="slack">
-                                                <span>Slack</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-
-                        <!-- <div class="dropdown d-none d-lg-inline-block ms-1">
-                            <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
-                                <i class="ri-fullscreen-line"></i>
-                            </button>
-                        </div> -->
-<!-- 
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
-                                  data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-notification-3-line"></i>
-                                <span class="noti-dot"></span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                aria-labelledby="page-header-notifications-dropdown">
-                                <div class="p-3">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h6 class="m-0"> Notifications </h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="#!" class="small"> View All</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div data-simplebar style="max-height: 230px;">
-                                    <a href="" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Your order is placed</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">If several languages coalesce the grammar</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <img src="{{ asset('dashboard/images/users/avatar-3.jpg') }}"
-                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">James Lemire</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">It will seem like simplified English.</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-success rounded-circle font-size-16">
-                                                    <i class="ri-checkbox-circle-line"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Your item is shipped</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">If several languages coalesce the grammar</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                    <a href="" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <img src="{{ asset('dashboard/images/users/avatar-4.jpg') }}"
-                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Salena Layfield</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="p-2 border-top">
-                                    <div class="d-grid">
-                                        <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                                            <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-
+                       
                         <div class="dropdown d-inline-block user-dropdown">
                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -326,37 +224,7 @@
                                 </ul>
                             </li>
 
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-layout-3-line"></i>
-                                    <span>Layouts</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="true">
-                                    <li>
-                                        <a href="javascript: void(0);" class="has-arrow">Vertical</a>
-                                        <ul class="sub-menu" aria-expanded="true">
-                                            <li><a href="layouts-dark-sidebar.html">Dark Sidebar</a></li>
-                                            <li><a href="layouts-compact-sidebar.html">Compact Sidebar</a></li>
-                                            <li><a href="layouts-icon-sidebar.html">Icon Sidebar</a></li>
-                                            <li><a href="layouts-boxed.html">Boxed Layout</a></li>
-                                            <li><a href="layouts-preloader.html">Preloader</a></li>
-                                            <li><a href="layouts-colored-sidebar.html">Colored Sidebar</a></li>
-                                        </ul>
-                                    </li>
-
-                                    <li>
-                                        <a href="javascript: void(0);" class="has-arrow">Horizontal</a>
-                                        <ul class="sub-menu" aria-expanded="true">
-                                            <li><a href="layouts-horizontal.html">Horizontal</a></li>
-                                            <li><a href="layouts-hori-topbar-light.html">Topbar light</a></li>
-                                            <li><a href="layouts-hori-boxed-width.html">Boxed width</a></li>
-                                            <li><a href="layouts-hori-preloader.html">Preloader</a></li>
-                                            <li><a href="layouts-hori-colored-header.html">Colored Header</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-
+                            
                             <li class="menu-title">Pages</li>
 
                             <li>
@@ -372,120 +240,13 @@
                                 </ul>
                             </li>
 
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-profile-line"></i>
-                                    <span>Utility</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="pages-starter.html">Starter Page</a></li>
-                                    <li><a href="pages-timeline.html">Timeline</a></li>
-                                    <li><a href="pages-directory.html">Directory</a></li>
-                                    <li><a href="pages-invoice.html">Invoice</a></li>
-                                    <li><a href="pages-404.html">Error 404</a></li>
-                                    <li><a href="pages-500.html">Error 500</a></li>
-                                </ul>
-                            </li>
+                           
 
                             <li class="menu-title">Components</li>
 
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-pencil-ruler-2-line"></i>
-                                    <span>UI Elements</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="ui-alerts.html">Alerts</a></li>
-                                    <li><a href="ui-buttons.html">Buttons</a></li>
-                                    <li><a href="ui-cards.html">Cards</a></li>
-                                    <li><a href="ui-carousel.html">Carousel</a></li>
-                                    <li><a href="ui-dropdowns.html">Dropdowns</a></li>
-                                    <li><a href="ui-grid.html">Grid</a></li>
-                                    <li><a href="ui-images.html">Images</a></li>
-                                    <li><a href="ui-lightbox.html">Lightbox</a></li>
-                                    <li><a href="ui-modals.html">Modals</a></li>
-                                    <li><a href="ui-offcanvas.html">Offcavas</a></li>
-                                    <li><a href="ui-progressbars.html">Progress Bars</a></li>
-                                    <li><a href="ui-tabs-accordions.html">Tabs & Accordions</a></li>
-                                    <li><a href="ui-typography.html">Typography</a></li>
-                                    <li><a href="ui-video.html">Video</a></li>
-                                    <li><a href="ui-general.html">General</a></li>
-                        
-                                </ul>
-                            </li>
+                            
 
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-vip-crown-2-line"></i>
-                                    <span>Advanced UI</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="advance-rangeslider.html">Range Slider</a></li>
-                                    <li><a href="advance-roundslider.html">Round Slider</a></li>
-                                    <li><a href="advance-session-timeout.html">Session Timeout</a></li>
-                                    <li><a href="advance-sweet-alert.html">Sweetalert 2</a></li>
-                                    <li><a href="advance-rating.html">Rating</a></li>
-                                    <li><a href="advance-notifications.html">Notifications</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-eraser-fill"></i>
-                                    <span class="badge rounded-pill bg-danger float-end">8</span>
-                                    <span>Forms</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="form-elements.html">Form Elements</a></li>
-                                    <li><a href="form-validation.html">Form Validation</a></li>
-                                    <li><a href="form-advanced.html">Form Advanced Plugins</a></li>
-                                    <li><a href="form-editors.html">Form Editors</a></li>
-                                    <li><a href="form-uploads.html">Form File Upload</a></li>
-                                    <li><a href="form-xeditable.html">Form X-editable</a></li>
-                                    <li><a href="form-wizard.html">Form Wizard</a></li>
-                                    <li><a href="form-mask.html">Form Mask</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-table-2"></i>
-                                    <span>Tables</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="tables-basic.html">Basic Tables</a></li>
-                                    <li><a href="tables-datatable.html">Data Tables</a></li>
-                                    <li><a href="tables-responsive.html">Responsive Table</a></li>
-                                    <li><a href="tables-editable.html">Editable Table</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-bar-chart-line"></i>
-                                    <span>Charts</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="charts-apex.html">Apex Charts</a></li>
-                                    <li><a href="charts-chartjs.html">Chartjs Charts</a></li>
-                                    <li><a href="charts-flot.html">Flot Charts</a></li>
-                                    <li><a href="charts-knob.html">Jquery Knob Charts</a></li>
-                                    <li><a href="charts-sparkline.html">Sparkline Charts</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-brush-line"></i>
-                                    <span>Icons</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="icons-remix.html">Remix Icons</a></li>
-                                    <li><a href="icons-materialdesign.html">Material Design</a></li>
-                                    <li><a href="icons-dripicons.html">Dripicons</a></li>
-                                    <li><a href="icons-fontawesome.html">Font awesome 5</a></li>
-                                </ul>
-                            </li>
+                           
 
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -539,7 +300,7 @@
 
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="#" class="text-info waves-effect">Back to Dashboard</a></li>
+                                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-info waves-effect">Back to Dashboard</a></li>
                                              <!-- <a class="btn btn-info mb-5 waves-effect waves-light" href="index.html">Back to Dashboard</a> -->
                                             <li class="breadcrumb-item active">Applicantions</li>
                                         </ol>
@@ -577,27 +338,51 @@
                                                     <td>{{ $application->user->name }}</td>
                                                     <td>{{ $application->gender }}</td>
                                                     <td>{{ $application->lga }}</td>
-                                                    <td>{{ $application->farm_size }}</td>
+                                                    <td>{{ $application->farm_size }} ha</td>
                                                     <td>{{ $application->crop }}</td>
-                                                    <td>{{ $application->latitude }}, {{ $application->longitude }}</td>
-                                                    <td>{{ $application->user->status }}</td>
-                                                    <td>
-                                                        <form action="{{ route('admin.applications.approve', $application->user) }}" method="POST" style="display:inline;">
-                                                            @csrf
-                                                            <button type="submit">Approve</button>
-                                                        </form>
-                                                        <form action="{{ route('admin.applications.reject', $application->user) }}" method="POST" style="display:inline;">
-                                                            @csrf
-                                                            <button type="submit">Reject</button>
-                                                        </form>
+                                                    <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td>
+                                                   <td>{{ ucfirst($application->user->status) }}</td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group">
+                                                            <!-- View Details Button -->
+                                                            <button class="action-btn" title="View Details" onclick="viewFarmer({{ json_encode($application) }})">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                                                    <circle cx="12" cy="12" r="3" />
+                                                                </svg>
+                                                            </button>
+
+                                                            <!-- Conditionally Render Approve and Reject Buttons -->
+                                                            @if ($application->user->status === 'pending')
+                                                                <form action="{{ route('admin.applications.approve', $application->user) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button class="action-btn approve-btn" type="submit" title="Approve Application">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                            <polyline points="20 6 9 17 4 12" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </form>
+                                                                <form action="{{ route('admin.applications.reject', $application->user) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button class="action-btn reject-btn" type="submit" title="Reject Application">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
-                                           
                                             </tbody>
-                                        </table>
 
-                                    </div> <!-- end card body-->
+                                        </table>
+                                            <!-- Include famer view  modal -->
+                                         @include('partials.farmer-modal') 
+                                    </div> 
+                                    <!-- end card body-->
                                 </div> <!-- end card -->
                             </div><!-- end col-->
                         </div>
@@ -616,11 +401,11 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © Upcube.
+                                <script>document.write(new Date().getFullYear())</script> © <div class="text-info">Benue State Integrated Agricultural Assets Management Systems</div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">
-                                    Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
+                                    Powered by <i class="mdi mdi-heart text-danger"></i> BDIC
                                 </div>
                             </div>
                         </div>
@@ -673,6 +458,70 @@
         <script src="{{ asset('dashboard/js/pages/datatables.init.js') }}"></script>
 
         <script src="{{ asset('dashboard/js/app.js') }}"></script>
+
+
+            <!-- =============== modal javascript to display farmer's inforamtion ================ -->
+             <script>
+                    function viewFarmer(farmer) {
+                        let details = '';
+
+                        // Common fields for all farmers
+                        details += `
+                        <div class='row' >
+                        <div class = 'col-6' >
+                            <p><strong>Name:</strong> ${farmer.user.name}</p>
+                            <p><strong>Email:</strong> ${farmer.user.email}</p>
+                            <p><strong>Phone:</strong> ${farmer.phone_number}</p>
+                            <p><strong>Date of Birth:</strong> ${farmer.date_of_birth}</p>
+                            <p><strong>Gender:</strong> ${farmer.gender}</p>
+                        </div>
+                        <div class='col-6'>
+                            <p><strong>Education Level:</strong> ${farmer.education_level}</p>
+                            <p><strong>Household Size:</strong> ${farmer.household_size}</p>
+                            <p><strong>Dependents:</strong> ${farmer.dependents}</p>
+                            <p><strong>Income Level:</strong> ${farmer.income_level}</p>
+                            <p><strong>Local Government Area:</strong> ${farmer.local_government_area}</p>
+                        </div>
+                        </div>
+                        `;
+
+                        // Practice-specific fields
+                        if (farmer.farm_size !== undefined) {
+                            details += `
+                                <p><strong>Farm Size:</strong> ${farmer.farm_size}</p>
+                                <p><strong>Farming Methods:</strong> ${farmer.farming_methods}</p>
+                                <p><strong>Seasonal Patterns:</strong> ${farmer.seasonal_patterns}</p>
+                                <p><strong>Geolocation:</strong> ${farmer.geolocation}</p>
+                            `;
+                        } else if (farmer.herd_size !== undefined) {
+                            details += `
+                                <p><strong>Herd Size:</strong> ${farmer.herd_size}</p>
+                                <p><strong>Facility Info:</strong> ${farmer.facility_info}</p>
+                                <p><strong>Breeding Programs:</strong> ${farmer.breeding_programs}</p>
+                            `;
+                        } else if (farmer.facility_specifications !== undefined) {
+                            details += `
+                                <p><strong>Facility Specifications:</strong> ${farmer.facility_specifications}</p>
+                                <p><strong>Operational Capacity:</strong> ${farmer.operational_capacity}</p>
+                                <p><strong>Compliance Certificates:</strong> ${farmer.compliance_certificates}</p>
+                            `;
+                        } else if (farmer.processing_capabilities !== undefined) {
+                            details += `
+                                <p><strong>Processing Capabilities:</strong> ${farmer.processing_capabilities}</p>
+                                <p><strong>Equipment Specifications:</strong> ${farmer.equipment_specifications}</p>
+                                <p><strong>Production Capacity:</strong> ${farmer.production_capacity}</p>
+                            `;
+                        }
+
+                        // Insert details into the modal
+                        document.getElementById('farmerDetails').innerHTML = details;
+
+                        // Show the modal
+                        const modal = new bootstrap.Modal(document.getElementById('viewFarmerModal'));
+                        modal.show();
+                    }
+                </script>
+
 
     </body>
 </html>
