@@ -341,7 +341,7 @@
                                                     <td>{{ $application->farm_size }} ha</td>
                                                     <td>{{ $application->crop }}</td>
                                                     <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td>
-                                                   <td>{{ ucfirst($application->user->status) }}</td>
+                                                    <td>{{ ucfirst($application->user->status) }}</td>
                                                     <td class="text-end">
                                                         <div class="btn-group">
                                                             <!-- View Details Button -->
