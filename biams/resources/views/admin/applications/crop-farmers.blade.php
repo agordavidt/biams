@@ -520,6 +520,8 @@
                         const modal = new bootstrap.Modal(document.getElementById('viewFarmerModal'));
                         modal.show();
                     }
+
+                    
                 </script>
 
 

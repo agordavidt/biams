@@ -4,7 +4,7 @@
     <head>
         
         <meta charset="utf-8" />
-        <title>Dashboard | Benue e_Agriculture</title>
+        <title>Admin | Benue State Integrated Agricultural Assets Management System</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
         <meta content="Themesdesign" name="author" />
@@ -260,22 +260,39 @@
                             <li class="menu-title">Menu</li>
 
                             <li>
-                                <a href="index.html" class="waves-effect">
+                                <a href="{{ route('admin.dashboard') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
                                     <span>Dashboard</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" class=" waves-effect">
-                                    <i class="ri-calendar-2-line"></i>
-                                    <span>Applications</span>
                                 </a>
                             </li>
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Applications</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
+                                    <li><a href="{{ route('admin.applications.animal-farmers') }}">Animal Farmers</a></li>
+                                    <li><a href="{{ route('admin.applications.abattoir-operators') }}">Abattoir Operators</a></li>
+                                    <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
+                                </ul>
+                            </li>
+                             <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Resources</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
+                                    <li><a href="{{ route('admin.applications.animal-farmers') }}">Animal Farmers</a></li>
+                                    <li><a href="{{ route('admin.applications.abattoir-operators') }}">Abattoir Operators</a></li>
+                                    <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
+                                </ul>
+                            </li>
+                             <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Destribution</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
@@ -327,97 +344,9 @@
                                 </ul>
                             </li> -->
 
-                            <li class="menu-title">Pages</li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Authentication</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="auth-login.html">Login</a></li>
-                                    <li><a href="auth-register.html">Register</a></li>
-                                    <li><a href="auth-recoverpw.html">Recover Password</a></li>
-                                    <li><a href="auth-lock-screen.html">Lock Screen</a></li>
-                                </ul>
-                            </li>
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-profile-line"></i>
-                                    <span>Utility</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="pages-starter.html">Starter Page</a></li>
-                                    <li><a href="pages-timeline.html">Timeline</a></li>
-                                    <li><a href="pages-directory.html">Directory</a></li>
-                                    <li><a href="pages-invoice.html">Invoice</a></li>
-                                    <li><a href="pages-404.html">Error 404</a></li>
-                                    <li><a href="pages-500.html">Error 500</a></li>
-                                </ul>
-                            </li> -->
-
-                            <li class="menu-title">Components</li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-pencil-ruler-2-line"></i>
-                                    <span>UI Elements</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="ui-alerts.html">Alerts</a></li>
-                                    <li><a href="ui-buttons.html">Buttons</a></li>
-                                    <li><a href="ui-cards.html">Cards</a></li>
-                                    <li><a href="ui-carousel.html">Carousel</a></li>
-                                    <li><a href="ui-dropdowns.html">Dropdowns</a></li>
-                                    <li><a href="ui-grid.html">Grid</a></li>
-                                    <li><a href="ui-images.html">Images</a></li>
-                                    <li><a href="ui-lightbox.html">Lightbox</a></li>
-                                    <li><a href="ui-modals.html">Modals</a></li>
-                                    <li><a href="ui-offcanvas.html">Offcavas</a></li>
-                                    <li><a href="ui-progressbars.html">Progress Bars</a></li>
-                                    <li><a href="ui-tabs-accordions.html">Tabs & Accordions</a></li>
-                                    <li><a href="ui-typography.html">Typography</a></li>
-                                    <li><a href="ui-video.html">Video</a></li>
-                                    <li><a href="ui-general.html">General</a></li>
                         
-                                </ul>
-                            </li>
 
                             <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-vip-crown-2-line"></i>
-                                    <span>Advanced UI</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="advance-rangeslider.html">Range Slider</a></li>
-                                    <li><a href="advance-roundslider.html">Round Slider</a></li>
-                                    <li><a href="advance-session-timeout.html">Session Timeout</a></li>
-                                    <li><a href="advance-sweet-alert.html">Sweetalert 2</a></li>
-                                    <li><a href="advance-rating.html">Rating</a></li>
-                                    <li><a href="advance-notifications.html">Notifications</a></li>
-                                </ul>
-                            </li> -->
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-eraser-fill"></i>
-                                    <span class="badge rounded-pill bg-danger float-end">8</span>
-                                    <span>Forms</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="form-elements.html">Form Elements</a></li>
-                                    <li><a href="form-validation.html">Form Validation</a></li>
-                                    <li><a href="form-advanced.html">Form Advanced Plugins</a></li>
-                                    <li><a href="form-editors.html">Form Editors</a></li>
-                                    <li><a href="form-uploads.html">Form File Upload</a></li>
-                                    <li><a href="form-xeditable.html">Form X-editable</a></li>
-                                    <li><a href="form-wizard.html">Form Wizard</a></li>
-                                    <li><a href="form-mask.html">Form Mask</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-table-2"></i>
                                     <span>Tables</span>
@@ -442,9 +371,9 @@
                                     <li><a href="charts-knob.html">Jquery Knob Charts</a></li>
                                     <li><a href="charts-sparkline.html">Sparkline Charts</a></li>
                                 </ul>
-                            </li>
+                            </li> -->
 
-                            <li>
+                            <!-- <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-brush-line"></i>
                                     <span>Icons</span>
@@ -466,7 +395,7 @@
                                     <li><a href="maps-google.html">Google Maps</a></li>
                                     <li><a href="maps-vector.html">Vector Maps</a></li>
                                 </ul>
-                            </li>
+                            </li> -->
 
                             <!-- <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
