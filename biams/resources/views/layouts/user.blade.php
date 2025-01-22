@@ -4,7 +4,7 @@
     <head>
         
         <meta charset="utf-8" />
-        <title>Dashboard | Benue e_Agriculture</title>
+        <title>Benue State Integrated Agricultural Assets Management System</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">      
         <!-- App favicon -->
         <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
@@ -222,7 +222,33 @@
                                     <span>Registration</span>
                                 </a>
                             </li>
-                            
+                             @if (auth()->user()->status === 'approved')
+                             <li>
+                                <a href="#" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Resources</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="#">resource 1</a></li>
+                                    <li><a href="#">resource 2</a></li>
+                                    <li><a href="#">resource 3</a></li>
+                                    <li><a href="#">resource 4</a></li>
+                                </ul>
+                            </li>
+
+                             <li>
+                                <a href="#" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Trainings</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="#">training 1</a></li>
+                                    <li><a href="#">training 2</a></li>
+                                    <li><a href="#">training 3</a></li>
+                                    <li><a href="#">training 4</a></li>
+                                </ul>
+                            </li>
+                            @endif
                             <!-- <li class="menu-title">Pages</li>                          
                            
                             <li class="menu-title">Components</li> -->

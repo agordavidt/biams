@@ -3,9 +3,33 @@
 @section('content')
 
 <div class="main-content">
+                           
+                      
+                      
+
+                           
+                  
 
                 <div class="page-content">
                     <div class="container-fluid">
+                          <div class="w-80">
+                             @if (auth()->user()->status === 'pending')
+                                <div class="alert alert-warning">
+                                   Your application is under review. Please check back later.
+                                </div>
+                            @elseif (auth()->user()->status === 'rejected')
+                                <div class="alert alert-danger">
+                                    Your application has been rejected. Please contact support for more information.
+                                </div>
+                            @else
+                                <!-- Full access features -->
+                                <div class="alert alert-success">
+                                  You have been successfully onboarded. You now have full acess to the system
+                                </div>
+                                <a href="#" class="btn btn-primary">View Resources</a>
+                                <a href="#" class="btn btn-primary">Access Training</a>
+                            @endif
+                        </div>
 
                          <div class="container py-1">
                                <h4 class="card-title mb-4">Registration Status</h4>
@@ -220,7 +244,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © Benue State Integrated Agricultural Assest Management system.
+                                <script>document.write(new Date().getFullYear())</script> © <span class="text-info">Benue State Integrated Agricultural Assest Management system. </span> 
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">

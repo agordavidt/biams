@@ -49,6 +49,7 @@ class AdminController extends Controller
     // Approve an application
     public function approve(User $user)
     {
+   
         $user->update(['status' => 'approved']);
         // Send approval notification (email or dashboard)
         return redirect()->back()->with('success', 'Application approved successfully.');
