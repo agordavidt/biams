@@ -16,7 +16,7 @@
                                     @csrf
                                     <div class="form-floating  mb-3">
                                         <input class="form-control"  type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name">
-                                        <label for="firstNameInput">{{ __('Name') }}</label>
+                                        <label for="firstNameInput">{{ __('Full Name') }}</label>
                                          @error('name')
                                             <div class="text-danger mt-2">{{ $message }}</div>
                                         @enderror

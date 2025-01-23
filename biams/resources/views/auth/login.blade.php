@@ -14,7 +14,8 @@
                         <div class="card-body">
                             <div class="text-center mb-4">
                                 <i class="fas fa-seedling fa-3x text-primary mb-3"></i>
-                                <h4 class="auth-title">Welcome to BIAAMS</h4>
+                                <h4 class="auth-title">Welcome</h4>
+                                <p>Enter your details to login</p>
                             </div>
 
                             <form method="POST" action="{{ route('login') }}">
