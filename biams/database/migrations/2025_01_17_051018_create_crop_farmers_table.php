@@ -13,15 +13,7 @@ return new class extends Migration
     {
         Schema::create('crop_farmers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('phone')->nullable(false);
-            $table->date('dob')->nullable(false);
-            $table->string('gender')->nullable(false);
-            $table->string('education')->nullable(false);
-            $table->integer('household_size')->nullable(false);
-            $table->integer('dependents')->nullable(false);
-            $table->string('income_level')->nullable(false);
-            $table->string('lga')->nullable(false);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');           
             $table->decimal('farm_size', 8, 2)->nullable(false); // Precision for hectares
             $table->string('farming_methods')->nullable(false);
             $table->string('seasonal_pattern')->nullable(false);

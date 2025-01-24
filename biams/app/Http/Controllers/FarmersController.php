@@ -14,8 +14,12 @@ class FarmersController extends Controller
     // Show the form for crop farmers
     public function showCropFarmerForm()
     {
-     
-        return view('farmers.crop');
+       
+        $user = auth()->user();
+        return view('farmers.crop', [
+        'user' => $user,
+    ]);
+      
     }
 
     // Store crop farmer data
@@ -23,14 +27,7 @@ class FarmersController extends Controller
     {
        // Validate the incoming request
         $request->validate([
-            'phone' => 'required|string|min:10|max:15',
-            'dob' => 'required|date',
-            'gender' => 'required|string',
-            'education' => 'required|string',
-            'household_size' => 'required|integer',
-            'dependents' => 'required|integer',
-            'income_level' => 'required|string',
-            'lga' => 'required|string',
+            
             'farm_size' => 'required|numeric',
             'farming_methods' => 'required|string',
             'seasonal_pattern' => 'required|string',
@@ -47,14 +44,6 @@ class FarmersController extends Controller
         // Create a new CropFarmer record
         $cropFarmer = CropFarmer::create([
             'user_id' => auth()->id(),
-            'phone' => $request->phone,
-            'dob' => $request->dob,
-            'gender' => $request->gender,
-            'education' => $request->education,
-            'household_size' => $request->household_size,
-            'dependents' => $request->dependents,
-            'income_level' => $request->income_level,
-            'lga' => $request->lga,
             'farm_size' => $request->farm_size,
             'farming_methods' => $request->farming_methods,
             'seasonal_pattern' => $request->seasonal_pattern,
@@ -86,14 +75,6 @@ class FarmersController extends Controller
     public function storeAnimalFarmer(Request $request)
     {
         $request->validate([
-            'phone' => 'required|string|min:10|max:15',
-            'dob' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'education' => 'required|string',
-            'household_size' => 'required|integer',
-            'dependents' => 'required|integer',
-            'income_level' => 'required|string',
-            'lga' => 'required|string',
             'herd_size' => 'required|integer',
             'facility_type' => 'required|string',
             'breeding_program' => 'required|string',
@@ -111,14 +92,6 @@ class FarmersController extends Controller
         // Create AnimalFarmer profile
         $animalFarmer = AnimalFarmer::create([
             'user_id' => auth()->id(),
-            'phone' => $request->phone,
-            'dob' => $request->dob,
-            'gender' => $request->gender,
-            'education' => $request->education,
-            'household_size' => $request->household_size,
-            'dependents' => $request->dependents,
-            'income_level' => $request->income_level,
-            'lga' => $request->lga,
             'herd_size' => $request->herd_size,
             'facility_type' => $request->facility_type,
             'breeding_program' => $request->breeding_program,
@@ -146,15 +119,7 @@ class FarmersController extends Controller
     // Store abattoir operator data
     public function storeAbattoirOperator(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string|min:10|max:15',
-            'dob' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'education' => 'required|string',
-            'household_size' => 'required|integer',
-            'dependents' => 'required|integer',
-            'income_level' => 'required|string',
-            'lga' => 'required|string',
+        $request->validate([           
             'facility_type' => 'required|string',
             'facility_specs' => 'required|string',
             'operational_capacity' => 'required|string', 
@@ -164,14 +129,6 @@ class FarmersController extends Controller
         // Create AbattoirOperator profile
         AbattoirOperator::create([
             'user_id' => auth()->id(),
-            'phone' => $request->phone,
-            'dob' => $request->dob,
-            'gender' => $request->gender,
-            'education' => $request->education,
-            'household_size' => $request->household_size,
-            'dependents' => $request->dependents,
-            'income_level' => $request->income_level,
-            'lga' => $request->lga,
             'facility_type' => $request->facility_type,
             'facility_specs' => $request->facility_specs,
             'operational_capacity' => $request->operational_capacity,
@@ -195,14 +152,6 @@ class FarmersController extends Controller
     public function storeProcessor(Request $request)
     {
         $request->validate([
-           'phone' => 'required|string|min:10|max:15',
-            'dob' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'education' => 'required|string',
-            'household_size' => 'required|integer',
-            'dependents' => 'required|integer',
-            'income_level' => 'required|string',
-            'lga' => 'required|string',
             'processed_items' => 'required|json', 
             'processing_capacity' => 'required|numeric',
             'equipment_type' => 'required|string',
@@ -212,14 +161,6 @@ class FarmersController extends Controller
         // Create Processor profile
         Processor::create([
             'user_id' => auth()->id(),
-            'phone' => $request->phone,
-            'dob' => $request->dob,
-            'gender' => $request->gender,
-            'education' => $request->education,
-            'household_size' => $request->household_size,
-            'dependents' => $request->dependents,
-            'income_level' => $request->income_level,
-            'lga' => $request->lga,
             'processed_items' => $request->processed_items,
             'processing_capacity' => $request->processing_capacity,
             'equipment_type' => $request->equipment_type,

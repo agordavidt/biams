@@ -13,14 +13,6 @@ class CropFarmer extends Model
 
     protected $fillable = [
         'user_id',
-        'phone',
-        'dob',
-        'gender',
-        'education',
-        'household_size',
-        'dependents',
-        'income_level',
-        'lga',
         'farm_size',
         'farming_methods',
         'seasonal_pattern',

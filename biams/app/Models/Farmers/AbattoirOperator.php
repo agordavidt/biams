@@ -11,16 +11,7 @@ class AbattoirOperator extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'phone',
-        'dob',
-        'gender',
-        'education',
-        'household_size',
-        'dependents',
-        'income_level',
-        'lga',
-        // Demographic fields
+        'user_id',       
         'facility_type',
         'facility_specs',
         'operational_capacity',

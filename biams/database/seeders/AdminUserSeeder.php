@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
     public function run()
 {
     User::create([
-        'name' => 'Admin',
+        'name' => 'David Admin',
         'email' => 'admin@benueagri.com',
         'password' => Hash::make('password'),
         'role' => 'admin',

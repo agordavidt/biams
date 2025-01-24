@@ -29,6 +29,8 @@
 
         <!-- Toastr CSS --> 
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         
 
          <style>
@@ -343,11 +345,20 @@
                                              @foreach($applications as $application)
                                                 <tr>
                                                     <td>{{ $application->user->name }}</td>
-                                                    <td>{{ $application->gender }}</td>
-                                                    <td>{{ $application->lga }}</td>
+                                                    <td>{{ $application->user->gender }}</td>
+                                                    <td>{{ $application->user->lga }}</td>
                                                     <td>{{ $application->farm_size }} ha</td>
                                                     <td>{{ $application->crop }}</td>
-                                                    <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td>
+                                                    <!-- <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td> -->
+                                                     <td style="cursor: pointer;">
+                                                        <a href="#" 
+                                                        data-toggle="modal" 
+                                                        data-target="#mapModal" 
+                                                        data-latitude="{{ $application->latitude }}" 
+                                                        data-longitude="{{ $application->longitude }}">
+                                                            {{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }} 
+                                                        </a>
+                                                    </td>
                                                     <td>{{ ucfirst($application->user->status) }}</td>
                                                     <td class="text-end">
                                                         <div class="btn-group">
@@ -386,7 +397,10 @@
                                             </tbody>
 
                                         </table>
-                                            <!-- Include famer view  modal -->
+
+                                         <!-- Include map  modal -->
+                                         @include('partials.map-modal') 
+                                         <!-- Include famer view  modal -->
                                          @include('partials.farmer-modal') 
                                     </div> 
                                     <!-- end card body-->
@@ -412,7 +426,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">
-                                    Powered by <i class="mdi mdi-heart text-danger"></i> BDIC
+                                    Powered by  BDIC
                                 </div>
                             </div>
                         </div>
@@ -469,8 +483,38 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
+        <!-- activates the map modal but distrubts the close and cancel button of the individual farmer view modal - -->
+         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+
+
+
             <!-- =============== modal javascript to display farmer's inforamtion ================ -->
              <script>
+
+
+                 $(document).ready(function() {
+                    $('td a[data-toggle="modal"]').on('click', function(event) {
+                        event.preventDefault(); // Prevent default anchor tag behavior
+
+                        const latitude = $(this).data('latitude');
+                        const longitude = $(this).data('longitude');
+
+                        $('#map-container').html(`
+                            <iframe 
+                                style="width: 100%; height: 100%; border:0;" 
+                                frameborder="0" 
+                                src="https://www.google.com/maps/embed/v1/place?q= {{ number_format($application->latitude , 6) }}, {{ number_format($application->longitude , 6) }}&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8">
+                            </iframe>
+                        `);
+                    });
+                });
+
+
+
+
+
+                    // farmer view functions
                     function viewFarmer(farmer) {
                         let details = '';
 

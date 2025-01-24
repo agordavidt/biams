@@ -12,15 +12,6 @@ class Processor extends Model
 
       protected $fillable = [
         'user_id',
-        'phone',
-        'dob',
-        'gender',
-        'education',
-        'household_size',
-        'dependents',
-        'income_level',
-        'lga',
-        // Demographic fields
         'processed_items',
         'processing_capacity',
         'equipment_type',

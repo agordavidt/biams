@@ -13,21 +13,23 @@
                 <div class="page-content">
                     <div class="container-fluid">
                           <div class="w-80">
-                             @if (auth()->user()->status === 'pending')
-                                <div class="alert alert-warning">
-                                   Your application is under review. Please check back later.
+                            @if (auth()->user()->status === 'pending')
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    Your application is under review. Please check back later.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             @elseif (auth()->user()->status === 'rejected')
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     Your application has been rejected. Please contact support for more information.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             @else
-                                <!-- Full access features -->
-                                <div class="alert alert-success">
-                                  You have been successfully onboarded. You now have full acess to the system
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    You have been successfully onboarded. You now have full access to the system.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <a href="#" class="btn btn-primary">View Resources</a>
-                                <a href="#" class="btn btn-primary">Access Training</a>
+                                <!-- <a href="#" class="btn btn-primary">View Resources</a>
+                                <a href="#" class="btn btn-primary">Access Training</a> -->
                             @endif
                         </div>
 

@@ -13,18 +13,7 @@ return new class extends Migration
     {
         Schema::create('abattoir_operators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');   
-            // Demographic fields
-            $table->string('phone')->nullable(false);
-            $table->date('dob')->nullable(false);
-            $table->string('gender')->nullable(false);
-            $table->string('education')->nullable(false);
-            $table->integer('household_size')->nullable(false);
-            $table->integer('dependents')->nullable(false);
-            $table->string('income_level')->nullable(false);
-            $table->string('lga')->nullable(false);
-            
-             // Abattoir  fields           
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->string('facility_type')->nullable(false); 
             $table->text('facility_specs')->nullable(false);           
             $table->string('operational_capacity');

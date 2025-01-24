@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,16 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['user', 'admin'])->default('user');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('phone')->nullable();
+            $table->date('dob')->nullable();
+            $table->integer('nin')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('education')->nullable();
+            $table->integer('household_size')->nullable();
+            $table->integer('dependents')->nullable();
+            $table->string('income_level')->nullable();
+            $table->string('lga')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
