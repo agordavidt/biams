@@ -5,7 +5,13 @@
 <div class="main-content">
                            
                       
-                      
+                      <!-- this is an alternative notification system for status changed, fatched from the notificatin table -->
+                       <h2>Notifications</h2>
+                        <ul>
+                            @foreach($notifications as $notification)
+                                <li>{{ $notification->data['message'] }}</li>
+                            @endforeach
+                        </ul>
 
                            
                   

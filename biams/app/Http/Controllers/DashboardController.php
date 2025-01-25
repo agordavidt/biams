@@ -10,7 +10,11 @@ class DashboardController extends Controller
 
    public function index()
     {
-        return view('home');
+
+        //fetch and display notifications
+        $notifications = auth()->user()->notifications;
+        return view('home', compact('notifications'));
+        // return view('home');
     }
 
 }
