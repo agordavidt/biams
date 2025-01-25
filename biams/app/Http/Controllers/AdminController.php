@@ -7,7 +7,9 @@ use App\Models\Farmers\CropFarmer;
 use App\Models\Farmers\AnimalFarmer;
 use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\Processor;
+use App\Notifications\ApplicationStatusUpdated;
 use Illuminate\Http\Request;
+
 
 
 class AdminController extends Controller
@@ -52,6 +54,7 @@ class AdminController extends Controller
    
         $user->update(['status' => 'approved']);
         // Send approval notification (email or dashboard)
+        $user->notify(new ApplicationStatusUpdated('approved'));
         return redirect()->back()->with('success', 'Application approved successfully.');
     }
 
@@ -60,6 +63,7 @@ class AdminController extends Controller
     {
         $user->update(['status' => 'rejected']);
         // Send rejection notification (email or dashboard)
+         $user->notify(new ApplicationStatusUpdated('rejected'));
         return redirect()->back()->with('success', 'Application rejected successfully.');
     }
 
