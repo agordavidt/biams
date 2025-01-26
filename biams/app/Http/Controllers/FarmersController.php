@@ -16,9 +16,7 @@ class FarmersController extends Controller
     {
        
         $user = auth()->user();
-        return view('farmers.crop', [
-        'user' => $user,
-    ]);
+        return view('farmers.crop', ['user' => $user,]);
       
     }
 
@@ -67,8 +65,8 @@ class FarmersController extends Controller
     public function showAnimalFarmerForm()
     {
          
-
-        return view('farmers.animal');
+        $user = auth()->user();
+        return view('farmers.animal', ['user' => $user,]);       
     }
 
     // Store animal farmer data
@@ -112,8 +110,9 @@ class FarmersController extends Controller
      // Show the form for abattoir operators
      public function showAbattoirOperatorForm()
     {
-        // return view('farmers'); 
-        return view('farmers.abattoir');
+        $user = auth()->user();
+        return view('farmers.abattoir', ['user' => $user,]); 
+       
     }
 
     // Store abattoir operator data
@@ -144,8 +143,9 @@ class FarmersController extends Controller
     // Show the form for processors
     public function showProcessorForm()
     {
-        // return view('farmers');
-        return view('farmers.processor');
+        $user = auth()->user();
+        return view('farmers.processor', ['user' => $user,]);        
+       
     }
 
     // Store processor data
