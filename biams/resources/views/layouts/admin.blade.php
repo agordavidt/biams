@@ -265,10 +265,23 @@
                                     <span>Dashboard</span>
                                 </a>
                             </li>
+
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>Applications</span>
+                                    <span>User Management</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.users.summary') }}">View Users</a></li>
+                                    <li><a href="{{ route('admin.users.create') }}">Add User</a></li>
+                                    <!-- <li><a href="#">Delete User</a></li>                                     -->
+                                </ul>
+                            </li>
+
+                             <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Practice Management</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
@@ -302,16 +315,16 @@
                                 </ul>
                             </li>
                 
-                            <!-- <li>
+                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-mail-send-line"></i>
-                                    <span>Email</span>
+                                    <span>Verification</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="email-inbox.html">Inbox</a></li>
                                     <li><a href="email-read.html">Read Email</a></li>
                                 </ul>
-                            </li> -->
+                            </li>
 
                             <!-- <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">

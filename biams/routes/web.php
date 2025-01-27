@@ -68,22 +68,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Admin routes
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    // Crop Farmers Applications
-    Route::get('/admin/applications/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.applications.crop-farmers');
-
-    // Animal Farmers Applications
-    Route::get('/admin/applications/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.applications.animal-farmers');
-
-    // Abattoir Operators Applications
-    Route::get('/admin/applications/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.applications.abattoir-operators');
-
-    // Processors Applications
-    Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');
-
-    // Approve/Reject Actions
+Route::middleware(['auth', 'admin'])->group(function () { 
+    Route::get('/admin/applications/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.applications.crop-farmers');   
+    Route::get('/admin/applications/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.applications.animal-farmers');    
+    Route::get('/admin/applications/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.applications.abattoir-operators'); 
+    Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');    
     Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
-
     Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
 });
 
@@ -91,12 +81,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 
-// Route::middleware(['auth', 'admin'])->group(function () {
-//     Route::get('/admin/applications', [AdminController::class, 'applicationIndex'])->name('admin.applications');
-//     Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
-//     Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
-// });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    // Admin dashboard
+    // Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    // Add a new user (e.g., admin)
+    Route::get('/admin/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+    Route::post('/admin/users/store', [AdminController::class, 'storeUser'])->name('admin.users.store');
+    // Onboard users (approve profiles)
+    Route::post('/admin/users/{user}/onboard', [AdminController::class, 'onboardUser'])->name('admin.users.onboard');
+    // View user summary
+    Route::get('/admin/users/summary', [AdminController::class, 'userSummary'])->name('admin.users.summary');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    // Send notifications
+    Route::post('/admin/users/{user}/notify', [AdminController::class, 'sendNotification'])->name('admin.users.notify');
+});
 
 
 
