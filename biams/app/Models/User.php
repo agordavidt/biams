@@ -23,15 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role',
         'status',
-        'phone',
-        'dob', 
-        'gender', 
-        'nin',
-        'education', 
-        'household_size', 
-        'dependents', 
-        'income_level', 
-        'lga', 
+       
     ];
 
     /**
@@ -50,10 +42,16 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'dob' => 'date',
+        'email_verified_at' => 'datetime',        
         'password' => 'hashed',
     ];
+
+
+    // Relationship to Profile
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
 
 
     

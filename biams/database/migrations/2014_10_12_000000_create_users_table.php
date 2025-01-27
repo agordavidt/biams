@@ -19,16 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['user', 'admin'])->default('user');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->string('phone')->nullable();
-            $table->date('dob')->nullable();
-            $table->integer('nin')->nullable();
-            $table->string('gender')->nullable();
-            $table->string('education')->nullable();
-            $table->integer('household_size')->nullable();
-            $table->integer('dependents')->nullable();
-            $table->string('income_level')->nullable();
-            $table->string('lga')->nullable();
+            $table->enum('status', ['pending', 'onboarded'])->default('pending');           
             $table->rememberToken();
             $table->timestamps();
         });
@@ -42,3 +33,5 @@ return new class extends Migration
         Schema::dropIfExists('users');
     }
 };
+
+

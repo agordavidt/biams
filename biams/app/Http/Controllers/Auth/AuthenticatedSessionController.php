@@ -34,7 +34,15 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Redirect regular users to the default dashboard
+        // Redirect regular users based on profile completion
+        $user = auth()->user();
+
+        // Check if the user has a profile
+        if (!$user->profile) {
+            return redirect()->route('profile.complete')->with('info', 'Please complete your profile.');
+        }
+
+        // Redirect to the intended URL or default home
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

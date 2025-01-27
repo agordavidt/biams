@@ -216,10 +216,28 @@
                                 </a>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('farmers.crop') }}" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
                                     <span>Registration</span>
+                                </a>
+                            </li> -->
+                             <li>
+                                <a href="#" class=" waves-effect">
+                                    <i class="ri-calendar-2-line"></i>
+                                    <span>Practices</span>
+                                </a>
+                            </li>
+                             <li>
+                                <a href="{{ route('farmers.crop') }}" class=" waves-effect">
+                                    <i class="ri-calendar-2-line"></i>
+                                    <span>Services</span>
+                                </a>
+                            </li>
+                             <li>
+                                <a href="{{ route('farmers.crop') }}" class=" waves-effect">
+                                    <i class="ri-calendar-2-line"></i>
+                                    <span>Notifications</span>
                                 </a>
                             </li>
                              @if (auth()->user()->status === 'approved')

@@ -23,11 +23,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
 
     // Profile management routes
+    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Profile Completion (for new users)
+// routes/web.php
+Route::middleware(['auth', 'verified', 'profile.incomplete'])->group(function () {
+    Route::get('/profile/complete', [ProfileController::class, 'showCompleteForm'])->name('profile.complete');
+    Route::post('/profile/complete', [ProfileController::class, 'complete']);
+});
+
+// Profile Management (for existing users)
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 
 // Agricultural Practices Registration forms
