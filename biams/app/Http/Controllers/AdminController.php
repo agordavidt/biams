@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\UserOnboardedNotification;
 use App\Notifications\CustomNotification;
 
+use App\Models\Registration;
+
 class AdminController extends Controller
 {
     /**
@@ -125,6 +127,31 @@ class AdminController extends Controller
 
             return redirect()->back()->with('success', 'User account deleted successfully!');
         }
+
+
+
+
+
+        // Show all registrations for review
+        public function showRegistrations()
+        {
+            $registrations = Registration::with(['user', 'practice'])->get();
+            return view('admin.registrations.index', compact('registrations'));
+        }
+
+        // Approve or reject a registration
+        public function updateRegistrationStatus(Request $request, $registration_id)
+        {
+            $request->validate([
+                'status' => 'required|in:approved,rejected',
+            ]);
+
+            $registration = Registration::findOrFail($registration_id);
+            $registration->update(['status' => $request->status]);
+
+            return redirect()->back()->with('success', 'Registration status updated successfully!');
+        }
+
 }
 
 

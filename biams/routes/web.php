@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
+use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -12,24 +13,17 @@ Route::get('/', function () {
 });
 
 // Authenticated and verified routes
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Default dashboard for regular users
-    // Route::get('dashboard', function () {
-    //     return view('dashboard');
-    // })->name('dashboard');
-
-
-    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {   
+    // Route::get('/home', [DashboardController::class, 'index'])->name('home');
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
 
-    // Profile management routes
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    // Route for showing the registration form for a specific practice
+    Route::get('/registrations/form/{practice_id}', [RegistrationController::class, 'showForm'])
+        ->name('registrations.form')
+        ->middleware(['auth', 'verified']);
+    });
 
 // Profile Completion (for new users)
-// routes/web.php
 Route::middleware(['auth', 'verified', 'profile.incomplete'])->group(function () {
     Route::get('/profile/complete', [ProfileController::class, 'showCompleteForm'])->name('profile.complete');
     Route::post('/profile/complete', [ProfileController::class, 'complete']);
@@ -60,13 +54,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Processor Routes
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
+
+    Route::get('/dashboard', [RegistrationController::class, 'summary'])->name('dashboard');
+    Route::get('/registrations/form/{practice_id}', [RegistrationController::class, 'showForm'])->name('registrations.form');
+    Route::post('/registrations/store/{practice_id}', [RegistrationController::class, 'store'])->name('registrations.store');
 });
 
 
 
 
 
-// Admin routes
+
+
+// Delete this routes Admin routes
 
 Route::middleware(['auth', 'admin'])->group(function () { 
     Route::get('/admin/applications/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.applications.crop-farmers');   
@@ -96,6 +96,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Send notifications
     Route::post('/admin/users/{user}/notify', [AdminController::class, 'sendNotification'])->name('admin.users.notify');
 });
+
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/registrations', [AdminController::class, 'showRegistrations'])->name('admin.registrations.index');
+    Route::put('/admin/registrations/{registration_id}', [AdminController::class, 'updateRegistrationStatus'])->name('admin.registrations.update');
+});
+
 
 
 
