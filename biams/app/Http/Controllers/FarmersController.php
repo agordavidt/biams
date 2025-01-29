@@ -50,6 +50,7 @@ class FarmersController extends Controller
             'farm_location' => $request->farm_location,
             'crop' => $crop,
             'other_crop' => $request->crop === 'Other' ? $request->other_crop : null,
+            'status' => 'pending',
         ]);
 
 
@@ -96,6 +97,7 @@ class FarmersController extends Controller
             'farm_location' => $request->farm_location,
             'livestock' => $request->livestock,  
             'other_livestock' => $request->other_livestock,  
+            'status' => 'pending',
         ]);
 
         
@@ -132,6 +134,7 @@ class FarmersController extends Controller
             'facility_specs' => $request->facility_specs,
             'operational_capacity' => $request->operational_capacity,
             'certifications' => $request->certifications,
+            'status' => 'pending',
         ]);
 
         // Update user status to "pending"
@@ -165,6 +168,7 @@ class FarmersController extends Controller
             'processing_capacity' => $request->processing_capacity,
             'equipment_type' => $request->equipment_type,
             'equipment_specs' => $request->equipment_specs,
+            'status' => 'pending',
         ]);
 
         // Update user status to "pending"

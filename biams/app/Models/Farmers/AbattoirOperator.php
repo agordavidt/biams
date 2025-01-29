@@ -16,6 +16,7 @@ class AbattoirOperator extends Model
         'facility_specs',
         'operational_capacity',
         'certifications',
+        'status',
     ];
 
     // Define relationship with User

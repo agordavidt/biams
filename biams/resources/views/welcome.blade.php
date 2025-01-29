@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benue State Integrated Agricultural Assets Management System</title>
+    <title>Benue State Integrated Agricultural Data and Assets Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="dashboard/images/favicon.jpg" type="image/x-icon">
+    <link rel="shortcut icon" href="dashboard/images/favicon.jpg" type="image/x-icon" />
+   
     <style>
         .hero-section {
             background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7)), url('{{ asset('dashboard/images/farm-background.jpg') }}');
@@ -49,9 +52,9 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <i class="fas fa-leaf me-2"></i>
-                BIAAMS
+                BSIADAMS
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -88,12 +91,16 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 mb-4">Benue State Integrated Agricultural Assets Management System</h1>
+            <h1 class="display-4 mb-4">Benue State Integrated Agricultural Data and Assets Management System</h1>
             <p class="lead mb-4">Empowering farmers with digital solutions for better agricultural management</p>
             <a href="{{ route('register') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
             <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
         </div>
     </section>
+
+
+
+
 
     <!-- Stats Section -->
     <section class="py-5 bg-light">
@@ -127,13 +134,53 @@
         </div>
     </section>
 
+
+
+>
+
+
+
+
+ 
+
+<!-- About Section -->
+<section class="py-5" style="background-color: #EAEAEA">
+    <div class="container">
+        <div class="row g-4"><h4><span style="font-style: italic">Welcome to </span><span style="color: rgb(4, 80, 4);">Benue State Integrated Agricultural Data and Assets Management System</span></h4>
+            <div class="col-md-8">
+                <div class="stat-card text-center">
+                    <p class="text-muted mb-3" style="text-align: justify">This is a system that digitally connects farmers, buyers, and agricultural product vendors. By offering these connections, the platform enhances agricultural data/market access and supports productivity for all stakeholders.</p>
+                <p class="text-muted mb-3" style="text-align: justify">In addition, the system empowers government agencies to implement targeted support programs such as subsidies, grants, and capacity-building initiatives.</p>
+                <a href="{{ route('register') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
+            </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card text-center">
+                    
+                        <img src="{{ asset('dashboard/images/page3_bigimg1.jpg') }}" style="border-radius: 1em" alt="farm_produce" height="200">
+                        
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
     <!-- Features Section -->
     <section id="features" class="py-5">
         <div class="container">
             <h2 class="text-center mb-5">Our Features</h2>
             <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card feature-card h-100">
+                <div class="col-md-4" >
+                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
                         <div class="card-body text-center">
                             <div class="icon-circle">
                                 <i class="fas fa-user-plus fa-2x text-success"></i>
@@ -144,7 +191,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card feature-card h-100">
+                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
                         <div class="card-body text-center">
                             <div class="icon-circle">
                                 <i class="fas fa-tools fa-2x text-success"></i>
@@ -155,7 +202,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card feature-card h-100">
+                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
                         <div class="card-body text-center">
                             <div class="icon-circle">
                                 <i class="fas fa-chart-line fa-2x text-success"></i>
@@ -175,7 +222,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <h5>Contact Us</h5>
-                    <p>Email: info@biaams.gov.ng<br>
+                    <p>Email: info@bsiadams.gov.ng<br>
                     Phone: +234 000 0000 000</p>
                 </div>
                 <div class="col-md-6 text-md-end">
@@ -187,7 +234,16 @@
             </div>
             <hr>
             <div class="text-center">
-                <p class="mb-0">&copy; 2025 Benue State Integrated Agricultural Assets Management System. All rights reserved.</p>
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-0">&copy; 2025 Benue State Integrated Data & Agricultural Assets Management System. All rights reserved.</p>
+                </div>
+                <div class="col-md-4">
+                    Powered by <a href="http://bdic.ng" target="_blank">BDIC</a>
+                </div>
+
+            </div>
+                
             </div>
         </div>
     </footer>

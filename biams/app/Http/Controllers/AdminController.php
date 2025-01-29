@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\UserOnboardedNotification;
 use App\Notifications\CustomNotification;
-
-use App\Models\Registration;
+use App\Models\Farmers\CropFarmer;
+use App\Models\Farmers\AnimalFarmer;
+use App\Models\Farmers\AbattoirOperator;
+use App\Models\Farmers\Processor;
+use App\Notifications\ApplicationStatusUpdated;
 
 class AdminController extends Controller
 {
@@ -131,31 +134,96 @@ class AdminController extends Controller
 
 
 
+        /**
+         * Agricultural Practices
+         */
+        // Crop Farmers Applications
+            public function cropFarmers()
+            {
+                $applications = CropFarmer::with('user')->get();
+                return view('admin.applications.crop-farmers', compact('applications'));
+            }
 
-        // Show all registrations for review
-        public function showRegistrations()
-        {
-            $registrations = Registration::with(['user', 'practice'])->get();
-            return view('admin.registrations.index', compact('registrations'));
-        }
+            // Animal Farmers Applications
+            public function animalFarmers()
+            {
+                $applications = AnimalFarmer::with('user')->get();
+                return view('admin.applications.animal-farmers', compact('applications'));
+            }
 
-        // Approve or reject a registration
-        public function updateRegistrationStatus(Request $request, $registration_id)
-        {
-            $request->validate([
-                'status' => 'required|in:approved,rejected',
-            ]);
+            // Abattoir Operators Applications
+            public function abattoirOperators()
+            {
+                $applications = AbattoirOperator::with('user')->get();
+                return view('admin.applications.abattoir-operators', compact('applications'));
+            }
 
-            $registration = Registration::findOrFail($registration_id);
-            $registration->update(['status' => $request->status]);
+            // Processors Applications
+            public function processors()
+            {
+                $applications = Processor::with('user')->get();
+                return view('admin.applications.processors', compact('applications'));
+            }
 
-            return redirect()->back()->with('success', 'Registration status updated successfully!');
-        }
+            // Approve an application
+            public function approve($type, $id)
+            {
+                // Determine the model based on the type
+                switch ($type) {
+                    case 'crop-farmer':
+                        $model = CropFarmer::findOrFail($id);
+                        break;
+                    case 'animal-farmer':
+                        $model = AnimalFarmer::findOrFail($id);
+                        break;
+                    case 'abattoir-operator':
+                        $model = AbattoirOperator::findOrFail($id);
+                        break;
+                    case 'processor':
+                        $model = Processor::findOrFail($id);
+                        break;
+                    default:
+                        return redirect()->back()->with('error', 'Invalid application type.');
+                }
+
+                // Update the status
+                $model->update(['status' => 'approved']);
+
+                // Send approval notification (email or dashboard)
+                $model->user->notify(new ApplicationStatusUpdated('approved'));
+
+                return redirect()->back()->with('success', 'Application approved successfully.');
+            }
+
+            // Reject an application
+            public function reject($type, $id)
+            {
+                // Determine the model based on the type
+                switch ($type) {
+                    case 'crop-farmer':
+                        $model = CropFarmer::findOrFail($id);
+                        break;
+                    case 'animal-farmer':
+                        $model = AnimalFarmer::findOrFail($id);
+                        break;
+                    case 'abattoir-operator':
+                        $model = AbattoirOperator::findOrFail($id);
+                        break;
+                    case 'processor':
+                        $model = Processor::findOrFail($id);
+                        break;
+                    default:
+                        return redirect()->back()->with('error', 'Invalid application type.');
+                }
+
+                // Update the status
+                $model->update(['status' => 'rejected']);
+
+                // Send rejection notification (email or dashboard)
+                $model->user->notify(new ApplicationStatusUpdated('rejected'));
+
+                return redirect()->back()->with('success', 'Application rejected successfully.');
+            }      
+
 
 }
-
-
-
-
-
-

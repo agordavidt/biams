@@ -359,7 +359,7 @@
                                                             {{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }} 
                                                         </a>
                                                     </td>
-                                                    <td>{{ ucfirst($application->user->status) }}</td>
+                                                   <td>{{ ucfirst($application->status) }}</td>
                                                     <td class="text-end">
                                                         <div class="btn-group">
                                                             <!-- View Details Button -->
@@ -371,8 +371,8 @@
                                                             </button>
 
                                                             <!-- Conditionally Render Approve and Reject Buttons -->
-                                                            @if ($application->user->status === 'pending')
-                                                                <form action="{{ route('admin.applications.approve', $application->user) }}" method="POST" style="display:inline;">
+                                                            @if ($application->status === 'pending')
+                                                                <form action="{{ route('admin.applications.approve', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button class="action-btn approve-btn" type="submit" title="Approve Application">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -380,7 +380,7 @@
                                                                         </svg>
                                                                     </button>
                                                                 </form>
-                                                                <form action="{{ route('admin.applications.reject', $application->user) }}" method="POST" style="display:inline;">
+                                                                <form action="{{ route('admin.applications.reject', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button class="action-btn reject-btn" type="submit" title="Reject Application">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

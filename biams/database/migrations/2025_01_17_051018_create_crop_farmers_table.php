@@ -14,14 +14,15 @@ return new class extends Migration
         Schema::create('crop_farmers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');           
-            $table->decimal('farm_size', 8, 2)->nullable(false); // Precision for hectares
+            $table->decimal('farm_size', 8, 2)->nullable(false);
             $table->string('farming_methods')->nullable(false);
             $table->string('seasonal_pattern')->nullable(false);
-            $table->decimal('latitude', 6, 4)->nullable(false); // Suitable for geolocation
+            $table->decimal('latitude', 6, 4)->nullable(false); 
             $table->decimal('longitude', 7, 4)->nullable(false);
             $table->string('farm_location')->nullable(false);
             $table->string('crop')->nullable(false);
-            $table->string('other_crop')->nullable(true); // Only if "Other" is selected
+            $table->string('other_crop')->nullable(true); 
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

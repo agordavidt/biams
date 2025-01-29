@@ -4,7 +4,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
-use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -16,11 +15,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {   
     // Route::get('/home', [DashboardController::class, 'index'])->name('home');
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
-
-    // Route for showing the registration form for a specific practice
-    Route::get('/registrations/form/{practice_id}', [RegistrationController::class, 'showForm'])
-        ->name('registrations.form')
-        ->middleware(['auth', 'verified']);
+    
     });
 
 // Profile Completion (for new users)
@@ -55,9 +50,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
 
-    Route::get('/dashboard', [RegistrationController::class, 'summary'])->name('dashboard');
-    Route::get('/registrations/form/{practice_id}', [RegistrationController::class, 'showForm'])->name('registrations.form');
-    Route::post('/registrations/store/{practice_id}', [RegistrationController::class, 'store'])->name('registrations.store');
 });
 
 
@@ -73,8 +65,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/applications/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.applications.animal-farmers');    
     Route::get('/admin/applications/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.applications.abattoir-operators'); 
     Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');    
-    Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
-    Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
+    // Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
+    // Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
+    Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
+    Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
 });
 
 
@@ -106,35 +100,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Include authentication routes
 require __DIR__.'/auth.php';
+
 
 

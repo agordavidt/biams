@@ -54,14 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-     /**
-     * Get all registrations associated with the user.
-     */
-    public function registrations()
-    {
-        return $this->hasMany(Registration::class, 'user_id', 'id');
-    }
-
+    
     
 }
 

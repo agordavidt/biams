@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('farm_location')->nullable(false);
             $table->string('livestock')->nullable(false);
             $table->string('other_livestock')->nullable()->default(null); 
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

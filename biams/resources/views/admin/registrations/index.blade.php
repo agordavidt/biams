@@ -1,4 +1,4 @@
-<table>
+<!-- <table>
     <thead>
         <tr>
             <th>User</th>
@@ -29,4 +29,4 @@
             </tr>
         @endforeach
     </tbody>
-</table>
+</table> -->

@@ -16,6 +16,7 @@ class Processor extends Model
         'processing_capacity',
         'equipment_type',
         'equipment_specs',
+        'status',
     ];
 
     // Define relationship with User

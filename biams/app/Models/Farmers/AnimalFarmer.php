@@ -18,6 +18,7 @@ class AnimalFarmer extends Model
     'farm_location',
     'livestock',
     'other_livestock',
+    'status',
 ];
 
 
