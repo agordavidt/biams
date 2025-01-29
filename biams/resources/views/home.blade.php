@@ -45,276 +45,398 @@
 
                                 <!-- Display user's registrations -->
                                 <h2>Your Registrations</h2>
-                                <ul>
-                                    @foreach ($registrations as $registration)
-                                        <li>
-                                            {{ $registration->practice->practice_name }} - 
-                                            Status: {{ ucfirst($registration->status) }}
-                                        </li>
-                                    @endforeach
-                                </ul>
+                                @if ($registrations->isEmpty())
+                                    <!-- Display this message if there are no registrations -->
+                                    <div class="alert alert-info">
+                                        No registrations found.
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>S/N</th>
+                                                <th>Practice Name</th>
+                                                <th>Status</th>
+                                                <th>Submission Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($registrations as $registration)
+                                                <tr>
+                                                    <!-- Use $loop->iteration to generate S/N starting from 1 -->
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $registration->practice->practice_name }}</td>
+                                                    <td>
+                                                        <span class="badge 
+                                                            @if($registration->status === 'pending') bg-warning text-dark
+                                                            @elseif($registration->status === 'approved') bg-success text-white
+                                                            @elseif($registration->status === 'rejected') bg-danger text-white
+                                                            @else bg-secondary text-white
+                                                            @endif">
+                                                            {{ ucfirst($registration->status) }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ $registration->submission_date->format('Y-m-d H:i:s') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                                @endif
+                              
                                 <!-- Show links to practice forms -->
                                 <h2>Register for Agricultural Practices</h2>
-                                <ul>
-                                    @foreach ($practices as $practice)
-                                        <li>
-                                            <a href="{{ route('registrations.form', $practice->practice_id) }}">
-                                                {{ $practice->practice_name }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
+                              <ul>
+    @foreach ($practices as $practice)
+        <li>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#practiceModal-{{ $practice->practice_id }}">
+                {{ $practice->practice_name }}
+            </a>
+        </li>
+    @endforeach
+</ul>
+
+<!-- Generate Modals Dynamically -->
+@foreach ($practices as $practice)
+    <div class="modal fade" id="practiceModal-{{ $practice->practice_id }}" tabindex="-1" aria-labelledby="practiceModalLabel-{{ $practice->practice_id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="#">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="practiceModalLabel-{{ $practice->practice_id }}">
+                            Register for {{ $practice->practice_name }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if ($practice->practice_name === 'Crop Farming')
+                            <!-- Include Crop Farming Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="farm_size">Farm Size (hectares)</label>
+                                        <input type="number" step="0.1" class="form-control" name="farm_size" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="farming_methods">Farming Methods</label>
+                                        <select class="form-control" name="farming_methods" required>
+                                            <option value="organic">Organic</option>
+                                            <option value="conventional">Conventional</option>
+                                            <option value="mixed">Mixed</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="seasonal_pattern">Seasonal Pattern</label>
+                                        <select class="form-control" name="seasonal_pattern" required>
+                                            <option value="rainy">Rainy Season</option>
+                                            <option value="dry">Dry Season</option>
+                                            <option value="both">Both Seasons</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="latitude">Geolocation</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="latitude" placeholder="Latitude" required>
+                                            <input type="text" class="form-control" name="longitude" placeholder="Longitude" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="farm_location">Farm Location</label>
+                                        <input type="text" class="form-control" name="farm_location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="crop">Crop Cultivated</label>
+                                        <select class="form-control" name="crop" id="crops" onchange="handleOtherOption()" required>
+                                            <option value="">Select Crop</option>
+                                            <option value="Yam">Yam</option>
+                                            <option value="Rice">Rice</option>
+                                            <option value="Cassava">Cassava</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4" id="otherCropField" style="display: none;">
+                                        <label for="otherCrop">Specify the crop:</label>
+                                        <input type="text" name="other_crop" id="otherCrop" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Animal Farming')
+                            <!-- Include Animal Farming Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="herd_size">Herd Size</label>
+                                        <input type="number" class="form-control" name="herd_size" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="facility_type">Facility Type</label>
+                                        <select class="form-control" name="facility_type" required>
+                                            <option value="Open Grazing">Open Grazing</option>
+                                            <option value="Fenced Pasture">Fenced Pasture</option>
+                                            <option value="Zero Grazing">Zero Grazing</option>
+                                            <option value="Indoor Housing">Indoor Housing</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="breeding_program">Breeding Program</label>
+                                        <select class="form-control" name="breeding_program" required>
+                                            <option value="Artificial Insemination">Artificial Insemination</option>
+                                            <option value="Natural Mating">Natural Mating</option>
+                                            <option value="Crossbreeding">Crossbreeding</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="farm_location">Location</label>
+                                        <input type="text" class="form-control" name="farm_location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="livestock">Livestock Type</label>
+                                        <select class="form-control" name="livestock" required>
+                                            <option value="Cattle">Cattle</option>
+                                            <option value="Goats">Goats</option>
+                                            <option value="Sheep">Sheep</option>
+                                            <option value="Poultry">Poultry</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Processing')
+                            <!-- Processing Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="processing_type">Processing Type</label>
+                                        <select class="form-control" name="processing_type" required>
+                                            <option value="Milling">Milling</option>
+                                            <option value="Packaging">Packaging</option>
+                                            <option value="Canning">Canning</option>
+                                            <option value="Freezing">Freezing</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="capacity">Processing Capacity (tons/day)</label>
+                                        <input type="number" class="form-control" name="capacity" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Processing Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="materials">Raw Materials Used</label>
+                                        <input type="text" class="form-control" name="materials" required>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Value Addition')
+                            <!-- Value Addition Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="product_type">Product Type</label>
+                                        <select class="form-control" name="product_type" required>
+                                            <option value="Dried Fruits">Dried Fruits</option>
+                                            <option value="Juices">Juices</option>
+                                            <option value="Snacks">Snacks</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="value_added">Value Added</label>
+                                        <input type="text" class="form-control" name="value_added" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="market">Target Market</label>
+                                        <input type="text" class="form-control" name="market" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Agricultural Services')
+                            <!-- Agricultural Services Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="service_type">Service Type</label>
+                                        <select class="form-control" name="service_type" required>
+                                            <option value="Consulting">Consulting</option>
+                                            <option value="Equipment Rental">Equipment Rental</option>
+                                            <option value="Training">Training</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="service_area">Service Area</label>
+                                        <input type="text" class="form-control" name="service_area" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="clients">Number of Clients</label>
+                                        <input type="number" class="form-control" name="clients" required>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Aquaculture and Fisheries')
+                            <!-- Aquaculture and Fisheries Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="fish_type">Fish Type</label>
+                                        <select class="form-control" name="fish_type" required>
+                                            <option value="Tilapia">Tilapia</option>
+                                            <option value="Catfish">Catfish</option>
+                                            <option value="Salmon">Salmon</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="pond_size">Pond Size (sq. meters)</label>
+                                        <input type="number" class="form-control" name="pond_size" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="production_capacity">Production Capacity (tons/year)</label>
+                                        <input type="number" class="form-control" name="production_capacity" required>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Agroforestry and Forestry')
+                            <!-- Agroforestry and Forestry Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="tree_type">Tree Type</label>
+                                        <select class="form-control" name="tree_type" required>
+                                            <option value="Fruit Trees">Fruit Trees</option>
+                                            <option value="Timber">Timber</option>
+                                            <option value="Shade Trees">Shade Trees</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="forest_size">Forest Size (hectares)</label>
+                                        <input type="number" class="form-control" name="forest_size" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="management_practice">Management Practice</label>
+                                        <select class="form-control" name="management_practice" required>
+                                            <option value="Sustainable Harvesting">Sustainable Harvesting</option>
+                                            <option value="Reforestation">Reforestation</option>
+                                            <option value="Mixed Cropping">Mixed Cropping</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif ($practice->practice_name === 'Abattoir')
+                            <!-- Abattoir Form -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="capacity">Processing Capacity (animals/day)</label>
+                                        <input type="number" class="form-control" name="capacity" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="meat_type">Meat Type</label>
+                                        <select class="form-control" name="meat_type" required>
+                                            <option value="Beef">Beef</option>
+                                            <option value="Pork">Pork</option>
+                                            <option value="Poultry">Poultry</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-4">
+                                        <label class="form-label" for="location">Location</label>
+                                        <input type="text" class="form-control" name="location" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="certification">Certification</label>
+                                        <select class="form-control" name="certification" required>
+                                            <option value="ISO Certified">ISO Certified</option>
+                                            <option value="HACCP Certified">HACCP Certified</option>
+                                            <option value="None">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <!-- Placeholder for other practices -->
+                            <p>Form for {{ $practice->practice_name }} is under construction.</p>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
+                                
+                           
                             </div>
 
 
 
-                          <div class="w-80">
-                            @if (auth()->user()->status === 'pending')
-                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    Your application is under review. Please check back later.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @elseif (auth()->user()->status === 'rejected')
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    Your application has been rejected. Please contact support for more information.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @else
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    You have been successfully onboarded. You now have full access to the system.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                <!-- <a href="#" class="btn btn-primary">View Resources</a>
-                                <a href="#" class="btn btn-primary">Access Training</a> -->
-                            @endif
-                        </div>
 
-                         <div class="container py-1">
-                               <h4 class="card-title mb-4">Registration Status</h4>
-                            <!-- Status Tracker -->
-                            <div class="card mb-4">                              
-                                <div class="card-body status-tracker d-flex justify-content-between">
-                                   
-                                    <div class="d-flex status-step">
-                                        <div class="status-icon {{ Auth::user()->status == 'pending' ? 'current' : (Auth::user()->status == 'approved' ? 'completed' : '') }}">
-                                            <i class="fas fa-file"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Form Submission</h6>
-                                            <p class="text-muted mb-0">{{ Auth::user()->status == 'pending' ? 'Please submit your registration form' : 'Form submitted successfully' }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex status-step">
-                                        <div class="status-icon {{ Auth::user()->status == 'pending' ? '' : 'current' }}">
-                                            <i class="fas fa-clock"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Admin Review</h6>
-                                            <p class="text-muted mb-0">Your application is under review</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex status-step">
-                                        <div class="status-icon {{ Auth::user()->status == 'approved' ? 'completed' : '' }}">
-                                            <i class="fas fa-check"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Approval</h6>
-                                            <p class="text-muted mb-0">Registration approved</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- Practice Selection -->
-                         <h4 class="card-title mb-4">Select Your Agricultural Practice</h4>
-                            <div class="row g-4">
-                                <!-- Crop Farming -->
-                                <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.crop') }}">
-                                         <div class="card practice-card" data-practice="crop_farming">
-                                            <div class="card-body text-center">
-                                                <i class="fas fa-seedling fa-3x text-success mb-3"></i>
-                                                <h4 class="mb-2">Crop Farming</h4>
-                                                <p class="text-truncate font-size-14 mb-2">Register as a crop farmer</p>
-                                            </div>
-                                    </div>
-                                    </a>
-                                   
-                                </div>
 
-                                <!-- Animal Farming -->
-                                <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.animal') }}">
-                                         <div class="card practice-card" data-practice="animal_farming">
-                                        <div class="card-body text-center">
-                                            <i class="fas fa-seedling fa-3x text-success mb-3"></i>
-                                            <h4 class="mb-2">Animal Farming</h4>
-                                            <p class="text-truncate font-size-14 mb-2">Register as an animal farmer</p>
-                                        </div>
-                                    </div>
-                                    </a>
-                                </div>
 
-                                <!-- Processing -->
-                                <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.processor') }}">
-                                         <div class="card practice-card" data-practice="processing">
-                                        <div class="card-body text-center">
-                                            <i class="fas fa-industry fa-3x text-success mb-3"></i>
-                                            <h4 class="mb-2">Processing</h4>
-                                            <p class="text-truncate font-size-14 mb-2">Register as an agricultural processor</p>  
-                                        </div>
-                                    </div>
-                                    </a>
-                                   
-                                </div>
 
-                                <!-- Abattoir -->
-                                <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.abattoir') }}">
-                                         <div class="card practice-card" data-practice="abattoir">
-                                        <div class="card-body text-center">
-                                            <i class="fas fa-warehouse fa-3x text-success mb-3"></i>
-                                             <h4 class="mb-2">Abattoir</h4>
-                                            <p class="text-truncate font-size-14 mb-2">Register as an abattoir operator</p>                                            
-                                        </div>
-                                    </div>
-                                    </a>
-                                   
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Practice Registration Modal -->
-                        <div class="modal fade" id="practiceModal" tabindex="-1">
-                            <div class="modal-dialog modal-xl">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Agricultural Practice Registration</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-
-                                    <!-- ==================== Form ============================= -->
-                                        <form id="practiceForm" class="needs-validation" novalidate  method="POST" action="#" >
-                                            @csrf
-                                            <!-- Common Demographics Section -->
-                                            <h5 class="mb-3">Demographic Information</h5>
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Phone Number</label>
-                                                    <input type="tel" class="form-control" name="phone" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Date of Birth</label>
-                                                    <input type="date" class="form-control" name="dob" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Gender</label>
-                                                    <select class="form-select" name="gender" required>
-                                                        <option value="">Select Gender</option>
-                                                        <option value="male">Male</option>
-                                                        <option value="female">Female</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Education Level</label>
-                                                    <select class="form-select" name="education" required>
-                                                        <option value="">Select Education Level</option>
-                                                        <option value="no_formal">No Formal School</option>
-                                                        <option value="primary">Primary School</option>
-                                                        <option value="secondary">Secondary School</option>
-                                                        <option value="undergraduate">Undergraduate</option>
-                                                        <option value="graduate">Graduate</option>
-                                                        <option value="postgraduate">Post Graduate</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Household Size</label>
-                                                    <input type="number" class="form-control" name="household_size" required>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Number of Dependents</label>
-                                                    <input type="number" class="form-control" name="dependents" required>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Income Level</label>
-                                                    <select class="form-select" name="income_level" required>
-                                                        <option value="">Select Income Level</option>
-                                                        <option value="0-100000">Less than ₦100,000</option>
-                                                        <option value="100001-250000">₦100,001 - ₦250,000</option>
-                                                        <option value="250001-500000">₦250,001 - ₦500,000</option>
-                                                        <option value="500001-1000000">₦500,001 - ₦1,000,000</option>
-                                                        <option value="1000001+">Above ₦1,000,000</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Local Government Area</label>
-                                                    <select class="form-select" name="lga" required>
-                                                        <option value="">Select LGA</option>                                    
-                                                        <option value="Ado">Ado</option>
-                                                        <option value="Agatu">Agatu</option>
-                                                        <option value="Apa">Apa</option>
-                                                        <option value="Buruku">Buruku</option>
-                                                        <option value="Gboko">Gboko</option>
-                                                        <option value="Guma">Guma</option>
-                                                        <option value="Gwer East">Gwer East</option>
-                                                        <option value="Gwer West">Gwer West</option>
-                                                        <option value="Katsina-Ala">Katsina-Ala</option>
-                                                        <option value="Konshisha">Konshisha</option>
-                                                        <option value="Kwande">Kwande</option>
-                                                        <option value="Logo">Logo</option>
-                                                        <option value="Makurdi">Makurdi</option>
-                                                        <option value="Obi">Obi</option>
-                                                        <option value="Ogbadibo">Ogbadibo</option>
-                                                        <option value="Oju">Oju</option>
-                                                        <option value="Ohimini">Ohimini</option>
-                                                        <option value="Okpokwu">Okpokwu</option>
-                                                        <option value="Otpo">Otpo</option>
-                                                        <option value="Tarka">Tarka</option>
-                                                        <option value="Ukum">Ukum</option>
-                                                        <option value="Ushongo">Ushongo</option>
-                                                        <option value="Vandeikya">Vandeikya</option>
-                                                            
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <!-- Dynamic Practice-Specific Fields -->
-                                            <div id="practiceFields" class="mt-4">
-                                                <!-- Will be populated via JavaScript -->
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-success" id="submitPractice">Submit</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         
-                    </div> 
-                </div>
-                <!-- End Page-content -->
-                
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © <span class="text-info">Benue State Integrated Agricultural Assest Management system. </span> 
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Powered by BDIC
-                                </div>
-                            </div>
+                        
+            </div> 
+        </div>
+        <!-- End Page-content -->
+        
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © <span class="text-info">Benue State Integrated Agricultural Assest Management system. </span> 
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end d-none d-sm-block">
+                            Powered by BDIC
                         </div>
                     </div>
-                </footer>
-                
+                </div>
             </div>
+        </footer>
+        
+    </div>
 
 
 
@@ -326,5 +448,22 @@
 
    
 
+<script>
+    function handleOtherOption() {
+        const cropSelect = document.getElementById('crops');
+        const otherCropField = document.getElementById('otherCropField');
+        if (cropSelect.value === 'Other') {
+            otherCropField.style.display = 'block';
+        } else {
+            otherCropField.style.display = 'none';
+        }
+    }
+</script>
+
  
 @endsection
+
+
+
+
+
