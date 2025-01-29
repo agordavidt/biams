@@ -1,31 +1,46 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\AgriculturalPractice;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    //
-
-   public function index()
+    public function index()
     {
-
-        //fetch and display notifications
-        // $notifications = auth()->user()->notifications;
-        // return view('home', compact('notifications'));
-
         $user = Auth::user();
 
-        // Fetch the user's registrations with their associated practices
-        $registrations = $user->registrations()->with('practice')->get();
+        // Fetch the user's registrations for each agricultural practice
+        $cropFarmers = $user->cropFarmers;
+        $animalFarmers = $user->animalFarmers;
+        $abattoirOperators = $user->abattoirOperators;
+        $processors = $user->processors;
 
-        // Fetch all agricultural practices for display
-        $practices = AgriculturalPractice::all();
+        // Combine all registrations into a single collection for easy display
+        $registrations = collect()
+            ->merge($cropFarmers->map(function ($registration) {
+                $registration->type = 'Crop Farmer';
+                return $registration;
+            }))
+            ->merge($animalFarmers->map(function ($registration) {
+                $registration->type = 'Animal Farmer';
+                return $registration;
+            }))
+            ->merge($abattoirOperators->map(function ($registration) {
+                $registration->type = 'Abattoir Operator';
+                return $registration;
+            }))
+            ->merge($processors->map(function ($registration) {
+                $registration->type = 'Processor';
+                return $registration;
+            }));
 
-        return view('home', compact('user', 'registrations', 'practices'));
-        
+      
+
+        return view('home', compact('user', 'registrations'));
     }
-
 }
+
+ 

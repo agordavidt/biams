@@ -1,12 +1,19 @@
 <?php
 
 namespace App\Models;
+// namespace App\Models\Farmers;
+
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
+use App\Models\Farmers\AbattoirOperator;
+use App\Models\Farmers\CropFarmer;
+use App\Models\Farmers\AnimalFarmer;
+use App\Models\Farmers\Processor;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -53,6 +60,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Profile::class);
     }
 
+
+    public function cropFarmers()
+    {
+        return $this->hasMany(CropFarmer::class);
+    }
+
+    public function animalFarmers()
+    {
+        return $this->hasMany(AnimalFarmer::class);
+    }
+
+    public function abattoirOperators()
+    {
+        return $this->hasMany(AbattoirOperator::class);
+    }
+
+    public function processors()
+    {
+        return $this->hasMany(Processor::class);
+    }
 
     
     
