@@ -2,11 +2,24 @@
 
 @section('content')
 
-<div class="main-content">                
-               
+<div class="main-content">         
+                         
           
                 <div class="page-content">
                     <div class="container-fluid">
+                         @if (session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
+                        @if (session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+
                         <div class="w-80">
                             @if (auth()->user()->status === 'pending')
                                 <!-- Pending Status -->
@@ -67,7 +80,8 @@
                                                     <td>{{ ucfirst($registration->status) }}</td>
                                                     <td>{{ $registration->created_at->format('Y-m-d') }}</td>
                                                     <td>
-                                                        <a href="{{ route('application.details', $registration->id) }}" class="btn btn-sm btn-primary">View Details</a>
+                                                        <!-- <a href="{{ route('application.details', $registration->id) }}" class="btn btn-sm btn-primary">View Details</a> -->
+                                                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -78,68 +92,7 @@
                 </div>
 
 
-                 <div class="row">
-                            <div class="col-lg-4">
-                                <div class="card bg-primary text-white-50">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-bullseye-arrow me-3"></i> Crop Farming</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-                            <div class="col-lg-4">
-                                <div class="card bg-success text-white-50">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-check-all me-3"></i> Animal Farming</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-                            <div class="col-lg-4">
-                                <div class="card bg-info text-white-50">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-circle-outline me-3"></i>Processing & Value Addition</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end row -->
-
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <div class="card bg-warning text-white-50">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-outline me-3"></i>Aquaculture and Fisheries</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-                            <div class="col-lg-4">
-                                <div class="card bg-danger text-white-50">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-block-helper me-3"></i>Agroforestry and Forestry</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-        
-                            <div class="col-lg-4">
-                                <div class="card bg-dark text-light">
-                                    <div class="card-body">
-                                        <h5 class="mb-4 text-light"><i class="mdi mdi-alert-circle-outline me-3"></i>Abattoir</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end row -->
-
-
-
+                 
 
                                             <div class="col-sm-6 col-md-4 col-xl-3">
                                                 <div class="my-4 text-center">

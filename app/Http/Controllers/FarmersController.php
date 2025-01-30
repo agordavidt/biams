@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Farmers\CropFarmer;
 use App\Models\Farmers\AnimalFarmer;
 use App\Models\Farmers\Processor;
@@ -52,14 +53,9 @@ class FarmersController extends Controller
             'other_crop' => $request->crop === 'Other' ? $request->other_crop : null,
             'status' => 'pending',
         ]);
-
-
-       
         // Update user status to "pending"
-        auth()->user()->update(['status' => 'pending']);
-
-
-        return redirect()->route('home')->with('success', 'Crop farmer profile updated successfully!');
+        // auth()->user()->update(['status' => 'pending']);
+        return redirect()->route('home')->with('success', 'Submission for crop farming successful!');
     }
 
     // Show the form for animal farmers
@@ -73,6 +69,7 @@ class FarmersController extends Controller
     // Store animal farmer data
     public function storeAnimalFarmer(Request $request)
     {
+        
         $request->validate([
             'herd_size' => 'required|integer',
             'facility_type' => 'required|string',
@@ -100,12 +97,9 @@ class FarmersController extends Controller
             'status' => 'pending',
         ]);
 
-        
-       
         // Update user status to "pending"
-         auth()->user()->update(['status' => 'pending']);
-
-        return redirect()->route('home')->with('success', 'Animal farmer profile updated successfully!');
+        //  auth()->user()->update(['status' => 'pending']);
+        return redirect()->route('home')->with('success', 'Submission for Animal farming  successfull!');
     }
 
 
@@ -138,9 +132,8 @@ class FarmersController extends Controller
         ]);
 
         // Update user status to "pending"
-        auth()->user()->update(['status' => 'pending']);
-
-        return redirect()->route('home')->with('success', 'Abattoir operator profile updated successfully!');
+        // auth()->user()->update(['status' => 'pending']);
+        return redirect()->route('home')->with('success', 'Submision for Abattoir operator successfull!');
     }
 
     // Show the form for processors
@@ -154,7 +147,7 @@ class FarmersController extends Controller
     // Store processor data
     public function storeProcessor(Request $request)
     {
-        $request->validate([
+             $request->validate([
             'processed_items' => 'required|json', 
             'processing_capacity' => 'required|numeric',
             'equipment_type' => 'required|string',
@@ -172,9 +165,9 @@ class FarmersController extends Controller
         ]);
 
         // Update user status to "pending"
-        auth()->user()->update(['status' => 'pending']);
+        // auth()->user()->update(['status' => 'pending']);
 
-        return redirect()->route('home')->with('success', 'Processor profile updated successfully!');
+        return redirect()->route('home')->with('success', 'Application for Processing and Value addition Successful');
     }
 
 

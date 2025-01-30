@@ -24,11 +24,11 @@ class DashboardController extends Controller
         // Combine all registrations into a single collection for easy display
         $registrations = collect()
             ->merge($cropFarmers->map(function ($registration) {
-                $registration->type = 'Crop Farmer';
+                $registration->type = 'Crop Farming';
                 return $registration;
             }))
             ->merge($animalFarmers->map(function ($registration) {
-                $registration->type = 'Animal Farmer';
+                $registration->type = 'Animal Farming';
                 return $registration;
             }))
             ->merge($abattoirOperators->map(function ($registration) {
@@ -36,7 +36,7 @@ class DashboardController extends Controller
                 return $registration;
             }))
             ->merge($processors->map(function ($registration) {
-                $registration->type = 'Processor';
+                $registration->type = 'Processing & Value Addition';
                 return $registration;
             }));
 
