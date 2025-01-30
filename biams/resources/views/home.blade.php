@@ -67,7 +67,7 @@
                                                     <td>{{ ucfirst($registration->status) }}</td>
                                                     <td>{{ $registration->created_at->format('Y-m-d') }}</td>
                                                     <td>
-                                                        <a href="{{ route('application.details', $registration->id) }}" class="btn btn-sm btn-primary">View Details</a>
+                                                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -137,6 +137,122 @@
                             </div>
                         </div>
                         <!-- end row -->
+
+
+
+
+                          <div class="col-sm-6 col-md-4 col-xl-3">
+                                                <div class="my-4 text-center">
+                                                    <p class="text-muted">Scrollable modal</p>
+                                                    <!-- Small modal -->
+                                                    <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">Scrollable modal</button>
+                                                </div>
+        
+                                                <div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-scrollable">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalScrollableTitle">Scrollable Modal</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                 <form method="POST" action="{{ route('farmers.crop.store') }}">
+                                                                    @csrf
+
+                                                                    <!-- Display validation errors -->
+                                                                    @if ($errors->any())
+                                                                        <div class="alert alert-danger">
+                                                                            <ul>
+                                                                                @foreach ($errors->all() as $error)
+                                                                                    <li>{{ $error }}</li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                    @endif                                          
+
+                                                                    <!-- Farm Details -->
+                                                                    <div class="row">
+                                                                        <div class="col-lg-6">
+                                                                            <!-- Farm Size -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="farm_size">Farm Size (hectares)</label>
+                                                                                <input type="number" step="0.1" class="form-control input-mask" name="farm_size" value="{{ old('farm_size') }}" required>
+                                                                            </div>
+
+                                                                            <!-- Farming Methods -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="farming_methods">Farming Methods</label>
+                                                                                <select class="form-control input-mask" name="farming_methods" required>
+                                                                                    <option value="organic" {{ old('farming_methods') === 'organic' ? 'selected' : '' }}>Organic</option>
+                                                                                    <option value="conventional" {{ old('farming_methods') === 'conventional' ? 'selected' : '' }}>Conventional</option>
+                                                                                    <option value="mixed" {{ old('farming_methods') === 'mixed' ? 'selected' : '' }}>Mixed</option>
+                                                                                </select>
+                                                                            </div>
+
+                                                                            <!-- Seasonal Pattern -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="seasonal_pattern">Seasonal Pattern</label>
+                                                                                <select class="form-control input-mask" name="seasonal_pattern" required>
+                                                                                    <option value="rainy" {{ old('seasonal_pattern') === 'rainy' ? 'selected' : '' }}>Rainy Season</option>
+                                                                                    <option value="dry" {{ old('seasonal_pattern') === 'dry' ? 'selected' : '' }}>Dry Season</option>
+                                                                                    <option value="both" {{ old('seasonal_pattern') === 'both' ? 'selected' : '' }}>Both Seasons</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-6">
+                                                                            <!-- Geolocation -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="latitude">Geolocation</label>
+                                                                                <div class="input-group">
+                                                                                    <input type="text" class="form-control" name="latitude" placeholder="Latitude" value="{{ old('latitude') }}" required>
+                                                                                    <input type="text" class="form-control" name="longitude" placeholder="Longitude" value="{{ old('longitude') }}" required>
+                                                                                    <button type="button" class="btn btn-outline-secondary" onclick="getLocation()">
+                                                                                        <i class="fas fa-map-marker-alt"></i> Get Location
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <!-- Farm Location -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="farm_location">Farm Location</label>
+                                                                                <input type="text" class="form-control input-mask" name="farm_location" value="{{ old('farm_location') }}" required>
+                                                                            </div>
+
+                                                                            <!-- Crop Cultivated -->
+                                                                            <div class="mb-4">
+                                                                                <label class="form-label" for="crop">Crop Cultivated</label>
+                                                                                <select class="form-control input-mask" name="crop" id="crops" onchange="handleOtherOption()" required>
+                                                                                    <option value="">Select Crop</option>
+                                                                                    <option value="Yam" {{ old('crop') === 'Yam' ? 'selected' : '' }}>Yams</option>
+                                                                                    <option value="Rice" {{ old('crop') === 'Rice' ? 'selected' : '' }}>Rice</option>
+                                                                                    <option value="Cassava" {{ old('crop') === 'Cassava' ? 'selected' : '' }}>Cassava</option>
+                                                                                    <option value="Other" {{ old('crop') === 'Other' ? 'selected' : '' }}>Other</option>
+                                                                                </select>
+                                                                            </div>
+
+                                                                            <!-- Hidden input field for custom crop -->
+                                                                            <div class="mb-4" id="otherCropField" style="display: none;">
+                                                                                <label for="otherCrop">Specify the crop:</label>
+                                                                                <input type="text" name="other_crop" id="otherCrop" value="{{ old('other_crop') }}">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Submit Button -->
+                                                                    <div class="text-center mt-4">
+                                                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Submit Form</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-light waves-effect" data-bs-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                                                            </div>
+                                                        </div><!-- /.modal-content -->
+                                                    </div><!-- /.modal-dialog -->
+                                                </div><!-- /.modal -->
+                                            </div>
 
 
 
@@ -220,86 +336,7 @@
                                         <form id="practiceForm" class="needs-validation" novalidate  method="POST" action="#" >
                                             @csrf
                                             <!-- Common Demographics Section -->
-                                            <h5 class="mb-3">Demographic Information</h5>
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Phone Number</label>
-                                                    <input type="tel" class="form-control" name="phone" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Date of Birth</label>
-                                                    <input type="date" class="form-control" name="dob" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Gender</label>
-                                                    <select class="form-select" name="gender" required>
-                                                        <option value="">Select Gender</option>
-                                                        <option value="male">Male</option>
-                                                        <option value="female">Female</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Education Level</label>
-                                                    <select class="form-select" name="education" required>
-                                                        <option value="">Select Education Level</option>
-                                                        <option value="no_formal">No Formal School</option>
-                                                        <option value="primary">Primary School</option>
-                                                        <option value="secondary">Secondary School</option>
-                                                        <option value="undergraduate">Undergraduate</option>
-                                                        <option value="graduate">Graduate</option>
-                                                        <option value="postgraduate">Post Graduate</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Household Size</label>
-                                                    <input type="number" class="form-control" name="household_size" required>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Number of Dependents</label>
-                                                    <input type="number" class="form-control" name="dependents" required>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Income Level</label>
-                                                    <select class="form-select" name="income_level" required>
-                                                        <option value="">Select Income Level</option>
-                                                        <option value="0-100000">Less than ₦100,000</option>
-                                                        <option value="100001-250000">₦100,001 - ₦250,000</option>
-                                                        <option value="250001-500000">₦250,001 - ₦500,000</option>
-                                                        <option value="500001-1000000">₦500,001 - ₦1,000,000</option>
-                                                        <option value="1000001+">Above ₦1,000,000</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Local Government Area</label>
-                                                    <select class="form-select" name="lga" required>
-                                                        <option value="">Select LGA</option>                                    
-                                                        <option value="Ado">Ado</option>
-                                                        <option value="Agatu">Agatu</option>
-                                                        <option value="Apa">Apa</option>
-                                                        <option value="Buruku">Buruku</option>
-                                                        <option value="Gboko">Gboko</option>
-                                                        <option value="Guma">Guma</option>
-                                                        <option value="Gwer East">Gwer East</option>
-                                                        <option value="Gwer West">Gwer West</option>
-                                                        <option value="Katsina-Ala">Katsina-Ala</option>
-                                                        <option value="Konshisha">Konshisha</option>
-                                                        <option value="Kwande">Kwande</option>
-                                                        <option value="Logo">Logo</option>
-                                                        <option value="Makurdi">Makurdi</option>
-                                                        <option value="Obi">Obi</option>
-                                                        <option value="Ogbadibo">Ogbadibo</option>
-                                                        <option value="Oju">Oju</option>
-                                                        <option value="Ohimini">Ohimini</option>
-                                                        <option value="Okpokwu">Okpokwu</option>
-                                                        <option value="Otpo">Otpo</option>
-                                                        <option value="Tarka">Tarka</option>
-                                                        <option value="Ukum">Ukum</option>
-                                                        <option value="Ushongo">Ushongo</option>
-                                                        <option value="Vandeikya">Vandeikya</option>
-                                                            
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            
 
                                             <!-- Dynamic Practice-Specific Fields -->
                                             <div id="practiceFields" class="mt-4">

@@ -120,11 +120,10 @@
 
 
 
-<div class="container">
-    <h1>Admin Dashboard</h1>
+<div class="container">    
     <a href="{{ route('admin.users.create') }}" class="btn btn-primary mb-3">Add User</a>
     <a href="{{ route('admin.users.summary') }}" class="btn btn-info mb-3">View Summary</a>
-
+<!-- 
     <table class="table">
         <thead>
             <tr>
@@ -158,13 +157,72 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
+    </table> -->
 </div>
 
 
 
 
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Users Table</h4>
+                                        <p class="card-title-desc">                                           
+                                        </p>
 
+                                        <table id="key-datatable" class="table dt-responsive nowrap w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                     <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
+                                                    <th>Gender</th>
+                                                    <th>Age</th>
+                                                    <th>LGA</th>
+                                                    <th>Role</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>                                                   
+                                                </tr>
+                                            </thead>
+                                        
+                                            <tbody>
+                                                @foreach ($users as $user)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $user->name }}</td>
+                                                    <td>{{ $user->email }}</td>
+                                                    <td>{{ $user->profile?->phone ?? 'N/A' }}</td> 
+                                                    <td>{{ $user->profile?->gender ?? 'N/A' }}</td>
+                                                    <td>{{ $user->profile?->dob ? \Carbon\Carbon::parse($user->profile->dob)->age : 'N/A' }}</td>
+                                                    <td>{{ $user->profile?->lga ?? 'N/A' }}</td>
+                                                    <!-- <td>{{ $user->profile?->address ?? 'N/A' }}</td> -->
+                                                    <td>{{ $user->role }}</td>
+                                                    <td>{{ $user->status }}</td>
+                                                    <td>
+                                                        @if ($user->status === 'pending')
+                                                            <form action="{{ route('admin.users.onboard', $user) }}" method="POST" class="d-inline">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-success">Onboard</button>
+                                                            </form>
+                                                        @endif
+                                                        <form action="{{ route('admin.users.notify', $user) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <!-- <input type="text" name="message" placeholder="Enter notification message" required>
+                                                            <button type="submit" class="btn btn-warning">Notify</button> -->
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
 
 
 

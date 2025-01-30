@@ -12,9 +12,11 @@ Route::get('/', function () {
 });
 
 // Authenticated and verified routes
-Route::middleware(['auth', 'verified'])->group(function () {   
-    // Route::get('/home', [DashboardController::class, 'index'])->name('home');
+Route::middleware(['auth', 'verified'])->group(function () { 
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
+
+    // show application details to users
+    // Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
     
     });
 
@@ -67,8 +69,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');    
     // Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
     // Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
-    Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
-    Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
+    // Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
+    // Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
+    Route::post('/applications/{type}/{id}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
+Route::post('/applications/{type}/{id}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
 });
 
 

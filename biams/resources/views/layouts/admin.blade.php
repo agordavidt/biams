@@ -278,17 +278,17 @@
                                 </ul>
                             </li>
 
-                             <li>
+                             <!-- <li>
                                 <a href="{{ route('admin.registrations.index') }}" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Registrations</span>
                                 </a>
-                            </li>
+                            </li> -->
 
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>Practice Management</span>
+                                    <span>Applications</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>

@@ -157,7 +157,7 @@
             <div class="col-md-4">
                 <div class="stat-card text-center">
                     
-                        <img src="{{ asset('dashboard/images/page3_bigimg1.jpg') }}" style="border-radius: 1em" alt="farm_produce" height="200">
+                        <img src="{{ asset('/dashboard/images/green_beans.jpg') }}" style="border-radius: 1em" alt="farm_produce" height="200">
                         
                     
                 </div>

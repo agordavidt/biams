@@ -37,10 +37,10 @@ class DashboardController extends Controller
                 return $registration;
             }));
 
-      
 
         return view('home', compact('user', 'registrations'));
     }
+
 }
 
  

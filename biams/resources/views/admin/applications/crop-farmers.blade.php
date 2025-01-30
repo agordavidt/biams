@@ -329,14 +329,16 @@
                                         <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                             <thead>
                                             <tr>
-                                                <th>Name</th>
+                                                <th>#</th>
+                                                <th>Submision Time</th>
+                                                <th>Name</th>                                               
                                                 <th>Gender</th>
                                                 <th>LGA</th>
                                                 <th>Farm Size</th>
                                                 <th>Crop</th>
                                                 <th>Geolocation</th>
                                                 <th>Status</th>
-                                                <th>Actions</th>  
+                                                <th>Actions</th>   
                                             </tr>
                                             </thead>
         
@@ -344,9 +346,11 @@
                                             <tbody>
                                              @foreach($applications as $application)
                                                 <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                     <td>{{ $application->created_at->format('Y-m-d H:i:s') }}</td>
                                                     <td>{{ $application->user->name }}</td>
-                                                    <td>{{ $application->user->gender }}</td>
-                                                    <td>{{ $application->user->lga }}</td>
+                                                    <td>{{ $application->user->profile->gender }}</td>
+                                                    <td>{{ $application->user->profile->lga }}</td>
                                                     <td>{{ $application->farm_size }} ha</td>
                                                     <td>{{ $application->crop }}</td>
                                                     <!-- <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td> -->
@@ -359,39 +363,39 @@
                                                             {{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }} 
                                                         </a>
                                                     </td>
-                                                   <td>{{ ucfirst($application->status) }}</td>
-                                                    <td class="text-end">
-                                                        <div class="btn-group">
-                                                            <!-- View Details Button -->
-                                                            <button class="action-btn" title="View Details" onclick="viewFarmer({{ json_encode($application) }})">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                                                                    <circle cx="12" cy="12" r="3" />
-                                                                </svg>
-                                                            </button>
+                                                  <td>{{ ucfirst($application->status) }}</td>
+                                                <td class="text-end">
+                                                    <div class="btn-group">
+                                                        <!-- View Details Button -->
+                                                        <button class="action-btn" title="View Details" onclick="viewFarmer({{ json_encode($application) }})">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                                                <circle cx="12" cy="12" r="3" />
+                                                            </svg>
+                                                        </button>
 
-                                                            <!-- Conditionally Render Approve and Reject Buttons -->
-                                                            @if ($application->status === 'pending')
-                                                                <form action="{{ route('admin.applications.approve', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
-                                                                    @csrf
-                                                                    <button class="action-btn approve-btn" type="submit" title="Approve Application">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                            <polyline points="20 6 9 17 4 12" />
-                                                                        </svg>
-                                                                    </button>
-                                                                </form>
-                                                                <form action="{{ route('admin.applications.reject', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
-                                                                    @csrf
-                                                                    <button class="action-btn reject-btn" type="submit" title="Reject Application">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                                                        </svg>
-                                                                    </button>
-                                                                </form>
-                                                            @endif
-                                                        </div>
-                                                    </td>
+                                                        <!-- Conditionally Render Approve and Reject Buttons -->
+                                                        @if ($application->status === 'pending')
+                                                            <form action="{{ route('admin.applications.approve', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
+                                                                @csrf
+                                                                <button class="action-btn approve-btn" type="submit" title="Approve Application">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </button>
+                                                            </form>
+                                                            <form action="{{ route('admin.applications.reject', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
+                                                                @csrf
+                                                                <button class="action-btn reject-btn" type="submit" title="Reject Application">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                                                    </svg>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </td>
                                                 </tr>
                                             @endforeach
                                             </tbody>

@@ -22,7 +22,8 @@ class AdminController extends Controller
     public function index()
     {
         
-        $users = User::all();
+        // $users = User::all();
+        $users = User::with('profile')->get();
         $totalUsers = User::count();
         $pendingUsers = User::where('status', 'pending')->count();
         $approvedUsers = User::where('status', 'onboarded')->count();
@@ -138,30 +139,46 @@ class AdminController extends Controller
          * Agricultural Practices
          */
         // Crop Farmers Applications
+            // public function cropFarmers()
+            // {
+            //     $applications = CropFarmer::with('user')->get();
+            //     return view('admin.applications.crop-farmers', compact('applications'));
+            // }
             public function cropFarmers()
             {
-                $applications = CropFarmer::with('user')->get();
-                return view('admin.applications.crop-farmers', compact('applications'));
+                // $applications = CropFarmer::with('user')->get();
+                $applications = CropFarmer::with(['user' => function ($query) {
+                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
+                }])->get();
+                $type = 'crop-farmer'; // Define the type and do same for all the agricultural practices
+                return view('admin.applications.crop-farmers', compact('applications', 'type'));
             }
 
             // Animal Farmers Applications
             public function animalFarmers()
             {
-                $applications = AnimalFarmer::with('user')->get();
-                return view('admin.applications.animal-farmers', compact('applications'));
+                $applications = AnimalFarmer::with(['user' => function ($query) {
+                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
+                }])->get();
+                $type = 'animal-farmer'; 
+                return view('admin.applications.animal-farmers', compact('applications', 'type'));
             }
 
             // Abattoir Operators Applications
             public function abattoirOperators()
             {
-                $applications = AbattoirOperator::with('user')->get();
+                $applications = AbattoirOperator::with(['user' => function ($query) {
+                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
+                }])->get();
                 return view('admin.applications.abattoir-operators', compact('applications'));
             }
 
             // Processors Applications
             public function processors()
             {
-                $applications = Processor::with('user')->get();
+                $applications = Processor::with(['user' => function ($query) {
+                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
+                }])->get();
                 return view('admin.applications.processors', compact('applications'));
             }
 
