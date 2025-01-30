@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // show application details to users
     // Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
+    Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
     
     });
 

@@ -67,7 +67,7 @@
                                                     <td>{{ ucfirst($registration->status) }}</td>
                                                     <td>{{ $registration->created_at->format('Y-m-d') }}</td>
                                                     <td>
-                                                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
+                                                        <a href="{{ route('application.details', $registration->id) }}" class="btn btn-sm btn-primary">View Details</a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -82,7 +82,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-primary text-white-50">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-bullseye-arrow me-3"></i> Primary Card</h5>
+                                        <h5 class="mb-4 text-white"><i class="mdi mdi-bullseye-arrow me-3"></i> Crop Farming</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -91,7 +91,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-success text-white-50">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-check-all me-3"></i> Success Card</h5>
+                                        <h5 class="mb-4 text-white"><i class="mdi mdi-check-all me-3"></i> Animal Farming</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-info text-white-50">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-circle-outline me-3"></i>Info Card</h5>
+                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-circle-outline me-3"></i>Processing & Value Addition</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -112,7 +112,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-warning text-white-50">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-outline me-3"></i>Warning Card</h5>
+                                        <h5 class="mb-4 text-white"><i class="mdi mdi-alert-outline me-3"></i>Aquaculture and Fisheries</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -121,7 +121,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-danger text-white-50">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-white"><i class="mdi mdi-block-helper me-3"></i>Danger Card</h5>
+                                        <h5 class="mb-4 text-white"><i class="mdi mdi-block-helper me-3"></i>Agroforestry and Forestry</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@
                             <div class="col-lg-4">
                                 <div class="card bg-dark text-light">
                                     <div class="card-body">
-                                        <h5 class="mb-4 text-light"><i class="mdi mdi-alert-circle-outline me-3"></i>Dark Card</h5>
+                                        <h5 class="mb-4 text-light"><i class="mdi mdi-alert-circle-outline me-3"></i>Abattoir</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -141,18 +141,18 @@
 
 
 
-                          <div class="col-sm-6 col-md-4 col-xl-3">
+                                            <div class="col-sm-6 col-md-4 col-xl-3">
                                                 <div class="my-4 text-center">
-                                                    <p class="text-muted">Scrollable modal</p>
+                                                    <p class="text-muted">Crop Farming</p>
                                                     <!-- Small modal -->
-                                                    <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">Scrollable modal</button>
+                                                    <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">Crop Farming</button>
                                                 </div>
         
                                                 <div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-scrollable">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalScrollableTitle">Scrollable Modal</h5>
+                                                                <h5 class="modal-title" id="exampleModalScrollableTitle">Crop Farming</h5>
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
@@ -391,6 +391,17 @@
             otherCropField.style.display = 'block';
         } else {
             otherCropField.style.display = 'none';
+        }
+    }
+
+
+    function handleOtherLivestock() {
+        const livestockSelect = document.getElementById('livestock');
+        const otherLivestockField = document.getElementById('otherLivestockField');
+        if (livestockSelect.value === 'Other') {
+            otherLivestockField.style.display = 'block';
+        } else {
+            otherLivestockField.style.display = 'none';
         }
     }
 </script>
