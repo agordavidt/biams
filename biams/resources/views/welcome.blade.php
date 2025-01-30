@@ -136,7 +136,7 @@
 
 
 
->
+
 
 
 
@@ -158,7 +158,11 @@
                 <div class="stat-card text-center">
                     
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         <img src="{{ asset('dashboard/images/page3_bigimg1.jpg') }}" style="border-radius: 1em" alt="farm_produce" height="200">
+=======
+                        <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em" alt="farming_produce" height="200">
+>>>>>>> Stashed changes
 =======
                         <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em" alt="farming_produce" height="200">
 >>>>>>> Stashed changes
