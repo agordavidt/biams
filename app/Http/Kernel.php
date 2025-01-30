@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         'user' => \App\Http\Middleware\EnsureUserIsUser::class,
         'profile.incomplete' => \App\Http\Middleware\EnsureProfileIsIncomplete::class,
+        'onboarded' => \App\Http\Middleware\EnsureUserIsOnboarded::class,
+        
     ];
 }

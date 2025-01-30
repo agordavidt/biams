@@ -35,8 +35,11 @@ Route::middleware('auth')->group(function () {
 });
 
 
+
+
 // Agricultural Practices Registration forms
-Route::middleware(['auth', 'verified'])->group(function () {
+
+Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     // Crop Farmer Routes
     Route::get('/farmers/crop', [FarmersController::class, 'showCropFarmerForm'])->name('farmers.crop');
     Route::post('/farmers/crop', [FarmersController::class, 'storeCropFarmer'])->name('farmers.crop.store');
@@ -52,7 +55,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Processor Routes
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
-
 });
 
 
