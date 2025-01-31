@@ -13,6 +13,7 @@ use App\Models\Farmers\AnimalFarmer;
 use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\Processor;
 use App\Notifications\ApplicationStatusUpdated;
+use Illuminate\Support\Facades\Session;
 
 class AdminController extends Controller
 {
@@ -27,7 +28,20 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $pendingUsers = User::where('status', 'pending')->count();
         $approvedUsers = User::where('status', 'onboarded')->count();
-        return view('admin.index', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers'));
+
+
+        
+
+        // Option B: Session-Based Tracking (Less Accurate because unique visits cannot easily be determined using ip address)
+        if (!Session::has('visitor_id')) {
+        Session::put('visitor_id', uniqid()); 
+        }
+        $totalVisits = Session::get('visit_count', 0) + 1;
+        Session::put('visit_count', $totalVisits); 
+        $uniqueVisits = 0; 
+
+        return view('admin.index', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers', 'totalVisits', 'uniqueVisits',)); 
+        // return view('admin.index', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers'));
        
     }
 

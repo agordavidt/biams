@@ -14,19 +14,18 @@ class UsersWithProfilesSeeder extends Seeder
 {
     public function run(): void
     {
-        // Use Faker to generate fake data
+       
         $faker = \Faker\Factory::create();
 
-        // Create 10 users with profiles
         for ($i = 1; $i <= 10; $i++) {
             // Create a user
             $user = User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
-                'password' => Hash::make('password'), // Default password for all users
-                'role' => 'user', // Assuming you have a 'role' column
-                'status' => 'onboarded', // Assuming you have a 'status' column
-                'email_verified_at' => Carbon::now()->subDays(rand(1, 365)), // Random verification date within the last year
+                'password' => Hash::make('password'), 
+                'role' => 'user', 
+                'status' => 'onboarded', 
+                'email_verified_at' => Carbon::now()->subDays(rand(1, 365)), 
             ]);
 
             // Create a profile for the user

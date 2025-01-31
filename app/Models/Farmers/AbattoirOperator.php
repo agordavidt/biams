@@ -19,6 +19,10 @@ class AbattoirOperator extends Model
         'status',
     ];
 
+    protected $casts = [
+        'certifications' => 'array',
+    ];
+
     // Define relationship with User
     public function user()
     {

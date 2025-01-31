@@ -12,6 +12,7 @@ class AnimalFarmer extends Model
     use HasFactory;
 
    protected $fillable = [
+    'user_id',
     'herd_size',
     'facility_type',
     'breeding_program',

@@ -367,8 +367,11 @@
                                                 <option value="Ushongo">Ushongo</option>
                                                 <option value="Vandeikya">Vandeikya</option></div>
                                             </select>
-                                        </div>                                       
-
+                                        </div>                                      
+                                         <div class="mb-4">
+                                            <label class="form-label" for="ward">Ward </label>
+                                            <input type="text" class="form-control" value="#" name="ward">
+                                        </div>
                                         
                                     </div>
                                      <div class="mb-4">

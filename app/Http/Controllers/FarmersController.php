@@ -99,7 +99,7 @@ class FarmersController extends Controller
 
         // Update user status to "pending"
         //  auth()->user()->update(['status' => 'pending']);
-        return redirect()->route('home')->with('success', 'Submission for Animal farming  successfull!');
+        return redirect()->route('home')->with('success', 'Submission for animal farming  successfully submited');
     }
 
 
@@ -118,7 +118,8 @@ class FarmersController extends Controller
             'facility_type' => 'required|string',
             'facility_specs' => 'required|string',
             'operational_capacity' => 'required|string', 
-            'certifications' => 'nullable|array', 
+           'certifications' => 'nullable|array',
+            'certifications.*' => 'string', 
         ]);
 
         // Create AbattoirOperator profile
@@ -133,7 +134,7 @@ class FarmersController extends Controller
 
         // Update user status to "pending"
         // auth()->user()->update(['status' => 'pending']);
-        return redirect()->route('home')->with('success', 'Submision for Abattoir operator successfull!');
+        return redirect()->route('home')->with('success', 'Submision for abattoir operator successfully submitted');
     }
 
     // Show the form for processors
@@ -167,14 +168,8 @@ class FarmersController extends Controller
         // Update user status to "pending"
         // auth()->user()->update(['status' => 'pending']);
 
-        return redirect()->route('home')->with('success', 'Application for Processing and Value addition Successful');
+        return redirect()->route('home')->with('success', 'Application for processing and value addition Successfully subitted');
     }
 
 
 }
-
-
-
-
-
-

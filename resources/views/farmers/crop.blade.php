@@ -76,12 +76,23 @@
                                                             <option value="both" {{ old('seasonal_pattern') === 'both' ? 'selected' : '' }}>Both Seasons</option>
                                                         </select>
                                                     </div>
+
+                                                     <!-- Land tenancy -->
+                                                    <div class="mb-4">
+                                                        <label class="form-label" for="land_tenure">Land Tenure</label>
+                                                        <select class="form-control input-mask" name="land_tenure" >
+                                                            <option value="owned" {{ old('farming_methods') === 'organic' ? 'selected' : '' }}>Owned</option>
+                                                            <option value="leased" {{ old('farming_methods') === 'conventional' ? 'selected' : '' }}>Leased</option>
+                                                            <option value="inherited" {{ old('farming_methods') === 'mixed' ? 'selected' : '' }}>Inherited</option>
+                                                        </select>
+                                                    </div>
+
                                                 </div>
 
                                                 <div class="col-lg-6">
                                                     <!-- Geolocation -->
                                                     <div class="mb-4">
-                                                        <label class="form-label" for="latitude">Geolocation</label>
+                                                        <label class="form-label" for="latitude">Farm Coordinates</label>
                                                         <div class="input-group">
                                                             <input type="text" class="form-control" name="latitude" placeholder="Latitude" value="{{ old('latitude') }}" required>
                                                             <input type="text" class="form-control" name="longitude" placeholder="Longitude" value="{{ old('longitude') }}" required>
