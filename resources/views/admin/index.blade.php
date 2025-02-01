@@ -191,7 +191,7 @@
                                 <!-- end col -->
                                 <div class="col-4">
                                     <div class="text-center mt-4">
-                                        <h5>458</h5>
+                                        <h5>10458</h5>
                                         <p class="mb-2 text-truncate">Last Week</p>
                                     </div>
                                 </div>
