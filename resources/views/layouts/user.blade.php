@@ -25,6 +25,9 @@
         <!-- App Css-->
         <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
+         <!-- Lightbox css -->
+         <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
+
 
         <!--- new stuff ----->
          <meta name="csrf-token" content="{{ csrf_token() }}">

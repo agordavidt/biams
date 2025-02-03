@@ -55,16 +55,15 @@
                                                     <td>{{ $application->farm_size }} ha</td>
                                                     <td>{{ $application->seasonal_pattern }}</td>
                                                     <td>{{ $application->crop }}</td>
-                                                    <!-- <td>{{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }}</td> -->
-                                                     <td style="cursor: pointer;">
-                                                        <a href="#" 
-                                                        data-toggle="modal" 
-                                                        data-target="#mapModal" 
-                                                        data-latitude="{{ $application->latitude }}" 
-                                                        data-longitude="{{ $application->longitude }}">
-                                                            {{ number_format($application->latitude , 4) }}, {{ number_format($application->longitude , 4) }} 
+
+                                                    <td>
+                                                        <a class="popup-gmaps btn btn-light mb-2" 
+                                                            href="https://maps.google.com/?ll={{ $application->latitude }},{{ $application->longitude }}" 
+                                                            target="_blank">
+                                                            {{ number_format($application->latitude, 4) }}°, {{ number_format($application->longitude, 4) }}°
                                                         </a>
-                                                    </td>
+                                                    </td>  
+
                                                     <td>
                                                          <div class="font-size-13">
                                                             @if($application->status == 'approved')
@@ -78,13 +77,12 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div class="col-sm-6 col-md-4 col-xl-3">
+                                                        <div class="col-sm-6 col-md-4 col-xl-3 d-flex">
                                                             <div class="my-4 text-center">                                                    
                                                                 <button type="button" class="btn waves-effect waves-light" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg"><i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i></button>
                                                             </div> 
                                                                 @include('partials.crop-farming')        
                                                         </div>
-                                                        
                                                         <i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i>
                                                         <i class="ri-check-fill font-size-25 text-success align-middle me-2"></i>
                                                         <i class="ri-close-circle-fill font-size-25 text-danger align-middle me-2"></i>
@@ -96,8 +94,10 @@
                                         
                                     </div>
                                 </div>
-                            </div> <!-- end col -->
-                        </div> <!-- end row -->
+                            </div> 
+                        </div> 
+
+                                        
 
 @endsection
 
