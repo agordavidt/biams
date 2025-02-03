@@ -57,7 +57,7 @@
                                                     <td>{{ $application->crop }}</td>
 
                                                     <td>
-                                                        <a class="popup-gmaps btn btn-light mb-2" 
+                                                        <a class="popup-gmaps" 
                                                             href="https://maps.google.com/?ll={{ $application->latitude }},{{ $application->longitude }}" 
                                                             target="_blank">
                                                             {{ number_format($application->latitude, 4) }}°, {{ number_format($application->longitude, 4) }}°
@@ -79,7 +79,7 @@
                                                     <td>
                                                         <div class="col-sm-6 col-md-4 col-xl-3 d-flex">
                                                             <div class="my-4 text-center">                                                    
-                                                                <button type="button" class="btn waves-effect waves-light" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg"><i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i></button>
+                                                                <button type="button" class="" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg"><i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i></button>
                                                             </div> 
                                                                 @include('partials.crop-farming')        
                                                         </div>
