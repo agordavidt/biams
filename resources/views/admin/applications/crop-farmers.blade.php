@@ -78,12 +78,12 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <!-- <div class="col-sm-6 col-md-4 col-xl-3">
+                                                        <div class="col-sm-6 col-md-4 col-xl-3">
                                                             <div class="my-4 text-center">                                                    
                                                                 <button type="button" class="btn waves-effect waves-light" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg"><i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i></button>
                                                             </div> 
                                                                 @include('partials.crop-farming')        
-                                                        </div> -->
+                                                        </div>
                                                         
                                                         <i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i>
                                                         <i class="ri-check-fill font-size-25 text-success align-middle me-2"></i>

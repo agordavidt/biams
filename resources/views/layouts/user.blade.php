@@ -119,33 +119,33 @@
         <div id="layout-wrapper">
 
             
-            <header id="page-topbar">
+        <header id="page-topbar">
                 <div class="navbar-header">
                     <div class="d-flex">
                         <!-- LOGO -->
                         <div class="navbar-brand-box">
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <i class="fas fa-leaf me-2"></i>BIAAMS
+                                    <img src="assets/images/logo-sm.png" alt="logo-sm" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <i class="fas fa-leaf me-2"></i>BIAAMS
+                                    <img src="assets/images/logo-dark.png" alt="logo-dark" height="20">
                                 </span>
                             </a>
-                                <!-- <a class="navbar-brand" href="#"><i class="fas fa-leaf me-2"></i>BIAAMS</a> -->
+
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <i class="fas fa-leaf me-2"></i>BIAAMS
+                                    <img src="assets/images/logo-sm.png" alt="logo-sm-light" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <i class="fas fa-leaf me-2"></i>BIAAMS
+                                    <img src="assets/images/logo-light.png" alt="logo-light" height="20">
                                 </span>
                             </a>
                         </div>
 
-                        <!-- <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
                             <i class="ri-menu-2-line align-middle"></i>
-                        </button> -->
+                        </button>
 
                         <!-- App Search-->
                         <form class="app-search d-none d-lg-block">
@@ -155,10 +155,7 @@
                             </div>
                         </form>
 
-                        <!-- <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
-                           
-                           
-                        </div> -->
+                        
                     </div>
 
                     <div class="d-flex">
@@ -184,44 +181,153 @@
                             </div>
                         </div>
 
-                    
+                       
 
                         
 
-                       <div class="dropdown d-inline-block user-dropdown">
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                                  data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-notification-3-line"></i>
+                                <span class="noti-dot"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                aria-labelledby="page-header-notifications-dropdown">
+                                <div class="p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h6 class="m-0"> Notifications </h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="#!" class="small"> View All</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div data-simplebar style="max-height: 230px;">
+                                    <a href="" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your order is placed</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-3.jpg"
+                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">James Lemire</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">It will seem like simplified English.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your item is shipped</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-4.jpg"
+                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Salena Layfield</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="p-2 border-top">
+                                    <div class="d-grid">
+                                        <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
+                                            <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-inline-block user-dropdown">
                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <!-- <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
-                                    alt="Header Avatar"> -->
-                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
-                                <!-- <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i> -->
+                                <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
+                                    alt="Header Avatar">
+                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>                               
                             </button>
-                             <div class="dropdown d-inline-block">
-                           
-                            </div>
-                          
-                        </div>                        
+                            
+                        </div>
+
+                        
             
                     </div>
                 </div>
             </header>
 
-            <!-- ========== Left Sidebar Start ========== -->
-            <div class="vertical-menu">
+             <!-- ========== Left Sidebar Start ========== -->
+             <div class="vertical-menu">
 
                 <div data-simplebar class="h-100">
-                   
+
+                    <!-- User details -->
+                    <div class="user-profile text-center mt-3">
+                        <div class="">
+                            <img src="assets/images/users/avatar-1.jpg" alt="" class="avatar-md rounded-circle">
+                        </div>
+                        <div class="mt-3">
+                            <h4 class="font-size-16 mb-1">{{ auth()->user()->name }}</h4>
+                            <span class="text-muted">
+                                @if (auth()->user()->status === 'pending')
+                                    <i class="fas fa-hourglass-half align-middle font-size-18 text-warning"></i> Pending
+                                @else
+                                    <i class="fas fa-check-circle align-middle font-size-18 text-success"></i> Onboarded
+                                @endif
+                            </span>
+                        </div>
+                    </div>
 
                     <!--- Sidemenu -->
                     <div id="sidebar-menu">
                         <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
+                        <li>
+                                <a href="{{ route('home') }}" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
                             <li class="menu-title">Menu</li>
 
                             <li>
-                                <a href="{{ route('home') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
-                                    <span>Dashboard</span>
+                                <a href="{{ route('farmers.submissions') }}" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">#</span>
+                                    <span>Submissions</span>
                                 </a>
                             </li>
 
@@ -231,26 +337,26 @@
                                     <span>Registration</span>
                                 </a>
                             </li> -->
-                             <li>
+                            <li>
                                 <a href="#" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
                                     <span>Practices</span>
                                 </a>
                             </li>
-                             <li>
+                            <li>
                                 <a href="{{ route('farmers.crop') }}" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
                                     <span>Services</span>
                                 </a>
                             </li>
-                             <li>
+                            <li>
                                 <a href="{{ route('farmers.crop') }}" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
                                     <span>Notifications</span>
                                 </a>
                             </li>
-                             @if (auth()->user()->status === 'approved')
-                             <li>
+                            @if (auth()->user()->status === 'approved')
+                            <li>
                                 <a href="#" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Resources</span>
@@ -263,7 +369,7 @@
                                 </ul>
                             </li>
 
-                             <li>
+                            <li>
                                 <a href="#" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Trainings</span>
@@ -277,17 +383,17 @@
                             </li>
                             @endif
                             <!-- <li class="menu-title">Pages</li>                          
-                           
+                        
                             <li class="menu-title">Components</li> -->
 
-                             <li> <a href="{{ route('profile.update') }}"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
-                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                            <li> <a href="{{ route('profile.update') }}"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
                                 <li> 
                                     <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
                                 </li> 
                             </form>
-                             
+                            
                             
                         </ul>
                     </div>
@@ -295,9 +401,34 @@
                 </div>
             </div>
             <!-- Left Sidebar End -->
-             <div>
+
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+
+
                      @yield('content')
-             </div>          
+
+
+                     <footer class="footer">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <script>document.write(new Date().getFullYear())</script> © <span class="text-info">Benue State Integrated Agricultural Assest Management system. </span> 
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-sm-end d-none d-sm-block">
+                                        Powered by BDIC
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </footer>
+                        
+                    </div>
+    <div>
+    </div>      
 
 
 

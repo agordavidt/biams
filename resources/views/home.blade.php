@@ -2,23 +2,22 @@
 
 @section('content')
 
-        <div class="main-content"> 
-                <div class="page-content">
-                    <div class="container-fluid">
-                         @if (session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
-                        @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                        @if (session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-
-                        <div class="w-80">
+                    <p>Welcome, {{ $user->name }}</p>
+                        <!-- <div class="w-80">
                             @if (auth()->user()->status === 'pending')
                                 <div class="d-flex align-items-center gap-3 p-3 bg-warning text-dark rounded">
                                     <i class="fas fa-hourglass-half fa-3x"></i> 
@@ -34,54 +33,16 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
-                        
-
-
-                        <div class="container">
-                                <h1>Welcome, {{ $user->name }}</h1>
-
-                                <!-- Display user's registrations -->
-                                <h2>Your Registrations</h2>
-                                @if ($registrations->isEmpty())
-                                    <!-- Display this message if there are no registrations -->
-                                    <div class="alert alert-info">
-                                       You do not have any agricultural practice registration
-                                    </div>
-                                @else
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Type</th>
-                                                <th>Status</th>
-                                                <th>Application Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($registrations as $registration)
-                                                <tr>
-                                                    <td>{{ $registration->type }}</td>
-                                                    <td>{{ ucfirst($registration->status) }}</td>
-                                                    <td>{{ $registration->created_at->format('Y-m-d') }}</td>
-                                                    <td>
-                                                        <!-- <a href="{{ route('application.details', $registration->id) }}" class="btn btn-sm btn-primary">View Details</a> -->
-                                                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
-                </div>
+                        </div> -->
+               
 
 
                  
 
-                        <div class="col-sm-6 col-md-4 col-xl-3">
+                        <!-- <div class="col-sm-6 col-md-4 col-xl-3">
                             <div class="my-4 text-center">
                                 <p class="text-muted">Crop Farming</p>
-                                <!-- Small modal -->
+                               
                                 <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">Crop Farming</button>
                             </div>
 
@@ -96,7 +57,7 @@
                                                 <form method="POST" action="{{ route('farmers.crop.store') }}">
                                                 @csrf
 
-                                                <!-- Display validation errors -->
+                                               
                                                 @if ($errors->any())
                                                     <div class="alert alert-danger">
                                                         <ul>
@@ -107,16 +68,16 @@
                                                     </div>
                                                 @endif                                          
 
-                                                <!-- Farm Details -->
+                                             
                                                 <div class="row">
                                                     <div class="col-lg-6">
-                                                        <!-- Farm Size -->
+                                                       
                                                         <div class="mb-4">
                                                             <label class="form-label" for="farm_size">Farm Size (hectares)</label>
                                                             <input type="number" step="0.1" class="form-control input-mask" name="farm_size" value="{{ old('farm_size') }}" required>
                                                         </div>
 
-                                                        <!-- Farming Methods -->
+                                                       
                                                         <div class="mb-4">
                                                             <label class="form-label" for="farming_methods">Farming Methods</label>
                                                             <select class="form-control input-mask" name="farming_methods" required>
@@ -126,7 +87,7 @@
                                                             </select>
                                                         </div>
 
-                                                        <!-- Seasonal Pattern -->
+                                                       
                                                         <div class="mb-4">
                                                             <label class="form-label" for="seasonal_pattern">Seasonal Pattern</label>
                                                             <select class="form-control input-mask" name="seasonal_pattern" required>
@@ -138,7 +99,7 @@
                                                     </div>
 
                                                     <div class="col-lg-6">
-                                                        <!-- Geolocation -->
+                                                       
                                                         <div class="mb-4">
                                                             <label class="form-label" for="latitude">Geolocation</label>
                                                             <div class="input-group">
@@ -150,13 +111,13 @@
                                                             </div>
                                                         </div>
 
-                                                        <!-- Farm Location -->
+                                                       
                                                         <div class="mb-4">
                                                             <label class="form-label" for="farm_location">Farm Location</label>
                                                             <input type="text" class="form-control input-mask" name="farm_location" value="{{ old('farm_location') }}" required>
                                                         </div>
 
-                                                        <!-- Crop Cultivated -->
+                                                      
                                                         <div class="mb-4">
                                                             <label class="form-label" for="crop">Crop Cultivated</label>
                                                             <select class="form-control input-mask" name="crop" id="crops" onchange="handleOtherOption()" required>
@@ -168,7 +129,7 @@
                                                             </select>
                                                         </div>
 
-                                                        <!-- Hidden input field for custom crop -->
+                                                      
                                                         <div class="mb-4" id="otherCropField" style="display: none;">
                                                             <label for="otherCrop">Specify the crop:</label>
                                                             <input type="text" name="other_crop" id="otherCrop" value="{{ old('other_crop') }}">
@@ -176,7 +137,7 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Submit Button -->
+                                             
                                                 <div class="text-center mt-4">
                                                     <button type="submit" class="btn btn-primary waves-effect waves-light">Submit Form</button>
                                                 </div>
@@ -186,10 +147,10 @@
                                             <button type="button" class="btn btn-light waves-effect" data-bs-dismiss="modal">Close</button>
                                             <button type="button" class="btn btn-primary waves-effect waves-light">Save changes</button>
                                         </div>
-                                    </div><!-- /.modal-content -->
-                                </div><!-- /.modal-dialog -->
-                            </div><!-- /.modal -->
-                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
 
 
 
@@ -259,6 +220,64 @@
                                    
                                 </div>
                             </div>
+
+                            <!--- more agricultural practices -->
+                            <div class="row g-4 mt-3">
+                                <!-- Crop Farming -->
+                                <div class="col-md-6 col-lg-3">
+                                    <a href="{{ route('farmers.crop') }}">
+                                         <div class="card practice-card" data-practice="crop_farming">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-seedling fa-3x text-success mb-3"></i>
+                                                <h4 class="mb-2">Crop Farming</h4>
+                                                <p class="text-truncate font-size-14 mb-2">Register as a crop farmer</p>
+                                            </div>
+                                    </div>
+                                    </a>
+                                   
+                                </div>
+
+                                <!-- Animal Farming -->
+                                <div class="col-md-6 col-lg-3">
+                                    <a href="{{ route('farmers.animal') }}">
+                                         <div class="card practice-card" data-practice="animal_farming">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-seedling fa-3x text-success mb-3"></i>
+                                            <h4 class="mb-2">Animal Farming</h4>
+                                            <p class="text-truncate font-size-14 mb-2">Register as an animal farmer</p>
+                                        </div>
+                                    </div>
+                                    </a>
+                                </div>
+
+                                <!-- Processing -->
+                                <div class="col-md-6 col-lg-3">
+                                    <a href="{{ route('farmers.processor') }}">
+                                         <div class="card practice-card" data-practice="processing">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-industry fa-3x text-success mb-3"></i>
+                                            <h4 class="mb-2">Processing & Value Addition</h4>
+                                            <p class="text-truncate font-size-14 mb-2">Register as an agricultural processor</p>  
+                                        </div>
+                                    </div>
+                                    </a>
+                                   
+                                </div>
+
+                                <!-- Abattoir -->
+                                <div class="col-md-6 col-lg-3">
+                                    <a href="{{ route('farmers.abattoir') }}">
+                                         <div class="card practice-card" data-practice="abattoir">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-warehouse fa-3x text-success mb-3"></i>
+                                             <h4 class="mb-2">Abattoir</h4>
+                                            <p class="text-truncate font-size-14 mb-2">Register as an abattoir operator</p>                                            
+                                        </div>
+                                    </div>
+                                    </a>
+                                   
+                                </div>
+                            </div>
                         </div>
             @else
                 <div class="alert alert-warning">
@@ -266,8 +285,9 @@
                 </div>
             @endif
 
-                        <!-- Practice Registration Modal -->
-                        <div class="modal fade" id="practiceModal" tabindex="-1">
+            <div class="row">
+                   <!-- Practice Registration Modal -->
+                   <div class="modal fade" id="practiceModal" tabindex="-1">
                             <div class="modal-dialog modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -295,37 +315,15 @@
                                 </div>
                             </div>
                         </div>
+            </div>
+
+                     
                         
                     </div> 
                 </div>
         <!-- End Page-content -->
         
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © <span class="text-info">Benue State Integrated Agricultural Assest Management system. </span> 
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end d-none d-sm-block">
-                            Powered by BDIC
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
         
-    </div>
-
-
-
-<div>
-     <!-- Main Content -->
-   
-
-</div>
-
-   
 
 <script>
     function handleOtherOption() {

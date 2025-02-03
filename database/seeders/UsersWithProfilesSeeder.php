@@ -34,7 +34,7 @@ class UsersWithProfilesSeeder extends Seeder
                 'nin' => $faker->unique()->numerify('###########'), // Generate a unique 11-digit NIN
                 'address' => $faker->address,
                 'dob' => $faker->date(),
-                'gender' => $faker->randomElement(['Male', 'Female', 'Other']),
+                'gender' => $faker->randomElement(['Male', 'Female']),
                 'education' => $faker->randomElement(['High School', 'Bachelor', 'Master', 'PhD']),
                 'household_size' => $faker->numberBetween(1, 10),
                 'dependents' => $faker->numberBetween(0, 5),

@@ -172,4 +172,51 @@ class FarmersController extends Controller
     }
 
 
+
+    // Method to show submissions and count
+    public function showSubmissions()
+    {
+        $user = Auth::user();
+
+        // Fetch the user's submissions from various farmer types
+        $cropFarmers = $user->cropFarmers;
+        $animalFarmers = $user->animalFarmers;
+        $abattoirOperators = $user->abattoirOperators;
+        $processors = $user->processors;
+
+        // Combine all submissions into a single collection for easy display
+        $submissions = collect()
+            ->merge($cropFarmers->map(function ($submission) {
+                $submission->type = 'Crop Farming';
+                return $submission;
+            }))
+            ->merge($animalFarmers->map(function ($submission) {
+                $submission->type = 'Animal Farming';
+                return $submission;
+            }))
+            ->merge($abattoirOperators->map(function ($submission) {
+                $submission->type = 'Abattoir Operator';
+                return $submission;
+            }))
+            ->merge($processors->map(function ($submission) {
+                $submission->type = 'Processing & Value Addition';
+                return $submission;
+            }));
+
+        // Count the total number of submissions
+        $submissionCount = $submissions->count();
+
+        // Return the view and pass the data to it
+        return view('farmers.submissions', compact('submissions', 'submissionCount'));
+    }
+
+
 }
+
+
+
+
+
+
+
+    

@@ -16,7 +16,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
 
     // show application details to users
-    // Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
     Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
     
     });
@@ -55,7 +54,13 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     // Processor Routes
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
+
+    Route::get('/farmers/submissions', [FarmersController::class, 'showSubmissions'])->name('farmers.submissions');
 });
+
+
+
+
 
 
 
