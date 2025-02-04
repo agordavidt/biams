@@ -76,16 +76,39 @@
                                                             {{ ucfirst($application->status) }}
                                                         </div>
                                                     </td>
-                                                    <td>
-                                                        <div class="col-sm-6 col-md-4 col-xl-3 d-flex">
-                                                            <div class="my-4 text-center">                                                    
-                                                                <button type="button" class="" data-bs-toggle="modal" data-bs-target=".bs-example-modal-lg"><i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i></button>
+                                                  
+
+                                                    <td class="text-end">
+                                                        <div class="btn-group">
+                                                            <!-- View Details Button -->
+                                                            <div class="col-sm-6 col-md-4 col-xl-3 d-flex">
+                                                            <div class=""> 
+                                                                <button type="button" class="action-btn view-btn view-details-btn" 
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target=".bs-example-modal-lg"
+                                                                        data-application="{{ json_encode($application) }}">
+                                                                    <i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i>
+                                                                </button>
                                                             </div> 
-                                                                @include('partials.crop-farming')        
+                                                                    @include('partials.crop-farming')        
+                                                            </div>
+
+                                                            <!-- Conditionally Render Approve and Reject Buttons -->
+                                                            @if ($application->status === 'pending')
+                                                                <form action="{{ route('admin.applications.approve', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button class="action-btn approve-btn" type="submit" title="Approve Application">
+                                                                        <i class="ri-check-fill font-size-30 text-success align-middle me-2"></i>
+                                                                    </button>
+                                                                </form>
+                                                                <form action="{{ route('admin.applications.reject', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button class="action-btn reject-btn" type="submit" title="Reject Application">
+                                                                    <i class="ri-close-circle-fill font-size-30 text-danger align-middle me-2"></i>
+                                                                    </button>
+                                                                </form>
+                                                            @endif
                                                         </div>
-                                                        <i class="ri-eye-fill font-size-25 text-primary align-middle me-2"></i>
-                                                        <i class="ri-check-fill font-size-25 text-success align-middle me-2"></i>
-                                                        <i class="ri-close-circle-fill font-size-25 text-danger align-middle me-2"></i>
                                                     </td>
                                                 </tr>
                                             @endforeach   
@@ -101,4 +124,34 @@
 
 @endsection
 
-                   
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get all buttons with the class 'view-details-btn'
+        const viewButtons = document.querySelectorAll('.view-details-btn');
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                // Get the application data from the data-application attribute
+                const application = JSON.parse(this.getAttribute('data-application'));
+
+                document.getElementById('modal-name').textContent = application.user.name;
+                document.getElementById('modal-email').textContent = application.user.email;
+                document.getElementById('modal-phone').textContent = application.user.profile.phone;
+                document.getElementById('modal-gender').textContent = application.seasonal_pattern;
+                document.getElementById('modal-crop').textContent = application.crop;
+
+                // Populate the modal with the data
+              
+                document.getElementById('modal-farm-size').textContent = application.farm_size + ' ha';
+                document.getElementById('modal-season').textContent = application.seasonal_pattern;
+                document.getElementById('modal-crop').textContent = application.crop;
+                document.getElementById('modal-geolocation').textContent = 
+                    `${application.latitude}°, ${application.longitude}°`;
+                document.getElementById('modal-status').textContent = application.status;
+            });
+        });
+    });
+</script>

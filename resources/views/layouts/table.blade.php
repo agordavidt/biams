@@ -29,6 +29,50 @@
      
         <!-- Lightbox css -->
         <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
+
+        <style>
+             .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            .status-pending {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            .status-approved {
+                background-color: #dcfce7;
+                color: #166534;
+            }
+            .status-rejected {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+            #map {
+                height: 500px;
+                width: 100%;
+                border-radius: 0.5rem;
+                border: 1px solid #e5e7eb;
+            }
+            .action-btn {
+                padding: 0.25rem;
+                border-radius: 0.375rem;
+                border: none;
+                background: transparent;
+            }
+            .action-btn:hover {
+                background-color: #f3f4f6;
+            }
+            .approve-btn:hover {
+                color: #059669;
+                background-color: #ecfdf5;
+            }
+            .reject-btn:hover {
+                color: #dc2626;
+                background-color: #fef2f2;
+            }
+        </style>
     </head>
 
     <body data-topbar="dark">
