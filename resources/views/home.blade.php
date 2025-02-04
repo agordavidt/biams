@@ -223,13 +223,13 @@
 
                             <!--- more agricultural practices -->
                             <div class="row g-4 mt-3">
-                                <!-- Crop Farming -->
+                                <!-- Agricultural services-->
                                 <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.crop') }}">
+                                    <a href="#">
                                          <div class="card practice-card" data-practice="crop_farming">
                                             <div class="card-body text-center">
                                                 <i class="fas fa-seedling fa-3x text-success mb-3"></i>
-                                                <h4 class="mb-2">Crop Farming</h4>
+                                                <h4 class="mb-2">Agricultural Services</h4>
                                                 <p class="text-truncate font-size-14 mb-2">Register as a crop farmer</p>
                                             </div>
                                     </div>
@@ -237,13 +237,13 @@
                                    
                                 </div>
 
-                                <!-- Animal Farming -->
+                                <!-- Aqualculture and Fisheries -->
                                 <div class="col-md-6 col-lg-3">
-                                    <a href="{{ route('farmers.animal') }}">
+                                    <a href="#">
                                          <div class="card practice-card" data-practice="animal_farming">
                                         <div class="card-body text-center">
                                             <i class="fas fa-seedling fa-3x text-success mb-3"></i>
-                                            <h4 class="mb-2">Animal Farming</h4>
+                                            <h4 class="mb-2">Aqualculture and Fisheries</h4>
                                             <p class="text-truncate font-size-14 mb-2">Register as an animal farmer</p>
                                         </div>
                                     </div>
@@ -256,7 +256,7 @@
                                          <div class="card practice-card" data-practice="processing">
                                         <div class="card-body text-center">
                                             <i class="fas fa-industry fa-3x text-success mb-3"></i>
-                                            <h4 class="mb-2">Processing & Value Addition</h4>
+                                            <h4 class="mb-2">Agroforestry and Forestry</h4>
                                             <p class="text-truncate font-size-14 mb-2">Register as an agricultural processor</p>  
                                         </div>
                                     </div>
