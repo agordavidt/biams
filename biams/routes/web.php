@@ -7,9 +7,46 @@ use App\Http\Controllers\FarmersController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// Link to the default home/landing page
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('landing_page');
+
+// Link to the portal page
+Route::get('/portal', function () {
+    return view('portal');
+})->name('portal');
+
+// Link to the about us page
+Route::get('/about', function () {
+    return view('about_us');
+})->name('about');
+
+
+// Link to the services page
+Route::get('/services', function () {
+    return view('services');
+})->name('services');
+
+
+// Link to the contact us page
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+
+
+
+
+
+// ============================ //
+
+
 
 // Authenticated and verified routes
 Route::middleware(['auth', 'verified'])->group(function () {   
