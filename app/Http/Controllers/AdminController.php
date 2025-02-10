@@ -148,16 +148,10 @@ class AdminController extends Controller
 
 
 
-
         /**
          * Agricultural Practices
          */
-        // Crop Farmers Applications
-            // public function cropFarmers()
-            // {
-            //     $applications = CropFarmer::with('user')->get();
-            //     return view('admin.applications.crop-farmers', compact('applications'));
-            // }
+       
             public function cropFarmers()
             {
                 // $applications = CropFarmer::with('user')->get();
@@ -258,3 +252,7 @@ class AdminController extends Controller
 
 
 }
+
+
+
+

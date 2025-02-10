@@ -18,7 +18,7 @@ class UsersWithProfilesSeeder extends Seeder
         $faker = \Faker\Factory::create();
 
         for ($i = 1; $i <= 10; $i++) {
-            // Create a user
+        
             $user = User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
@@ -28,18 +28,18 @@ class UsersWithProfilesSeeder extends Seeder
                 'email_verified_at' => Carbon::now()->subDays(rand(1, 365)), 
             ]);
 
-            // Create a profile for the user
+          
             $user->profile()->create([
                 'phone' => $faker->phoneNumber,
-                'nin' => $faker->unique()->numerify('###########'), // Generate a unique 11-digit NIN
+                'nin' => $faker->unique()->numerify('###########'), 
                 'address' => $faker->address,
                 'dob' => $faker->date(),
                 'gender' => $faker->randomElement(['Male', 'Female']),
-                'education' => $faker->randomElement(['High School', 'Bachelor', 'Master', 'PhD']),
+                'education' => $faker->randomElement(['No formal education','Primary', 'Graduate', 'Post Graduate']),
                 'household_size' => $faker->numberBetween(1, 10),
                 'dependents' => $faker->numberBetween(0, 5),
                 'income_level' => $faker->randomElement(['Low', 'Medium', 'High']),
-                'lga' => $faker->randomElement(['Gwer West', 'Makurdi', 'Gboko']), // Add more LGAs as needed
+                'lga' => $faker->randomElement(['Gwer West', 'Makurdi', 'Gboko', 'Otukpo', 'Oju', 'Konshisha']), 
             ]);
         }
 

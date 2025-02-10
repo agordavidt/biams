@@ -211,12 +211,4 @@ class FarmersController extends Controller
     }
 
 
-}
-
-
-
-
-
-
-
-    
+}    

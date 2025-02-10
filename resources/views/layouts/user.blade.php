@@ -341,9 +341,9 @@
                                 </a>
                             </li> -->
                             <li>
-                                <a href="#" class=" waves-effect">
+                                <a href="{{ route('user.resources.index') }}" class=" waves-effect">
                                     <i class="ri-calendar-2-line"></i>
-                                    <span>Practices</span>
+                                    <span>Resources</span>
                                 </a>
                             </li>
                             <li>

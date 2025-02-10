@@ -4,12 +4,20 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
+use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\UserResourceController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/horizontal', function () {
+    return view('horizontal');
+});
+
 
 // Authenticated and verified routes
 Route::middleware(['auth', 'verified'])->group(function () { 
@@ -36,35 +44,27 @@ Route::middleware('auth')->group(function () {
 
 
 
-// Agricultural Practices Registration forms
 
 Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
-    // Crop Farmer Routes
+    // agricultural practices routes
     Route::get('/farmers/crop', [FarmersController::class, 'showCropFarmerForm'])->name('farmers.crop');
     Route::post('/farmers/crop', [FarmersController::class, 'storeCropFarmer'])->name('farmers.crop.store');
-
-    // Animal Farmer Routes
     Route::get('/farmers/animal', [FarmersController::class, 'showAnimalFarmerForm'])->name('farmers.animal');
     Route::post('/farmers/animal', [FarmersController::class, 'storeAnimalFarmer'])->name('farmers.animal.store');
-
-    // Abattoir Operator Routes
     Route::get('/farmers/abattoir', [FarmersController::class, 'showAbattoirOperatorForm'])->name('farmers.abattoir');
     Route::post('/farmers/abattoir', [FarmersController::class, 'storeAbattoirOperator'])->name('farmers.abattoir.store');
-
-    // Processor Routes
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
 
     Route::get('/farmers/submissions', [FarmersController::class, 'showSubmissions'])->name('farmers.submissions');
+
+    // resources routes
+    Route::get('/resources', [UserResourceController::class, 'index'])->name('user.resources.index');
+    Route::get('/resources/{resource}', [UserResourceController::class, 'show'])->name('user.resources.show');
+    Route::get('/resources/{resource}/apply', [UserResourceController::class, 'apply'])->name('user.resources.apply');
+    Route::post('/resources/{resource}/submit', [UserResourceController::class, 'submit'])->name('user.resources.submit');
+    Route::get('/resources/applications/track', [UserResourceController::class, 'track'])->name('user.resources.track');
 });
-
-
-
-
-
-
-
-
 
 
 
@@ -74,18 +74,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/applications/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.applications.crop-farmers');   
     Route::get('/admin/applications/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.applications.animal-farmers');    
     Route::get('/admin/applications/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.applications.abattoir-operators'); 
-    Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');    
-    // Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
-    // Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
-    // Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
-    // Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
+    Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');
     Route::post('/applications/{type}/{id}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
 Route::post('/applications/{type}/{id}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
 });
-
-
-
-
 
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -108,12 +100,25 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/registrations', [AdminController::class, 'showRegistrations'])->name('admin.registrations.index');
     Route::put('/admin/registrations/{registration_id}', [AdminController::class, 'updateRegistrationStatus'])->name('admin.registrations.update');
+   
+    // manage resources
+    // Route::resource('admin/resources', ResourceController::class);
+    // // Route::resource('admin/resources', ResourceController::class, ['as' => 'admin']);
+    Route::get('/admin/resources', [ResourceController::class, 'index'])->name('admin.resources.index');
+    Route::get('/admin/resources/create', [ResourceController::class, 'create'])->name('admin.resources.create');
+    Route::post('/admin/resources', [ResourceController::class, 'store'])->name('admin.resources.store');
+    Route::get('/admin/resources/{resource}/edit', [ResourceController::class, 'edit'])->name('admin.resources.edit');
+    Route::put('/admin/resources/{resource}', [ResourceController::class, 'update'])->name('admin.resources.update'); // or PATCH
+    Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+
 });
 
 
 
 // Include authentication routes
 require __DIR__.'/auth.php';
+
+
 
 
 

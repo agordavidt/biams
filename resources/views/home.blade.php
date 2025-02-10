@@ -325,31 +325,31 @@
         
         
 
-<script>
-    function handleOtherOption() {
-        const cropSelect = document.getElementById('crops');
-        const otherCropField = document.getElementById('otherCropField');
-        if (cropSelect.value === 'Other') {
-            otherCropField.style.display = 'block';
-        } else {
-            otherCropField.style.display = 'none';
-        }
-    }
+            <script>
+                function handleOtherOption() {
+                    const cropSelect = document.getElementById('crops');
+                    const otherCropField = document.getElementById('otherCropField');
+                    if (cropSelect.value === 'Other') {
+                        otherCropField.style.display = 'block';
+                    } else {
+                        otherCropField.style.display = 'none';
+                    }
+                }
 
 
-    function handleOtherLivestock() {
-        const livestockSelect = document.getElementById('livestock');
-        const otherLivestockField = document.getElementById('otherLivestockField');
-        if (livestockSelect.value === 'Other') {
-            otherLivestockField.style.display = 'block';
-        } else {
-            otherLivestockField.style.display = 'none';
-        }
-    }
-</script>
+                function handleOtherLivestock() {
+                    const livestockSelect = document.getElementById('livestock');
+                    const otherLivestockField = document.getElementById('otherLivestockField');
+                    if (livestockSelect.value === 'Other') {
+                        otherLivestockField.style.display = 'block';
+                    } else {
+                        otherLivestockField.style.display = 'none';
+                    }
+                }
+            </script>
 
- 
-@endsection
+            
+            @endsection
 
 
 

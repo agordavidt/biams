@@ -4,7 +4,7 @@
     <head>
         
         <meta charset="utf-8" />
-        <title>Admin | Benue State Integrated Agricultural Assets Management System</title>
+        <title>Admin | Benue State Integrated Agricultural Data Assets Management System</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
         <meta content="Themesdesign" name="author" />
@@ -269,7 +269,7 @@
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>User Management</span>
+                                    <span>Users</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.users.summary') }}">View Users</a></li>
@@ -278,17 +278,10 @@
                                 </ul>
                             </li>
 
-                             <!-- <li>
-                                <a href="{{ route('admin.registrations.index') }}" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Registrations</span>
-                                </a>
-                            </li> -->
-
-                             <li>
+                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>Applications</span>
+                                    <span>Registrations</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
@@ -297,7 +290,16 @@
                                     <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
                                 </ul>
                             </li>
+
                              <li>
+                                <a href="{{ route('admin.resources.index') }}" class="waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Resources</span>
+                                </a>
+                            </li>
+
+                            
+                             <!-- <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Resources</span>
@@ -308,7 +310,7 @@
                                     <li><a href="{{ route('admin.applications.abattoir-operators') }}">Abattoir Operators</a></li>
                                     <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
                                 </ul>
-                            </li>
+                            </li> -->
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
