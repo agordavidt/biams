@@ -712,7 +712,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                                     <div class="timeline-nav">
                                         <div><span><strong> </strong></span></div>
                                         <div><span><strong> </strong></span></div>
-                                        <div><span><strong></strong></span></div>
+                                        <div><span><strong> </strong></span></div>
                                         <div><span><strong> </strong></span></div>
                                         <div><span><strong> </strong></span></div>
                                         <div><span><strong> </strong></span></div>
