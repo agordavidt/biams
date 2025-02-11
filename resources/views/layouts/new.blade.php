@@ -1,33 +1,26 @@
 <!doctype html>
 <html lang="en">
 
-    <head>
-        
-        <meta charset="utf-8" />
-        <title>Benue State Integrated Agricultural Assets Data Management System</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-        <meta content="Themesdesign" name="author" />
-        <!-- App favicon -->
-        <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+<head>
 
-        <!-- jquery.vectormap css -->
-        <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Benue State Integrated Agricultural Assets Data Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Benue Stat Integrated Agricultural Assets Data Management System" name="description" />
+    <meta content="BDIC Team" name="author" />
 
-        <!-- DataTables -->
-        <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
 
-        <!-- Responsive datatable examples -->
-        <link href="{{ asset('dashboard/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />  
+    <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
-        <!-- Bootstrap Css -->
-        <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-        <!-- Icons Css -->
-        <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-        <!-- App Css-->
-        <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('dashboard/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 
-    </head>
+</head>
 
     <body data-topbar="dark" data-layout="horizontal">
 
@@ -153,39 +146,54 @@
                 </div>
             </header>
     
-                <div class="topnav">
-                    <div class="container-fluid">
-                        <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
-    
-                            <div class="collapse navbar-collapse" id="topnav-menu-content">
-                                <ul class="navbar-nav">
-
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('home') }}">
-                                            <i class="ri-dashboard-line me-2"></i> Dashboard
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('farmers.submissions') }}">
-                                        <i class="ri-stack-line me-2"></i> Practices 
-                                        </a>
-                                    </li>
-                                   
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('user.resources.index') }}">
-                                        <i class="ri-apps-2-line me-2"></i> Resources 
-                                        </a>
-                                    </li> 
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="index.html">
-                                        <i class="ri-pencil-ruler-2-line me-2"></i> Market  
-                                        </a>
-                                    </li> 
-                                </ul>
-                            </div>
-                        </nav>
-                    </div>
+            <div class="topnav">
+                <div class="container-fluid">
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('home') }}">
+                                        <i class="ri-dashboard-line me-2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('farmers.submissions') }}">
+                                        <i class="ri-stack-line me-2"></i> Practices
+                                    </a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-resources" role="button">
+                                        <i class="ri-apps-2-line me-2"></i> Resources <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-resources">
+                                        <a href="{{ route('user.resources.index') }}" class="dropdown-item">Available Resources</a>
+                                        <a href="{{ route('user.resources.track') }}" class="dropdown-item">Track Applications</a>
+                                    </div>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="ri-exchange-dollar-line me-2"></i> Market
+                                    </a>
+                                </li>
+                                <li>
+                                <a class="dropdown-item" href="{{ route('profile.update') }}"><i class="ri-user-line align-middle me-1"></i> Profile</a>                               
+                                <!-- <a class="dropdown-item" href="#"><i class="ri-lock-unlock-line align-middle me-1"></i> Lock screen</a> -->
+                                
+                                </li>
+                                <li>
+                                <div class="dropdown-divider"></div>
+                                    <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                                        @csrf 
+                                            <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a> 
+                                       
+                                    </form>
+                                </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
                 </div>
+            </div>
 
        
             <div class="main-content">
@@ -228,31 +236,53 @@
         <!-- Right bar overlay-->
         <div class="rightbar-overlay"></div>
 
-        <!-- JAVASCRIPT -->
         <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/simplebar/simplebar.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/node-waves/waves.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
-        <!-- apexcharts -->
-        <script src="{{ asset('dashboard/libs/apexcharts/apexcharts.min.js') }}"></script>
+     
 
-        <!-- jquery.vectormap map -->
         <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js') }}"></script>
 
-        <!-- Required datatable js -->
         <script src="{{ asset('dashboard/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-        
-        <!-- Responsive examples -->
+
         <script src="{{ asset('dashboard/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-        <script src="{{ asset('dashboard/js/pages/dashboard.init.js') }}"></script>
-
+       
         <script src="{{ asset('dashboard/js/app.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

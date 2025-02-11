@@ -100,82 +100,92 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <!-- Crop Farming -->
                         <div class="col-md-4">
                             <a href="{{ route('farmers.crop') }}" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-seedling fa-3x text-primary"></i>
+                                    <i class="fas fa-seedling fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Crop Farming</h5>
                                 <p class="card-text text-muted small">Register as a crop farmer</p>
                             </a>
                         </div>
 
-                        <!-- Animal Farming -->
                         <div class="col-md-4">
                             <a href="{{ route('farmers.animal') }}" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-cow fa-3x text-primary"></i>
+                                <i class="fas fa-horse fa-3x icon-green"></i>  
                                 </div>
                                 <h5 class="card-title mb-1">Animal Farming</h5>
-                                <p class="card-text text-muted small">Register as an animal farmer</p>
+                                <p class="card-text text-muted small">All types of animal husbandry</p>
                             </a>
                         </div>
 
-                        <!-- Processing -->
                         <div class="col-md-4">
                             <a href="{{ route('farmers.processor') }}" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-industry fa-3x text-primary"></i>
+                                    <i class="fas fa-industry fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Processing</h5>
                                 <p class="card-text text-muted small">Register as an agricultural processor</p>
                             </a>
                         </div>
 
-                        <!-- Abattoir -->
                         <div class="col-md-4">
                             <a href="{{ route('farmers.abattoir') }}" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-warehouse fa-3x text-primary"></i>
+                                    <i class="fas fa-warehouse fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Abattoir</h5>
                                 <p class="card-text text-muted small">Register as an abattoir operator</p>
                             </a>
                         </div>
 
-                        <!-- Agricultural Services -->
                         <div class="col-md-4">
                             <a href="#" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-tractor fa-3x text-primary"></i>
+                                    <i class="fas fa-tractor fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Agricultural Services</h5>
                                 <p class="card-text text-muted small">Agricultural support services</p>
                             </a>
                         </div>
 
-                        <!-- Aquaculture -->
                         <div class="col-md-4">
                             <a href="#" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-fish fa-3x text-primary"></i>
+                                    <i class="fas fa-fish fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Aquaculture</h5>
                                 <p class="card-text text-muted small">Fishing and aquatic farming</p>
                             </a>
                         </div>
 
-                        <!-- Agroforestry -->
                         <div class="col-md-4">
                             <a href="#" class="card card-body text-center hover-effect">
                                 <div class="mb-3">
-                                    <i class="fas fa-tree fa-3x text-primary"></i>
+                                    <i class="fas fa-tree fa-3x icon-green"></i>
                                 </div>
                                 <h5 class="card-title mb-1">Agroforestry</h5>
                                 <p class="card-text text-muted small">Sustainable forest management</p>
                             </a>
                         </div>
+
+                        <!-- <div class="col-md-4">
+                            <a href="#" class="card card-body text-center hover-effect">
+                                <div class="mb-3">
+                                    <i class="fas fa-horse fa-3x icon-green"></i>  </div>
+                                <h5 class="card-title mb-1">Animal Farming</h5>
+                                <p class="card-text text-muted small">All types of animal husbandry</p>
+                            </a>
+                        </div> -->
+                        <ul>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                                @csrf 
+                                <li> 
+                                    <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
+                                </li> 
+                            </form>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -204,5 +214,43 @@
     transform: translateY(-10px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
+
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly darker shadow */
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transitions */
+    border: none; /* remove default border */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Move up slightly */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+}
+
+.card-body {
+    padding: 20px; /* Adjust padding as needed */
+}
+
+.card-title {
+    font-weight: 500; /* Slightly bolder title */
+}
+
+.card-text {
+    color: #777; /* Slightly darker muted text */
+}
+
+.hover-effect:hover {
+    cursor: pointer; /* indicate clickable */
+}
+
+.icon-green {
+    color: #28a745 !important; /* Green color, override existing styles */
+}
+
 </style>
 @endpush
+
+
+
+
+

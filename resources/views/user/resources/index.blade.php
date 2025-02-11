@@ -1,66 +1,78 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Available Resources') }}
-        </h2>
-    </x-slot>
+@extends('layouts.new')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($resources as $resource)
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <h3 class="text-lg font-semibold mb-2">{{ $resource->name }}</h3>
-                            <p class="text-gray-600 mb-4">{{ Str::limit($resource->description, 100) }}</p>
-                            
-                            @php
-                                $application = $applications->where('resource_id', $resource->id)->first();
-                            @endphp
-
-                            @if($application)
-                                <div class="mb-4">
-                                    <span class="px-2 py-1 rounded text-sm 
-                                        @if($application->status === 'approved') bg-green-100 text-green-800
-                                        @elseif($application->status === 'rejected') bg-red-100 text-red-800
-                                        @else bg-yellow-100 text-yellow-800
-                                        @endif">
-                                        Status: {{ ucfirst($application->status) }}
-                                    </span>
-                                </div>
-                            @endif
-
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-700">
-                                    @if($resource->requires_payment)
-                                        Price: ₦{{ number_format($resource->price, 2) }}
-                                    @else
-                                        Free
-                                    @endif
-                                </span>
-                                
-                                @if(!$application)
-                                    <a href="{{ route('user.resources.show', $resource) }}"
-                                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                        View Details
-                                    </a>
-                                @else
-                                    <a href="{{ route('user.resources.track') }}"
-                                       class="text-blue-500 hover:text-blue-700">
-                                        Track Application
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Available Resources</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Resources</li>
+                </ol>
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<div class="row">
+    @foreach($resources as $resource)
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">{{ $resource->name }}</h5>
+                    <p class="card-text text-muted mb-4">{{ Str::limit($resource->description, 100) }}</p>
+
+                    @php
+                        $application = $applications->where('resource_id', $resource->id)->first();
+                    @endphp
+
+                    @if($application)
+                        <div class="mb-3">
+                            <span class="badge rounded-pill font-size-12 px-3 py-2
+                                @if($application->status === 'approved') bg-success
+                                @elseif($application->status === 'rejected') bg-danger
+                                @else bg-warning
+                                @endif">
+                                Status: {{ ucfirst($application->status) }}
+                            </span>
+                        </div>
+                    @endif
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="font-size-14">
+                            @if($resource->requires_payment)
+                                <i class="ri-money-naira-circle-line me-1"></i>
+                                {{ number_format($resource->price, 2) }}
+                            @else
+                                <span class="text-success">
+                                    <i class="ri-checkbox-circle-line me-1"></i> Free
+                                </span>
+                            @endif
+                        </span>
+
+                        @if(!$application)
+                            <a href="{{ route('user.resources.show', $resource) }}" 
+                               class="btn btn-primary btn-sm waves-effect waves-light">
+                                View Details
+                            </a>
+                        @else
+                            <a href="{{ route('user.resources.track') }}" 
+                               class="btn btn-info btn-sm waves-effect waves-light">
+                                Track Application
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+@endsection

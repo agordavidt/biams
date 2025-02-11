@@ -1,49 +1,88 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ $resource->name }}
-        </h2>
-    </x-slot>
+@extends('layouts.new')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Description</h3>
-                        <p class="text-gray-600">{{ $resource->description }}</p>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-2">Details</h3>
-                        <ul class="list-disc list-inside">
-                            <li>Type: {{ ucfirst($resource->target_practice) }}</li>
-                            <li>Cost: 
-                                @if($resource->requires_payment)
-                                    ₦{{ number_format($resource->price, 2) }}
-                                @else
-                                    Free
-                                @endif
-                            </li>
-                        </ul>
-                    </div>
-
-                    @if($existingApplication)
-                        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
-                            <p>You have already applied for this resource. 
-                               <a href="{{ route('user.resources.track') }}" class="underline">Track your application</a>
-                            </p>
-                        </div>
-                    @else
-                        <div class="mt-6">
-                            <a href="{{ route('user.resources.apply', $resource) }}"
-                               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Apply Now
-                            </a>
-                        </div>
-                    @endif
-                </div>
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">{{ $resource->name }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('user.resources.index') }}">Resources</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5 class="card-title mb-3">Description</h5>
+                    <p class="text-muted">{{ $resource->description }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="card-title mb-3">Details</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <div class="avatar-title rounded-circle bg-light text-primary">
+                                            <i class="ri-file-list-3-line"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted mb-1">Type</p>
+                                    <h5 class="font-size-14">{{ ucfirst($resource->target_practice) }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <div class="avatar-title rounded-circle bg-light text-primary">
+                                            <i class="ri-money-naira-circle-line"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted mb-1">Cost</p>
+                                    <h5 class="font-size-14">
+                                        @if($resource->requires_payment)
+                                            ₦{{ number_format($resource->price, 2) }}
+                                        @else
+                                            Free
+                                        @endif
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($existingApplication)
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="ri-alert-line me-3 align-middle"></i>
+                        You have already applied for this resource.
+                        <a href="{{ route('user.resources.track') }}" class="alert-link">Track your application</a>
+                    </div>
+                @else
+                    <div class="mt-4">
+                        <a href="{{ route('user.resources.apply', $resource) }}" 
+                           class="btn btn-primary waves-effect waves-light">
+                            Apply Now
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
