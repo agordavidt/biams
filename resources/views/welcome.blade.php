@@ -163,42 +163,11 @@
 
 
 
-<<<<<<< Updated upstream:biams/resources/views/welcome.blade.php
-
-=======
->>>>>>> Stashed changes:resources/views/welcome.blade.php
 
 
 
 
 
-<<<<<<< Updated upstream:biams/resources/views/welcome.blade.php
-<!-- About Section -->
-<section class="py-5" style="background-color: #EAEAEA">
-    <div class="container">
-        <div class="row g-4"><h4><span style="font-style: italic">Welcome to </span><span style="color: rgb(4, 80, 4);">Benue State Integrated Agricultural Data and Assets Management System</span></h4>
-            <div class="col-md-8">
-                <div class="stat-card text-center">
-                    <p class="text-muted mb-3" style="text-align: justify">This is a system that digitally connects farmers, buyers, and agricultural product vendors. By offering these connections, the platform enhances agricultural data/market access and supports productivity for all stakeholders.</p>
-                <p class="text-muted mb-3" style="text-align: justify">In addition, the system empowers government agencies to implement targeted support programs such as subsidies, grants, and capacity-building initiatives.</p>
-                <a href="{{ route('register') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
-            </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card text-center">
-                    
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                        <img src="{{ asset('dashboard/images/page3_bigimg1.jpg') }}" style="border-radius: 1em" alt="farm_produce" height="200">
-=======
-                        <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em" alt="farming_produce" height="200">
->>>>>>> Stashed changes
-=======
-                        <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em" alt="farming_produce" height="200">
->>>>>>> Stashed changes
-                        
-                    
-=======
     <!-- About Section -->
     <section class="py-5" style="background-color: #EAEAEA">
         <div class="container">
@@ -216,7 +185,7 @@
                             capacity-building initiatives.</p>
                         <a href="{{ route('login') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
                     </div>
->>>>>>> Stashed changes:resources/views/welcome.blade.php
+
                 </div>
                 <div class="col-md-4">
                     <div class="stat-card text-center">

@@ -18,9 +18,9 @@ Route::get('/', function () {
 })->name('landing_page');
 
 // Link to the portal page
-Route::get('/portal', function () {
-    return view('portal');
-})->name('portal');
+// Route::get('/portal', function () {
+//     return view('portal');
+// })->name('portal');
 
 // Link to the about us page
 Route::get('/about', function () {
