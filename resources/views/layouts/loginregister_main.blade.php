@@ -6,60 +6,16 @@
     <title>Benue State Integrated Agricultural Assets Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <link rel="icon" href="dashboard/images/favicon.jpg" type="image/x-icon">
-    <link rel="shortcut icon" href="dashboard/images/favicon.jpg" type="image/x-icon" />
-
     <style>
-
-.gradient-custom-1 {
-/* fallback for old browsers */
-background: #ecf4f5;
-
-/* Chrome 10-25, Safari 5.1-6 */
-/* background: -webkit-linear-gradient(to right, rgb(58, 87, 58), #ecf4f5, #ecf4f5, #ffffff); */
-
-/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+  #ecf4f5; f8f9fa */
-/* background: linear-gradient(to right, rgb(58, 87, 58), #ecf4f5, #ecf4f5, #ffffff); */
-}
-
-
-.gradient-custom-2 {
-/* fallback for old browsers */
-background: #ecf4f5;
-
-/* Chrome 10-25, Safari 5.1-6 */
-/* background: -webkit-linear-gradient(to top, rgb(61, 104, 61), #ffffff, #ffffff, #ffffff); */
-
-/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+   */
-/* background: linear-gradient(to top, rgb(61, 104, 61), #ffffff, #ffffff, #ffffff); */
-}
-
-@media (min-width: 768px) {
-.gradient-form {
-height: 100vh !important;
-}
-}
-@media (min-width: 769px) {
-.gradient-custom-2 {
-border-top-right-radius: .3rem;
-border-bottom-right-radius: .3rem;
-}
-}
-
-
         :root {
             --primary-color: #2E7D32;
             --secondary-color: #81C784;
             --accent-color: #FDD835;
         }
-        
-        body {
-             background-color: #f8f9fa; /* f8f9fa  ecf4f5 */
-            /* font-family: 'Segoe UI', sans-serif;
 
-            background: url('{{ asset('dashboard/images/portalbg.jpg') }}'); */
-            
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         .auth-wrapper {

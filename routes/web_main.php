@@ -7,51 +7,16 @@ use App\Http\Controllers\FarmersController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Link to the default home/landing page
 Route::get('/', function () {
     return view('welcome');
-})->name('landing_page');
-
-// Link to the portal page
-Route::get('/portal', function () {
-    return view('portal');
-})->name('portal');
-
-// Link to the about us page
-Route::get('/about', function () {
-    return view('about_us');
-})->name('about');
-
-
-// Link to the services page
-Route::get('/services', function () {
-    return view('services');
-})->name('services');
-
-
-// Link to the contact us page
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
-
-
-
-
-
-
-// ============================ //
-
-
+});
 
 // Authenticated and verified routes
-Route::middleware(['auth', 'verified'])->group(function () {   
-    // Route::get('/home', [DashboardController::class, 'index'])->name('home');
+Route::middleware(['auth', 'verified'])->group(function () { 
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
+
+    // show application details to users
+    Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
     
     });
 
@@ -69,8 +34,11 @@ Route::middleware('auth')->group(function () {
 });
 
 
+
+
 // Agricultural Practices Registration forms
-Route::middleware(['auth', 'verified'])->group(function () {
+
+Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     // Crop Farmer Routes
     Route::get('/farmers/crop', [FarmersController::class, 'showCropFarmerForm'])->name('farmers.crop');
     Route::post('/farmers/crop', [FarmersController::class, 'storeCropFarmer'])->name('farmers.crop.store');
@@ -87,7 +55,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
 
+    Route::get('/farmers/submissions', [FarmersController::class, 'showSubmissions'])->name('farmers.submissions');
 });
+
+
+
+
 
 
 
@@ -104,8 +77,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');    
     // Route::post('/admin/applications/{user}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
     // Route::post('/admin/applications/{user}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
-    Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
-    Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
+    // Route::post('/admin/applications/{type}/{id}/approve', [AdminController::class, 'approve']);
+    // Route::post('/admin/applications/{type}/{id}/reject', [AdminController::class, 'reject']);
+    Route::post('/applications/{type}/{id}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
+Route::post('/applications/{type}/{id}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
 });
 
 
