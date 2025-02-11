@@ -89,7 +89,7 @@
                     <li class="nav-item"> <a class="nav-link" href="{{ route(name: 'contact') }}">Contact</a> </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"> <a class="nav-link" href="{{ route( 'login') }}">PORTAL</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="{{ route(name: 'login') }}">PORTAL</a> </li>
                     {{-- @if (Route::has('login'))
 
                         @auth
