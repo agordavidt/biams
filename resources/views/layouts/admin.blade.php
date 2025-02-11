@@ -199,9 +199,9 @@
                             </li>
 
                              <li>
-                                <a href="{{ route('admin.resources.index') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>Resources</span>
+                                    <span>Practices</span>
                                 </a>
                             </li>
 
@@ -260,7 +260,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © BSIADAMS.
+                                <script>document.write(new Date().getFullYear())</script> © Benue State Integrated Agricultural Data Assets Management System.
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">
