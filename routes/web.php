@@ -5,7 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
 use App\Http\Controllers\ResourceController;
-use App\Http\Controllers\UserResourceController;
+use App\Http\Controllers\UserResourceController; 
+use App\Http\Controllers\Admin\ResourceApplicationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -110,6 +111,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/resources/{resource}/edit', [ResourceController::class, 'edit'])->name('admin.resources.edit');
     Route::put('/admin/resources/{resource}', [ResourceController::class, 'update'])->name('admin.resources.update'); // or PATCH
     Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+
+    // Resource Applications Management
+    Route::get('/admin/resources/applications', [ResourceApplicationController::class, 'index'])
+        ->name('admin.applications.index');
+    Route::get('/admin/resources/applications/{application}', [ResourceApplicationController::class, 'show'])
+        ->name('admin.applications.show');
+    Route::put('/admin/resources/applications/{application}/status', [ResourceApplicationController::class, 'updateStatus'])
+        ->name('admin.applications.update-status');
 
 });
 

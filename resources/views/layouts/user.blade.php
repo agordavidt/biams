@@ -28,13 +28,16 @@
          <!-- Lightbox css -->
          <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
 
+          <!-- Lightbox css -->
+        <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
+
 
         <!--- new stuff ----->
          <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>BSAMS - Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
+        <title>BSAMS - Dashboard</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
             .status-container {
             padding: 20px;
             border-radius: 10px;
@@ -460,6 +463,12 @@
         <script src="{{ asset('dashboard/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
         <script src="{{ asset('dashboard/js/pages/dashboard.init.js') }}"></script>
+
+         <!-- Magnific Popup-->
+         <script src="{{ asset('dashboard/libs/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+
+        <!-- lightbox init js-->
+        <script src="{{ asset('dashboard/js/pages/lightbox.init.js') }}"></script>
 
         <!-- App js -->
         <script src="{{ asset('dashboard/js/app.js') }}"></script>
