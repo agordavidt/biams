@@ -10,6 +10,14 @@
 
             <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
 
+             <!-- Preload critical assets -->
+            <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
+            <link rel="preload" href="{{ asset('dashboard/js/app.js') }}" as="script">
+
+            <!-- Consolidated CSS bundles -->
+            <link href="{{ asset('dashboard/css/vendor-bundle.css') }}" rel="stylesheet">
+            <link href="{{ asset('dashboard/css/app-bundle.css') }}" rel="stylesheet">
+
             <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
             <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
             <link href="{{ asset('dashboard/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
@@ -19,6 +27,7 @@
             <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
             <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
             <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
+            <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
             <style>
              .status-badge {
@@ -165,6 +174,7 @@
                         <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li class="menu-title">Menu</li>
+                            
 
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="waves-effect">
@@ -311,6 +321,10 @@
         <script src="{{ asset('dashboard/libs/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
 
         <script src="{{ asset('dashboard/js/pages/lightbox.init.js') }}"></script>
+        <!-- Optimized Script Loading -->
+        <script src="{{ asset('dashboard/js/vendor-bundle.js') }}" defer></script>
+        <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
