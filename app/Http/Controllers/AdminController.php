@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -14,6 +16,8 @@ use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\Processor;
 use App\Notifications\ApplicationStatusUpdated;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -22,27 +26,97 @@ class AdminController extends Controller
      */
     public function index()
     {
-        
-        // $users = User::all();
-        $users = User::with('profile')->get();
+        // Get total users count
         $totalUsers = User::count();
-        $pendingUsers = User::where('status', 'pending')->count();
-        $approvedUsers = User::where('status', 'onboarded')->count();
-
-
         
+        // Get new users today
+        $newToday = User::whereDate('created_at', Carbon::today())->count();
+        
+        // Get pending users
+        $pendingUsers = User::where('status', 'pending')->count();
+        
+        // Calculate profile completion
+        $completedProfiles = Profile::whereNotNull('phone')
+            ->whereNotNull('gender')
+            ->whereNotNull('dob')
+            ->whereNotNull('lga')
+            ->count();
+            
+        $profileCompletion = [
+            'percentage' => $totalUsers > 0 ? round(($completedProfiles / $totalUsers) * 100) : 0,
+            'completed' => $completedProfiles
+        ];
+        
+        // Compile stats array
+        $stats = [
+            'totalUsers' => $totalUsers,
+            'newToday' => $newToday,
+            'pendingUsers' => $pendingUsers,
+            'profileCompletion' => $profileCompletion,
+            'recentActivity' => User::where('email_verified_at', '>=', Carbon::now()->subDay())->count()
+        ];
+        
+        // Get monthly registration stats for the past 12 months
+        $monthlyStats = User::select(
+            DB::raw('DATE_FORMAT(created_at, "%b") as month'),
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status = "active" THEN 1 ELSE 0 END) as onboarded')
+        )
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->groupBy('month')
+            ->orderBy('created_at')
+            ->get();
+            
+            
+        // Get practice distribution
+        $practiceDistribution = [
+            'Crop Farmers' => CropFarmer::count(),
+            'Animal Farmers' => AnimalFarmer::count(),
+            'Abattoir Operators' => AbattoirOperator::count(),
+            'Processors' => Processor::count()
+        ];
+        
+        // Get recent users with their profiles
+        $recentUsers = User::with('profile')
+            ->select('users.*')
+            ->selectRaw('
+                CASE 
+                    WHEN status = "active" THEN "success"
+                    WHEN status = "pending" THEN "warning"
+                    ELSE "secondary"
+                END as status_color
+            ')
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'lga' => $user->profile->lga ?? 'N/A',
+                    'status' => ucfirst($user->status),
+                    'status_color' => $user->status_color,
+                    'phone' => $user->profile->phone ?? 'N/A',
+                    'gender' => $user->profile->gender ?? 'N/A',
+                   'age' => $user->profile?->dob ? Carbon::parse($user->profile?->dob)->age : 'N/A',
+                ];
+            });
+            
+        // Get regional distribution (top LGAs)
+        $regionalDistribution = Profile::select('lga', DB::raw('COUNT(*) as count'))
+            ->whereNotNull('lga')
+            ->groupBy('lga')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
 
-        // Option B: Session-Based Tracking (Less Accurate because unique visits cannot easily be determined using ip address)
-        if (!Session::has('visitor_id')) {
-        Session::put('visitor_id', uniqid()); 
-        }
-        $totalVisits = Session::get('visit_count', 0) + 1;
-        Session::put('visit_count', $totalVisits); 
-        $uniqueVisits = 0; 
-
-        return view('admin.index', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers', 'totalVisits', 'uniqueVisits',)); 
-        // return view('admin.index', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers'));
-       
+        return view('admin.index', compact(
+            'stats',
+            'monthlyStats',
+            'practiceDistribution',
+            'recentUsers',
+            'regionalDistribution'
+        ));
     }
 
     // public function dashboard()

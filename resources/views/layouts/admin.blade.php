@@ -184,21 +184,20 @@
                             </li>
 
                              <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <a href="{{ route('admin.users.summary') }}" class="waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Users</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.users.summary') }}">View Users</a></li>
-                                    <li><a href="{{ route('admin.users.create') }}">Add User</a></li>
-                                    <!-- <li><a href="#">Delete User</a></li>                                     -->
+                                    <!-- <li><a href="{{ route('admin.users.summary') }}">View Users</a></li>
+                                    <li><a href="{{ route('admin.users.create') }}">Add User</a></li>                                                                        --> -->
                                 </ul>
                             </li>
 
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
-                                    <span>Registrations</span>
+                                    <span>Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
@@ -207,15 +206,6 @@
                                     <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
                                 </ul>
                             </li>
-
-                             <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Practices</span>
-                                </a>
-                            </li>
-
-                            
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>
@@ -225,6 +215,12 @@
                                     <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
                                     <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
                                 </ul>
+                            </li>
+                            <li>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Market</span>
+                                </a>
                             </li>
                 
                             <li>
@@ -325,6 +321,7 @@
         <script src="{{ asset('dashboard/js/vendor-bundle.js') }}" defer></script>
         <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
