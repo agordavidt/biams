@@ -143,9 +143,6 @@
                                 </form>
                             </div>
                         </div>
-
-                    
-
                         
 
                        <div class="dropdown d-inline-block user-dropdown">
@@ -173,8 +170,7 @@
                     <div id="sidebar-menu">
                         <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
-                            
+                            <li class="menu-title">Menu</li>                            
 
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="waves-effect">
@@ -187,13 +183,8 @@
                                 <a href="{{ route('admin.users.summary') }}" class="waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Users</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <!-- <li><a href="{{ route('admin.users.summary') }}">View Users</a></li>
-                                    <li><a href="{{ route('admin.users.create') }}">Add User</a></li>                                                                        --> -->
-                                </ul>
+                                </a>                               
                             </li>
-
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-account-circle-line"></i>

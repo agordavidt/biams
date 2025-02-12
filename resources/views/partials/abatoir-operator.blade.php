@@ -20,15 +20,15 @@
                         @if($application->user->profile)
                             <h5 class="card-title mt-2">Farmer Profile</h5>
                             <ul>
-                                <li><strong>Age: </strong> {{ $application->user->profile->dob }} years</li>
-                                <li><strong>Gender: </strong> {{ $application->user->profile->gender }}</li>
-                                <li><strong>Education: </strong> {{ $application->user->profile->lga }}</li>
-                                <li><strong>Income: </strong> {{ $application->user->profile->income_level }}</li>
-                                <li><strong>Hosehold Size: </strong> {{ $application->user->profile->household_size }}</li>
+                                <li><strong>Age:</strong> {{ $application->user->profile->dob }} years</li>
+                                <li><strong>Gender:</strong> {{ $application->user->profile->gender }}</li>
+                                <li><strong>Education:</strong> {{ $application->user->profile->lga }}</li>
+                                <li><strong>Income:</strong> {{ $application->user->profile->income_level }}</li>
+                                <li><strong>Hosehold Size:</strong> {{ $application->user->profile->household_size }}</li>
                                 <li><strong>Dependents:</strong> {{ $application->user->profile->dependents  }}</li>
-                                <li><strong>Local Government Area: </strong> {{ $application->user->profile->lga  }}</li>
-                                <li><strong>Ward: </strong> {{ $application->user->profile->gender }}</li>
-                                <li><strong>Address: </strong> {{ $application->user->profile->address }}</li>
+                                <li><strong>Local Government Area:</strong> {{ $application->user->profile->lga  }}</li>
+                                <li><strong>Ward:</strong> {{ $application->user->profile->gender }}</li>
+                                <li><strong>Address:</strong> {{ $application->user->profile->address }}</li>
                             </ul>
                         @endif
                         </div>
@@ -43,4 +43,3 @@
             </div>
         </div>
     </div>
-
