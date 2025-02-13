@@ -3,9 +3,15 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Agricultural Practices</h4>
-        </div>
+    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Agricultural Practice Registrations</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Registrations</li>
+                </ol>
+            </div>
+        </div>        
     </div>
 </div>
 
@@ -13,7 +19,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Your registered agricultural practices</h4>
+                <!-- <h4 class="card-title">Your registered agricultural practices</h4> -->
                 <p class="card-title-desc"></p>
 
                 <div class="table-responsive">

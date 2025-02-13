@@ -96,17 +96,7 @@
         @if (auth()->user()->status === 'onboarded')
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Select Your Agricultural Practice</h4>
-
-
-
-
-
-
-
-
-
-                    
+                    <h4 class="card-title mb-0">Select Your Agricultural Practice</h4> 
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
