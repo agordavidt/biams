@@ -97,11 +97,21 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">Select Your Agricultural Practice</h4>
+
+
+
+
+
+
+
+
+
+                    
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <a href="{{ route('farmers.crop') }}" class="card card-body text-center hover-effect">
+                            <a href="{{ route('farmers.crop') }}" class="card card-body text-center hover-effect  border-outline-secondary">
                                 <div class="mb-3">
                                     <i class="fas fa-seedling fa-3x icon-green"></i>
                                 </div>

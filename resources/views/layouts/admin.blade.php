@@ -191,10 +191,10 @@
                                     <span>Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.applications.crop-farmers') }}">Crop Farmers</a></li>
-                                    <li><a href="{{ route('admin.applications.animal-farmers') }}">Animal Farmers</a></li>
-                                    <li><a href="{{ route('admin.applications.abattoir-operators') }}">Abattoir Operators</a></li>
-                                    <li><a href="{{ route('admin.applications.processors') }}">Processors</a></li>
+                                    <li><a href="{{ route('admin.practices.crop-farmers') }}">Crop Farmers</a></li>
+                                    <li><a href="{{ route('admin.practices.animal-farmers') }}">Animal Farmers</a></li>
+                                    <li><a href="{{ route('admin.practices.abattoir-operators') }}">Abattoir Operators</a></li>
+                                    <li><a href="{{ route('admin.practices.processors') }}">Processors</a></li>
                                 </ul>
                             </li>
                              <li>

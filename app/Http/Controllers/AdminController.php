@@ -233,7 +233,7 @@ class AdminController extends Controller
                     $query->with('profile'); // Eager load profile for each user for all the agricultural practices
                 }])->get();
                 $type = 'crop-farmer'; // Define the type and do same for all the agricultural practices
-                return view('admin.applications.crop-farmers', compact('applications', 'type'));
+                return view('admin.practices.crop-farmers', compact('applications', 'type'));
             }
 
             // Animal Farmers Applications
@@ -243,7 +243,7 @@ class AdminController extends Controller
                     $query->with('profile'); // Eager load profile for each user for all the agricultural practices
                 }])->get();
                 $type = 'animal-farmer'; 
-                return view('admin.applications.animal-farmers', compact('applications', 'type'));
+                return view('admin.practices.animal-farmers', compact('applications', 'type'));
             }
 
             // Abattoir Operators Applications
@@ -252,7 +252,7 @@ class AdminController extends Controller
                 $applications = AbattoirOperator::with(['user' => function ($query) {
                     $query->with('profile'); // Eager load profile for each user for all the agricultural practices
                 }])->get();
-                return view('admin.applications.abattoir-operators', compact('applications'));
+                return view('admin.practices.abattoir-operators', compact('applications'));
             }
 
             // Processors Applications
@@ -261,7 +261,7 @@ class AdminController extends Controller
                 $applications = Processor::with(['user' => function ($query) {
                     $query->with('profile'); // Eager load profile for each user for all the agricultural practices
                 }])->get();
-                return view('admin.applications.processors', compact('applications'));
+                return view('admin.practices.processors', compact('applications'));
             }
 
             // Approve an application

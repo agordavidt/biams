@@ -72,10 +72,10 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
 // Delete this routes Admin routes
 
 Route::middleware(['auth', 'admin'])->group(function () { 
-    Route::get('/admin/applications/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.applications.crop-farmers');   
-    Route::get('/admin/applications/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.applications.animal-farmers');    
-    Route::get('/admin/applications/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.applications.abattoir-operators'); 
-    Route::get('/admin/applications/processors', [AdminController::class, 'processors'])->name('admin.applications.processors');
+    Route::get('/admin/practices/crop-farmers', [AdminController::class, 'cropFarmers'])->name('admin.practices.crop-farmers');   
+    Route::get('/admin/practices/animal-farmers', [AdminController::class, 'animalFarmers'])->name('admin.practices.animal-farmers');    
+    Route::get('/admin/practices/abattoir-operators', [AdminController::class, 'abattoirOperators'])->name('admin.practices.abattoir-operators'); 
+    Route::get('/admin/practices/processors', [AdminController::class, 'processors'])->name('admin.practices.processors');
     Route::post('/applications/{type}/{id}/approve', [AdminController::class, 'approve'])->name('admin.applications.approve');
 Route::post('/applications/{type}/{id}/reject', [AdminController::class, 'reject'])->name('admin.applications.reject');
 });
