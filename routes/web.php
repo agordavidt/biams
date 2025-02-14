@@ -15,14 +15,16 @@ Route::get('/', function () {
 });
 
 
-Route::get('/horizontal', function () {
-    return view('horizontal');
-});
+
 
 
 // Authenticated and verified routes
 Route::middleware(['auth', 'verified'])->group(function () { 
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
+
+    Route::get('/horizontal', function () {
+        return view('horizontal');
+    });
 
     // show application details to users
     Route::get('/application/{id}/details', [DashboardController::class, 'showApplicationDetails'])->name('application.details');
@@ -89,6 +91,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/users/store', [AdminController::class, 'storeUser'])->name('admin.users.store');
     // Onboard users (approve profiles)
     Route::post('/admin/users/{user}/onboard', [AdminController::class, 'onboardUser'])->name('admin.users.onboard');
+    Route::post('/admin/users/{user}/reject', [AdminController::class, 'rejectUser'])->name('admin.users.reject');
     // View user summary
     Route::get('/admin/users/summary', [AdminController::class, 'userSummary'])->name('admin.users.summary');
     Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');

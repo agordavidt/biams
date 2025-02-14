@@ -48,7 +48,13 @@ class RegisteredUserController extends Controller
         ]);
 
         // Trigger the Registered event (sends verification email)
-        event(new Registered($user));
+        // event(new Registered($user));
+        if ($user) {
+            event(new Registered($user));
+            $user->sendEmailVerificationNotification();
+        } else {
+            return back()->with('error', 'Failed to register user');
+        }
 
         // // Send email verification notification
         // $user->sendEmailVerificationNotification();

@@ -178,14 +178,7 @@
                                 <p class="card-text text-muted small">All types of animal husbandry</p>
                             </a>
                         </div> -->
-                        <ul>
-                        <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
-                                @csrf 
-                                <li> 
-                                    <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
-                                </li> 
-                            </form>
-                        </ul>
+                        
                     </div>
                 </div>
             </div>
@@ -202,55 +195,59 @@
             </div>
         @endif
     </div>
+
+    <ul>                          
+    <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+            @csrf 
+            <li> 
+                <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
+            </li> 
+        </form>
+    </ul>
 </div>
 @endsection
 
 @push('styles')
-<style>
-.hover-effect {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.hover-effect:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
+    <style>
+            .hover-effect {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-effect:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
 
 
-.card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly darker shadow */
-    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transitions */
-    border: none; /* remove default border */
-}
+            .card {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly darker shadow */
+                transition: transform 0.2s, box-shadow 0.2s; /* Smooth transitions */
+                border: none; /* remove default border */
+            }
 
-.card:hover {
-    transform: translateY(-5px); /* Move up slightly */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* More prominent shadow */
-}
+            .card:hover {
+                transform: translateY(-5px); /* Move up slightly */
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+            }
 
-.card-body {
-    padding: 20px; /* Adjust padding as needed */
-}
+            .card-body {
+                padding: 20px; /* Adjust padding as needed */
+            }
 
-.card-title {
-    font-weight: 500; /* Slightly bolder title */
-}
+            .card-title {
+                font-weight: 500; /* Slightly bolder title */
+            }
 
-.card-text {
-    color: #777; /* Slightly darker muted text */
-}
+            .card-text {
+                color: #777; /* Slightly darker muted text */
+            }
 
-.hover-effect:hover {
-    cursor: pointer; /* indicate clickable */
-}
+            .hover-effect:hover {
+                cursor: pointer; /* indicate clickable */
+            }
 
-.icon-green {
-    color: #28a745 !important; /* Green color, override existing styles */
-}
+            .icon-green {
+                color: #28a745 !important; /* Green color, override existing styles */
+            }
 
-</style>
+    </style>
 @endpush
-
-
-
-
-

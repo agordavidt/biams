@@ -119,11 +119,7 @@ class AdminController extends Controller
         ));
     }
 
-    // public function dashboard()
-    // {
-    //     $users = User::all();
-    //     return view('admin.dashboard', compact('users'));
-    // }
+ 
 
     /**
      * Show the form for creating a new user.
@@ -169,6 +165,21 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User onboarded successfully!');
     }
 
+
+    /**
+     * Reject a user (reject their profile)
+     **/
+    public function rejectUser(Request $request, User $user)
+{
+    $request->validate([
+        'comment' => 'required|string',
+    ]);
+
+    // Update user status to "rejected"
+    $user->update(['status' => 'rejected']);   
+
+    return redirect()->back()->with('success', 'User rejected successfully!');
+}
     /**
      * Display a summary of users.
      */
