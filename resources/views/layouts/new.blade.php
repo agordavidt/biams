@@ -116,16 +116,16 @@
 
 
                         <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">                                
-                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
-                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                            </button>
+                                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">                                
+                                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
+                                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                                            </button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <!-- item-->
                                 <a class="dropdown-item" href="{{ route('profile.update') }}"><i class="ri-user-line align-middle me-1"></i> Profile</a>                               
                                 <!-- <a class="dropdown-item" href="#"><i class="ri-lock-unlock-line align-middle me-1"></i> Lock screen</a> -->
-                                <div class="dropdown-divider"></div>
+                                    <div class="dropdown-divider"></div>
                                     <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                         @csrf 
                                         <li> 
@@ -133,14 +133,8 @@
                                             <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a> 
                                         </li> 
                                     </form>
-                                </div>
-                        </div>
-
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
-                                
-                            </button>
-                        </div>
+                            </div>
+                        </div>                       
             
                     </div>
                 </div>
@@ -158,7 +152,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('farmers.submissions') }}">
-                                        <i class="ri-stack-line me-2"></i> Practices
+                                    <i class="ri-account-circle-line"></i></i> Practices
                                     </a>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -175,20 +169,8 @@
                                         <i class="ri-exchange-dollar-line me-2"></i> Market
                                     </a>
                                 </li>
-                                <li>
-                                <a class="dropdown-item" href="{{ route('profile.update') }}"><i class="ri-user-line align-middle me-1"></i> Profile</a>                               
-                                <!-- <a class="dropdown-item" href="#"><i class="ri-lock-unlock-line align-middle me-1"></i> Lock screen</a> -->
+                               
                                 
-                                </li>
-                                <li>
-                                <div class="dropdown-divider"></div>
-                                    <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
-                                        @csrf 
-                                            <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a> 
-                                       
-                                    </form>
-                                </div>
-                                </li>
                             </ul>
                         </div>
                     </nav>
@@ -219,7 +201,11 @@
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">
                                     Powered by BDIC
-                                </div>
+                                    <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                                        @csrf                                        
+                                            <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a>                                        
+                                    </form>
+                                </div>  
                             </div>
                         </div>
                     </div>
@@ -261,7 +247,9 @@
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
-            document.getElementById('logout-form').submit(); }); 
+            document.getElementById('logout-form').submit(); 
+            
+        });         
         </script>
 
     </body>

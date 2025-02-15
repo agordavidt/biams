@@ -18,60 +18,67 @@ class ResourceController extends Controller
     {
         return view('admin.resources.create');
     }
-
     public function store(Request $request)
     {
+        // for debugging
+        \Log::info('Received form_fields:', ['data' => $request->input('form_fields')]);
+        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
             'requires_payment' => 'boolean',
             'price' => 'required_if:requires_payment,true|numeric|min:0',
-            'form_fields' => 'required|string', // Important: Validate as a string
+            'form_fields' => 'required|string',
         ]);
-
+    
         if ($validator->fails()) {
+            \Log::error('Validation failed:', ['errors' => $validator->errors()]);
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         try {
             $formFields = json_decode($request->input('form_fields'), true);
-
+            
+            // debug logging
+            \Log::info('Decoded form_fields:', ['data' => $formFields]);
+    
             if (json_last_error() !== JSON_ERROR_NONE || !is_array($formFields)) {
+                \Log::error('JSON decode error:', ['error' => json_last_error_msg()]);
                 return response()->json([
                     'success' => false,
                     'errors' => ['form_fields' => 'Invalid field structure or JSON']
                 ], 422);
             }
-
             foreach ($formFields as $field) {
-                if (!isset($field['label']) || !isset($field['type'])) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['form_fields' => 'Invalid field structure']
-                    ], 422);
+                    if (!isset($field['label']) || !isset($field['type'])) {
+                        return response()->json([
+                            'success' => false,
+                            'errors' => ['form_fields' => 'Invalid field structure']
+                        ], 422);
+                    }
                 }
-            }
-
-            $resource = Resource::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'target_practice' => $request->target_practice,
-                'requires_payment' => $request->boolean('requires_payment'),
-                'price' => $request->requires_payment ? $request->price : 0,
-                'form_fields' => $formFields, // Store  decoded array
-                'is_active' => true,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Resource created successfully',
-                'redirect' => route('admin.resources.index')
-            ]);
+    
+                $resource = Resource::create([
+                    'name' => $request->name,
+                    'description' => $request->description,
+                    'target_practice' => $request->target_practice,
+                    'requires_payment' => $request->boolean('requires_payment'),
+                    'price' => $request->requires_payment ? $request->price : 0,
+                    'form_fields' => $formFields, // Store  decoded array
+                    'is_active' => true,
+                ]);
+    
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Resource created successfully',
+                    'redirect' => route('admin.resources.index')
+                ]);
         } catch (\Exception $e) {
+            \Log::error('Error creating resource:', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error creating resource: ' . $e->getMessage()

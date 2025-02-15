@@ -6,6 +6,7 @@
             <title>Admin | Benue State Integrated Agricultural Data Assets Management System</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta content="Benue State Integrated Agricultural Data Assets Management System" name="description" />
+            <meta name="csrf-token" content="{{ csrf_token() }}">
             <meta content="BDIC Team" name="author" />
 
             <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
@@ -199,7 +200,7 @@
                             </li>
                              <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                    <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
@@ -209,7 +210,7 @@
                             </li>
                             <li>
                                 <a href="#" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                <i class="ri-exchange-dollar-line me-2"></i>
                                     <span>Market</span>
                                 </a>
                             </li>
@@ -313,6 +314,11 @@
         <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+        <!-- Add Alpine.js for form interactions -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
+
+        @stack('scripts')
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 

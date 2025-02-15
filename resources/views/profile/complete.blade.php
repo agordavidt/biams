@@ -103,6 +103,14 @@
             left: 0;
             font-weight: bold;
         }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -111,7 +119,7 @@
     <div class="welcome-card">
         <!-- Initial Welcome Screen -->
         <div id="welcome-content" class="text-center">
-            <img src="{{ asset('dashboard/images/benue_logo.jpeg') }}" alt="Logo" class="logo">
+            <!-- <img src="{{ asset('dashboard/images/benue_logo.jpeg') }}" alt="Logo" class="logo"> -->
             <h3 class="mb-4">Welcome to Benue State Integrated Agricultural Data Assets Management System</h3>
             <p class="lead mb-4">Complete your profile to unlock all features and start your agricultural journey with us.</p>
             
@@ -140,11 +148,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">NIN</label>
-                            <input type="text" class="form-control" name="nin" required>
+                            <input type="text" class="form-control" name="nin" pattern="\d{11}" maxlength="11" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" name="phone" required>
+                            <input type="tel" class="form-control" name="phone" pattern="0\d{10}" maxlength="11" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Date of Birth</label>
@@ -275,7 +283,16 @@ $(document).ready(function() {
         updateProgress();
     }
 
-    // Next Step
+    // Validation functions
+    function validateNIN(value) {
+        return /^\d{11}$/.test(value);
+    }
+
+    function validatePhone(value) {
+        return /^0\d{10}$/.test(value);
+    }
+
+    // Next Step with enhanced validation
     $('.next-step').click(function() {
         // Validate current step
         const currentStepElement = $(`.step[data-step="${currentStep}"]`);
@@ -283,21 +300,35 @@ $(document).ready(function() {
         let isValid = true;
 
         inputs.each(function() {
+            let inputName = $(this).attr('name');
+            let errorMessage = '';
+            
             if (!this.value) {
                 isValid = false;
+                errorMessage = 'This field is required';
+            } else if (inputName === 'nin' && !validateNIN(this.value)) {
+                isValid = false;
+                errorMessage = 'NIN must be exactly 11 digits';
+            } else if (inputName === 'phone' && !validatePhone(this.value)) {
+                isValid = false;
+                errorMessage = 'Phone number must be 11 digits starting with 0';
+            }
+            
+            if (errorMessage) {
                 $(this).addClass('is-invalid');
+                
+                // Remove any existing error message
+                $(this).siblings('.invalid-feedback').remove();
+                
+                // Add new error message
+                $('<div class="invalid-feedback">' + errorMessage + '</div>').insertAfter(this);
             } else {
                 $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
             }
         });
 
         if (!isValid) {
-            Swal.fire({
-                title: 'Please Complete All Fields',
-                text: 'All fields are required to proceed.',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
             return;
         }
 
@@ -313,14 +344,58 @@ $(document).ready(function() {
         }
     });
 
+    // Input validation on change
+    $('input, select, textarea').on('change', function() {
+        let inputName = $(this).attr('name');
+        
+        if (this.value) {
+            if (inputName === 'nin' && !validateNIN(this.value)) {
+                $(this).addClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                $('<div class="invalid-feedback">NIN must be exactly 11 digits</div>').insertAfter(this);
+            } else if (inputName === 'phone' && !validatePhone(this.value)) {
+                $(this).addClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                $('<div class="invalid-feedback">Phone number must be 11 digits starting with 0</div>').insertAfter(this);
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+            }
+        }
+    });
+
     // Form Submission
     $('#profileForm').on('submit', function(e) {
         e.preventDefault();
         
+        // Final validation before submission
+        let formData = $(this).serialize();
+        let nin = $('input[name="nin"]').val();
+        let phone = $('input[name="phone"]').val();
+        let isValid = true;
+        
+        if (!validateNIN(nin)) {
+            $('input[name="nin"]').addClass('is-invalid');
+            $('input[name="nin"]').siblings('.invalid-feedback').remove();
+            $('<div class="invalid-feedback">NIN must be exactly 11 digits</div>').insertAfter('input[name="nin"]');
+            isValid = false;
+        }
+        
+        if (!validatePhone(phone)) {
+            $('input[name="phone"]').addClass('is-invalid');
+            $('input[name="phone"]').siblings('.invalid-feedback').remove();
+            $('<div class="invalid-feedback">Phone number must be 11 digits starting with 0</div>').insertAfter('input[name="phone"]');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
         $.ajax({
             url: $(this).attr('action'),
             method: 'POST',
-            data: $(this).serialize(),
+            data: formData,
             success: function(response) {
                 Swal.fire({
                     title: 'Profile Completed!',
@@ -332,21 +407,29 @@ $(document).ready(function() {
                 });
             },
             error: function(xhr) {
+                let errorMessage = 'There was an error completing your profile. Please try again.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    if (errors.nin) {
+                        $('input[name="nin"]').addClass('is-invalid');
+                        $('<div class="invalid-feedback">' + errors.nin[0] + '</div>').insertAfter('input[name="nin"]');
+                    }
+                    if (errors.phone) {
+                        $('input[name="phone"]').addClass('is-invalid');
+                        $('<div class="invalid-feedback">' + errors.phone[0] + '</div>').insertAfter('input[name="phone"]');
+                    }
+                    errorMessage = 'Please correct the errors in the form.';
+                }
+                
                 Swal.fire({
                     title: 'Error',
-                    text: 'There was an error completing your profile. Please try again.',
+                    text: errorMessage,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
             }
         });
-    });
-
-    // Input validation on change
-    $('input, select, textarea').on('change', function() {
-        if (this.value) {
-            $(this).removeClass('is-invalid');
-        }
     });
 });
 </script>

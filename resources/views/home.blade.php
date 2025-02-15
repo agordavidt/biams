@@ -195,15 +195,7 @@
             </div>
         @endif
     </div>
-
-    <ul>                          
-    <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
-            @csrf 
-            <li> 
-                <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
-            </li> 
-        </form>
-    </ul>
+    
 </div>
 @endsection
 

@@ -23,6 +23,7 @@ class Resource extends Model
         'requires_payment' => 'boolean',
         'is_active' => 'boolean',
         'form_fields' => 'array',
+        
     ];
 
 
