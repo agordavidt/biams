@@ -43,6 +43,7 @@ class ResourceController extends Controller
         try {
             $formFields = json_decode($request->input('form_fields'), true);
             
+            
             // debug logging
             \Log::info('Decoded form_fields:', ['data' => $formFields]);
     
