@@ -293,9 +293,18 @@ Inner Header End
 
         .timeline-box-services {
             background: #daf1f1;
-            border: 1px solid #eeeeee;
+            border: 1px solid #157347;
             border-radius: 5px;
             padding: 20px;
+        }
+
+        .timeline-box-services:hover  {
+            background: #c2f8de;
+            border: 1px solid #66bb6a;
+            border-radius: 5px;
+            padding: 20px;
+            
+            /*color: #157347; #66bb6a; c7f5df */
         }
 
         .timeline-box-services h6 {
@@ -862,7 +871,7 @@ Inner Header End
                                     <div class="">
                                         <div class="row py-2">
                                             <div class=" col-4">
-                                                <div class="timeline-box-services">
+                                                <div class=" timeline-box-services">
 
                                                     <h6>RAAMP</h6>
                                                     <p>Rural Access Agricultural Marketing Project. </p>
@@ -969,7 +978,7 @@ Inner Header End
                             <ul>
                                 <li>We register venders who wish and have the requisite qualifications to supply
                                     agricultural inputs to the Government of Benue State.</li><br>
-                                    <li>There are subsidies given to farmers when need arises, on seeds, Urea, Chemicals and the likes..</li>
+                                    <li>There are subsidies given to farmers when need arises such as: seeds, Fertilizers, Chemicals and the likes..</li>
                             </ul>
                             {{-- <ul>
                                 <li>
