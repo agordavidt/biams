@@ -160,7 +160,7 @@ class AdminController extends Controller
         $user->update(['status' => 'onboarded']);
 
         // Send notification to the user
-        // $user->notify(new UserOnboardedNotification());
+        $user->notify(new UserOnboardedNotification());
 
         return redirect()->back()->with('success', 'User onboarded successfully!');
     }
@@ -300,7 +300,7 @@ class AdminController extends Controller
                 $model->update(['status' => 'approved']);
 
                 // Send approval notification (email or dashboard)
-                // $model->user->notify(new ApplicationStatusUpdated('approved'));
+                $model->user->notify(new ApplicationStatusUpdated('approved'));
 
                 return redirect()->back()->with('success', 'Application approved successfully.');
             }
