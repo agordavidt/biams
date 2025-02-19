@@ -42,18 +42,30 @@ class ApplicationStatusUpdated extends Notification
      * @param mixed $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
+    // public function toMail($notifiable)
+    // {
+    //     $message = (new MailMessage)
+    //         ->subject('Agricultural Practice Application Update')
+    //         ->line('Your application has been ' . $this->status . '.');
+
+    //     if ($this->status === 'rejected' && $this->comments) {
+    //         $message->line('Reason for rejection:')
+    //                ->line($this->comments);
+    //     }
+
+    //     return $message;
+    // }
+
+
     public function toMail($notifiable)
     {
-        $message = (new MailMessage)
+        return (new MailMessage)
             ->subject('Agricultural Practice Application Update')
-            ->line('Your application has been ' . $this->status . '.');
-
-        if ($this->status === 'rejected' && $this->comments) {
-            $message->line('Reason for rejection:')
-                   ->line($this->comments);
-        }
-
-        return $message;
+            ->view('mail.applications.application_status_updated', [ 
+                'status' => $this->status,
+                'comments' => $this->comments,
+                'notifiable' => $notifiable,
+            ]);
     }
     
 

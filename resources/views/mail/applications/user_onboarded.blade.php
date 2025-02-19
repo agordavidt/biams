@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email Address</title>
+    <title>Profile Approved</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,7 +33,7 @@
             padding: 30px;
             color: #333333;
         }
-        .verification-box {
+        .success-box {
             background-color: #e7f5ed;
             border-left: 4px solid #006837;
             padding: 20px;
@@ -54,13 +54,22 @@
         .button:hover {
             background-color: #005129;
         }
-        .note {
+        .features {
             background-color: #f8f9fa;
-            padding: 15px;
+            padding: 20px;
             border-radius: 4px;
             margin: 20px 0;
-            font-size: 0.9em;
-            color: #666;
+        }
+        .feature-item {
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .feature-item:before {
+            content: "✓";
+            color: #006837;
+            position: absolute;
+            left: 0;
         }
         .footer {
             background-color: #f8f9fa;
@@ -77,11 +86,6 @@
             color: #006837;
             text-decoration: none;
         }
-        .help-text {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -91,36 +95,28 @@
         </div>
         
         <div class="content">
-            <h2>Welcome to BSIADAMS!</h2>
+            <h2>Congratulations, {{ $name }}!</h2>
             
-            <p>Dear {{ $notifiable->name }},</p>
+            <div class="success-box">
+                <h3>Your Profile is Approved! 🎉</h3>
+                <p>We're excited to welcome you to the BSIADAMS platform. Your profile has been reviewed and approved by our admin team.</p>
+            </div>
             
-            <div class="verification-box">
-                <h3>One Last Step!</h3>
-                <p>Thank you for joining BSIADAMS - your gateway to modern agricultural practices in Nigeria. To ensure the security of your account and get started with your agricultural journey, please verify your email address.</p>
+            <p>You now have full access to all features of the BSIADAMS platform:</p>
+            
+            <div class="features">
+                <div class="feature-item">Register your agricultural practices</div>
+                <div class="feature-item">Access agricultural resources and guidelines</div>
+                <div class="feature-item">Connect with other farmers and processors</div>
+                <div class="feature-item">Receive important updates and notifications</div>
+                <div class="feature-item">Track your applications and submissions</div>
             </div>
             
             <div style="text-align: center;">
-                <a href="{{ $url }}" class="button">Verify Email Address</a>
+                <a href="{{ $dashboardUrl }}" class="button">Go to Dashboard</a>
             </div>
             
-            <div class="note">
-                <strong>Note:</strong> This verification link will expire in 60 minutes for security reasons.
-            </div>
-            
-            <p>By verifying your email, you'll gain access to:</p>
-            <ul>
-                <li>Register your agricultural practices</li>
-                <li>Access to agricultural resources and guidelines</li>
-                <li>Connect with other farmers and processors</li>
-                <li>Receive important updates and notifications</li>
-            </ul>
-            
-            <div class="help-text">
-                <p>If you didn't create an account with BSIADAMS, please ignore this email or contact our support team if you have concerns.</p>
-                <p>Having trouble with the verification button? Copy and paste this link into your browser:</p>
-                <p style="word-break: break-all; font-size: 0.8em; color: #006837;">{{ $url }}</p>
-            </div>
+            <p>Need help getting started? Our support team is here to assist you every step of the way.</p>
         </div>
         
         <div class="footer">
