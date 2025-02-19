@@ -10,9 +10,10 @@ use App\Http\Controllers\Admin\ResourceApplicationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function () {    return view('welcome'); });
+Route::get('/about', function () {    return view('about_us'); })->name('about');
+Route::get('/services', function () {    return view('services'); })->name('services');
+Route::get('/contact', function () {    return view('contact');})->name('contact');
 
 
 

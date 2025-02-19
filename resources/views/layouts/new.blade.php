@@ -147,7 +147,7 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('home') }}">
-                                        <i class="ri-dashboard-line me-2"></i> Dashboard
+                                        <i class="ri-dashboard-line me-2"></i> Panel
                                     </a>
                                 </li>
                                 <li class="nav-item">
