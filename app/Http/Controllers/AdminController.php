@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\User;
 
 use App\Models\Profile;
@@ -18,6 +19,7 @@ use App\Notifications\ApplicationStatusUpdated;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+
 
 class AdminController extends Controller
 {
@@ -236,48 +238,51 @@ class AdminController extends Controller
         /**
          * Agricultural Practices
          */
-       
-            public function cropFarmers()
-            {
-                // $applications = CropFarmer::with('user')->get();
-                $applications = CropFarmer::with(['user' => function ($query) {
-                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
-                }])->get();
-                $type = 'crop-farmer'; // Define the type and do same for all the agricultural practices
-                return view('admin.practices.crop-farmers', compact('applications', 'type'));
-            }
+       /**
+         * Agricultural Practices
+         */
+        public function cropFarmers()
+        {
+            $applications = CropFarmer::with(['user' => function ($query) {
+                $query->with('profile');
+            }])->get();
+            $type = 'crop-farmer';
+            return view('admin.practices.crop-farmers', compact('applications', 'type'));
+        }
 
-            // Animal Farmers Applications
-            public function animalFarmers()
-            {
-                $applications = AnimalFarmer::with(['user' => function ($query) {
-                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
-                }])->get();
-                $type = 'animal-farmer'; 
-                return view('admin.practices.animal-farmers', compact('applications', 'type'));
-            }
+        public function animalFarmers()
+        {
+            $applications = AnimalFarmer::with(['user' => function ($query) {
+                $query->with('profile');
+            }])->get();
+            $type = 'animal-farmer';
+            return view('admin.practices.animal-farmers', compact('applications', 'type'));
+        }
 
-            // Abattoir Operators Applications
-            public function abattoirOperators()
-            {
-                $applications = AbattoirOperator::with(['user' => function ($query) {
-                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
-                }])->get();
-                return view('admin.practices.abattoir-operators', compact('applications'));
-            }
+        public function abattoirOperators()
+        {
+            $applications = AbattoirOperator::with(['user' => function ($query) {
+                $query->with('profile');
+            }])->get();
+            $type = 'abattoir-operator';
+            return view('admin.practices.abattoir-operators', compact('applications', 'type'));
+        }
 
-            // Processors Applications
-            public function processors()
-            {
-                $applications = Processor::with(['user' => function ($query) {
-                    $query->with('profile'); // Eager load profile for each user for all the agricultural practices
-                }])->get();
-                return view('admin.practices.processors', compact('applications'));
-            }
+        public function processors()
+        {
+            $applications = Processor::with(['user' => function ($query) {
+                $query->with('profile');
+            }])->get();
+            $type = 'processor';
+            return view('admin.practices.processors', compact('applications', 'type'));
+        }
 
-            // Approve an application
-            public function approve($type, $id)
-            {
+        /**
+         * Approve an agricultural practice application
+         */
+        public function approve($type, $id)
+        {
+            try {
                 // Determine the model based on the type
                 switch ($type) {
                     case 'crop-farmer':
@@ -299,15 +304,26 @@ class AdminController extends Controller
                 // Update the status
                 $model->update(['status' => 'approved']);
 
-                // Send approval notification (email or dashboard)
+                // Send approval notification
                 $model->user->notify(new ApplicationStatusUpdated('approved'));
 
                 return redirect()->back()->with('success', 'Application approved successfully.');
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error approving application: ' . $e->getMessage());
             }
+        }
 
-            // Reject an application
-            public function reject($type, $id)
-            {
+        /**
+         * Reject an agricultural practice application with comments
+         */
+        public function reject(Request $request, $type, $id)
+        {
+            try {
+                // Validate the request
+                $validated = $request->validate([
+                    'rejection_comments' => 'required|string|max:1000',
+                ]);
+
                 // Determine the model based on the type
                 switch ($type) {
                     case 'crop-farmer':
@@ -326,15 +342,20 @@ class AdminController extends Controller
                         return redirect()->back()->with('error', 'Invalid application type.');
                 }
 
-                // Update the status
-                $model->update(['status' => 'rejected']);
+                // Update the status and comments
+                $model->update([
+                    'status' => 'rejected',
+                    'rejection_comments' => $validated['rejection_comments']
+                ]);
 
-                // Send rejection notification (email or dashboard)
-                // $model->user->notify(new ApplicationStatusUpdated('rejected'));
+                // Send rejection notification with comments
+                $model->user->notify(new ApplicationStatusUpdated('rejected', $validated['rejection_comments']));
 
                 return redirect()->back()->with('success', 'Application rejected successfully.');
-            }      
-
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error rejecting application: ' . $e->getMessage());
+            }
+        }
 
 }
 

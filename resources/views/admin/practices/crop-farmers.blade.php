@@ -103,8 +103,13 @@
                                             </form>
                                             <form action="{{ route('admin.applications.reject', ['type' => $type, 'id' => $application->id]) }}" method="POST" style="display:inline;">
                                                 @csrf
-                                                <button class="action-btn reject-btn" type="submit" title="Reject Application">
-                                                <i class="ri-close-circle-fill font-size-30 text-danger align-middle me-2"></i>
+                                                <button class="action-btn reject-btn" type="button" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#rejectModal"
+                                                    data-application-id="{{ $application->id }}"
+                                                    data-type="{{ $type }}"
+                                                    title="Reject Application">
+                                                    <i class="ri-close-circle-fill font-size-30 text-danger align-middle me-2"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -113,6 +118,11 @@
                             </tr>
                         @endforeach   
                         </tbody>
+
+                        <!----- rejection comment modal ------->
+                        @include('partials.rejection_comment')  
+
+                       
                     </table>
                     
                 </div>
@@ -128,6 +138,20 @@
 
 
 <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const rejectModal = document.getElementById('rejectModal');
+            const rejectForm = document.getElementById('rejectForm');
+
+            rejectModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const applicationId = button.getAttribute('data-application-id');
+                const type = button.getAttribute('data-type');
+                
+                rejectForm.action = `/admin/applications/${type}/${applicationId}/reject`;
+            });
+        });
+
     document.addEventListener('DOMContentLoaded', function () {
         // Get all buttons with the class 'view-details-btn'
         const viewButtons = document.querySelectorAll('.view-details-btn');

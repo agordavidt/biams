@@ -20,6 +20,7 @@ class AnimalFarmer extends Model
     'livestock',
     'other_livestock',
     'status',
+    'rejection_comments',
 ];
 
 

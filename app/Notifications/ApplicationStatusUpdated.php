@@ -12,15 +12,17 @@ class ApplicationStatusUpdated extends Notification
     use Queueable;
 
     public $status; // Declare the $status property
+    protected $comments;
 
     /**
      * Create a new notification instance.
      *
      * @param string $status
      */
-    public function __construct($status)
+    public function __construct($status, $comments = null)
     {
-        $this->status = $status; 
+        $this->status = $status;
+        $this->comments = $comments;
     }
 
     /**
@@ -42,13 +44,17 @@ class ApplicationStatusUpdated extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line('Your application status has been updated.')
-                    ->line('Status: ' . $this->status) 
-                    ->action('View Dashboard', url('/dashboard'))
-                    ->line('Thank you for using our application!');
-    }
+        $message = (new MailMessage)
+            ->subject('Agricultural Practice Application Update')
+            ->line('Your application has been ' . $this->status . '.');
 
+        if ($this->status === 'rejected' && $this->comments) {
+            $message->line('Reason for rejection:')
+                   ->line($this->comments);
+        }
+
+        return $message;
+    }
     
 
     /**

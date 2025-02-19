@@ -17,6 +17,7 @@ class AbattoirOperator extends Model
         'operational_capacity',
         'certifications',
         'status',
+        'rejection_comments',
     ];
 
     protected $casts = [

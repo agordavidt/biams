@@ -22,6 +22,7 @@ class CropFarmer extends Model
         'crop',
         'other_crop',
         'status',
+        'rejection_comments',
     ];
 
     // Define relationship with User
