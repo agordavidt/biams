@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Status Update</title>
+
     <style>
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -80,6 +82,7 @@
             margin: 20px 0;
         }
     </style>
+    
 </head>
 <body>
     <div class="container">

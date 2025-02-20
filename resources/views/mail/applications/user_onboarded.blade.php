@@ -104,13 +104,13 @@
             
             <p>You now have full access to all features of the BSIADAMS platform:</p>
             
-            <div class="features">
+            <!-- <div class="features">
                 <div class="feature-item">Register your agricultural practices</div>
                 <div class="feature-item">Access agricultural resources and guidelines</div>
                 <div class="feature-item">Connect with other farmers and processors</div>
                 <div class="feature-item">Receive important updates and notifications</div>
                 <div class="feature-item">Track your applications and submissions</div>
-            </div>
+            </div> -->
             
             <div style="text-align: center;">
                 <a href="{{ $dashboardUrl }}" class="button">Go to Dashboard</a>

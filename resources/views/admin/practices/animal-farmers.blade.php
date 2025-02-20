@@ -116,30 +116,53 @@
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Get all buttons with the class 'view-details-btn'
+    document.addEventListener('DOMContentLoaded', function () {        
         const viewButtons = document.querySelectorAll('.view-details-btn');
 
         viewButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                // Get the application data from the data-application attribute
+            button.addEventListener('click', function () {            
                 const application = JSON.parse(this.getAttribute('data-application'));
 
                 document.getElementById('modal-name').textContent = application.user.name;
                 document.getElementById('modal-email').textContent = application.user.email;
                 document.getElementById('modal-phone').textContent = application.user.profile.phone;
-                document.getElementById('modal-gender').textContent = application.seasonal_pattern;
-                document.getElementById('modal-crop').textContent = application.crop;
+               
+                
+                document.getElementById('modal-age').textContent = calculateAge(application.user.profile.dob) + ' years';
+                // document.getElementById('modal-nin').textContent = application.user.profile.nin;
+                document.getElementById('modal-gender').textContent = application.user.profile.gender;
+                document.getElementById('modal-education').textContent = application.user.profile.education;
+                document.getElementById('modal-household').textContent = application.user.profile.household_size;
+                document.getElementById('modal-dependents').textContent = application.user.profile.dependents;
+                document.getElementById('modal-income').textContent = application.user.profile.income_level;
+                document.getElementById('modal-lga').textContent = application.user.profile.lga;
+                document.getElementById('modal-address').textContent = application.user.profile.address;
 
-                // Populate the modal with the data
-              
-                document.getElementById('modal-farm-size').textContent = application.farm_size + ' ha';
-                document.getElementById('modal-season').textContent = application.seasonal_pattern;
-                document.getElementById('modal-crop').textContent = application.crop;
-                document.getElementById('modal-geolocation').textContent = 
-                    `${application.latitude}°, ${application.longitude}°`;
+                document.getElementById('modal-herd_size').textContent = application.herd_size;
+                document.getElementById('modal-facility_type').textContent = application.facility_type;
+                document.getElementById('modal-breeding_program').textContent = application.breeding_program;
+                document.getElementById('modal-farm_location').textContent = application.farm_location;
+                document.getElementById('modal-livestock').textContent = application.livestock;
+                document.getElementById('modal-other_livestock').textContent = application.other_livestock || "N/A"; // Handle null values
                 document.getElementById('modal-status').textContent = application.status;
+              
+                
             });
         });
     });
+
+    // Helper function to calculate age from DOB
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
 </script>
