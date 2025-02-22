@@ -23,21 +23,26 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        $user = auth()->user();
+
+        // Redirect super admin to super admin dashboard
+        if ($user->role === 'super_admin') {
+            return redirect()->route('super_admin.dashboard');
+        }
+
         // Redirect admin to admin dashboard
-        if (auth()->user()->role === 'admin') {
+        if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
         // Redirect regular users based on profile completion
-        $user = auth()->user();
-
-        // Check if the user has a profile
         if (!$user->profile) {
             return redirect()->route('profile.complete')->with('info', 'Please complete your profile.');
         }
@@ -46,6 +51,7 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
+    
     /**
      * Destroy an authenticated session.
      */

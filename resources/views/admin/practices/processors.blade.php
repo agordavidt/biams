@@ -168,7 +168,7 @@
 
 
 <script>
-    
+
      document.addEventListener('DOMContentLoaded', function () {        
         const viewButtons = document.querySelectorAll('.view-details-btn');
 
@@ -195,12 +195,12 @@
                 document.getElementById('modal-facility_specs').textContent = application.facility_specs || "N/A";
                 document.getElementById('modal-operational_capacity').textContent = application.operational_capacity || "N/A";
 
-                // Handling JSON data for certifications:
+                
                 const certificationsSpan = document.getElementById('modal-certifications');
                 if (application.certifications) {
                 try {
-                    const certifications = JSON.parse(application.certifications); // Parse the JSON string
-                    certificationsSpan.textContent = certifications.join(", ") || "N/A"; // Display as comma-separated list
+                    const certifications = JSON.parse(application.certifications);
+                    certificationsSpan.textContent = certifications.join(", ") || "N/A"; 
                 } catch (error) {
                     console.error("Error parsing certifications JSON:", error);
                     certificationsSpan.textContent = "Error parsing certifications";
@@ -208,7 +208,6 @@
                 } else {
                 certificationsSpan.textContent = "N/A";
                 }
-
 
                 document.getElementById('modal-status').textContent = application.status || "N/A";
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
@@ -124,6 +125,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/resources/applications/{application}/status', [ResourceApplicationController::class, 'updateStatus'])
         ->name('admin.applications.update-status');
 
+});
+
+
+// Super Admin Routes
+Route::middleware(['auth', 'super_admin'])->group(function () {
+    // Super Admin Dashboard
+    Route::get('/super-admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
+
+    // Manage Users (Admins and Regular Users)
+    Route::get('/super-admin/users', [SuperAdminController::class, 'manageUsers'])->name('super_admin.users');
+    Route::get('/super-admin/users/create', [SuperAdminController::class, 'createUser'])->name('super_admin.users.create');
+    Route::post('/super-admin/users/store', [SuperAdminController::class, 'storeUser'])->name('super_admin.users.store');
+    Route::get('/super-admin/users/{user}/edit', [SuperAdminController::class, 'editUser'])->name('super_admin.users.edit');
+    Route::put('/super-admin/users/{user}/update', [SuperAdminController::class, 'updateUser'])->name('super_admin.users.update');
+    Route::delete('/super-admin/users/{user}/delete', [SuperAdminController::class, 'deleteUser'])->name('super_admin.users.delete');
 });
 
 
