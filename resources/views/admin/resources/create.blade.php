@@ -1,3 +1,5 @@
+{{-- resources\views\admin\resources\create.blade.php --}}
+
 @extends('layouts.admin')
 
 @section('content')
@@ -62,11 +64,15 @@
     
                         <div class="mb-3">
                             <div class="form-check form-switch">
+                                <!-- Hidden input to ensure the field is always sent -->
+                                <input type="hidden" name="requires_payment" value="0">
+                                <!-- Checkbox input -->
                                 <input type="checkbox" 
-                                       class="form-check-input" 
-                                       id="requires_payment" 
-                                       name="requires_payment"
-                                       x-model="requiresPayment">
+                                    class="form-check-input" 
+                                    id="requires_payment" 
+                                    name="requires_payment"
+                                    x-model="requiresPayment"
+                                    value="1">
                                 <label class="form-check-label" for="requires_payment">
                                     Requires Payment
                                 </label>
@@ -175,55 +181,58 @@ function resourceForm() {
         removeField(index) {
             this.fields.splice(index, 1);
         },
-
         submitForm(e) {
-            const form = e.target;
-            const formData = new FormData(form);
-            
-            // Remove any existing form_fields input
-            formData.delete('form_fields');
-            
-            // Add the fields array as a JSON string
-            formData.append('form_fields', JSON.stringify(this.fields));
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    // Remove any existing form_fields input
+    formData.delete('form_fields');
+    
+    // Add the fields array as a JSON string
+    formData.append('form_fields', JSON.stringify(this.fields));
 
-            // Show loading
-            Swal.fire({
-                title: 'Saving...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Submit form
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = data.redirect;
-                    });
-                } else {
-                    throw new Error(data.message || 'Something went wrong');
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            });
+    // Show loading
+    Swal.fire({
+        title: 'Saving...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
         }
+    });
+
+    // Submit form
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = data.redirect;
+            });
+        } else {
+            throw new Error(data.message || 'Something went wrong');
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message
+        });
+    });
+}
     };
 }
 </script>

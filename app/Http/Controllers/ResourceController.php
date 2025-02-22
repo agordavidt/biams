@@ -29,9 +29,16 @@ class ResourceController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
-            'requires_payment' => 'boolean',
+            'requires_payment' => 'required|boolean', // Ensure it's a boolean
             'price' => 'required_if:requires_payment,true|numeric|min:0',
-            'form_fields' => 'required|string',
+            'form_fields' => 'required|json',
+        ], [
+            'requires_payment.boolean' => 'The requires payment field must be true or false.',
+            'price.required_if' => 'The price field is required when payment is required.',
+            'price.numeric' => 'The price must be a number.',
+            'price.min' => 'The price must be at least 0.',
+            'form_fields.required' => 'The form fields are required.',
+            'form_fields.json' => 'The form fields must be a valid JSON string.',
         ]);
     
         if ($validator->fails()) {
@@ -45,7 +52,6 @@ class ResourceController extends Controller
         try {
             $formFields = json_decode($request->input('form_fields'), true);
             
-            
             // debug logging
             \Log::info('Decoded form_fields:', ['data' => $formFields]);
     
@@ -56,30 +62,31 @@ class ResourceController extends Controller
                     'errors' => ['form_fields' => 'Invalid field structure or JSON']
                 ], 422);
             }
+    
             foreach ($formFields as $field) {
-                    if (!isset($field['label']) || !isset($field['type'])) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => ['form_fields' => 'Invalid field structure']
-                        ], 422);
-                    }
+                if (!isset($field['label']) || !isset($field['type'])) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['form_fields' => 'Invalid field structure']
+                    ], 422);
                 }
+            }
     
-                $resource = Resource::create([
-                    'name' => $request->name,
-                    'description' => $request->description,
-                    'target_practice' => $request->target_practice,
-                    'requires_payment' => $request->boolean('requires_payment'),
-                    'price' => $request->requires_payment ? $request->price : 0,
-                    'form_fields' => $formFields, // Store  decoded array
-                    'is_active' => true,
-                ]);
+            $resource = Resource::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'target_practice' => $request->target_practice,
+                'requires_payment' => $request->boolean('requires_payment'),
+                'price' => $request->requires_payment ? $request->price : 0,
+                'form_fields' => $formFields, // Store decoded array
+                'is_active' => true,
+            ]);
     
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Resource created successfully',
-                    'redirect' => route('admin.resources.index')
-                ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Resource created successfully',
+                'redirect' => route('admin.resources.index')
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error creating resource:', ['error' => $e->getMessage()]);
             return response()->json([
