@@ -50,7 +50,7 @@
                         <span class="font-size-14">
                             @if($resource->requires_payment)
                                 <i class="ri-money-naira-circle-line me-1"></i>
-                                {{ number_format($resource->price, 2) }}
+                                ₦{{ number_format($resource->price, 2) }}
                             @else
                                 <span class="text-success">
                                     <i class="ri-checkbox-circle-line me-1"></i> Free
