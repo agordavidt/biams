@@ -116,145 +116,131 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container text-center">
-            <h1 class="display-4 mb-4">Benue State Integrated Agricultural Data and Assets Management System</h1>
-            <p class="lead mb-4">Empowering farmers with digital solutions for better agricultural management</p>
-            <a href="{{ route('login') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
-            <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ route('visitor.marketplace') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Marketplace
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-5 mb-4">
+            <div class="card" style="border: thin solid rgb(89, 122, 89);">
+                @if($listing->image)
+                    <img src="{{ asset('storage/' . $listing->image) }}" class="card-img-top" alt="{{ $listing->title }}" style="max-height: 400px; object-fit: contain;">
+                @else
+                    <div class="bg-light text-center py-5" style="height: 400px;">
+                        <i class="fas fa-leaf fa-5x text-success mt-5"></i>
+                    </div>
+                @endif
+            </div>
         </div>
-    </section>
 
+        <!-- Product Details -->
+        <div class="col-md-7">
+            <div class="card" style="border: thin solid rgb(89, 122, 89);">
+                <div class="card-body">
+                    <h2 class="card-title text-success mb-3">{{ $listing->title }}</h2>
+                    
+                    <div class="mb-3">
+                        <h4 class="text-success">₦{{ number_format($listing->price) }} 
+                            @if($listing->unit)
+                                / {{ $listing->unit }}
+                            @endif
+                        </h4>
+                    </div>
 
+                    <div class="mb-3">
+                        <p class="text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i> {{ $listing->location }}
+                        </p>
+                    </div>
 
+                    <div class="mb-3">
+                        <p class="card-text">{{ $listing->description }}</p>
+                    </div>
 
+                    <div class="mb-3">
+                        <p class="card-text">
+                            <strong>Category:</strong> {{ $listing->category->name }}
+                        </p>
+                    </div>
+                    
+                    @if($listing->quantity)
+                    <div class="mb-3">
+                        <p class="card-text">
+                            <strong>Available Quantity:</strong> {{ $listing->quantity }} {{ $listing->unit }}
+                        </p>
+                    </div>
+                    @endif
 
-    <!-- Stats Section -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">5,000+</h3>
-                        <p class="text-muted mb-0">Registered Farmers</p>
+                    <div class="mb-3">
+                        <p class="card-text">
+                            <strong>Listed By:</strong> {{ $seller->name }}
+                        </p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> To contact the seller and see full details, please 
+                        <a href="{{ route('login') }}" class="alert-link">login</a> or 
+                        <a href="{{ route('register') }}" class="alert-link">register</a>.
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">23</h3>
-                        <p class="text-muted mb-0">Local Governments</p>
-                    </div>
+            </div>
+
+            <!-- Similar Products -->
+            <div class="card mt-4" style="border: thin solid rgb(89, 122, 89);">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Similar Products</h5>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">100+</h3>
-                        <p class="text-muted mb-0">Resources Available</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">4</h3>
-                        <p class="text-muted mb-0">Agricultural Sectors</p>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @forelse($similarListings as $similarListing)
+                            <div class="col-md-6">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="row g-0">
+                                        <div class="col-4">
+                                            @if($similarListing->image)
+                                                <img src="{{ asset('storage/' . $similarListing->image) }}" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="{{ $similarListing->title }}">
+                                            @else
+                                                <div class="bg-light text-center h-100 d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-leaf fa-2x text-success"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body p-2">
+                                                <h6 class="card-title">{{ Str::limit($similarListing->title, 40) }}</h6>
+                                                <p class="card-text text-success">₦{{ number_format($similarListing->price) }}</p>
+                                                <a href="{{ route('visitor.marketplace.show', $similarListing) }}" class="btn btn-sm btn-outline-success">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12">
+                                <p class="text-muted">No similar products found.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="mt-5 py-4 text-center bg-light rounded" style="border: thin solid rgb(89, 122, 89);">
+        <h3 class="text-success mb-3">Want to contact sellers directly?</h3>
+        <p class="mb-4">Create an account or login to contact farmers and access all features.</p>
+        <a href="{{ route('register') }}" class="btn btn-success btn-lg me-2">Register Now</a>
+        <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg">Login</a>
+    </div>
+</div>
 
 
-
-
-
-
-
-
-    <!-- About Section -->
-    <section class="py-5" style="background-color: #EAEAEA">
-        <div class="container">
-            <div class="row g-4">
-                <h4><span style="font-style: italic">Welcome to </span><span class="text-success">Benue State
-                        Integrated Agricultural Data and Assets Management System</span></h4>
-                <div class="col-md-8">
-                    <div class="stat-card text-center">
-                        <p class="text-muted mb-3" style="text-align: justify">This is a system that digitally
-                            connects farmers, buyers, and agricultural product vendors. By offering these connections,
-                            the platform enhances agricultural data/market access and supports productivity for all
-                            stakeholders.</p>
-                        <p class="text-muted mb-3" style="text-align: justify">In addition, the system empowers
-                            government agencies to implement targeted support programs such as subsidies, grants, and
-                            capacity-building initiatives.</p>
-                        <a href="{{ route('login') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
-                    </div>
-
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card text-center">
-
-                        <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em"
-                            alt="farm_produce" height="200">
-
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-
-    <!-- Features Section -->
-    <section id="features" class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Our Features</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-user-plus fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Easy Registration</h5>
-                            <p class="card-text">Simple and straightforward registration process for all agricultural
-                                practitioners.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-tools fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Resource Access</h5>
-                            <p class="card-text">Access to agricultural implements, support programs, and training
-                                resources.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-chart-line fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Data Management</h5>
-                            <p class="card-text">Comprehensive data management and tracking for agricultural
-                                activities.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
+ <!-- Footer -->
     <footer class="bg-dark text-light py-4">
         <div class="container">
             <div class="row">

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ResourceApplicationController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\MarketplaceMessageController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
+use App\Http\Controllers\MarketplaceVisitorController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -20,6 +21,8 @@ Route::get('/services', function () {    return view('services'); })->name('serv
 Route::get('/contact', function () {    return view('contact');})->name('contact');
 
 
+Route::get('visitor/marketplace', [MarketplaceVisitorController::class, 'index'])->name('visitor.marketplace');
+Route::get('visitor/marketplace/{listing}', [MarketplaceVisitorController::class, 'show'])->name('visitor.marketplace.show');
 
 
 

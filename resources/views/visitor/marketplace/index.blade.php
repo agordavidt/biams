@@ -116,145 +116,106 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container text-center">
-            <h1 class="display-4 mb-4">Benue State Integrated Agricultural Data and Assets Management System</h1>
-            <p class="lead mb-4">Empowering farmers with digital solutions for better agricultural management</p>
-            <a href="{{ route('login') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
-            <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="text-success">Agricultural Marketplace</h2>
+            <p class="text-muted">Browse agricultural products from registered farmers across Benue State.</p>
         </div>
-    </section>
-
-
-
-
-
-    <!-- Stats Section -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">5,000+</h3>
-                        <p class="text-muted mb-0">Registered Farmers</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">23</h3>
-                        <p class="text-muted mb-0">Local Governments</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">100+</h3>
-                        <p class="text-muted mb-0">Resources Available</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card text-center">
-                        <h3 class="text-success">4</h3>
-                        <p class="text-muted mb-0">Agricultural Sectors</p>
-                    </div>
-                </div>
-            </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ route('login') }}" class="btn btn-success">Login to Contact Sellers</a>
         </div>
-    </section>
+    </div>
 
-
-
-
-
-
-
-
-    <!-- About Section -->
-    <section class="py-5" style="background-color: #EAEAEA">
-        <div class="container">
-            <div class="row g-4">
-                <h4><span style="font-style: italic">Welcome to </span><span class="text-success">Benue State
-                        Integrated Agricultural Data and Assets Management System</span></h4>
-                <div class="col-md-8">
-                    <div class="stat-card text-center">
-                        <p class="text-muted mb-3" style="text-align: justify">This is a system that digitally
-                            connects farmers, buyers, and agricultural product vendors. By offering these connections,
-                            the platform enhances agricultural data/market access and supports productivity for all
-                            stakeholders.</p>
-                        <p class="text-muted mb-3" style="text-align: justify">In addition, the system empowers
-                            government agencies to implement targeted support programs such as subsidies, grants, and
-                            capacity-building initiatives.</p>
-                        <a href="{{ route('login') }}" class="btn btn-success btn-lg px-4 me-2">Get Started</a>
+    <!-- Filter and Search Section -->
+    <div class="card mb-4" style="border: thin solid rgb(89, 122, 89);">
+        <div class="card-body">
+            <form action="{{ route('visitor.marketplace') }}" method="GET">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select name="category" id="category" class="form-select">
+                            <option value="">All Categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card text-center">
-
-                        <img src="{{ asset('dashboard/images/green_beans.jpg') }}" style="border-radius: 1em"
-                            alt="farm_produce" height="200">
-
-
+                    <div class="col-md-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ request('location') }}" placeholder="Enter location">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ request('search') }}" placeholder="Search for products">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">Filter</button>
                     </div>
                 </div>
-
-            </div>
+            </form>
         </div>
-    </section>
+    </div>
 
-
-
-
-
-
-
-
-    <!-- Features Section -->
-    <section id="features" class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Our Features</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-user-plus fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Easy Registration</h5>
-                            <p class="card-text">Simple and straightforward registration process for all agricultural
-                                practitioners.</p>
+    <!-- Product Listings -->
+    <div class="row g-4">
+        @forelse($listings as $listing)
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100 feature-card" style="border: thin solid rgb(89, 122, 89);">
+                    @if($listing->image)
+                        <img src="{{ asset('storage/' . $listing->image) }}" class="card-img-top" alt="{{ $listing->title }}" style="height: 200px; object-fit: cover;">
+                    @else
+                        <div class="bg-light text-center py-5">
+                            <i class="fas fa-leaf fa-3x text-success"></i>
                         </div>
+                    @endif
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $listing->title }}</h5>
+                        <p class="card-text text-success fw-bold">₦{{ number_format($listing->price) }} 
+                            @if($listing->unit)
+                                / {{ $listing->unit }}
+                            @endif
+                        </p>
+                        <p class="card-text text-muted small">
+                            <i class="fas fa-map-marker-alt"></i> {{ $listing->location }}
+                        </p>
+                        <p class="card-text">{{ Str::limit($listing->description, 100) }}</p>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-tools fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Resource Access</h5>
-                            <p class="card-text">Access to agricultural implements, support programs, and training
-                                resources.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card feature-card h-100" style=" border: thin solid rgb(89, 122, 89);">
-                        <div class="card-body text-center">
-                            <div class="icon-circle">
-                                <i class="fas fa-chart-line fa-2x text-success"></i>
-                            </div>
-                            <h5 class="card-title">Data Management</h5>
-                            <p class="card-text">Comprehensive data management and tracking for agricultural
-                                activities.</p>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Listed by: {{ $listing->user->name }}</small>
+                            <a href="{{ route('visitor.marketplace.show', $listing) }}" class="btn btn-sm btn-outline-success">View Details</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        @empty
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No products available at the moment. Please check back later or adjust your filters.
+                </div>
+            </div>
+        @endforelse
+    </div>
 
-    <!-- Footer -->
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ $listings->appends(request()->query())->links() }}
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="mt-5 py-4 text-center bg-light rounded" style="border: thin solid rgb(89, 122, 89);">
+        <h3 class="text-success mb-3">Are you a farmer looking to sell your products?</h3>
+        <p class="mb-4">Join our platform to list your products and connect with buyers across Benue State.</p>
+        <a href="{{ route('register') }}" class="btn btn-success btn-lg me-2">Register Now</a>
+        <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg">Login</a>
+    </div>
+</div>
+
+
+ <!-- Footer -->
     <footer class="bg-dark text-light py-4">
         <div class="container">
             <div class="row">
