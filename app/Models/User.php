@@ -14,6 +14,9 @@ use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\CropFarmer;
 use App\Models\Farmers\AnimalFarmer;
 use App\Models\Farmers\Processor;
+use App\Models\Market\MarketplaceListing;
+use App\Models\Market\MarketplaceCategory;
+use App\Models\Market\MarketplaceMessage;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -81,6 +84,24 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Processor::class);
     }
    
+
+
+        // relationship with market place
+
+    public function marketplaceListings()
+    {
+        return $this->hasMany(MarketplaceListing::class);
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(MarketplaceMessage::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(MarketplaceMessage::class, 'receiver_id');
+    }
     
 }
 

@@ -8,6 +8,9 @@ use App\Http\Controllers\FarmersController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\UserResourceController; 
 use App\Http\Controllers\Admin\ResourceApplicationController;
+use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\MarketplaceMessageController;
+use App\Http\Controllers\Admin\MarketplaceAdminController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -151,3 +154,35 @@ require __DIR__.'/auth.php';
 
 
 
+
+// User marketplace routes (accessible only to onboarded users)
+Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
+    // Marketplace browsing
+    Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
+    Route::get('/marketplace/listings/{listing}', [MarketplaceController::class, 'show'])->name('marketplace.show');
+    
+    // My listings management
+    Route::get('/marketplace/my-listings', [MarketplaceController::class, 'myListings'])->name('marketplace.my-listings');
+    Route::get('/marketplace/create', [MarketplaceController::class, 'create'])->name('marketplace.create');
+    Route::post('/marketplace', [MarketplaceController::class, 'store'])->name('marketplace.store');
+    Route::get('/marketplace/edit/{listing}', [MarketplaceController::class, 'edit'])->name('marketplace.edit');
+    Route::put('/marketplace/{listing}', [MarketplaceController::class, 'update'])->name('marketplace.update');
+    Route::delete('/marketplace/{listing}', [MarketplaceController::class, 'destroy'])->name('marketplace.destroy');
+    Route::patch('/marketplace/{listing}/status', [MarketplaceController::class, 'updateStatus'])->name('marketplace.update-status');
+    
+    // Messaging system
+    Route::get('/marketplace/messages/inbox', [MarketplaceMessageController::class, 'inbox'])->name('marketplace.messages.inbox');
+    Route::get('/marketplace/{listing}/messages/{partner_id?}', [MarketplaceMessageController::class, 'showConversation'])->name('marketplace.messages.conversation');
+    Route::post('/marketplace/{listing}/messages', [MarketplaceMessageController::class, 'sendMessage'])->name('marketplace.messages.send');
+});
+
+// Admin marketplace routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/marketplace/dashboard', [MarketplaceAdminController::class, 'dashboard'])->name('admin.marketplace.dashboard');
+    Route::get('/admin/marketplace/listings', [MarketplaceAdminController::class, 'listings'])->name('admin.marketplace.listings');
+    Route::delete('/admin/marketplace/listings/{listing}', [MarketplaceAdminController::class, 'removeListing'])->name('admin.marketplace.listings.remove');
+    Route::get('/admin/marketplace/categories', [MarketplaceAdminController::class, 'categories'])->name('admin.marketplace.categories');
+    Route::post('/admin/marketplace/categories', [MarketplaceAdminController::class, 'storeCategory'])->name('admin.marketplace.categories.store');
+    Route::put('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'updateCategory'])->name('admin.marketplace.categories.update');
+    Route::delete('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])->name('admin.marketplace.categories.delete');
+});

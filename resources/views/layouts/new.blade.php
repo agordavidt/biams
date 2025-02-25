@@ -1,3 +1,4 @@
+{{-- resources\views\layouts\new.blade.php --}}
 <!doctype html>
 <html lang="en">
 
@@ -164,8 +165,8 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="ri-exchange-dollar-line me-2"></i> Market
+                                <a class="nav-link" href="{{ route('marketplace.index') }}">
+                                    <i class="ri-exchange-dollar-line me-2"></i> Marketplace
                                 </a>
                             </li>
                         </ul>

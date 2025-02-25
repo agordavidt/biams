@@ -209,9 +209,9 @@
                                 </ul>
                             </li>
                             <li>
-                                <a href="#" class="waves-effect">
+                                <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                 <i class="ri-exchange-dollar-line me-2"></i>
-                                    <span>Market</span>
+                                    <span>Marketplace</span>
                                 </a>
                             </li>
                 
