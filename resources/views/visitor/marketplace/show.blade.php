@@ -118,124 +118,150 @@
 
 <div class="container py-4">
     <div class="mb-4">
-        <a href="{{ route('visitor.marketplace') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('visitor.marketplace') }}" class="text-decoration-none">
             <i class="fas fa-arrow-left me-2"></i> Back to Marketplace
         </a>
     </div>
 
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <div class="row">
-        <!-- Product Image -->
-        <div class="col-md-5 mb-4">
-            <div class="card" style="border: thin solid rgb(89, 122, 89);">
-                @if($listing->image)
-                    <img src="{{ asset('storage/' . $listing->image) }}" class="card-img-top" alt="{{ $listing->title }}" style="max-height: 400px; object-fit: contain;">
-                @else
-                    <div class="bg-light text-center py-5" style="height: 400px;">
-                        <i class="fas fa-leaf fa-5x text-success mt-5"></i>
+        <!-- Product Image and Details -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            @if($listing->image)
+                                <img src="{{ asset('storage/' . $listing->image) }}" class="img-fluid rounded" alt="{{ $listing->title }}">
+                            @else
+                                <div class="bg-light text-center py-5 rounded">
+                                    <i class="fas fa-leaf fa-5x text-success"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="col-md-6">
+                            <h2 class="text-success">{{ $listing->title }}</h2>
+                            <p class="fs-4 fw-bold text-success mb-3">₦{{ number_format($listing->price) }} 
+                                @if($listing->unit)
+                                    / {{ $listing->unit }}
+                                @endif
+                            </p>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-success mb-2">{{ $listing->category->name }}</span>
+                                <p class="mb-0 text-muted">
+                                    <i class="fas fa-map-marker-alt"></i> {{ $listing->location }}
+                                </p>
+                                <p class="mb-0 text-muted">
+                                    <i class="fas fa-user"></i> Listed by: {{ $seller->name }}
+                                </p>
+                                <p class="text-muted">
+                                    <i class="fas fa-calendar"></i> Listed: {{ $listing->created_at->format('M d, Y') }}
+                                </p>
+                            </div>
+                            
+                            <!-- Available quantity -->
+                            @if($listing->quantity > 0)
+                                <p class="mb-1">Available Quantity: {{ $listing->quantity }} {{ $listing->unit }}</p>
+                            @endif
+                            
+                            <!-- Status -->
+                            <p class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i> Available for purchase
+                            </p>
+                            
+                            <!-- Contact Seller - Only login link for non-auth users -->
+                            @auth
+                                <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
+                                   class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-envelope me-2"></i> Contact Seller
+                                </a>
+                            @else
+                                <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Login to Contact Seller
+                                </a>
+                            @endauth
+                        </div>
                     </div>
-                @endif
+                </div>
+            </div>
+            
+            <!-- Product Description -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Description</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ $listing->description }}</p>
+                </div>
             </div>
         </div>
-
-        <!-- Product Details -->
-        <div class="col-md-7">
-            <div class="card" style="border: thin solid rgb(89, 122, 89);">
+        
+        <!-- Seller Information and Similar Listings -->
+        <div class="col-md-4">
+            <!-- Seller Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Seller Information</h5>
+                </div>
                 <div class="card-body">
-                    <h2 class="card-title text-success mb-3">{{ $listing->title }}</h2>
+                    <h5>{{ $seller->name }}</h5>
+                    <p class="text-muted">
+                        <i class="fas fa-map-marker-alt"></i> {{ $listing->location }}
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-user-check"></i> Member since {{ $seller->created_at->format('M Y') }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>{{ $seller->marketplaceListings->where('availability', 'available')->count() }}</strong> active listings
+                    </p>
                     
-                    <div class="mb-3">
-                        <h4 class="text-success">₦{{ number_format($listing->price) }} 
-                            @if($listing->unit)
-                                / {{ $listing->unit }}
-                            @endif
-                        </h4>
-                    </div>
-
-                    <div class="mb-3">
-                        <p class="text-muted">
-                            <i class="fas fa-map-marker-alt me-2"></i> {{ $listing->location }}
-                        </p>
-                    </div>
-
-                    <div class="mb-3">
-                        <p class="card-text">{{ $listing->description }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <p class="card-text">
-                            <strong>Category:</strong> {{ $listing->category->name }}
-                        </p>
-                    </div>
-                    
-                    @if($listing->quantity)
-                    <div class="mb-3">
-                        <p class="card-text">
-                            <strong>Available Quantity:</strong> {{ $listing->quantity }} {{ $listing->unit }}
-                        </p>
-                    </div>
-                    @endif
-
-                    <div class="mb-3">
-                        <p class="card-text">
-                            <strong>Listed By:</strong> {{ $seller->name }}
-                        </p>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i> To contact the seller and see full details, please 
-                        <a href="{{ route('login') }}" class="alert-link">login</a> or 
-                        <a href="{{ route('register') }}" class="alert-link">register</a>.
-                    </div>
+                    @auth
+                        <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
+                           class="btn btn-outline-success w-100 mt-3">
+                            <i class="fas fa-envelope me-2"></i> Message Seller
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-outline-success w-100 mt-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Login to Contact
+                        </a>
+                    @endauth
                 </div>
             </div>
-
-            <!-- Similar Products -->
-            <div class="card mt-4" style="border: thin solid rgb(89, 122, 89);">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Similar Products</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        @forelse($similarListings as $similarListing)
-                            <div class="col-md-6">
-                                <div class="card h-100 shadow-sm">
-                                    <div class="row g-0">
-                                        <div class="col-4">
-                                            @if($similarListing->image)
-                                                <img src="{{ asset('storage/' . $similarListing->image) }}" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="{{ $similarListing->title }}">
-                                            @else
-                                                <div class="bg-light text-center h-100 d-flex align-items-center justify-content-center">
-                                                    <i class="fas fa-leaf fa-2x text-success"></i>
-                                                </div>
-                                            @endif
+            
+            <!-- Similar Listings Card -->
+            @if($similarListings->count() > 0)
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Similar Listings</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach($similarListings as $similarListing)
+                            <a href="{{ route('visitor.marketplace.show', $similarListing) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex">
+                                    @if($similarListing->image)
+                                        <img src="{{ asset('storage/' . $similarListing->image) }}" alt="{{ $similarListing->title }}" 
+                                             style="width: 60px; height: 60px; object-fit: cover;" class="me-3 rounded">
+                                    @else
+                                        <div class="bg-light text-center rounded me-3" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-leaf text-success" style="line-height: 60px;"></i>
                                         </div>
-                                        <div class="col-8">
-                                            <div class="card-body p-2">
-                                                <h6 class="card-title">{{ Str::limit($similarListing->title, 40) }}</h6>
-                                                <p class="card-text text-success">₦{{ number_format($similarListing->price) }}</p>
-                                                <a href="{{ route('visitor.marketplace.show', $similarListing) }}" class="btn btn-sm btn-outline-success">View</a>
-                                            </div>
-                                        </div>
+                                    @endif
+                                    <div>
+                                        <h6 class="mb-0">{{ $similarListing->title }}</h6>
+                                        <p class="text-success mb-0">₦{{ number_format($similarListing->price) }}</p>
+                                        <small class="text-muted">{{ $similarListing->location }}</small>
                                     </div>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="col-12">
-                                <p class="text-muted">No similar products found.</p>
-                            </div>
-                        @endforelse
+                            </a>
+                        @endforeach
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
-    </div>
-
-    <!-- Call to Action -->
-    <div class="mt-5 py-4 text-center bg-light rounded" style="border: thin solid rgb(89, 122, 89);">
-        <h3 class="text-success mb-3">Want to contact sellers directly?</h3>
-        <p class="mb-4">Create an account or login to contact farmers and access all features.</p>
-        <a href="{{ route('register') }}" class="btn btn-success btn-lg me-2">Register Now</a>
-        <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg">Login</a>
     </div>
 </div>
 
