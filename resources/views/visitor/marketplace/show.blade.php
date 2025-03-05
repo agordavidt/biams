@@ -174,7 +174,7 @@
                             </p>
                             
                             <!-- Contact Seller - Only login link for non-auth users -->
-                            @auth
+                            <!-- @auth
                                 <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
                                    class="btn btn-success btn-lg w-100">
                                     <i class="fas fa-envelope me-2"></i> Contact Seller
@@ -183,7 +183,7 @@
                                 <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-success btn-lg w-100">
                                     <i class="fas fa-sign-in-alt me-2"></i> Login to Contact Seller
                                 </a>
-                            @endauth
+                            @endauth -->
                         </div>
                     </div>
                 </div>

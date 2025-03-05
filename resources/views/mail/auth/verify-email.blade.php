@@ -3,10 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Status Update</title>
-
+    <title>Verify Your Email Address</title>
     <style>
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -35,27 +33,26 @@
             padding: 30px;
             color: #333333;
         }
-        .status {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .status-approved {
+        .verification-box {
             background-color: #e7f5ed;
-            color: #006837;
-        }
-        .status-rejected {
-            background-color: #fee7e7;
-            color: #dc3545;
-        }
-        .rejection-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #dc3545;
-            padding: 15px;
+            border-left: 4px solid #006837;
+            padding: 20px;
             margin: 20px 0;
             border-radius: 4px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background-color: #006837;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #005129;
         }
         .footer {
             background-color: #f8f9fa;
@@ -63,6 +60,11 @@
             text-align: center;
             color: #666666;
             border-top: 1px solid #eeeeee;
+        }
+        .link-text {
+            word-break: break-all;
+            color: #006837;
+            font-size: 0.9em;
         }
         .social-links {
             margin: 15px 0;
@@ -72,17 +74,7 @@
             color: #006837;
             text-decoration: none;
         }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #006837;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
     </style>
-    
 </head>
 <body>
     <div class="container">
@@ -91,34 +83,23 @@
         </div>
         
         <div class="content">
-            <h2>Application Status Update</h2>
+            <h2>Email Verification</h2>
             
-            <p>Dear {{ $notifiable->name }},</p>
+            <div class="verification-box">
+                <h3>Verify Your Email Address 📧</h3>
+                <p>Hello {{ $user->name }}, welcome to BSIADAMS! Please verify your email to complete your registration.</p>
+            </div>
             
-            <p>Your agricultural practice application has been 
-                <span class="status {{ $status === 'approved' ? 'status-approved' : 'status-rejected' }}">
-                    {{ ucfirst($status) }}
-                </span>
-            </p>
+            <p>Click the button below to verify your email address:</p>
             
-            @if ($status === 'rejected' && $comments)
-                <div class="rejection-box">
-                    <h3>Reason for Rejection:</h3>
-                    <p>{{ $comments }}</p>
-                </div>
-                <p>You can revise and resubmit your application addressing the concerns mentioned above.</p>
-                <a href="{{ url('/dashboard') }}" class="button">Go to Dashboard</a>
-            @endif
+            <div style="text-align: center;">
+                <a href="{{ $verificationUrl }}" class="button">Verify Email Address</a>
+            </div>
             
-            @if ($status === 'approved')
-                <p>Congratulations! You can now access full features of the application.</p>
-                <a href="{{ url('/dashboard') }}" class="button">View Details</a>
-            @endif
+            <p>If the button above doesn't work, you can copy and paste the following link into your browser:</p>
+            <p class="link-text">{{ $verificationUrl }}</p>
             
-            <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
-            
-            <p>Best regards,<br>
-            The BSIADAMS Team</p>
+            <p>This link will expire in 60 minutes. If you did not create an account, please ignore this email.</p>
         </div>
         
         <div class="footer">
@@ -128,9 +109,10 @@
                 <a href="#">LinkedIn</a>
             </div>
             <p>© {{ date('Y') }} BSIADAMS. All rights reserved.</p>
-            <p>Block 8 Suite 11-13 Makurdi/Otukpo Road,<br>
+            <p>Block 8 Suite 11-13 Makurdi/Gboko Road,<br>
                Behind Total Filing Station, SDP,<br>
                Makurdi, Benue State</p>
+            <p>Need help? Contact us at <a href="mailto:support@bsiadams.com" style="color: #006837;">support@bsiadams.com</a></p>
         </div>
     </div>
 </body>

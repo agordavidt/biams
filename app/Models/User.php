@@ -1,14 +1,13 @@
 <?php
 
 namespace App\Models;
-// namespace App\Models\Farmers;
-
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\CustomVerifyEmail; // Import the custom verification notification
 
 use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\CropFarmer;
@@ -33,7 +32,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role',
         'status',
-       
     ];
 
     /**
@@ -52,17 +50,25 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',        
+        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
 
-    // Relationship to Profile
+    // Relationships
     public function profile()
     {
         return $this->hasOne(Profile::class);
     }
-
 
     public function cropFarmers()
     {
@@ -83,11 +89,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Processor::class);
     }
-   
 
-
-        // relationship with market place
-
+    // Marketplace Relationships
     public function marketplaceListings()
     {
         return $this->hasMany(MarketplaceListing::class);
@@ -102,9 +105,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(MarketplaceMessage::class, 'receiver_id');
     }
-    
 }
-
-
 
 

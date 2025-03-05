@@ -206,12 +206,12 @@
     </div>
 
     <!-- Call to Action Section -->
-    <div class="mt-5 py-4 text-center bg-light rounded" style="border: thin solid rgb(89, 122, 89);">
+    <!-- <div class="mt-5 py-4 text-center bg-light rounded" style="border: thin solid rgb(89, 122, 89);">
         <h3 class="text-success mb-3">Are you a farmer looking to sell your products?</h3>
         <p class="mb-4">Join our platform to list your products and connect with buyers across Benue State.</p>
         <a href="{{ route('register') }}" class="btn btn-success btn-lg me-2">Register Now</a>
         <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg">Login</a>
-    </div>
+    </div> -->
 </div>
 
 
