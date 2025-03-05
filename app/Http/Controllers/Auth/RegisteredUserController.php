@@ -31,11 +31,11 @@ class RegisteredUserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
   // app/Http/Controllers/Auth/RegisteredUserController.php
-   public function store(Request $request): RedirectResponse
+  public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -48,19 +48,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // Trigger the Registered event (sends verification email)
-        // event(new Registered($user));
-        if ($user) {
-            event(new Registered($user));
-            $user->sendEmailVerificationNotification();
-        } else {
-            return back()->with('error', 'Failed to register user');
-        }
-
-        // // Send email verification notification
-        // $user->sendEmailVerificationNotification();
-
-        // Redirect to the verification notice page
-        // return redirect()->route('verification.notice');
+        event(new Registered($user));
 
         return redirect()->route('verification.notice')->with('success', 'Registration successful! Please verify your email.');
     }
