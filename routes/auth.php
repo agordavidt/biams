@@ -36,11 +36,11 @@ Route::middleware('auth')->group(function () {
     // Email verification routes
     Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
-        ->name('verification.send');
+        ->name('verification.send');    
 
     // Password confirmation routes
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');

@@ -31,6 +31,8 @@ class CustomVerifyEmail extends Notification
             ->subject('Verify Your Email Address')
             ->view('mail.auth.verify-email', ['verificationUrl' => $verificationUrl, 'user' => $notifiable]);
     }
+ 
+
 
     protected function verificationUrl($notifiable)
     {

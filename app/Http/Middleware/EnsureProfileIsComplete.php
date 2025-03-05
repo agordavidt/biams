@@ -2,15 +2,13 @@
 
 
 
-
-// app/Http/Middleware/EnsureProfileIsIncomplete.php
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class EnsureProfileIsIncomplete
+class EnsureProfileIsComplete
 {
     public function handle(Request $request, Closure $next)
     {
