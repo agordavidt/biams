@@ -8,7 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class EnsureProfileIsComplete
+class EnsureProfileIsIncomplete
 {
     public function handle(Request $request, Closure $next)
     {

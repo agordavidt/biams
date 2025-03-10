@@ -30,6 +30,8 @@
             <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
             <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+            <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
             <style>
              .status-badge {
                 padding: 0.25rem 0.5rem;
@@ -169,84 +171,77 @@
 
                     <!--- Sidemenu -->
                     <div id="sidebar-menu">
-                        <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>                            
+                            <li class="menu-title">Menu</li>
 
                             <li>
-                                <a href="{{ route('admin.dashboard') }}" class="waves-effect">
+                                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
 
-                             <li>
-                                <a href="{{ route('admin.users.summary') }}" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Users</span>
-                                </a>                               
-                            </li>
                             <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                <a href="{{ route('super_admin.users') }}" class="waves-effect">
+                                    <i class="ri-user-line"></i>
+                                    <span>Users</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('super_admin.settings') }}" class="waves-effect">
+                                    <i class="ri-settings-3-line"></i>
                                     <span>Settings</span>
                                 </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.practices.crop-farmers') }}">Crop Farmers</a></li>
-                                    <li><a href="{{ route('admin.practices.animal-farmers') }}">Animal Farmers</a></li>
-                                    <li><a href="{{ route('admin.practices.abattoir-operators') }}">Abattoir Operators</a></li>
-                                    <li><a href="{{ route('admin.practices.processors') }}">Processors</a></li>
-                                </ul>
+                               
                             </li>
-  
-                             <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-database-2-line me-2"></i>
+
+                            <li>
+                                <a href="{{ route('super_admin.activity_logs') }}" class="waves-effect">
+                                    <i class="ri-shield-keyhole-line"></i>
                                     <span>Security</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
-                                    <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
-                                </ul>
+                                </a>                               
                             </li>
+
                             <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
-                                <i class="ri-exchange-dollar-line me-2"></i>
+                                    <i class="ri-store-line"></i>
                                     <span>Content</span>
                                 </a>
                             </li>
-                
+
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-mail-send-line"></i>
+                                    <i class="ri-plug-2-line"></i>
                                     <span>Integrations</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="email-inbox.html">Inbox</a></li>
-                                    <li><a href="email-read.html">Read Email</a></li>
+                                    <li><a href="email-inbox.html"><i class="ri-mail-open-line"></i> Inbox</a></li>
+                                    <li><a href="email-read.html"><i class="ri-mail-read-line"></i> Read Email</a></li>
                                 </ul>
                             </li>
+
                             <li>
                                 <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-mail-send-line"></i>
+                                    <i class="ri-customer-service-2-line"></i>
                                     <span>Support</span>
                                 </a>
-                                
-                            </li>
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-mail-send-line"></i>
-                                    <span>Audit</span>
-                                </a>
-                                
                             </li>
 
-                             <li> <a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
-                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
-                                @csrf 
-                                <li> 
-                                    <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
-                                </li> 
+                            <li>
+                                <a href="javascript: void(0);" class="waves-effect">
+                                    <i class="ri-file-search-line"></i>
+                                    <span>Audit</span>
+                                </a>
+                            </li>
+
+                            <li><a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
+
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                                @csrf
+                                <li>
+                                    <a class="text-danger" href="#" id="logout-link"> <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> <span>Logout</span> </a>
+                                </li>
                             </form>
                         </ul>
                     </div>

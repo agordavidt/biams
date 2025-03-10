@@ -134,20 +134,44 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 
+
 // Super Admin Routes
 Route::middleware(['auth', 'super_admin'])->group(function () {
-    // Super Admin Dashboard
+    // Dashboard
     Route::get('/super-admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
 
-    // Manage Users (Admins and Regular Users)
+    // User Management
     Route::get('/super-admin/users', [SuperAdminController::class, 'manageUsers'])->name('super_admin.users');
     Route::get('/super-admin/users/create', [SuperAdminController::class, 'createUser'])->name('super_admin.users.create');
     Route::post('/super-admin/users/store', [SuperAdminController::class, 'storeUser'])->name('super_admin.users.store');
     Route::get('/super-admin/users/{user}/edit', [SuperAdminController::class, 'editUser'])->name('super_admin.users.edit');
     Route::put('/super-admin/users/{user}/update', [SuperAdminController::class, 'updateUser'])->name('super_admin.users.update');
     Route::delete('/super-admin/users/{user}/delete', [SuperAdminController::class, 'deleteUser'])->name('super_admin.users.delete');
-});
 
+    // System Configuration
+    Route::get('/super-admin/settings', [SuperAdminController::class, 'manageSettings'])->name('super_admin.settings');
+    Route::post('/super-admin/settings/update', [SuperAdminController::class, 'updateSettings'])->name('super_admin.settings.update');
+
+    // Security and Access Control
+    Route::get('/super-admin/activity-logs', [SuperAdminController::class, 'activityLogs'])->name('super_admin.activity_logs');
+    Route::post('/super-admin/users/{user}/force-password-reset', [SuperAdminController::class, 'forcePasswordReset'])->name('super_admin.force_password_reset');
+
+    // Content and Data Management
+    Route::get('/super-admin/content', [SuperAdminController::class, 'manageContent'])->name('super_admin.content');
+    Route::post('/super-admin/content/store', [SuperAdminController::class, 'storeContent'])->name('super_admin.content.store');
+    Route::put('/super-admin/content/{content}/update', [SuperAdminController::class, 'updateContent'])->name('super_admin.content.update');
+    Route::delete('/super-admin/content/{content}/delete', [SuperAdminController::class, 'deleteContent'])->name('super_admin.content.delete');
+
+    // Integration and Third-Party Services
+    Route::get('/super-admin/integrations', [SuperAdminController::class, 'manageIntegrations'])->name('super_admin.integrations');
+    Route::put('/super-admin/integrations/{integration}/update', [SuperAdminController::class, 'updateIntegration'])->name('super_admin.integrations.update');
+
+    // Troubleshooting and Support
+    Route::get('/super-admin/error-logs', [SuperAdminController::class, 'errorLogs'])->name('super_admin.error_logs');
+
+    // Audit and Compliance
+    Route::get('/super-admin/audit-logs', [SuperAdminController::class, 'auditLogs'])->name('super_admin.audit_logs');
+});
 
 
 // Include authentication routes
