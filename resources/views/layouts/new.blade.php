@@ -165,7 +165,8 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('marketplace.index') }}">
+                                <a class="nav-link" href="{{ route('marketplace.my-listings') }}">
+                                    <!-- there is an option for users to view the marketplace @ marketplace.index -->
                                     <i class="ri-exchange-dollar-line me-2"></i> Marketplace
                                 </a>
                             </li>
