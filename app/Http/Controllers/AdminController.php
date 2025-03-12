@@ -28,16 +28,13 @@ class AdminController extends Controller
      */
     public function index()
     {
-        // Get total users count
-        $totalUsers = User::count();
         
-        // Get new users today
-        $newToday = User::whereDate('created_at', Carbon::today())->count();
-        
-        // Get pending users
-        $pendingUsers = User::where('status', 'pending')->count();
-        
-        // Calculate profile completion
+        $totalUsers = User::count();        
+     
+        $newToday = User::whereDate('created_at', Carbon::today())->count();        
+       
+        $pendingUsers = User::where('status', 'pending')->count();        
+      
         $completedProfiles = Profile::whereNotNull('phone')
             ->whereNotNull('gender')
             ->whereNotNull('dob')
@@ -49,7 +46,7 @@ class AdminController extends Controller
             'completed' => $completedProfiles
         ];
         
-        // Compile stats array
+        
         $stats = [
             'totalUsers' => $totalUsers,
             'newToday' => $newToday,
@@ -58,7 +55,6 @@ class AdminController extends Controller
             'recentActivity' => User::where('email_verified_at', '>=', Carbon::now()->subDay())->count()
         ];
         
-        // Get monthly registration stats for the past 12 months
         $monthlyStats = User::select(
             DB::raw('DATE_FORMAT(created_at, "%b") as month'),
             DB::raw('COUNT(*) as total'),
@@ -69,8 +65,7 @@ class AdminController extends Controller
             ->orderBy('created_at')
             ->get();
             
-            
-        // Get practice distribution
+     
         $practiceDistribution = [
             'Crop Farmers' => CropFarmer::count(),
             'Animal Farmers' => AnimalFarmer::count(),
@@ -78,7 +73,7 @@ class AdminController extends Controller
             'Processors' => Processor::count()
         ];
         
-        // Get recent users with their profiles
+        
         $recentUsers = User::with('profile')
             ->select('users.*')
             ->selectRaw('
@@ -104,7 +99,7 @@ class AdminController extends Controller
                 ];
             });
             
-        // Get regional distribution (top LGAs)
+        
         $regionalDistribution = Profile::select('lga', DB::raw('COUNT(*) as count'))
             ->whereNotNull('lga')
             ->groupBy('lga')

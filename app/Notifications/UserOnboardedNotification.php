@@ -28,7 +28,7 @@ class UserOnboardedNotification extends Notification
             ->subject('Welcome to BSIADAMS - Your Profile is Approved!')
             ->view('mail.applications.user_onboarded', [
                 'user' => $notifiable,
-                'dashboardUrl' => url('/dashboard'),
+                'dashboardUrl' => url('/home'),                
                 'name' => $notifiable->name
             ]);
     }
@@ -40,7 +40,7 @@ class UserOnboardedNotification extends Notification
     {
         return [
             'message' => 'Your profile has been approved by the admin.',
-            'action' => url('/dashboard'),
+            'action' => url('/home'),
         ];
     }
 }

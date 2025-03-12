@@ -277,7 +277,7 @@
                         <p class="mb-0">&copy; 2025 &mdash; Benue State Integrated Agricultural Data and Access Management System.</p>
                     </div>
                     <div class="col-md-4">
-                         <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by BDIC <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC"></a>
+                         <a href="http://bdic.ng" target="_blank" class="powered_by_bdic text-white">Powered by BDIC <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC"></a>
                     </div>
                 </div>
 
