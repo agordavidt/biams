@@ -17,7 +17,7 @@
         }
         
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7)), url('{{ asset('dashboard/images/farm-background.jpg') }}');
+            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}');
             background-size: cover;
             background-position: center;
             color: white;
