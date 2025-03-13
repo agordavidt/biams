@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ResourceController extends Controller
 {
@@ -22,8 +23,7 @@ class ResourceController extends Controller
     }
     public function store(Request $request)
     {
-        // for debugging
-        \Log::info('Received form_fields:', ['data' => $request->input('form_fields')]);
+       
         
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
