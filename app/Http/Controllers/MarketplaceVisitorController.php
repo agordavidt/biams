@@ -59,8 +59,10 @@ class MarketplaceVisitorController extends Controller
                 ->with('error', 'This listing is no longer available.');
         }
 
-        // Load seller info for display (only public info)
+     
         $seller = $listing->user;
+
+        
 
         // Get similar listings (same category, excluding this one)
         $similarListings = MarketplaceListing::where('category_id', $listing->category_id)

@@ -93,6 +93,29 @@
                             </div>
                         </div>
                         <div class="col-md-6">
+                        <div class="mb-3">
+                                <label for="contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contact" name="contact" value="{{ old('contact', $listing->contact) }}" required>
+                                <small class="text-muted">This number will be visible to buyers interested in your listing</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Image</label>
+                                @if($listing->image)
+                                    <div class="mb-2">
+                                        <img src="{{ Storage::url($listing->image) }}" alt="{{ $listing->title }}" class="img-thumbnail" style="max-height: 200px;">
+                                        <p class="mb-0">Current image</p>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <small class="text-muted">Max file size: 2MB. Upload a new image to replace the current one.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="expires_in" class="form-label">Extend Listing Duration</label>
                                 <select class="form-select" id="expires_in" name="expires_in">
@@ -107,17 +130,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        @if($listing->image)
-                            <div class="mb-2">
-                                <img src="{{ Storage::url($listing->image) }}" alt="{{ $listing->title }}" class="img-thumbnail" style="max-height: 200px;">
-                                <p class="mb-0">Current image</p>
-                            </div>
-                        @endif
-                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                        <small class="text-muted">Max file size: 2MB. Upload a new image to replace the current one.</small>
-                    </div>
+                   
 
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{{ route('marketplace.my-listings') }}" class="btn btn-light">Cancel</a>
