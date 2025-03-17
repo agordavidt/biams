@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ResourceApplication;
 use App\Models\User;
-use App\Notifications\ApplicationStatusUpdated;
+use App\Notifications\ResourcesStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
@@ -86,7 +86,7 @@ class ResourceApplicationController extends Controller
         // Update the application status
         if ($application->updateStatus($validated['status'])) {
             // Send notification to user
-            $application->user->notify(new ApplicationStatusUpdated(
+            $application->user->notify(new ResourcesStatusUpdated(
                 $application,
                 $validated['note'] ?? null
             ));
@@ -191,7 +191,7 @@ class ResourceApplicationController extends Controller
                     $updatedCount++;
                     
                     // Send notification
-                    $application->user->notify(new ApplicationStatusUpdated(
+                    $application->user->notify(new ResourcesStatusUpdated(
                         $application,
                         $validated['note'] ?? null
                     ));

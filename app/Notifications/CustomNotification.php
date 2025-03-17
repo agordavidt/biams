@@ -27,7 +27,7 @@ class CustomNotification extends Notification
     {
         return (new MailMessage)
                     ->line($this->message)
-                    ->action('View Dashboard', url('/dashboard'))
+                    ->action('View Dashboard', url('/home'))
                     ->line('Thank you for using our application!');
     }
 
