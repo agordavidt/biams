@@ -81,13 +81,31 @@
                         <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
                         <small class="text-muted">Provide detailed information about your product or service</small>
                     </div>
-
+                  
+                    <!---- Hold my hand ---->
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="location" name="location" value="{{ old('location') }}" required>
                                 <small class="text-muted">Specify where the item is located (e.g., Makurdi, North Bank)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contact" name="contact" value="{{ old('contact') }}" required>
+                                <small class="text-muted">This number will be visible to buyers interested in your listing</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Upload Image (optional)</label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <small class="text-muted">Max file size: 2MB. Adding a clear image can help sell your item faster.</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -103,11 +121,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="image" class="form-label">Upload Image (optional)</label>
-                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                        <small class="text-muted">Max file size: 2MB. Adding a clear image can help sell your item faster.</small>
-                    </div>
+                   
 
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{{ route('marketplace.my-listings') }}" class="btn btn-light">Cancel</a>
