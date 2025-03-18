@@ -190,7 +190,7 @@
                 </div>
             </div>
 
-            <!-- Sidebar (Seller Info & Similar Listings) -->
+            
             <div class="col-lg-4">
                 <div class="sidebar-card mb-4">
                     <h5 class="fw-bold text-success mb-3">Seller Information</h5>
