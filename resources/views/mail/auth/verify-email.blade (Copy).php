@@ -79,9 +79,7 @@
 <body>
     <div class="container">
         <div class="header">
-            {{-- <img src="{{ asset('images/logo.png') }}" alt="BSIADAMS Logo" class="logo"> --}}
-            <img src="{{ asset('/dashboard/images/favicon.jpg') }}" style="width: 140px; height: 140px"
-        alt="BSIADAMS_logo">
+            <img src="{{ asset('images/logo.png') }}" alt="BSIADAMS Logo" class="logo">
         </div>
         
         <div class="content">
