@@ -22,6 +22,7 @@ class MarketplaceListing extends Model
         'quantity',
         'image',
         'location',
+        'contact',
         'availability',
         'expires_at',
     ];

@@ -89,6 +89,7 @@ class MarketplaceController extends Controller
             'quantity' => 'nullable|integer|min:1',
             'category_id' => 'required|exists:marketplace_categories,id',
             'location' => 'required|string|max:255',
+            'contact' => 'required|string|max:11', 
             'image' => 'nullable|image|max:2048', // 2MB max
             'expires_in' => 'required|integer|in:7,14,30,60', // Days until expiration
         ]);
@@ -102,6 +103,7 @@ class MarketplaceController extends Controller
         $listing->quantity = $request->quantity;
         $listing->category_id = $request->category_id;
         $listing->location = $request->location;
+        $listing->contact = $request->contact;
         $listing->expires_at = Carbon::now()->addDays($request->expires_in);
         
         // Handle image upload
@@ -170,6 +172,7 @@ class MarketplaceController extends Controller
             'quantity' => 'nullable|integer|min:1',
             'category_id' => 'required|exists:marketplace_categories,id',
             'location' => 'required|string|max:255',
+            'contact' => 'required|string|max:11',         
             'image' => 'nullable|image|max:2048', // 2MB max
             'expires_in' => 'nullable|integer|in:7,14,30,60', // Days until expiration (only if extending)
         ]);
@@ -181,6 +184,7 @@ class MarketplaceController extends Controller
         $listing->quantity = $request->quantity;
         $listing->category_id = $request->category_id;
         $listing->location = $request->location;
+        $listing->contact = $request->contact;
         
         // Extend expiration date if requested
         if ($request->has('expires_in')) {

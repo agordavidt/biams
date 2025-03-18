@@ -139,29 +139,29 @@ class UserResourceController extends Controller
                         continue;
                     }
                     
-                    // Handle file uploads
+                    
                     if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
                         $file = $request->file($fieldName);
                         $filename = time() . '_' . $file->getClientOriginalName();
                         $path = $file->storeAs('resource_applications', $filename, 'public');
                         
-                        // Store file path in form data
+                        
                         $formData[$field['label']] = [
                             'filename' => $filename,
                             'path' => $path,
                             'original_name' => $file->getClientOriginalName()
                         ];
                     } else {
-                        // For non-file fields, store the value with the original label
+                      
                         $formData[$field['label']] = $validatedData[$fieldName];
                     }
                 }
                 
-                // Create the application with the properly structured form data
+                
                 $application = ResourceApplication::create([
                     'user_id' => Auth::id(),
                     'resource_id' => $resource->id,
-                    'form_data' => $formData, // This will be JSON encoded by Laravel
+                    'form_data' => $formData, 
                     'status' => 'pending'
                 ]);
         

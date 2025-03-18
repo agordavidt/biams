@@ -13,37 +13,41 @@ class MarketplaceVisitorController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all categories for filtering
+        // Get all active categories for filtering
         $categories = MarketplaceCategory::where('is_active', true)->get();
-        
-        // Build query
-        $query = MarketplaceListing::with(['category', 'user'])
-                               ->where('availability', 'available')
-                               ->where('expires_at', '>', now());
-        
-        // Apply filters if provided
-        if ($request->has('category')) {
-            $query->where('category_id', $request->category);
+
+        // Build query for available and non-expired listings
+        $query = MarketplaceListing::with(['category'])
+            ->where('availability', 'available')
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'desc'); // Latest listings first
+
+        // Apply category filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->input('category'));
         }
-        
-        if ($request->has('location')) {
-            $query->where('location', 'like', '%' . $request->location . '%');
+
+        // Apply location filter
+        if ($request->filled('location')) {
+            $query->where('location', 'like', '%' . $request->input('location') . '%');
         }
-        
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
+
+        // Apply search filter (title or description)
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
                   ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
-        
-        // Get listings with pagination
-        $listings = $query->latest()->paginate(12);
-        
+
+        // Paginate results (12 per page)
+        $listings = $query->paginate(12)->appends($request->query());
+
+        // Return view with filtered listings and categories
         return view('visitor.marketplace.index', compact('listings', 'categories'));
     }
-    
+
     /**
      * Display the specified listing details for visitors
      */
@@ -54,10 +58,12 @@ class MarketplaceVisitorController extends Controller
             return redirect()->route('visitor.marketplace')
                 ->with('error', 'This listing is no longer available.');
         }
-        
-        // Load seller info for display (only public info)
+
+     
         $seller = $listing->user;
+
         
+
         // Get similar listings (same category, excluding this one)
         $similarListings = MarketplaceListing::where('category_id', $listing->category_id)
             ->where('id', '!=', $listing->id)
@@ -66,7 +72,7 @@ class MarketplaceVisitorController extends Controller
             ->latest()
             ->take(4)
             ->get();
-        
+
         return view('visitor.marketplace.show', compact('listing', 'seller', 'similarListings'));
     }
 }

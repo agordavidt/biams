@@ -29,7 +29,7 @@ class ResourceController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
-            'requires_payment' => 'required|boolean', // Ensure it's a boolean
+            'requires_payment' => 'required|boolean',
             'price' => 'required_if:requires_payment,true|numeric|min:0',
             'form_fields' => 'required|json',
         ], [
@@ -52,8 +52,7 @@ class ResourceController extends Controller
         try {
             $formFields = json_decode($request->input('form_fields'), true);
             
-            // debug logging
-            \Log::info('Decoded form_fields:', ['data' => $formFields]);
+           
     
             if (json_last_error() !== JSON_ERROR_NONE || !is_array($formFields)) {
                 \Log::error('JSON decode error:', ['error' => json_last_error_msg()]);
@@ -78,7 +77,7 @@ class ResourceController extends Controller
                 'target_practice' => $request->target_practice,
                 'requires_payment' => $request->boolean('requires_payment'),
                 'price' => $request->requires_payment ? $request->price : 0,
-                'form_fields' => $formFields, // Store decoded array
+                'form_fields' => $formFields, 
                 'is_active' => true,
             ]);
     
@@ -144,7 +143,7 @@ class ResourceController extends Controller
                 'target_practice' => $request->target_practice,
                 'requires_payment' => $request->boolean('requires_payment'),
                 'price' => $request->requires_payment ? $request->price : 0,
-                'form_fields' => $formFields, // Store decoded array
+                'form_fields' => $formFields, 
             ]);
 
             return response()->json([

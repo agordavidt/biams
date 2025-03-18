@@ -63,9 +63,20 @@
                                 @foreach($application->form_data as $field => $value)
                                     <div class="col-md-6 mb-2">
                                         <span class="text-muted">{{ ucfirst($field) }}:</span>
-                                        <span class="ms-2">{{ $value }}</span>
+                                        <span class="ms-2">
+                                            @if(is_array($value))
+                                                @if(isset($value['original_name']))
+                                                    File: {{ $value['original_name'] }}
+                                                @else
+                                                    {{ json_encode($value) }}
+                                                @endif
+                                            @else
+                                                {{ $value }}
+                                            @endif
+                                        </span>
                                     </div>
                                 @endforeach
+                               
                             </div>
                         </div>
 
