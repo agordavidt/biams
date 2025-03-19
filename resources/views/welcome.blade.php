@@ -60,11 +60,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="fas fa-leaf me-2 " style="padding-right:120px; font-size: 2rem;"></i> 
+            <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" > 
                 {{-- BSIADAMS --}}
 
-{{-- <img src="{{ asset('dashboard/images/bsiadams_logo.png') }}" style="border-radius: 1em"
-                            alt="farm_produce" height="50"> --}}
+    {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" > --}}
 
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

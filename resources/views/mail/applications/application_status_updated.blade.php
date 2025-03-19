@@ -87,7 +87,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('images/logo.png') }}" alt="BSIADAMS Logo" class="logo">
+            <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" >
         </div>
         
         <div class="content">

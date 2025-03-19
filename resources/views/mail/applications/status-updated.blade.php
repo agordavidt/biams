@@ -100,7 +100,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('images/logo.png') }}" alt="BSIADAMS Logo" class="logo">
+            <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" >
         </div>
         
         <div class="content">
@@ -134,8 +134,7 @@
             @endif
             
             @if ($application->status === 'approved')
-                <p>Congratulations! Your application has been approved. You can now access the requested resource.</p>
-                <a href="{{ url('/dashboard/resources/'.$application->resource->id) }}" class="button">Access Resource</a>
+                <p>Congratulations! Your application has been approved. 
             @endif
             
             @if (in_array($application->status, ['pending', 'in-review']))
