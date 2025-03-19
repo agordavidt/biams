@@ -40,16 +40,18 @@
 
                                                 <div class="form-floating mb-4 position-relative">
                                                     <input style="border: thin solid darkgreen;" type="password"
-                                                        class="form-control" id="passwordInput" placeholder="Password"
+                                                        class="form-control" id="passwordInput1" placeholder="Password"
                                                         name="password" required autocomplete="current-password">
                                                     <label for="passwordInput">{{ __('Password') }}</label>
-                                                    <span class="password-toggle">
-                                                        <i class="far fa-eye"></i>
+                                                    <span class="password-toggle" id="togglePassword1">
+                                                        <i class="bi bi-eye" id="eyeIcon1"></i>
                                                     </span>
                                                     @error('password')
                                                         <div class="text-danger mt-2">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+
+                                               
 
 
                                                 <div class="form-check">

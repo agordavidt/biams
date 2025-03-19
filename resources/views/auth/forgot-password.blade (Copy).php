@@ -141,7 +141,7 @@
             
                       <!-- Resend Password Button -->
                       <div class="col-12 col-md-6  gap-2">
-                        <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                        <button type="submit" class="btn btn-primary">Email Reset Link</button>
                       </div>
                     
                     
