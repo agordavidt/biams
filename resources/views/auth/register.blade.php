@@ -45,10 +45,10 @@
 
                                                 <div class="form-floating mb-3 position-relative">
                                                     <input style="border: thin solid darkgreen;" type="password" class="form-control" name="password" required
-                                                        autocomplete="new-password">
+                                                        autocomplete="new-password" id="passwordInput1">
                                                     <label for="passwordInput">{{ __('Password') }}</label>
-                                                    <span class="password-toggle">
-                                                        <i class="far fa-eye"></i>
+                                                    <span class="password-toggle" id="togglePassword1">
+                                                        <i class="bi bi-eye" id="eyeIcon1"></i>
                                                     </span>
                                                     @error('password')
                                                         <div class="text-danger mt-2">{{ $message }}</div>
@@ -57,15 +57,17 @@
 
                                                 <div class="form-floating mb-4 position-relative">
                                                     <input style="border: thin solid darkgreen;" type="password" class="form-control" name="password_confirmation"
-                                                        required autocomplete="new-password">
+                                                        required autocomplete="new-password" id="passwordInput2">
                                                     <label for="confirmPasswordInput">{{ __('Confirm Password') }}</label>
-                                                    <span class="password-toggle">
-                                                        <i class="far fa-eye"></i>
+                                                    <span class="password-toggle" id="togglePassword2">
+                                                        <i class="bi bi-eye" id="eyeIcon2"></i>
                                                     </span>
                                                     @error('password_confirmation')
                                                         <div class="text-danger mt-2">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+
+                                                
 
                                                 <input type="hidden" name="role" value="user">
 

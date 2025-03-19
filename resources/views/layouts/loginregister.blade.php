@@ -6,6 +6,12 @@
     <title>Benue State Integrated Agricultural Assets Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+
     <style>
         :root {
             --primary-color: #2E7D32;
@@ -145,22 +151,70 @@
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             // Password visibility toggle
-            document.querySelectorAll('.password-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const input = this.previousElementSibling;
-                    const icon = this.querySelector('i');
+            // document.querySelectorAll('.password-toggle').forEach(toggle => {
+            //     toggle.addEventListener('click', function() {
+            //         const input = this.previousElementSibling;
+            //         const icon = this.querySelector('i');
                     
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('fa-eye');
-                        icon.classList.add('fa-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('fa-eye-slash');
-                        icon.classList.add('fa-eye');
-                    }
-                });
-            });
+            //         if (input.type === 'password') {
+            //             input.type = 'text';
+            //             icon.classList.remove('fa-eye');
+            //             icon.classList.add('fa-eye-slash');
+            //         } else {
+            //             input.type = 'password';
+            //             icon.classList.remove('fa-eye-slash');
+            //             icon.classList.add('fa-eye');
+            //         }
+            //     });
+            // });
+
+
+// JavaScript to toggle password visibility
+
+const togglePassword1 = document.getElementById("togglePassword1");
+const togglePassword2 = document.getElementById("togglePassword2");
+
+const passwordInput1 = document.getElementById("passwordInput1");
+const passwordInput2 = document.getElementById("passwordInput2");
+
+const eyeIcon1 = document.getElementById("eyeIcon1");
+const eyeIcon2 = document.getElementById("eyeIcon2");
+
+
+
+
+
+togglePassword1.addEventListener("click", function () {
+  // Toggle the input type
+  const type1 = passwordInput1.type === "password" ? "text" : "password";
+  passwordInput1.type = type1;
+
+  // Toggle the icon
+  if (type1 === "password") {
+    eyeIcon1.classList.remove("bi-eye-slash");
+    eyeIcon1.classList.add("bi-eye");
+  } else {
+    eyeIcon1.classList.remove("bi-eye");
+    eyeIcon1.classList.add("bi-eye-slash");
+  }
+});
+
+
+togglePassword2.addEventListener("click", function () {
+    // Toggle the input type
+    const type2 = passwordInput2.type === "password" ? "text" : "password";
+    passwordInput2.type = type2;
+  
+    // Toggle the icon
+    if (type2 === "password") {
+      eyeIcon2.classList.remove("bi-eye-slash");
+      eyeIcon2.classList.add("bi-eye");
+    } else {
+      eyeIcon2.classList.remove("bi-eye");
+      eyeIcon2.classList.add("bi-eye-slash");
+    }
+  })
+
         </script>
     </body>
     </html>

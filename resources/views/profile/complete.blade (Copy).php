@@ -9,10 +9,10 @@
     <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('dashboard/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet">
-
+    
     <style>
         body {
-            background-color: #000;  /*  #f8f9fa;  */
+            background-color: #f8f9fa;
             font-family: 'Helvetica Neue', Arial, sans-serif;
         }
 
