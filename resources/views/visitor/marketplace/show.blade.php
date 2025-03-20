@@ -6,6 +6,7 @@
     <title>{{ $listing->title }} - Benue Agro Marketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ asset('dashboard/images/favicon.jpg') }}" type="image/x-icon">
 
     <style>
@@ -17,15 +18,44 @@
 
         body {
             background-color: var(--light-bg);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Updated font family */
+            font-size: 1rem; /* Base: 16px */
             line-height: 1.6;
         }
 
+        /* Navigation */
         .navbar {
+            background: var(--primary-green);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 1rem 0;
         }
 
+        .navbar-brand img {
+            height: 50px; /* Consistent logo size */
+            margin-right: 2rem;
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 600; /* Semi-bold */
+            font-size: 1.1rem; /* ~17.6px */
+            padding: 0.75rem 1.25rem;
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #e8f5e9;
+        }
+
+        .navbar .ms-auto .nav-link {
+            background: var(--secondary-green);
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            margin-left: 1rem;
+            font-size: 1rem; /* ~16px */
+        }
+
+        /* Product Container */
         .product-container {
             background: white;
             border-radius: 15px;
@@ -36,7 +66,7 @@
 
         .product-image {
             width: 100%;
-            height: 350px; /* Consistent height */
+            height: 350px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 1.5rem;
@@ -44,7 +74,7 @@
 
         .placeholder-image {
             width: 100%;
-            height: 350px; /* Matches product-image */
+            height: 350px;
             background: #e8f5e9;
             display: flex;
             align-items: center;
@@ -53,12 +83,18 @@
             margin-bottom: 1.5rem;
         }
 
+        .product-container h2 {
+            font-size: 2rem; /* ~32px */
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
         .price-tag {
             background: var(--secondary-green);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
-            font-size: 1.2rem;
+            font-size: 1.2rem; /* ~19.2px */
             display: inline-block;
             margin-bottom: 1rem;
         }
@@ -68,9 +104,25 @@
             color: var(--primary-green);
             padding: 0.3rem 0.8rem;
             border-radius: 12px;
-            font-size: 0.9rem;
+            font-size: 0.9rem; /* ~14.4px */
         }
 
+        .product-container .text-muted {
+            font-size: 0.95rem; /* ~15.2px */
+            font-weight: 400;
+        }
+
+        .product-container h5 {
+            font-size: 1.5rem; /* ~24px */
+            font-weight: 600;
+        }
+
+        .product-container p {
+            font-size: 1rem; /* ~16px */
+            font-weight: 400;
+        }
+
+        /* Sidebar */
         .sidebar-card {
             background: white;
             border-radius: 15px;
@@ -78,19 +130,47 @@
             padding: 1.5rem;
         }
 
+        .sidebar-card h5 {
+            font-size: 1.5rem; /* ~24px */
+            font-weight: 600;
+        }
+
+        .sidebar-card p {
+            font-size: 1rem; /* ~16px */
+            font-weight: 400;
+        }
+
         .similar-item img, .similar-item .placeholder-image {
             width: 80px;
-            height: 80px; /* Consistent size for similar items */
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
         }
 
+        .similar-item h6 {
+            font-size: 1.1rem; /* ~17.6px */
+            font-weight: 600;
+        }
+
+        .similar-item p {
+            font-size: 1rem; /* ~16px */
+            font-weight: 400;
+        }
+
+        .similar-item small {
+            font-size: 0.9rem; /* ~14.4px */
+            font-weight: 400;
+        }
+
+        /* Buttons */
         .btn-primary {
             background: var(--secondary-green);
             border: none;
             padding: 0.7rem 1.5rem;
             border-radius: 25px;
             transition: all 0.3s ease;
+            font-size: 1.1rem; /* ~17.6px */
+            font-weight: 500;
         }
 
         .btn-primary:hover {
@@ -98,6 +178,12 @@
             transform: translateY(-2px);
         }
 
+        .btn-outline-success {
+            font-size: 1rem; /* ~16px */
+            font-weight: 500;
+        }
+
+        /* Footer */
         .footer {
             background: #1a3c34;
             color: #e0e0e0;
@@ -105,28 +191,64 @@
             margin-top: 3rem;
         }
 
+        .footer h5 {
+            font-size: 1.25rem; /* ~20px */
+            font-weight: 600;
+        }
+
+        .footer p, .footer a {
+            font-size: 1rem; /* ~16px */
+            font-weight: 400;
+        }
+
+        .footer a {
+            color: #e0e0e0;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--secondary-green);
+        }
+
+        .footer-logo {
+            height: 50px;
+            margin-bottom: 1rem;
+        }
+
+        .powered_by_bdic {
+            color: rgb(241, 80, 112);
+            text-decoration: none;
+        }
+
+        .powered_by_bdic img {
+            height: 20px;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        /* Contact Details */
         .contact-details {
-            display: none; /* Hidden by default */
+            display: none;
             margin-top: 1rem;
         }
 
         .contact-details.show {
-            display: block; /* Shown when authorized */
+            display: block;
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" >
+                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto" style="font-weight: bold;">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item"> <a class="nav-link" href="{{ url('/')}}">Home</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('about') }}">About</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('services') }}">Services</a> </li>
@@ -190,7 +312,7 @@
                 </div>
             </div>
 
-            
+            <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="sidebar-card mb-4">
                     <h5 class="fw-bold text-success mb-3">Seller Information</h5>
@@ -198,20 +320,26 @@
                     <p class="text-muted mb-2">
                         <i class="fas fa-map-marker-alt me-1"></i> {{ $listing->location }}
                     </p>
-                    <p class="text-muted mb-2">
-                        <i class="fas fa-phone me-1"></i> {{ $listing->contact }}
-                    </p>
                     <p class="text-muted mb-3">
                         <i class="fas fa-user-check me-1"></i> Since {{ $seller->created_at->format('M Y') }}
                     </p>
-                    
                     @auth
-                        <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
-                        class="btn btn-outline-success w-100 mt-2">
-                            <i class="fas fa-envelope me-2"></i> Message Seller
+                        <button class="btn btn-primary w-100" onclick="showContact()">Show Contact</button>
+                        <div id="contactDetails" class="contact-details">
+                            <p class="mt-2"><i class="fas fa-envelope me-1"></i> {{ $seller->email }}</p>
+                            <!-- Add phone if available in your User model -->
+                            <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
+                               class="btn btn-outline-success w-100 mt-2">
+                                <i class="fas fa-envelope me-2"></i> Message Seller
+                            </a>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i> Show Contact
                         </a>
                     @endauth
                 </div>
+
                 @if($similarListings->count() > 0)
                     <div class="sidebar-card">
                         <h5 class="fw-bold text-success mb-3">Similar Listings</h5>
@@ -242,7 +370,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5 class="fw-bold">Benue Agro Market</h5>
+                    <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
                     <p>Empowering farmers, connecting markets</p>
                 </div>
                 <div class="col-md-4">
@@ -260,12 +388,19 @@
             <hr class="bg-light">
             <div class="text-center">
                 <p class="mb-0">© 2025 Benue State Integrated Agricultural Data and Access Management System<br>
-                <a href="http://bdic.ng" target="_blank" class="text-light">Powered by BDIC</a></p>
+                <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by BDIC 
+                    <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
+                </a></p>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script>
+        function showContact() {
+            const contactDetails = document.getElementById('contactDetails');
+            contactDetails.classList.toggle('show');
+        }
+    </script>
 </body>
 </html>
