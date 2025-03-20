@@ -90,19 +90,19 @@
                         <div class="navbar-brand-box">
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm" height="22">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/logo-dark.png') }}" alt="logo-dark" height="20">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                             </a>
 
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm-light" height="22">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" >
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                             </a>
                         </div>
@@ -213,20 +213,8 @@
                                 <i class="ri-exchange-dollar-line me-2"></i>
                                     <span>Marketplace</span>
                                 </a>
-                            </li>
-                
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-mail-send-line"></i>
-                                    <span>Verification</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="email-inbox.html">Inbox</a></li>
-                                    <li><a href="email-read.html">Read Email</a></li>
-                                </ul>
-                            </li>
-
-                             <li> <a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
+                            </li>                
+                            
                              <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
                                 <li> 

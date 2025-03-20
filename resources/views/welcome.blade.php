@@ -6,7 +6,8 @@
     <title>Benue State Integrated Agricultural Data and Access Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" href="{{ asset('dashboard/images/favicon.jpg') }}" type="image/x-icon">
+    <!-- <link rel="icon" href="{{ asset('dashboard/images/favicon.jpg') }}" type="image/x-icon"> -->
+    <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
 
     <style>
     :root {

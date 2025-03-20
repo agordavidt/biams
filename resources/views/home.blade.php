@@ -93,108 +93,98 @@
     </div>
 
     <div class="col-xl-8">
-        @if (auth()->user()->status === 'onboarded')
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Select Your Agricultural Practice</h4> 
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <a href="{{ route('farmers.crop') }}" class="card card-body text-center hover-effect  border-outline-secondary">
-                                <div class="mb-3">
-                                    <i class="fas fa-seedling fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Crop Farming</h5>
-                                <p class="card-text text-muted small">Register as a crop farmer</p>
-                            </a>
-                        </div>
+    @if (auth()->user()->status === 'onboarded')
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="card-title mb-0 fw-bold">Select Your Agricultural Practice</h4> 
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{{ route('farmers.crop') }}" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-seedling fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Crop Farming</h5>
+                            <p class="card-text text-muted small">Register as a crop farmer</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="{{ route('farmers.animal') }}" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                <i class="fas fa-horse fa-3x icon-green"></i>  
-                                </div>
-                                <h5 class="card-title mb-1">Animal Farming</h5>
-                                <p class="card-text text-muted small">All types of animal husbandry</p>
-                            </a>
-                        </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('farmers.animal') }}" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-horse fa-3x text-success"></i>  
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Animal Farming</h5>
+                            <p class="card-text text-muted small">All types of animal husbandry</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="{{ route('farmers.processor') }}" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-industry fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Processing</h5>
-                                <p class="card-text text-muted small">Register as an agricultural processor</p>
-                            </a>
-                        </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('farmers.processor') }}" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-industry fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Processing</h5>
+                            <p class="card-text text-muted small">Register as an agricultural processor</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="{{ route('farmers.abattoir') }}" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-warehouse fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Abattoir</h5>
-                                <p class="card-text text-muted small">Register as an abattoir operator</p>
-                            </a>
-                        </div>
+                    <div class="col-md-4">
+                        <a href="{{ route('farmers.abattoir') }}" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-warehouse fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Abattoir</h5>
+                            <p class="card-text text-muted small">Register as an abattoir operator</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="#" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-tractor fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Agricultural Services</h5>
-                                <p class="card-text text-muted small">Agricultural support services</p>
-                            </a>
-                        </div>
+                    <div class="col-md-4">
+                        <a href="#" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-tractor fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Agricultural Services</h5>
+                            <p class="card-text text-muted small">Agricultural support services</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="#" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-fish fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Aquaculture</h5>
-                                <p class="card-text text-muted small">Fishing and aquatic farming</p>
-                            </a>
-                        </div>
+                    <div class="col-md-4">
+                        <a href="#" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-fish fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Aquaculture</h5>
+                            <p class="card-text text-muted small">Fishing and aquatic farming</p>
+                        </a>
+                    </div>
 
-                        <div class="col-md-4">
-                            <a href="#" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-tree fa-3x icon-green"></i>
-                                </div>
-                                <h5 class="card-title mb-1">Agroforestry</h5>
-                                <p class="card-text text-muted small">Sustainable forest management</p>
-                            </a>
-                        </div>
-
-                        <!-- <div class="col-md-4">
-                            <a href="#" class="card card-body text-center hover-effect">
-                                <div class="mb-3">
-                                    <i class="fas fa-horse fa-3x icon-green"></i>  </div>
-                                <h5 class="card-title mb-1">Animal Farming</h5>
-                                <p class="card-text text-muted small">All types of animal husbandry</p>
-                            </a>
-                        </div> -->
-                        
+                    <div class="col-md-4">
+                        <a href="#" class="card card-body text-center border-dark border-1 h-100 text-decoration-none shadow-sm hover-shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-tree fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title mb-1 fw-semibold">Agroforestry</h5>
+                            <p class="card-text text-muted small">Sustainable forest management</p>
+                        </a>
                     </div>
                 </div>
             </div>
-        @else
-            <div class="card">
-                <div class="card-body">
-                    <div class="alert alert-warning text-center">
-                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                        <h4>Onboarding Required</h4>
-                        <p>You must complete your onboarding process to access agricultural practice registration forms.</p>
-                        <p>Please contact the administrator or complete your profile to proceed.</p>
-                    </div>
+        </div>
+    @else
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                    <h4 class="fw-bold">Onboarding Required</h4>
+                    <p>You must complete your onboarding process to access agricultural practice registration forms.</p>
+                    <p>Please contact the administrator or complete your profile to proceed.</p>
                 </div>
             </div>
-        @endif
-    </div>
+        </div>
+    @endif
+</div>
     
 </div>
 @endsection

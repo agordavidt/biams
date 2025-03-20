@@ -92,19 +92,19 @@
                         <div class="navbar-brand-box">
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm" height="22">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/logo-dark.png') }}" alt="logo-dark" height="20">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                             </a>
 
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm-light" height="22">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/logo-light.png') }}" alt="logo-light" height="20">
+                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
                                 </span>
                             </a>
                         </div>
@@ -210,16 +210,7 @@
                                 </a>
                             </li>
 
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-plug-2-line"></i>
-                                    <span>Integrations</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="email-inbox.html"><i class="ri-mail-open-line"></i> Inbox</a></li>
-                                    <li><a href="email-read.html"><i class="ri-mail-read-line"></i> Read Email</a></li>
-                                </ul>
-                            </li>
+                           
 
                             <li>
                                 <a href="javascript: void(0);" class="waves-effect">
@@ -229,13 +220,12 @@
                             </li>
 
                             <li>
-                                <a href="javascript: void(0);" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-file-search-line"></i>
                                     <span>Audit</span>
                                 </a>
                             </li>
-
-                            <li><a href="#"><i class="ri-user-line align-middle me-1"></i><span>Profile</span></a></li>
+                           
 
                             <form action="{{ route('logout') }}" method="POST" id="logout-form">
                                 @csrf
