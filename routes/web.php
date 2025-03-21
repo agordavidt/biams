@@ -171,6 +171,10 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
 
     // Audit and Compliance
     Route::get('/super-admin/audit-logs', [SuperAdminController::class, 'auditLogs'])->name('super_admin.audit_logs');
+
+    // Analytics Routes
+
+    Route::get('/super-admin/analytics', [SuperAdminController::class, 'analytics'])->name('super_admin.analytics');
 });
 
 

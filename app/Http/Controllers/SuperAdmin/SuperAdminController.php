@@ -8,6 +8,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Farmers\CropFarmer;
+use App\Models\Farmers\AnimalFarmer;
+use App\Models\Farmers\AbattoirOperator;
+use App\Models\Farmers\Processor;
 use App\Models\Setting;
 use App\Models\ActivityLog;
 use App\Models\Content;
@@ -222,5 +226,69 @@ class SuperAdminController extends Controller
     {
         $logs = AuditLog::latest()->paginate(20);
         return view('super_admin.audit.index', compact('logs'));
+    }
+
+    //Analytics functions
+
+    public function analytics()
+    {
+        // Total Practitioners
+        $totalPractitioners = User::whereHas('profile')->where('role', '!=', 'admin')->count();
+
+        // Gender Breakdown
+        $genderBreakdown = Profile::select('gender', DB::raw('count(*) as count'))
+            ->groupBy('gender')
+            ->get()
+            ->pluck('count', 'gender');
+
+        // Practice Distribution
+        $practiceDistribution = [
+            'Crop Farmers' => CropFarmer::count(),
+            'Animal Farmers' => AnimalFarmer::count(),
+            'Abattoir Operators' => AbattoirOperator::count(),
+            'Processors' => Processor::count(),
+        ];
+
+        // LGA Distribution
+        $lgaDistribution = Profile::select('lga', DB::raw('count(*) as count'))
+            ->groupBy('lga')
+            ->orderBy('count', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Rice Farmers (example crop-specific report)
+        $riceFarmers = CropFarmer::where('crop', 'Rice')
+            ->with('user.profile')
+            ->get();
+
+        // Age Groups
+        $ageGroups = Profile::selectRaw('
+            CASE 
+                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 18 AND 25 THEN "18-25"
+                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 26 AND 35 THEN "26-35"
+                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 36 AND 45 THEN "36-45"
+                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 46 AND 60 THEN "46-60"
+                ELSE "60+"
+            END as age_group,
+            count(*) as count
+        ')
+            ->groupBy('age_group')
+            ->orderBy('age_group')
+            ->get();
+
+        // Income Levels
+        $incomeLevels = Profile::select('income_level', DB::raw('count(*) as count'))
+            ->groupBy('income_level')
+            ->get();
+
+        return view('super_admin.analytics', compact(
+            'totalPractitioners',
+            'genderBreakdown',
+            'practiceDistribution',
+            'lgaDistribution',
+            'riceFarmers',
+            'ageGroups',
+            'incomeLevels'
+        ));
     }
 }

@@ -187,6 +187,12 @@
                                     <span>Users</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('super_admin.analytics') }}" class="waves-effect">
+                                    <i class="ri-bar-chart-line"></i>
+                                    <span>Analytics</span>
+                                </a>
+                            </li>
 
                             <li>
                                 <a href="{{ route('super_admin.settings') }}" class="waves-effect">
@@ -194,7 +200,7 @@
                                     <span>Settings</span>
                                 </a>
                                
-                            </li>
+                            </li>                           
 
                             <li>
                                 <a href="{{ route('super_admin.activity_logs') }}" class="waves-effect">

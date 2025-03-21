@@ -128,9 +128,9 @@ Copy            <div class="table-responsive">
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('marketplace.show', $listing) }}" class="btn btn-sm btn-info" target="_blank" title="View Listing">
+                                    <!-- <a href="{{ route('marketplace.show', $listing) }}" class="btn btn-sm btn-info" target="_blank" title="View Listing">
                                         <i class="ri-eye-line"></i>
-                                    </a>
+                                    </a> -->
                                     <button type="button" class="btn btn-sm btn-primary view-details-btn" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#listingDetailsModal" 

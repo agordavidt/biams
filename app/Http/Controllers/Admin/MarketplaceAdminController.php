@@ -7,6 +7,7 @@ use App\Models\Market\MarketplaceCategory;
 use App\Models\Market\MarketplaceListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class MarketplaceAdminController extends Controller
 {
@@ -149,3 +150,5 @@ class MarketplaceAdminController extends Controller
         return back()->with('success', 'Category deleted successfully.');
     }
 }
+
+
