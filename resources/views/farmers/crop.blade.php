@@ -33,9 +33,6 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <!-- <div class="card-header">
-                <h5 class="card-title mb-0">Farm Registration Details</h5>
-            </div> -->
             <div class="card-body">
                 <form method="POST" action="{{ route('farmers.crop.store') }}">
                     @csrf
@@ -78,8 +75,8 @@
                             <div class="mb-4">
                                 <label class="form-label">Farm Coordinates</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" name="latitude" placeholder="Latitude" value="{{ old('latitude') }}" required>
-                                    <input type="text" class="form-control" name="longitude" placeholder="Longitude" value="{{ old('longitude') }}" required>
+                                    <input type="text" class="form-control" name="latitude" id="latitude" placeholder="Latitude" value="{{ old('latitude') }}" required>
+                                    <input type="text" class="form-control" name="longitude" id="longitude" placeholder="Longitude" value="{{ old('longitude') }}" required>
                                     <button type="button" class="btn btn-secondary" onclick="getLocation()">
                                         <i class="ri-map-pin-line me-1"></i> Get Location
                                     </button>
@@ -121,9 +118,9 @@
     </div>
 </div>
 
-@push('scripts')
-<script>    
-
+<!-- JavaScript -->
+<script>
+    // Function to handle the "Other" crop option
     function handleOtherOption() {
         const cropSelect = document.getElementById('crops');
         const otherCropField = document.getElementById('otherCropField');
@@ -132,6 +129,38 @@
 
     // Initialize the other crop field on page load
     document.addEventListener('DOMContentLoaded', handleOtherOption);
+
+    // Function to get the current location
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Function to display the position
+    function showPosition(position) {
+        document.getElementById('latitude').value = position.coords.latitude;
+        document.getElementById('longitude').value = position.coords.longitude;
+    }
+
+    // Function to handle errors
+    function showError(error) {
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                alert("User denied the request for Geolocation.");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+            case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+            case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+        }
+    }
 </script>
-@endpush
 @endsection
