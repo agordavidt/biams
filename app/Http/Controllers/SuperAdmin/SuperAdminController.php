@@ -230,7 +230,7 @@ class SuperAdminController extends Controller
 
     //Analytics functions
 
-    public function analytics()
+    public function analytics(Request $request)
     {
         // Total Practitioners
         $totalPractitioners = User::whereHas('profile')->where('role', '!=', 'admin')->count();
@@ -256,22 +256,18 @@ class SuperAdminController extends Controller
             ->limit(5)
             ->get();
 
-        // Rice Farmers (example crop-specific report)
-        $riceFarmers = CropFarmer::where('crop', 'Rice')
-            ->with('user.profile')
-            ->get();
-
         // Age Groups
-        $ageGroups = Profile::selectRaw('
-            CASE 
-                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 18 AND 25 THEN "18-25"
-                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 26 AND 35 THEN "26-35"
-                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 36 AND 45 THEN "36-45"
-                WHEN FLOOR(DATEDIFF(NOW(), dob)/365) BETWEEN 46 AND 60 THEN "46-60"
-                ELSE "60+"
-            END as age_group,
-            count(*) as count
-        ')
+        $ageGroups = Profile::whereNotNull('dob')
+            ->selectRaw('
+                CASE 
+                    WHEN FLOOR(DATEDIFF(CURDATE(), dob)/365) BETWEEN 18 AND 25 THEN "18-25"
+                    WHEN FLOOR(DATEDIFF(CURDATE(), dob)/365) BETWEEN 26 AND 35 THEN "26-35"
+                    WHEN FLOOR(DATEDIFF(CURDATE(), dob)/365) BETWEEN 36 AND 45 THEN "36-45"
+                    WHEN FLOOR(DATEDIFF(CURDATE(), dob)/365) BETWEEN 46 AND 60 THEN "46-60"
+                    ELSE "60+"
+                END as age_group,
+                count(*) as count
+            ')
             ->groupBy('age_group')
             ->orderBy('age_group')
             ->get();
@@ -281,14 +277,97 @@ class SuperAdminController extends Controller
             ->groupBy('income_level')
             ->get();
 
+        // Dynamic Practice Report
+        $practice = $request->input('practice', 'crop'); // Default to crop
+        $filter = $request->input('filter'); // e.g., 'Rice' for crop, 'Cattle' for animal
+
+        $reportData = [];
+        $reportTitle = '';
+        $practiceOptions = [
+            'crop' => 'Crop Farmers',
+            'animal' => 'Animal Farmers',
+            'abattoir' => 'Abattoir Operators',
+            'processor' => 'Processors',
+        ];
+
+        switch ($practice) {
+            case 'crop':
+                $query = CropFarmer::with('user.profile')->where('status', 'approved');
+                if ($filter) {
+                    $query->where('crop', $filter);
+                    $reportTitle = "Crop Farmers Report - $filter";
+                } else {
+                    $reportTitle = 'Crop Farmers Report';
+                }
+                $reportData = $query->get()->map(function ($farmer) {
+                    $farmer->age = $farmer->user->profile->dob ? Carbon::parse($farmer->user->profile->dob)->age : null;
+                    $farmer->key_metric = $farmer->crop;
+                    $farmer->scale_metric = $farmer->farm_size;
+                    return $farmer;
+                });
+                break;
+
+            case 'animal':
+                $query = AnimalFarmer::with('user.profile')->where('status', 'approved');
+                if ($filter) {
+                    $query->where('livestock', $filter);
+                    $reportTitle = "Animal Farmers Report - $filter";
+                } else {
+                    $reportTitle = 'Animal Farmers Report';
+                }
+                $reportData = $query->get()->map(function ($farmer) {
+                    $farmer->age = $farmer->user->profile->dob ? Carbon::parse($farmer->user->profile->dob)->age : null;
+                    $farmer->key_metric = $farmer->livestock;
+                    $farmer->scale_metric = $farmer->herd_size;
+                    return $farmer;
+                });
+                break;
+
+            case 'abattoir':
+                $query = AbattoirOperator::with('user.profile')->where('status', 'approved');
+                if ($filter) {
+                    $query->where('operational_capacity', $filter);
+                    $reportTitle = "Abattoir Operators Report - $filter Capacity";
+                } else {
+                    $reportTitle = 'Abattoir Operators Report';
+                }
+                $reportData = $query->get()->map(function ($operator) {
+                    $operator->age = $operator->user->profile->dob ? Carbon::parse($operator->user->profile->dob)->age : null;
+                    $operator->key_metric = $operator->facility_type;
+                    $operator->scale_metric = $operator->operational_capacity;
+                    return $operator;
+                });
+                break;
+
+            case 'processor':
+                $query = Processor::with('user.profile')->where('status', 'approved');
+                if ($filter) {
+                    $query->whereJsonContains('processed_items', $filter);
+                    $reportTitle = "Processors Report - $filter";
+                } else {
+                    $reportTitle = 'Processors Report';
+                }
+                $reportData = $query->get()->map(function ($processor) {
+                    $processor->age = $processor->user->profile->dob ? Carbon::parse($processor->user->profile->dob)->age : null;
+                    $processor->key_metric = json_decode($processor->processed_items, true) ? implode(', ', json_decode($processor->processed_items, true)) : 'N/A';
+                    $processor->scale_metric = $processor->processing_capacity;
+                    return $processor;
+                });
+                break;
+        }
+
         return view('super_admin.analytics', compact(
             'totalPractitioners',
             'genderBreakdown',
             'practiceDistribution',
             'lgaDistribution',
-            'riceFarmers',
             'ageGroups',
-            'incomeLevels'
+            'incomeLevels',
+            'reportData',
+            'reportTitle',
+            'practice',
+            'filter',
+            'practiceOptions'
         ));
     }
 }

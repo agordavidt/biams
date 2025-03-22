@@ -83,32 +83,62 @@
             </div>
         </div>
 
-        <!-- Rice Farmers Table -->
+        <!-- Practice Report Selection -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Rice Farmers Report</h5>
-                        <table class="table datatable" id="riceFarmersTable">
+                        <h5 class="card-title">Generate Practice Report</h5>
+                        <form method="GET" action="{{ route('super_admin.analytics') }}">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <select name="practice" class="form-control" onchange="this.form.submit()">
+                                        @foreach ($practiceOptions as $key => $label)
+                                            <option value="{{ $key }}" {{ $practice === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" name="filter" class="form-control" placeholder="e.g., Rice, Cattle" value="{{ $filter ?? '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Practice Report Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $reportTitle }}</h5>
+                        <table class="table datatable" id="practiceReportTable">
                             <thead>
                                 <tr>
                                     <th>Name</th>
                                     <th>LGA</th>
                                     <th>Gender</th>
                                     <th>Age</th>
-                                    <th>Farm Size</th>
+                                    <th>Key Metric</th>
+                                    <th>Scale Metric</th>
                                     <th>Income Level</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($riceFarmers as $farmer)
+                                @foreach ($reportData as $item)
                                     <tr>
-                                        <td>{{ $farmer->user->name }}</td>
-                                        <td>{{ $farmer->user->profile->lga }}</td>
-                                        <td>{{ $farmer->user->profile->gender }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($farmer->user->profile->dob)->age }}</td>
-                                        <td>{{ $farmer->farm_size }}</td>
-                                        <td>{{ $farmer->user->profile->income_level }}</td>
+                                        <td>{{ $item->user->name ?? 'N/A' }}</td>
+                                        <td>{{ $item->user->profile->lga ?? 'N/A' }}</td>
+                                        <td>{{ $item->user->profile->gender ?? 'N/A' }}</td>
+                                        <td>{{ $item->age ?? 'N/A' }}</td>
+                                        <td>{{ $item->key_metric ?? 'N/A' }}</td>
+                                        <td>{{ $item->scale_metric ?? 'N/A' }}</td>
+                                        <td>{{ $item->user->profile->income_level ?? 'N/A' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -171,7 +201,7 @@
 
         // DataTable Initialization
         $(document).ready(function() {
-            $('#riceFarmersTable').DataTable({
+            $('#practiceReportTable').DataTable({
                 dom: 'Bfrtip',
                 buttons: ['csv', 'excel', 'pdf', 'print'],
                 responsive: true,
