@@ -33,9 +33,6 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <!-- <div class="card-header">
-                <h5 class="card-title mb-0">Farm Registration Details</h5>
-            </div> -->
             <div class="card-body">
                 <form method="POST" action="#">
                     @csrf
@@ -109,8 +106,9 @@
     </div>
 </div>
 
-@push('scripts')
+<!-- JavaScript -->
 <script>
+    // Function to handle the "Other" livestock option
     function handleOtherLivestock() {
         const livestockSelect = document.getElementById('livestock');
         const otherLivestockField = document.getElementById('otherLivestockField');
@@ -120,5 +118,4 @@
     // Initialize the other livestock field on page load
     document.addEventListener('DOMContentLoaded', handleOtherLivestock);
 </script>
-@endpush
 @endsection
