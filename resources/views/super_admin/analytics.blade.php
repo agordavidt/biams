@@ -91,21 +91,54 @@
                         <h5 class="card-title">Generate Practice Report</h5>
                         <form method="GET" action="{{ route('super_admin.analytics') }}">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <select name="practice" class="form-control" onchange="this.form.submit()">
                                         @foreach ($practiceOptions as $key => $label)
                                             <option value="{{ $key }}" {{ $practice === $key ? 'selected' : '' }}>{{ $label }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" name="filter" class="form-control" placeholder="e.g., Rice, Cattle" value="{{ $filter ?? '' }}">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-2">
+                                    <select name="lga" class="form-control">
+                                        <option value="">All LGAs</option>
+                                        @foreach ($lgas as $lga)
+                                            <option value="{{ $lga }}" {{ $lgaFilter === $lga ? 'selected' : '' }}>{{ $lga }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="gender" class="form-control">
+                                        <option value="">All Genders</option>
+                                        <option value="Male" {{ $genderFilter === 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="Female" {{ $genderFilter === 'Female' ? 'selected' : '' }}>Female</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
                                     <button type="submit" class="btn btn-primary">Generate Report</button>
                                 </div>
                             </div>
+                            <!-- <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                                </div>
+                            </div> -->
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice-Specific Chart -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $practiceOptions[$practice] }} Distribution</h5>
+                        <div id="practiceChart"></div>
                     </div>
                 </div>
             </div>
@@ -198,6 +231,16 @@
         };
         var incomeChart = new ApexCharts(document.querySelector("#incomeChart"), incomeOptions);
         incomeChart.render();
+
+        // Practice-Specific Bar Chart
+        var practiceOptions = {
+            chart: { type: 'bar', height: 300 },
+            series: [{ name: '{{ $practiceOptions[$practice] }}', data: @json(array_values($chartData)) }],
+            xaxis: { categories: @json(array_keys($chartData)) },
+            colors: ['#1cbb8c'],
+        };
+        var practiceChart = new ApexCharts(document.querySelector("#practiceChart"), practiceOptions);
+        practiceChart.render();
 
         // DataTable Initialization
         $(document).ready(function() {
