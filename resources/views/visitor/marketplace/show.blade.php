@@ -322,22 +322,11 @@
                     </p>
                     <p class="text-muted mb-3">
                         <i class="fas fa-user-check me-1"></i> Since {{ $seller->created_at->format('M Y') }}
+                    </p>   
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-phone me-1"></i> {{ $listing->contact}}
                     </p>
-                    @auth
-                        <button class="btn btn-primary w-100" onclick="showContact()">Show Contact</button>
-                        <div id="contactDetails" class="contact-details">
-                            <p class="mt-2"><i class="fas fa-envelope me-1"></i> {{ $seller->email }}</p>
-                            <!-- Add phone if available in your User model -->
-                            <a href="{{ route('marketplace.messages.conversation', ['listing' => $listing, 'partner_id' => $listing->user_id]) }}" 
-                               class="btn btn-outline-success w-100 mt-2">
-                                <i class="fas fa-envelope me-2"></i> Message Seller
-                            </a>
-                        </div>
-                    @else
-                        <a href="{{ route('login') }}?redirect={{ url()->current() }}" class="btn btn-primary w-100">
-                            <i class="fas fa-sign-in-alt me-2"></i> Show Contact
-                        </a>
-                    @endauth
+                   
                 </div>
 
                 @if($similarListings->count() > 0)
