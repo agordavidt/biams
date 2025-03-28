@@ -198,7 +198,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
+                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -301,7 +301,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
+                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
                     <p>Empowering farmers, connecting markets</p>
                 </div>
                 <div class="col-md-4">

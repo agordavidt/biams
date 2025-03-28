@@ -57,18 +57,22 @@
 
     /* Hero Section */
     .hero-section {
-        background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}');
+        background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/agro_bg1.jpg') }}');
+        /* background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}'); */
         background-size: cover;
         background-position: center;
         color: white;
         padding: 120px 0;
         text-align: center;
+       
+        
     }
 
     .hero-section h1 {
         font-size: 3rem; /* ~48px, larger for impact */
         font-weight: 700; /* Bold */
         margin-bottom: 1.5rem;
+        
     }
 
     .hero-section .lead {
@@ -78,7 +82,7 @@
     }
 
     .hero-section .btn-primary {
-        background: var(--secondary-green);
+        background: var(--primary-green);
         border: none;
         padding: 0.75rem 2rem;
         border-radius: 25px;
@@ -88,7 +92,7 @@
     }
 
     .hero-section .btn-primary:hover {
-        background: var(--primary-green);
+        background: var(--secondary-green);
         transform: translateY(-2px);
     }
 
@@ -99,31 +103,7 @@
         font-weight: 500;
     }
 
-    /* Stats Section */
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .stat-card h3 {
-        font-size: 2rem; /* ~32px, larger for emphasis */
-        font-weight: 700;
-        color: var(--primary-green);
-    }
-
-    .stat-card p {
-        font-size: 1.1rem; /* ~17.6px */
-        font-weight: 400;
-        color: #6c757d;
-    }
 
     /* About Section */
     .about-section {
@@ -170,15 +150,7 @@
         box-shadow: 0 6px 20px rgba(0,0,0,0.1);
     }
 
-    .feature-card h5 {
-        font-size: 1.5rem; /* ~24px */
-        font-weight: 600;
-    }
-
-    .feature-card p {
-        font-size: 1rem; /* ~16px */
-        font-weight: 400;
-    }
+ 
 
     .icon-circle {
         width: 80px;
@@ -236,6 +208,11 @@
     vertical-align: middle;
     margin-left: 0.5rem;
 }
+
+.active{
+    color: black;
+}
+
 </style>
 </head>
 <body>
@@ -243,14 +220,14 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
+                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"> <a class="nav-link" href="{{ url('/')}}">Home</a> </li>
+                    <li class="nav-item active"> <a class="nav-link active" href="{{ url('/')}}">Home</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('about') }}">About</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('services') }}">Services</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('visitor.marketplace') }}">Market</a> </li>
@@ -266,7 +243,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Benue State Integrated Agricultural Data and Assets Management System</h1>
+            <h1 class="display-4 fw-bold mb-4">Benue State Integrated Agricultural Data and Access Management System</h1>
             <p class="lead mb-5">Empowering farmers with digital solutions for better agricultural management</p>
             <a href="{{ route('login') }}" class="btn btn-primary me-3">Get Started</a>
             <a href="#features" class="btn btn-outline-light">Learn More</a>
@@ -365,8 +342,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
-                <p>Empowering farmers, connecting markets</p>
+                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
+                <p>Empowering farmers, connecting markets.</p>
             </div>
             <div class="col-md-4">
                 <h5 class="fw-bold">Contact</h5>

@@ -57,7 +57,8 @@
 
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}');
+            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/agro_bg1.jpg') }}');
+            /* background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}'); */
             background-size: cover;
             background-position: center;
             color: white;
@@ -160,22 +161,7 @@
             font-weight: 400;
         }
 
-        /* Structure Section */
-        .structure-section {
-            background: #EAEAEA;
-            padding: 5rem 0;
-        }
-
-        .structure-section ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .structure-section li {
-            font-size: 1rem; /* ~16px */
-            font-weight: 400;
-            margin-bottom: 0.5rem;
-        }
+    
 
         /* Buttons */
         .btn-primary {
@@ -234,6 +220,10 @@
             vertical-align: middle;
             margin-left: 0.5rem;
         }
+
+    .navbar a.active{
+        color: black;
+    }
     </style>
 </head>
 <body>
@@ -241,7 +231,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo">
+                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -249,7 +239,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"> <a class="nav-link" href="{{ url('/')}}">Home</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('about') }}">About</a> </li>
+                    <li class="nav-item active"> <a class="nav-link active" href="{{ route('about') }}">About us</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('services') }}">Services</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('visitor.marketplace') }}">Market</a> </li>
                     <li class="nav-item"> <a class="nav-link" href="{{ route('contact') }}">Contact</a> </li>
@@ -364,7 +354,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
+                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
                     <p>Empowering farmers, connecting markets</p>
                 </div>
                 <div class="col-md-4">
