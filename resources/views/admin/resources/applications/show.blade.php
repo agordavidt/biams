@@ -58,10 +58,14 @@
                                             <td>{{ ucfirst($application->resource->target_practice) }}</td>
                                         </tr>
                                         @if($application->resource->requires_payment)
-                                        <tr>
-                                            <th scope="row">Payment Status</th>
-                                            <td>{{ ucfirst($application->payment_status) }}</td>
-                                        </tr>
+                                            <tr>
+                                                <th scope="row">Payment Status</th>
+                                                <td>{{ ucfirst($application->payment_status) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Payment Option</th>
+                                                <td>{{ ucfirst(str_replace('_', ' ', $application->resource->payment_option)) }}</td>
+                                            </tr>
                                         @endif
                                     </tbody>
                                 </table>
@@ -78,28 +82,24 @@
                                             <tr>
                                                 <th scope="row" width="200">{{ ucfirst(str_replace('_', ' ', $key)) }}</th>
                                                 <td>
-                                                    @if(is_array($value) && isset($value['path']) && isset($value['filename']))
-                                                        <!-- File handling -->
+                                                    @if(is_string($value) && \Illuminate\Support\Str::startsWith($value, 'resource_applications/'))
+                                                        <!-- File uploaded in form_data -->
                                                         <div class="d-flex align-items-center">
-                                                            <span class="me-3">{{ $value['original_name'] ?? $value['filename'] }}</span>
+                                                            <span class="me-3">{{ basename($value) }}</span>
                                                             <div class="btn-group">
-                                                                <!-- View button (opens file in new tab) -->
-                                                                <a href="{{ asset('storage/'.$value['path']) }}" class="btn btn-sm btn-info" target="_blank">
+                                                                <a href="{{ asset('storage/' . $value) }}" class="btn btn-sm btn-info" target="_blank" title="Open in new tab">
                                                                     <i class="ri-eye-line"></i> View
                                                                 </a>
-                                                                
-                                                                <!-- Download button -->
-                                                                <a href="{{ asset('storage/'.$value['path']) }}" class="btn btn-sm btn-primary" download>
+                                                                <a href="{{ asset('storage/' . $value) }}" class="btn btn-sm btn-primary" download title="Download">
                                                                     <i class="ri-download-line"></i> Download
                                                                 </a>
-                                                                
-                                                                <!-- Preview button (for modal) -->
                                                                 <button type="button" class="btn btn-sm btn-secondary file-preview-btn" 
                                                                         data-bs-toggle="modal" 
                                                                         data-bs-target="#filePreviewModal"
-                                                                        data-file-url="{{ asset('storage/'.$value['path']) }}"
-                                                                        data-file-name="{{ $value['original_name'] ?? $value['filename'] }}"
-                                                                        data-file-extension="{{ pathinfo($value['filename'], PATHINFO_EXTENSION) }}">
+                                                                        data-file-url="{{ asset('storage/' . $value) }}"
+                                                                        data-file-name="{{ basename($value) }}"
+                                                                        data-file-extension="{{ pathinfo($value, PATHINFO_EXTENSION) }}"
+                                                                        title="Preview in popup">
                                                                     <i class="ri-fullscreen-line"></i> Preview
                                                                 </button>
                                                             </div>
@@ -107,7 +107,7 @@
                                                     @elseif(is_array($value))
                                                         {{ implode(', ', $value) }}
                                                     @else
-                                                        {{ $value }}
+                                                        {{ $value ?? 'N/A' }}
                                                     @endif
                                                 </td>
                                             </tr>
@@ -117,42 +117,80 @@
                             </div>
                         </div>
 
-                        <!-- Status Update Form -->
-                        @if($application->canBeEdited())
-                        <div class="col-12">
-                            <div class="card border">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-3">Update Application Status</h5>
-                                    <form action="{{ route('admin.applications.update-status', $application) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Status</label>
-                                                <select name="status" class="form-control">
-                                                    @foreach(\App\Models\ResourceApplication::getStatusOptions() as $status)
-                                                        @if($application->canTransitionTo($status))
-                                                            <option value="{{ $status }}">{{ ucfirst($status) }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Note (Optional)</label>
-                                                <textarea name="note" rows="3" 
-                                                    class="form-control"
-                                                    placeholder="Add a note to the applicant..."></textarea>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="ri-check-line align-middle me-1"></i> Update Status
-                                            </button>
-                                        </div>
-                                    </form>
+                        <!-- Payment Evidence (Bank Transfer Only) -->
+                        @if($application->requiresPayment() && $application->resource->payment_option === 'bank_transfer' && $application->payment_receipt_path)
+                            <div class="col-12 mb-4">
+                                <h5 class="card-title mb-3">Payment Evidence</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" width="200">Payment Receipt</th>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="me-3">{{ basename($application->payment_receipt_path) }}</span>
+                                                        <div class="btn-group">
+                                                            <a href="{{ asset('storage/' . $application->payment_receipt_path) }}" class="btn btn-sm btn-info" target="_blank" title="Open in new tab">
+                                                                <i class="ri-eye-line"></i> View
+                                                            </a>
+                                                            <a href="{{ asset('storage/' . $application->payment_receipt_path) }}" class="btn btn-sm btn-primary" download title="Download">
+                                                                <i class="ri-download-line"></i> Download
+                                                            </a>
+                                                            <button type="button" class="btn btn-sm btn-secondary file-preview-btn" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#filePreviewModal"
+                                                                    data-file-url="{{ asset('storage/' . $application->payment_receipt_path) }}"
+                                                                    data-file-name="{{ basename($application->payment_receipt_path) }}"
+                                                                    data-file-extension="{{ pathinfo($application->payment_receipt_path, PATHINFO_EXTENSION) }}"
+                                                                    title="Preview in popup">
+                                                                <i class="ri-fullscreen-line"></i> Preview
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
+                        @endif
+
+                        <!-- Status Update Form -->
+                        @if($application->canBeEdited())
+                            <div class="col-12">
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">Update Application Status</h5>
+                                        <form action="{{ route('admin.applications.update-status', $application) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Status</label>
+                                                    <select name="status" class="form-control">
+                                                        @foreach(\App\Models\ResourceApplication::getStatusOptions() as $status)
+                                                            @if($application->canTransitionTo($status))
+                                                                <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Note (Optional)</label>
+                                                    <textarea name="note" rows="3" 
+                                                        class="form-control"
+                                                        placeholder="Add a note to the applicant..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="ri-check-line align-middle me-1"></i> Update Status
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -177,17 +215,12 @@
                     
                     <!-- For images -->
                     <div id="image-preview" class="text-center d-none">
-                        <img src="" alt="Preview" class="img-fluid">
+                        <img src="" alt="Preview" class="img-fluid" style="max-height: 500px;">
                     </div>
                     
                     <!-- For PDFs -->
                     <div id="pdf-preview" class="d-none">
                         <iframe src="" width="100%" height="500" frameborder="0"></iframe>
-                    </div>
-                    
-                    <!-- For text files -->
-                    <div id="text-preview" class="d-none">
-                        <pre class="border p-3 bg-light"><code></code></pre>
                     </div>
                     
                     <!-- For unsupported files -->
@@ -210,70 +243,57 @@
 @endsection
 
 @section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle file preview modal
-        const filePreviewBtns = document.querySelectorAll('.file-preview-btn');
-        
-        filePreviewBtns.forEach(button => {
-            button.addEventListener('click', function() {
-                const fileUrl = this.getAttribute('data-file-url');
-                const fileName = this.getAttribute('data-file-name');
-                const fileExtension = this.getAttribute('data-file-extension').toLowerCase();
-                
-                // Set the modal title
-                document.getElementById('filePreviewModalLabel').textContent = fileName;
-                
-                // Set download button URL
-                document.getElementById('download-btn').href = fileUrl;
-                
-                // Hide all preview containers
-                document.getElementById('image-preview').classList.add('d-none');
-                document.getElementById('pdf-preview').classList.add('d-none');
-                document.getElementById('text-preview').classList.add('d-none');
-                document.getElementById('unsupported-preview').classList.add('d-none');
-                
-                // Show loader
-                document.getElementById('file-loader').classList.remove('d-none');
-                
-                // Determine file type and show appropriate preview
-                if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(fileExtension)) {
-                    // Image preview
-                    const imgElement = document.querySelector('#image-preview img');
-                    imgElement.src = fileUrl;
-                    imgElement.onload = function() {
-                        document.getElementById('file-loader').classList.add('d-none');
-                        document.getElementById('image-preview').classList.remove('d-none');
-                    };
-                } else if (fileExtension === 'pdf') {
-                    // PDF preview
-                    const iframeElement = document.querySelector('#pdf-preview iframe');
-                    iframeElement.src = fileUrl;
-                    iframeElement.onload = function() {
-                        document.getElementById('file-loader').classList.add('d-none');
-                        document.getElementById('pdf-preview').classList.remove('d-none');
-                    };
-                } else if (['txt', 'csv', 'json', 'html', 'xml', 'md'].includes(fileExtension)) {
-                    // Text file preview
-                    fetch(fileUrl)
-                        .then(response => response.text())
-                        .then(text => {
-                            document.querySelector('#text-preview code').textContent = text;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filePreviewBtns = document.querySelectorAll('.file-preview-btn');
+            
+            filePreviewBtns.forEach(button => {
+                button.addEventListener('click', function() {
+                    const fileUrl = this.getAttribute('data-file-url');
+                    const fileName = this.getAttribute('data-file-name');
+                    const fileExtension = this.getAttribute('data-file-extension').toLowerCase();
+                    
+                    // Set modal title and download button
+                    document.getElementById('filePreviewModalLabel').textContent = fileName;
+                    document.getElementById('download-btn').href = fileUrl;
+                    
+                    // Hide all preview containers
+                    document.getElementById('image-preview').classList.add('d-none');
+                    document.getElementById('pdf-preview').classList.add('d-none');
+                    document.getElementById('unsupported-preview').classList.add('d-none');
+                    
+                    // Show loader
+                    document.getElementById('file-loader').classList.remove('d-none');
+                    
+                    // Handle file type
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                        const imgElement = document.querySelector('#image-preview img');
+                        imgElement.src = fileUrl;
+                        imgElement.onload = () => {
                             document.getElementById('file-loader').classList.add('d-none');
-                            document.getElementById('text-preview').classList.remove('d-none');
-                        })
-                        .catch(error => {
-                            console.error('Error fetching text file:', error);
+                            document.getElementById('image-preview').classList.remove('d-none');
+                        };
+                        imgElement.onerror = () => {
                             document.getElementById('file-loader').classList.add('d-none');
                             document.getElementById('unsupported-preview').classList.remove('d-none');
-                        });
-                } else {
-                    // Unsupported file type
-                    document.getElementById('file-loader').classList.add('d-none');
-                    document.getElementById('unsupported-preview').classList.remove('d-none');
-                }
+                        };
+                    } else if (fileExtension === 'pdf') {
+                        const iframeElement = document.querySelector('#pdf-preview iframe');
+                        iframeElement.src = fileUrl;
+                        iframeElement.onload = () => {
+                            document.getElementById('file-loader').classList.add('d-none');
+                            document.getElementById('pdf-preview').classList.remove('d-none');
+                        };
+                        iframeElement.onerror = () => {
+                            document.getElementById('file-loader').classList.add('d-none');
+                            document.getElementById('unsupported-preview').classList.remove('d-none');
+                        };
+                    } else {
+                        document.getElementById('file-loader').classList.add('d-none');
+                        document.getElementById('unsupported-preview').classList.remove('d-none');
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 @endsection

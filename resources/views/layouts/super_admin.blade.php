@@ -101,10 +101,10 @@
 
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
+                                    <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm-light" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light">
+                                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
                                 </span>
                             </a>
                         </div>

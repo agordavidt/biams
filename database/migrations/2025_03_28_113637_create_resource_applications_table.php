@@ -16,16 +16,14 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('resource_id')->constrained()->onDelete('cascade');
             $table->json('form_data');
-            $table->enum('status', ['pending', 'reviewing', 'approved', 'rejected', 'processing', 'delivered'])->default('pending');
-            $table->string('payment_status')->nullable();
-            $table->string('payment_reference')->nullable();
+            $table->string('payment_receipt_path')->nullable();
+            $table->enum('status', ['pending', 'reviewing', 'approved', 'rejected', 'delivered'])->default('pending');
+            $table->enum('payment_status', ['pending', 'paid', 'verified', 'failed'])->nullable()->default('pending');
+            $table->string('payment_reference')->nullable(); 
             $table->timestamps();
-            
-            // Ensure one application per user per resource
             $table->unique(['user_id', 'resource_id']);
-
-
-            });
+            
+        });
     }
 
     /**
@@ -36,4 +34,3 @@ return new class extends Migration
         Schema::dropIfExists('resource_applications');
     }
 };
-
