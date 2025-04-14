@@ -13,32 +13,12 @@ class UserResourceController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Get user's practice types based on their registrations
-        $userPractices = collect();
-        
-        if ($user->cropFarmers()->exists()) {
-            $userPractices->push('crop-farmer');
-        }
-        if ($user->animalFarmers()->exists()) {
-            $userPractices->push('animal-farmer');
-        }
-        if ($user->abattoirOperators()->exists()) {
-            $userPractices->push('abattoir-operator');
-        }
-        if ($user->processors()->exists()) {
-            $userPractices->push('processor');
-        }
-
-        // Get available resources for user's practices
+        $userPractices = $this->getUserPractices($user);
         $resources = Resource::where('is_active', true)
-            ->where(function($query) use ($userPractices) {
+            ->where(function ($query) use ($userPractices) {
                 $query->whereIn('target_practice', $userPractices)
                     ->orWhere('target_practice', 'all');
-            })
-            ->get();
-
-        // Get user's existing applications
+            })->get();
         $applications = ResourceApplication::where('user_id', $user->id)->get();
 
         return view('user.resources.index', compact('resources', 'applications'));
@@ -46,144 +26,119 @@ class UserResourceController extends Controller
 
     public function show(Resource $resource)
     {
-        // Check if user has already applied
         $existingApplication = ResourceApplication::where('user_id', Auth::id())
             ->where('resource_id', $resource->id)
             ->first();
-
         return view('user.resources.show', compact('resource', 'existingApplication'));
     }
 
     public function apply(Resource $resource)
     {
-        // Verify user hasn't already applied
         $existingApplication = ResourceApplication::where('user_id', Auth::id())
             ->where('resource_id', $resource->id)
             ->first();
-
         if ($existingApplication) {
             return redirect()->back()->with('error', 'You have already applied for this resource.');
         }
-
         return view('user.resources.apply', compact('resource'));
     }
 
-        public function submit(Request $request, Resource $resource)
-        {
-            // Initialize validation rules array
-            $validationRules = [];
-            
-            // Create a mapping between the field labels and their slugs
-            $fieldMapping = [];
-            
-            // Safely process form fields
-            foreach ($resource->form_fields as $field) {
-                // Create a slug version of the label
-                $fieldName = \Str::slug($field['label']);
-                
-                // Store mapping for later use
-                $fieldMapping[$fieldName] = $field['label'];
-                
-                // Initialize base validation rule
-                $rules = [];
-                
-                // Add required validation if the field is marked as required
-                if (!empty($field['required'])) {
-                    $rules[] = 'required';
-                } else {
-                    $rules[] = 'nullable';
-                }
-                
-                // Add type-specific validation
-                switch ($field['type']) {
-                    case 'number':
-                        $rules[] = 'numeric';
-                        break;
-                        
-                    case 'file':
-                        $rules[] = 'file';
-                        $rules[] = 'max:2048'; // 2MB limit
-                        break;
-                        
-                    case 'select':
-                        if (!empty($field['options'])) {
-                            $options = is_string($field['options']) 
-                                ? array_map('trim', explode(',', $field['options']))
-                                : (is_array($field['options']) ? $field['options'] : []);
-                            
-                            if (!empty($options)) {
-                                $rules[] = 'in:' . implode(',', $options);
-                            }
-                        }
-                        break;
-                }
-                
-                // Combine rules for this field
-                if (!empty($rules)) {
-                    $validationRules[$fieldName] = implode('|', $rules);
-                }
-            }
-        
-            try {
-                // Validate the request
-                $validatedData = $request->validate($validationRules);
-                
-                // Process form data with original field labels
-                $formData = [];
-                
-                foreach ($resource->form_fields as $field) {
-                    $fieldName = \Str::slug($field['label']);
-                    
-                    // Skip if the field wasn't submitted or validated
-                    if (!isset($validatedData[$fieldName])) {
-                        continue;
-                    }
-                    
-                    
-                    if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
-                        $file = $request->file($fieldName);
-                        $filename = time() . '_' . $file->getClientOriginalName();
-                        $path = $file->storeAs('resource_applications', $filename, 'public');
-                        
-                        
-                        $formData[$field['label']] = [
-                            'filename' => $filename,
-                            'path' => $path,
-                            'original_name' => $file->getClientOriginalName()
-                        ];
-                    } else {
-                      
-                        $formData[$field['label']] = $validatedData[$fieldName];
-                    }
-                }
-                
-                
-                $application = ResourceApplication::create([
-                    'user_id' => Auth::id(),
-                    'resource_id' => $resource->id,
-                    'form_data' => $formData, 
-                    'status' => 'pending'
-                ]);
-        
-                return redirect()->route('user.resources.index')
-                    ->with('success', 'Your application has been submitted successfully.');
-                    
-            } catch (\Exception $e) {
-                // Log the error
-                \Log::error('Resource application submission failed: ' . $e->getMessage());
-                
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['error' => 'There was a problem submitting your application. Please try again.']);
-            }
-        }
-        public function track()
-        {
-            $applications = ResourceApplication::where('user_id', Auth::id())
-                ->with('resource')
-                ->latest()
-                ->get();
+    public function submit(Request $request, Resource $resource)
+    {
+        \Log::info('Submit request received', ['request' => $request->all()]);
 
-            return view('user.resources.track', compact('applications'));
+        $validationRules = $this->getValidationRules($resource);
+        if ($resource->requires_payment && $resource->payment_option === 'bank_transfer') {
+            $validationRules['payment_receipt'] = 'required|file|mimes:jpg,png,pdf|max:2048';
         }
+
+        try {
+            $validated = $request->validate($validationRules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::info('Validation failed', ['errors' => $e->errors()]);
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+            }
+            throw $e; // For non-AJAX, redirect back with errors
+        }
+
+        $formData = [];
+        foreach ($resource->form_fields as $field) {
+            $fieldName = Str::slug($field['label']);
+            if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
+                $file = $request->file($fieldName);
+                $path = $file->store('resource_applications', 'public');
+                $formData[$field['label']] = $path;
+            } else {
+                $formData[$field['label']] = $validated[$fieldName] ?? null;
+            }
+        }
+
+        $applicationData = [
+            'user_id' => Auth::id(),
+            'resource_id' => $resource->id,
+            'form_data' => $formData,
+            'status' => 'pending',
+        ];
+
+        if ($resource->requires_payment) {
+            $applicationData['payment_status'] = 'pending';
+            if ($resource->payment_option === 'bank_transfer' && $request->hasFile('payment_receipt')) {
+                $receipt = $request->file('payment_receipt');
+                $path = $receipt->store('payment_receipts', 'public');
+                $applicationData['payment_receipt_path'] = $path;
+            }
+        }
+
+        ResourceApplication::create($applicationData);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Application submitted successfully']);
+        }
+        return redirect()->route('user.resources.index')
+            ->with('success', 'Application submitted successfully.');
+    }
+    public function track()
+    {
+        $applications = ResourceApplication::where('user_id', Auth::id())
+            ->with('resource')
+            ->latest()
+            ->get();
+        return view('user.resources.track', compact('applications'));
+    }
+
+    private function getUserPractices($user): array
+    {
+        $practices = [];
+        if ($user->cropFarmers()->exists()) $practices[] = 'crop-farmer';
+        if ($user->animalFarmers()->exists()) $practices[] = 'animal-farmer';
+        if ($user->abattoirOperators()->exists()) $practices[] = 'abattoir-operator';
+        if ($user->processors()->exists()) $practices[] = 'processor';
+        return $practices;
+    }
+
+    private function getValidationRules(Resource $resource): array
+    {
+        $rules = [];
+        foreach ($resource->form_fields as $field) {
+            $fieldName = Str::slug($field['label']);
+            $fieldRules = $field['required'] ? 'required' : 'nullable';
+            switch ($field['type']) {
+                case 'number':
+                    $fieldRules .= '|numeric';
+                    break;
+                case 'file':
+                    $fieldRules .= '|file|max:2048';
+                    break;
+                case 'select':
+                    if (!empty($field['options'])) {
+                        $options = is_array($field['options']) ? $field['options'] : explode(',', $field['options']);
+                        $fieldRules .= '|in:' . implode(',', $options);
+                    }
+                    break;
+            }
+            $rules[$fieldName] = $fieldRules;
+        }
+        return $rules;
+    }
 }

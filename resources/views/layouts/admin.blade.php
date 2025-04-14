@@ -101,12 +101,14 @@
 
                             <a href="#" class="logo logo-light">
                                 <span class="logo-sm">
+                                
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
                                 </span>
                                 <span class="logo-lg">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+
                                 </span>
                             </a>
                         </div>
@@ -310,6 +312,9 @@
         <!-- Add Alpine.js for form interactions -->
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
 
+        <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
+        <!--- sweet alert ---->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @stack('scripts')
 
         <script> 

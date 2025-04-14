@@ -103,6 +103,7 @@
 
                             <a href="#" class="logo logo-light">
                                 <span class="logo-sm">
+
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
                                 </span>
@@ -110,6 +111,7 @@
                                     
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+
                                 </span>
                             </a>
                         </div>
@@ -198,9 +200,15 @@
                                     <span>Analytics</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-store-line"></i>
+                                    <span>Report</span>
+                                </a>
+                            </li>  
 
                             <li>
-                                <a href="{{ route('super_admin.settings') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-settings-3-line"></i>
                                     <span>Settings</span>
                                 </a>
@@ -208,27 +216,25 @@
                             </li>                           
 
                             <li>
-                                <a href="{{ route('super_admin.activity_logs') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-shield-keyhole-line"></i>
                                     <span>Security</span>
                                 </a>                               
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                     <i class="ri-store-line"></i>
                                     <span>Content</span>
                                 </a>
-                            </li>
+                            </li> -->                           
 
-                           
-
-                            <li>
+                            <!-- <li>
                                 <a href="javascript: void(0);" class="waves-effect">
                                     <i class="ri-customer-service-2-line"></i>
                                     <span>Support</span>
                                 </a>
-                            </li>
+                            </li> -->
 
                             <li>
                                 <a href="#" class="waves-effect">
