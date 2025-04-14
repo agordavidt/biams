@@ -31,6 +31,9 @@
     font-weight: bold;
 }
 
+
+
+
 .step.started .circle {
     background-color: #bbe0ce; /*  #0d6efd; Bootstrap primary color */
     color: #fff;
@@ -61,3 +64,8 @@
 }
 
 /* End of steps to complete a process */
+
+.stat-card-p{
+    text-align: center;
+    align-items: center;
+}

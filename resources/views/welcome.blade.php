@@ -180,6 +180,17 @@
             margin: 0 auto 1.5rem;
         }
 
+        .icon-circle-counter {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background: #e8f5e9;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 0.5rem;
+                }
+
         .icon-circle i {
             font-size: 1.75rem;
             /* ~28px */
@@ -281,26 +292,36 @@
             <div class="row g-4">
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <h3 class="text-success fw-bold">5,000+</h3>
-                        <p class="text-muted mb-0">Registered Farmers</p>
+
+
+                        
+                            
+                            <h3 class="icon-circle-counter text-success fw-bold">5,000+</h3>
+                       
+
+                        
+                        <p class="text-muted mb-0 stat-card-p">Registered Farmers</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <h3 class="text-success fw-bold">23</h3>
-                        <p class="text-muted mb-0">Local Governments</p>
+                         <h3 class="icon-circle-counter text-success fw-bold">23</h3>
+                        {{-- <h3 class="text-success fw-bold">23</h3> --}}
+                        <p class="stat-card-p text-muted mb-0">Local Governments</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <h3 class="text-success fw-bold">100+</h3>
-                        <p class="text-muted mb-0">Resources Available</p>
+                         <h3 class="icon-circle-counter text-success fw-bold">100+</h3>
+                        {{-- <h3 class="text-success fw-bold">100+</h3> --}}
+                        <p class="stat-card-p text-muted mb-0">Resources Available</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <h3 class="text-success fw-bold">4</h3>
-                        <p class="text-muted mb-0">Agricultural Sectors</p>
+                         <h3 class="icon-circle-counter text-success fw-bold">4</h3>
+                        {{-- <h3 class="text-success fw-bold">4</h3> --}}
+                        <p class="stat-card-p text-muted mb-0">Agricultural Sectors</p>
                     </div>
                 </div>
             </div>
@@ -351,21 +372,24 @@
                                     <div class="circle">1</div>
                                     <div class="content">
                                         <h5 class="text-muted">Account Registration</h5>
-                                        <p class="text-muted">Click on 'Register' and fill in your details to get started.</p>
+                                        <p class="text-muted">Click on 'Register' and fill in your details to get
+                                            started.</p>
                                     </div>
                                 </div>
                                 <div class="step active">
                                     <div class="circle">2</div>
                                     <div class="content">
                                         <h5 class="text-muted">Email Verification</h5>
-                                        <p class="text-muted">Check your email and click on the 'Verify Email' link.</p>
+                                        <p class="text-muted">Check your email and click on the 'Verify Email' link.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="step completed">
                                     <div class="circle">3</div>
                                     <div class="content">
                                         <h5 class="text-muted">Finish Setup</h5>
-                                        <p class="text-muted">Complete your profile to start using the App and its services.</p>
+                                        <p class="text-muted">Complete your profile to start using the App and its
+                                            services.</p>
                                     </div>
                                 </div>
                             </div>
@@ -389,21 +413,24 @@
                                     <div class="circle">1</div>
                                     <div class="content">
                                         <h5 class="text-muted">Account Approval</h5>
-                                        <p class="text-muted">Your completed profile is quickly approved by an Admin.</p>
+                                        <p class="text-muted">Your completed profile is quickly approved by an Admin.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="step active">
                                     <div class="circle">2</div>
                                     <div class="content">
                                         <h5 class="text-muted">Register Agric Practice</h5>
-                                        <p class="text-muted">Register as many agricultural practices you're into as possible.</p>
+                                        <p class="text-muted">Register as many agricultural practices you're into as
+                                            possible.</p>
                                     </div>
                                 </div>
                                 <div class="step completed">
                                     <div class="circle">3</div>
                                     <div class="content">
                                         <h5 class="text-muted">Resource-tailored Access</h5>
-                                        <p class="text-muted">Access the available resources based on your registered practice.</p>
+                                        <p class="text-muted">Access the available resources based on your registered
+                                            practice.</p>
                                     </div>
                                 </div>
                             </div>
@@ -425,21 +452,24 @@
                                     <div class="circle">1</div>
                                     <div class="content">
                                         <h5 class="text-muted">Data Availability</h5>
-                                        <p class="text-muted">Your supplied data is structured and made available for use.</p>
+                                        <p class="text-muted">Your supplied data is structured and made available for
+                                            use.</p>
                                     </div>
                                 </div>
                                 <div class="step active">
                                     <div class="circle">2</div>
                                     <div class="content">
                                         <h5 class="text-muted">Activity Tracking</h5>
-                                        <p class="text-muted">Your data, services and activities are tracked for proper usage.</p>
+                                        <p class="text-muted">Your data, services and activities are tracked for proper
+                                            usage.</p>
                                     </div>
                                 </div>
                                 <div class="step completed">
                                     <div class="circle">3</div>
                                     <div class="content">
                                         <h5 class="text-muted">Data Protection</h5>
-                                        <p class="text-muted">Be assured of secure data in accordance with the NDPC.</p>
+                                        <p class="text-muted">Be assured of secure data in accordance with the NDPC.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
