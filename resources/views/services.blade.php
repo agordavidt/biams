@@ -14,6 +14,7 @@
             --primary-green: #2e7d32;
             --secondary-green: #4caf50;
             --light-bg: #f5f7f5;
+            --black: #000000;
         }
 
         body {
@@ -87,14 +88,14 @@
         .services-section h2 {
             font-size: 2rem; /* ~32px */
             font-weight: 700;
-            color: var(--primary-green);
+            color: var(--primary-green); 
             margin-bottom: 1.5rem;
         }
 
         .services-section h5 {
             font-size: 1.5rem; /* ~24px */
             font-weight: 600;
-            color: var(--primary-green);
+            color: var(--black); /* var(--primary-green); */
             margin-bottom: 1rem;
         }
 
@@ -180,6 +181,7 @@
             color: #e0e0e0;
             padding: 3rem 0;
         }
+       
 
         .footer h5 {
             font-size: 1.25rem; /* ~20px */
@@ -255,15 +257,15 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 text-center">
-                    <img src="{{ asset('dashboard/images/farmer_harvest.jpg') }}" alt="Farmer harvesting">
+                    <img src="{{ asset('dashboard/images/farmer_harvest.jpg') }}" alt="Farmer harvesting" style="width: 300px;" height="300px">
                 </div>
                 <div class="col-lg-8">
                     <h5>We render services, collaborating with various Agencies of the Benue State</h5>
                     <h2>Ministry of Agriculture & Natural Resources</h2>
                     <div class="row g-3 mt-3">
                         <div class="col-md-4">
-                            <div class="service-card">
-                                <h6>RAAMP</h6>
+                            <div class="service-card ">
+                                <h6 >RAAMP</h6>
                                 <p>Rural Access Agricultural Marketing Project.</p>
                             </div>
                         </div>
