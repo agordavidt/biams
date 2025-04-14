@@ -193,9 +193,15 @@
                                     <span>Analytics</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-store-line"></i>
+                                    <span>Report</span>
+                                </a>
+                            </li>  
 
                             <li>
-                                <a href="{{ route('super_admin.settings') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-settings-3-line"></i>
                                     <span>Settings</span>
                                 </a>
@@ -203,27 +209,25 @@
                             </li>                           
 
                             <li>
-                                <a href="{{ route('super_admin.activity_logs') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-shield-keyhole-line"></i>
                                     <span>Security</span>
                                 </a>                               
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                     <i class="ri-store-line"></i>
                                     <span>Content</span>
                                 </a>
-                            </li>
+                            </li> -->                           
 
-                           
-
-                            <li>
+                            <!-- <li>
                                 <a href="javascript: void(0);" class="waves-effect">
                                     <i class="ri-customer-service-2-line"></i>
                                     <span>Support</span>
                                 </a>
-                            </li>
+                            </li> -->
 
                             <li>
                                 <a href="#" class="waves-effect">
