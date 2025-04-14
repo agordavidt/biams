@@ -192,10 +192,14 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
     Route::put('/super-admin/integrations/{integration}/update', [SuperAdminController::class, 'updateIntegration'])
         ->name('super_admin.integrations.update');
 
-    // Analytics
+    // Analytics and Reports
     Route::get('/super-admin/analytics', [SuperAdminController::class, 'analytics'])
         ->name('super_admin.analytics');
+    Route::get('/super-admin/reports', [SuperAdminController::class, 'reports'])
+        ->name('super_admin.reports');
 });
+
+
 
 /*------------------------------------------
 | Marketplace Routes

@@ -7,6 +7,11 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">Data Analytics</h4>
+                    <div class="page-title-right">
+                        <a href="{{ route('super_admin.reports') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-file-alt me-1"></i> View Reports
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -14,33 +19,33 @@
         <!-- Summary Cards -->
         <div class="row">
             <div class="col-md-3 col-sm-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Total Practitioners</h5>
-                        <p class="fw-bold fs-3">{{ $totalPractitioners }}</p>
+                        <h5 class="card-title text-muted">Total Practitioners</h5>
+                        <p class="fw-bold fs-3 text-primary">{{ $totalPractitioners }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Gender Breakdown</h5>
+                        <h5 class="card-title text-muted">Gender Breakdown</h5>
                         <p class="fw-bold">Male: {{ $genderBreakdown['Male'] ?? 0 }} | Female: {{ $genderBreakdown['Female'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Top LGA</h5>
+                        <h5 class="card-title text-muted">Top LGA</h5>
                         <p class="fw-bold">{{ $lgaDistribution->first()->lga ?? 'N/A' }}: {{ $lgaDistribution->first()->count ?? 0 }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Practice Distribution</h5>
+                        <h5 class="card-title text-muted">Practice Distribution</h5>
                         <p class="fw-bold">Crop: {{ $practiceDistribution['Crop Farmers'] }}</p>
                     </div>
                 </div>
@@ -50,7 +55,7 @@
         <!-- Charts -->
         <div class="row">
             <div class="col-md-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Gender Distribution</h5>
                         <div id="genderChart"></div>
@@ -58,7 +63,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Practitioners by LGA</h5>
                         <div id="lgaChart"></div>
@@ -66,7 +71,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Age Distribution</h5>
                         <div id="ageChart"></div>
@@ -74,117 +79,12 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Income Levels</h5>
                         <div id="incomeChart"></div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Practice Report Selection -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Generate Practice Report</h5>
-                        <form method="GET" action="{{ route('super_admin.analytics') }}">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <select name="practice" class="form-control" onchange="this.form.submit()">
-                                        @foreach ($practiceOptions as $key => $label)
-                                            <option value="{{ $key }}" {{ $practice === $key ? 'selected' : '' }}>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="text" name="filter" class="form-control" placeholder="e.g., Rice, Cattle" value="{{ $filter ?? '' }}">
-                                </div>
-                                <div class="col-md-2">
-                                    <select name="lga" class="form-control">
-                                        <option value="">All LGAs</option>
-                                        @foreach ($lgas as $lga)
-                                            <option value="{{ $lga }}" {{ $lgaFilter === $lga ? 'selected' : '' }}>{{ $lga }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <select name="gender" class="form-control">
-                                        <option value="">All Genders</option>
-                                        <option value="Male" {{ $genderFilter === 'Male' ? 'selected' : '' }}>Male</option>
-                                        <option value="Female" {{ $genderFilter === 'Female' ? 'selected' : '' }}>Female</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary">Generate Report</button>
-                                </div>
-                            </div>
-                            <!-- <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <button type="submit" class="btn btn-primary">Generate Report</button>
-                                </div>
-                            </div> -->
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Practice-Specific Chart -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $practiceOptions[$practice] }} Distribution</h5>
-                        <div id="practiceChart"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dynamic Practice Report Table -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $reportTitle }}</h5>
-                        <table class="table datatable" id="practiceReportTable">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>LGA</th>
-                                    <th>Gender</th>
-                                    <th>Age</th>
-                                    <th>Key Metric</th>
-                                    <th>Scale Metric</th>
-                                    <th>Income Level</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($reportData as $item)
-                                    <tr>
-                                        <td>{{ $item->user->name ?? 'N/A' }}</td>
-                                        <td>{{ $item->user->profile->lga ?? 'N/A' }}</td>
-                                        <td>{{ $item->user->profile->gender ?? 'N/A' }}</td>
-                                        <td>{{ $item->age ?? 'N/A' }}</td>
-                                        <td>{{ $item->key_metric ?? 'N/A' }}</td>
-                                        <td>{{ $item->scale_metric ?? 'N/A' }}</td>
-                                        <td>{{ $item->user->profile->income_level ?? 'N/A' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Metadata -->
-        <div class="row">
-            <div class="col-12 text-muted">
-                <p>Generated on {{ now()->format('F d, Y, H:i') }} | Based on {{ $totalPractitioners }} records</p>
             </div>
         </div>
     </div>
@@ -198,6 +98,7 @@
             series: [{{ $genderBreakdown['Male'] ?? 0 }}, {{ $genderBreakdown['Female'] ?? 0 }}, {{ $genderBreakdown['Other'] ?? 0 }}],
             labels: ['Male', 'Female', 'Other'],
             colors: ['#1cbb8c', '#ff3d60', '#fcb92c'],
+            responsive: [{ breakpoint: 480, options: { chart: { width: 200 }, legend: { position: 'bottom' } } }]
         };
         var genderChart = new ApexCharts(document.querySelector("#genderChart"), genderOptions);
         genderChart.render();
@@ -206,8 +107,9 @@
         var lgaOptions = {
             chart: { type: 'bar', height: 300 },
             series: [{ name: 'Practitioners', data: @json($lgaDistribution->pluck('count')) }],
-            xaxis: { categories: @json($lgaDistribution->pluck('lga')) },
+            xaxis: { categories: @json($lgaDistribution->pluck('lga')), labels: { rotate: -45 } },
             colors: ['#1cbb8c'],
+            responsive: [{ breakpoint: 480, options: { chart: { height: 250 } } }]
         };
         var lgaChart = new ApexCharts(document.querySelector("#lgaChart"), lgaOptions);
         lgaChart.render();
@@ -218,6 +120,8 @@
             series: [{ name: 'Practitioners', data: @json($ageGroups->pluck('count')) }],
             xaxis: { categories: @json($ageGroups->pluck('age_group')) },
             colors: ['#1cbb8c'],
+            stroke: { curve: 'smooth' },
+            responsive: [{ breakpoint: 480, options: { chart: { height: 250 } } }]
         };
         var ageChart = new ApexCharts(document.querySelector("#ageChart"), ageOptions);
         ageChart.render();
@@ -228,27 +132,9 @@
             series: @json($incomeLevels->pluck('count')),
             labels: @json($incomeLevels->pluck('income_level')),
             colors: ['#1cbb8c', '#ff3d60', '#fcb92c'],
+            responsive: [{ breakpoint: 480, options: { chart: { width: 200 }, legend: { position: 'bottom' } } }]
         };
         var incomeChart = new ApexCharts(document.querySelector("#incomeChart"), incomeOptions);
         incomeChart.render();
-
-        // Practice-Specific Bar Chart
-        var practiceOptions = {
-            chart: { type: 'bar', height: 300 },
-            series: [{ name: '{{ $practiceOptions[$practice] }}', data: @json(array_values($chartData)) }],
-            xaxis: { categories: @json(array_keys($chartData)) },
-            colors: ['#1cbb8c'],
-        };
-        var practiceChart = new ApexCharts(document.querySelector("#practiceChart"), practiceOptions);
-        practiceChart.render();
-
-        // DataTable Initialization
-        $(document).ready(function() {
-            $('#practiceReportTable').DataTable({
-                dom: 'Bfrtip',
-                buttons: ['csv', 'excel', 'pdf', 'print'],
-                responsive: true,
-            });
-        });
     </script>
 @endpush
