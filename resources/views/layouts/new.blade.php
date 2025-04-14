@@ -32,21 +32,23 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="index.html" class="logo logo-dark">
+                        <a href="#" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm" height="22">
                             </span>
                             <span class="logo-lg">
-                                <img src="{{ asset('dashboard/images/logo-dark.png') }}" alt="logo-dark" height="20">
+                                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/logo-dark.png') }}" alt="logo-dark" height="20"> --}}
                             </span>
                         </a>
 
-                        <a href="index.html" class="logo logo-light">
+                        <a href="#" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="{{ asset('dashboard/images/logo-sm.png') }}" alt="logo-sm-light" height="22">
                             </span>
                             <span class="logo-lg">
-                                <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" >
+                                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light" > --}}
                             </span>
                         </a>
                     </div>
