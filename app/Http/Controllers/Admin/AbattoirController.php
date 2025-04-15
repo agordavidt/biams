@@ -19,17 +19,23 @@ class AbattoirController extends Controller
                 ->orWhere('lga', 'like', "%{$request->search}%"))
             ->paginate(20);
 
+        // Return JSON if AJAX request (for modal)
+        if ($request->ajax()) {
+            return response()->json($abattoirs);
+        }
+
         return view('admin.abattoirs.index', compact('abattoirs'));
     }
 
     public function create()
     {
-        return view('admin.abattoirs.create');
+        // No longer needed as we're using modal
+        abort(404);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'registration_number' => 'required|string|unique:abattoirs',
             'license_number' => 'required|string|unique:abattoirs',
@@ -42,19 +48,33 @@ class AbattoirController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Abattoir::create($request->all());
+        $abattoir = Abattoir::create($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Abattoir created successfully.',
+                'data' => $abattoir
+            ]);
+        }
 
         return redirect()->route('admin.abattoirs.index')->with('success', 'Abattoir created successfully.');
     }
 
     public function edit(Abattoir $abattoir)
     {
+        // Return JSON if AJAX request (for modal)
+        if (request()->ajax()) {
+            return response()->json($abattoir);
+        }
+
+        // Fallback to regular view if needed
         return view('admin.abattoirs.edit', compact('abattoir'));
     }
 
     public function update(Request $request, Abattoir $abattoir)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'registration_number' => 'required|string|unique:abattoirs,registration_number,' . $abattoir->id,
             'license_number' => 'required|string|unique:abattoirs,license_number,' . $abattoir->id,
@@ -67,7 +87,15 @@ class AbattoirController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $abattoir->update($request->all());
+        $abattoir->update($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Abattoir updated successfully.',
+                'data' => $abattoir
+            ]);
+        }
 
         return redirect()->route('admin.abattoirs.index')->with('success', 'Abattoir updated successfully.');
     }
