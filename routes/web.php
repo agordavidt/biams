@@ -11,7 +11,8 @@ use App\Http\Controllers\Admin\ResourceApplicationController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\MarketplaceMessageController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
-use App\Http\Controllers\MarketplaceVisitorController;
+use App\Http\Controllers\Admin\AbattoirController;
+use App\Http\Controllers\MarketplaceVisitorController;    
 use Illuminate\Support\Facades\Route;
 
 /*------------------------------------------
@@ -136,6 +137,20 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.applications.show');
     Route::put('/admin/resources/applications/{application}/status', [ResourceApplicationController::class, 'updateStatus'])
         ->name('admin.applications.update-status');
+
+
+
+   // Abattoir Management
+   Route::get('/admin/abattoirs', [AbattoirController::class, 'index'])->name('admin.abattoirs.index');
+   Route::get('/admin/abattoirs/create', [AbattoirController::class, 'create'])->name('admin.abattoirs.create');
+   Route::post('/admin/abattoirs', [AbattoirController::class, 'store'])->name('admin.abattoirs.store');
+   Route::get('/admin/abattoirs/{abattoir}/edit', [AbattoirController::class, 'edit'])->name('admin.abattoirs.edit');
+   Route::put('/admin/abattoirs/{abattoir}', [AbattoirController::class, 'update'])->name('admin.abattoirs.update');
+   Route::get('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'manageStaff'])->name('admin.abattoirs.staff');
+   Route::post('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'assignStaff'])->name('admin.abattoirs.staff.assign');
+   Route::delete('/admin/abattoirs/{abattoir}/staff/{staff}', [AbattoirController::class, 'removeStaff'])->name('admin.abattoirs.staff.remove');
+   Route::get('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'operations'])->name('admin.abattoirs.operations');
+   Route::post('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'storeOperation'])->name('admin.abattoirs.operations.store');
 });
 
 /*------------------------------------------

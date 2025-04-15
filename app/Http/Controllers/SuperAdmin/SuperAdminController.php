@@ -412,6 +412,5 @@ class SuperAdminController extends Controller
             'chartData'
         ));
     }
-
     
 }
