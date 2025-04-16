@@ -201,11 +201,11 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-store-line"></i>
+                                <a href="{{ route('super_admin.reports') }}" class="waves-effect">
+                                    <i class="ri-file-list-line"></i>
                                     <span>Report</span>
                                 </a>
-                            </li>  
+                            </li>
 
                             <li>
                                 <a href="#" class="waves-effect">

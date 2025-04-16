@@ -230,7 +230,7 @@ class SuperAdminController extends Controller
 
     //Analytics functions
 
-    public function analytics(Request $request)
+    public function analytics()
     {
         // Total Practitioners
         $totalPractitioners = User::whereHas('profile')->where('role', '!=', 'admin')->count();
@@ -277,6 +277,18 @@ class SuperAdminController extends Controller
             ->groupBy('income_level')
             ->get();
 
+        return view('super_admin.analytics', compact(
+            'totalPractitioners',
+            'genderBreakdown',
+            'practiceDistribution',
+            'lgaDistribution',
+            'ageGroups',
+            'incomeLevels'
+        ));
+    }
+
+    public function reports(Request $request)
+    {
         // Filter Options
         $practice = $request->input('practice', 'crop');
         $filter = $request->input('filter');
@@ -286,8 +298,6 @@ class SuperAdminController extends Controller
         // Available LGAs for Filter
         $lgas = Profile::select('lga')->distinct()->pluck('lga')->sort();
 
-        $reportData = [];
-        $reportTitle = '';
         $practiceOptions = [
             'crop' => 'Crop Farmers',
             'animal' => 'Animal Farmers',
@@ -295,7 +305,9 @@ class SuperAdminController extends Controller
             'processor' => 'Processors',
         ];
 
-        // Practice-Specific Chart Data
+        // Practice-Specific Report Logic
+        $reportData = [];
+        $reportTitle = '';
         $chartData = ['labels' => [], 'counts' => []];
 
         switch ($practice) {
@@ -388,13 +400,7 @@ class SuperAdminController extends Controller
                 break;
         }
 
-        return view('super_admin.analytics', compact(
-            'totalPractitioners',
-            'genderBreakdown',
-            'practiceDistribution',
-            'lgaDistribution',
-            'ageGroups',
-            'incomeLevels',
+        return view('super_admin.reports', compact(
             'reportData',
             'reportTitle',
             'practice',
@@ -406,6 +412,5 @@ class SuperAdminController extends Controller
             'chartData'
         ));
     }
-
     
 }
