@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Livestock extends Model
 {
+
+    protected $table = 'livestock';
+
+    
     protected $fillable = [
         'tracking_id', 'species', 'breed', 'origin_location', 'origin_lga',
         'origin_state', 'owner_name', 'owner_phone', 'owner_address',
@@ -13,13 +17,32 @@ class Livestock extends Model
         'estimated_age_months', 'gender', 'status',
     ];
 
+    protected $casts = [
+        'registration_date' => 'date',
+    ];
+
+    public function registeredBy()
+    {
+        return $this->belongsTo(User::class, 'registered_by');
+    }
+
+    public function anteMortemInspections()
+    {
+        return $this->hasMany(AnteMortemInspection::class);
+    }
+
+    public function postMortemInspections()
+    {
+        return $this->hasMany(PostMortemInspection::class);
+    }
+
     public function slaughterOperations()
     {
         return $this->hasMany(SlaughterOperation::class);
     }
 
-    public function registeredBy()
+    public static function generateTrackingId()
     {
-        return $this->belongsTo(User::class, 'registered_by');
+        return 'LS-' . strtoupper(uniqid());
     }
 }

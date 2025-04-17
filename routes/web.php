@@ -12,6 +12,7 @@ use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\MarketplaceMessageController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
 use App\Http\Controllers\Admin\AbattoirController;
+use App\Http\Controllers\Admin\LivestockController;
 use App\Http\Controllers\MarketplaceVisitorController;    
 use Illuminate\Support\Facades\Route;
 
@@ -151,6 +152,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
    Route::delete('/admin/abattoirs/{abattoir}/staff/{staff}', [AbattoirController::class, 'removeStaff'])->name('admin.abattoirs.staff.remove');
    Route::get('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'operations'])->name('admin.abattoirs.operations');
    Route::post('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'storeOperation'])->name('admin.abattoirs.operations.store');
+
+
+   // Livestock Management
+   Route::get('/admin/livestock', [LivestockController::class, 'index'])->name('admin.livestock.index');
+   Route::get('/admin/livestock/create', [LivestockController::class, 'create'])->name('admin.livestock.create');
+   Route::post('/admin/livestock', [LivestockController::class, 'store'])->name('admin.livestock.store');
+   Route::get('/admin/livestock/{livestock}/edit', [LivestockController::class, 'edit'])->name('admin.livestock.edit');
+   Route::put('/admin/livestock/{livestock}', [LivestockController::class, 'update'])->name('admin.livestock.update');
+   Route::get('/admin/livestock/{livestock}/inspections', [LivestockController::class, 'inspections'])->name('admin.livestock.inspections');
+   Route::post('/admin/livestock/{livestock}/ante-mortem', [LivestockController::class, 'storeAnteMortemInspection'])->name('admin.livestock.ante-mortem.store');
+   Route::post('/admin/livestock/{livestock}/post-mortem', [LivestockController::class, 'storePostMortemInspection'])->name('admin.livestock.post-mortem.store');
+   Route::get('/admin/livestock/alerts', [LivestockController::class, 'alerts'])->name('admin.livestock.alerts');
+
 });
 
 /*------------------------------------------

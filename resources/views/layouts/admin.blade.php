@@ -221,6 +221,13 @@
                                     <span>Abattoirs</span>
                                 </a>
                             </li>
+
+                            <li>
+                                <a href="{{ route('admin.livestock.index') }}" class="waves-effect">
+                                    <i class="ri-home-gear-line"></i>
+                                    <span>Livestock</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                 <i class="ri-exchange-dollar-line me-2"></i>
