@@ -30,11 +30,11 @@ class SlaughterOperation extends Model
 
     public function slaughteredBy()
     {
-        return $this->belongsTo(User::class, 'slaughtered_by');
+        return $this->belongsTo(AbattoirStaff::class, 'slaughtered_by');
     }
 
     public function supervisedBy()
     {
-        return $this->belongsTo(User::class, 'supervised_by');
+        return $this->belongsTo(AbattoirStaff::class, 'supervised_by');
     }
 }
