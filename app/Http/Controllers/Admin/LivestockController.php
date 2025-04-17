@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Abattoir;
+use App\Models\AbattoirStaff;
 use App\Models\AnteMortemInspection;
 use App\Models\Livestock;
 use App\Models\PostMortemInspection;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+
+
+
+
 
 class LivestockController extends Controller
 {
@@ -78,13 +83,13 @@ class LivestockController extends Controller
     {
         $request->validate([
             'species' => 'required|in:cattle,goat,sheep,pig,other',
-            'breed' => 'nullable|string|max:100',
+            'breed' => 'nullable|string|max:255',
             'origin_location' => 'required|string|max:255',
-            'origin_lga' => 'required|string|max:100',
-            'origin_state' => 'required|string|max:100',
+            'origin_lga' => 'required|string|max:255',
+            'origin_state' => 'required|string|max:255',
             'owner_name' => 'required|string|max:255',
             'owner_phone' => 'nullable|string|max:20',
-            'owner_address' => 'nullable|string|max:255',
+            'owner_address' => 'nullable|string|max:500',
             'registration_date' => 'required|date',
             'estimated_weight_kg' => 'nullable|numeric|min:0',
             'estimated_age_months' => 'nullable|integer|min:0',
@@ -105,7 +110,7 @@ class LivestockController extends Controller
         $anteInspections = $livestock->anteMortemInspections()->with('abattoir', 'inspector')->get();
         $postInspections = $livestock->postMortemInspections()->with('abattoir', 'inspector')->get();
         $abattoirs = Abattoir::where('status', 'active')->get();
-        $inspectors = User::whereHas('abattoirStaff', fn($q) => $q->where('role', 'veterinary_officer')->where('is_active', true))->get();
+        $inspectors = AbattoirStaff::whereIn('role', ['veterinary_officer', 'meat_inspector'])->where('is_active', true)->get();
 
         return view('admin.livestock.inspections', compact('livestock', 'anteInspections', 'postInspections', 'abattoirs', 'inspectors'));
     }
@@ -114,7 +119,7 @@ class LivestockController extends Controller
     {
         $request->validate([
             'abattoir_id' => 'required|exists:abattoirs,id',
-            'inspector_id' => 'required|exists:users,id',
+            'inspector_id' => 'required|exists:abattoir_staff,id',
             'inspection_date' => 'required|date',
             'temperature' => 'nullable|numeric|min:0',
             'heart_rate' => 'nullable|integer|min:0',
@@ -156,7 +161,7 @@ class LivestockController extends Controller
     {
         $request->validate([
             'abattoir_id' => 'required|exists:abattoirs,id',
-            'inspector_id' => 'required|exists:users,id',
+            'inspector_id' => 'required|exists:abattoir_staff,id',
             'inspection_date' => 'required|date',
             'carcass_normal' => 'boolean',
             'organs_normal' => 'boolean',
@@ -188,44 +193,5 @@ class LivestockController extends Controller
         ]);
 
         return redirect()->route('admin.livestock.inspections', $livestock)->with('success', 'Post-mortem inspection recorded.');
-    }
-
-    public function alerts()
-    {
-        $alerts = collect();
-
-        // Fetch inspections with issues
-        $anteIssues = AnteMortemInspection::where('decision', 'rejected')
-            ->orWhere('has_lameness', true)
-            ->orWhere('has_visible_injuries', true)
-            ->orWhere('has_abnormal_discharge', true)
-            ->with('livestock', 'abattoir')
-            ->latest()
-            ->get()
-            ->map(function ($inspection) {
-                return [
-                    'type' => 'ante_mortem',
-                    'message' => "Livestock {$inspection->livestock->tracking_id} rejected or has issues at {$inspection->abattoir->name}.",
-                    'created_at' => $inspection->created_at,
-                ];
-            });
-
-        $postIssues = PostMortemInspection::where('decision', '!=', 'fit_for_consumption')
-            ->orWhere('has_parasites', true)
-            ->orWhere('has_disease_signs', true)
-            ->with('livestock', 'abattoir')
-            ->latest()
-            ->get()
-            ->map(function ($inspection) {
-                return [
-                    'type' => 'post_mortem',
-                    'message' => "Livestock {$inspection->livestock->tracking_id} unfit or has disease signs at {$inspection->abattoir->name}.",
-                    'created_at' => $inspection->created_at,
-                ];
-            });
-
-        $alerts = $anteIssues->merge($postIssues)->sortByDesc('created_at')->take(50);
-
-        return view('admin.livestock.alerts', compact('alerts'));
     }
 }
