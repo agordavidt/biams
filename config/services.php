@@ -30,5 +30,12 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    
+    'credo' => [
+        'key' => env('CREDO_PUBLIC_KEY'),
+        'secret' => env('CREDO_SECRET_KEY'),
+        'test_mode' => env('APP_ENV') !== 'production',
+        'test_merchant_id' => 'TEST_MERCHANT_123'
+        ],
 
 ];
