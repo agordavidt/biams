@@ -174,7 +174,7 @@
                 <div data-simplebar class="h-100">
                    
 
-                    <!--- Sidemenu -->
+                   <!--- Sidemenu -->
                     <div id="sidebar-menu">
                         <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
@@ -187,7 +187,7 @@
                                 </a>
                             </li>
 
-                             <li>
+                            <li>
                                 <a href="{{ route('admin.users.summary') }}" class="waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Users</span>
@@ -205,7 +205,7 @@
                                     <li><a href="{{ route('admin.practices.processors') }}">Processors</a></li>
                                 </ul>
                             </li>
-                             <li>
+                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
@@ -217,10 +217,23 @@
                             </li>
 
                             <li>
-                                <a href="{{ route('admin.abattoirs.index') }}" class="waves-effect">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-building-line"></i>
                                     <span>Abattoirs</span>
                                 </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.abattoirs.analytics') }}">Analytics</a></li>
+                                    <li><a href="{{ route('admin.abattoirs.index') }}">Manage Abattoirs</a></li>
+                                    <li><a href="{{ route('admin.livestock.index') }}">Manage Livestock</a></li>
+                                    <!-- <li>
+                                        <a href="javascript: void(0);" class="has-arrow">Analytics</a>
+                                        <ul class="sub-menu" aria-expanded="false">
+                                            <li><a href="{{ route('admin.abattoirs.analytics') }}">Dashboard</a></li>
+                                            <li><a href="{{ route('admin.abattoirs.analytics.livestock') }}">Livestock Reports</a></li>
+                                            <li><a href="{{ route('admin.abattoirs.analytics.slaughter') }}">Slaughter Reports</a></li>
+                                        </ul>
+                                    </li> -->
+                                </ul>
                             </li>
 
                             <li>
@@ -236,7 +249,7 @@
                                 </a>
                             </li>                
                             
-                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
                                 <li> 
                                     <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 

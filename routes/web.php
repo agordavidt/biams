@@ -13,6 +13,7 @@ use App\Http\Controllers\MarketplaceMessageController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
 use App\Http\Controllers\Admin\AbattoirController;
 use App\Http\Controllers\Admin\LivestockController;
+use App\Http\Controllers\Admin\AbattoirAnalyticsController;
 use App\Http\Controllers\MarketplaceVisitorController;    
 use Illuminate\Support\Facades\Route;
 
@@ -173,6 +174,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
    Route::post('/admin/livestock/{livestock}/ante-mortem', [LivestockController::class, 'storeAnteMortemInspection'])->name('admin.livestock.ante-mortem.store');
    Route::post('/admin/livestock/{livestock}/post-mortem', [LivestockController::class, 'storePostMortemInspection'])->name('admin.livestock.post-mortem.store');
    Route::get('/admin/livestock/alerts', [LivestockController::class, 'alerts'])->name('admin.livestock.alerts');
+
+
+   // Abattoir and Livestock Analytics
+   Route::get('admin/abattoirs/analytics', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'index'])->name('admin.abattoirs.analytics');
+    Route::get('admin/abattoirs/analytics/report', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'generateReport'])->name('admin.abattoirs.analytics.report');
+    Route::get('admin/abattoirs/analytics/livestock', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'livestockReport'])->name('admin.abattoirs.analytics.livestock');
+    Route::get('admin/abattoirs/analytics/slaughter', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'slaughterReport'])->name('admin.abattoirs.analytics.slaughter');       
 
 });
 
