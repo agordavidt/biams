@@ -137,7 +137,7 @@ class AbattoirController extends Controller
     {
         $staff->delete();
         return redirect()->route('admin.abattoirs.staff', $abattoir)->with('success', 'Staff removed successfully.');
-    }
+    }   
 
     public function operations(Abattoir $abattoir)
     {
@@ -145,15 +145,20 @@ class AbattoirController extends Controller
             ->with('livestock', 'slaughteredBy', 'supervisedBy')
             ->latest()
             ->paginate(20);
-
-        $livestock = Livestock::where('status', 'approved')->get();
+        
+        // Only get livestock that have been registered AND not yet slaughtered
+        $livestock = Livestock::where('status', 'registered')
+            ->orWhere('status', 'inspected')
+            ->orWhere('status', 'approved')
+            ->where('status', '!=', 'slaughtered') // Explicitly exclude slaughtered livestock
+            ->get();
+        
         $staff = $abattoir->staff()->where('is_active', true)->get();
-
+    
         return view('admin.abattoirs.operations', compact('abattoir', 'operations', 'livestock', 'staff'));
     }
 
-
-   public function storeOperation(Request $request, Abattoir $abattoir)
+    public function storeOperation(Request $request, Abattoir $abattoir)
     {
         $request->validate([
             'livestock_id' => 'required|exists:livestock,id',
@@ -163,11 +168,9 @@ class AbattoirController extends Controller
             'supervised_by' => 'nullable|exists:abattoir_staff,id',
             'carcass_weight_kg' => 'nullable|numeric|min:0',
             'meat_grade' => 'required|in:premium,standard,economy,ungraded',
-            'is_halal' => 'boolean',
-            'is_kosher' => 'boolean',
             'notes' => 'nullable|string',
         ]);
-
+    
         SlaughterOperation::create([
             'abattoir_id' => $abattoir->id,
             'livestock_id' => $request->livestock_id,
@@ -177,13 +180,11 @@ class AbattoirController extends Controller
             'supervised_by' => $request->supervised_by,
             'carcass_weight_kg' => $request->carcass_weight_kg,
             'meat_grade' => $request->meat_grade,
-            'is_halal' => $request->boolean('is_halal'),
-            'is_kosher' => $request->boolean('is_kosher'),
             'notes' => $request->notes,
         ]);
-
+    
         Livestock::find($request->livestock_id)->update(['status' => 'slaughtered']);
-
+    
         return redirect()->route('admin.abattoirs.operations', $abattoir)->with('success', 'Slaughter operation recorded successfully.');
     }
 }

@@ -9,13 +9,11 @@ class SlaughterOperation extends Model
     protected $fillable = [
         'abattoir_id', 'livestock_id', 'slaughter_date', 'slaughter_time',
         'slaughtered_by', 'supervised_by', 'carcass_weight_kg', 'meat_grade',
-        'is_halal', 'is_kosher', 'notes',
+        'notes',
     ];
-
+    
     protected $casts = [
         'slaughter_date' => 'date',
-        'is_halal' => 'boolean',
-        'is_kosher' => 'boolean',
     ];
 
     public function abattoir()

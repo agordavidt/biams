@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();           
             $table->unsignedBigInteger('abattoir_id');
             $table->foreign('abattoir_id')->references('id')->on('abattoirs')->onDelete('restrict'); 
-
             
             $table->unsignedBigInteger('livestock_id');
             $table->foreign('livestock_id')
@@ -39,9 +38,7 @@ return new class extends Migration
             $table->date('slaughter_date');
             $table->time('slaughter_time');
             $table->float('carcass_weight_kg')->nullable();
-            $table->enum('meat_grade', ['premium', 'standard', 'economy', 'ungraded']);
-            $table->boolean('is_halal')->default(false);
-            $table->boolean('is_kosher')->default(false);
+            $table->enum('meat_grade', ['premium', 'standard', 'economy', 'ungraded']);           
             $table->text('notes')->nullable();
             $table->timestamps();
         });
@@ -55,3 +52,4 @@ return new class extends Migration
         Schema::dropIfExists('slaughter_operations');
     }
 };
+

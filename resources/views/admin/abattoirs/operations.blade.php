@@ -20,7 +20,7 @@
                             @csrf
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Livestock</label>
+                                    <label class="form-label">Livestock</label>                                   
                                     <select name="livestock_id" class="form-control @error('livestock_id') is-invalid @enderror">
                                         <option value="">Select Livestock</option>
                                         @foreach ($livestock as $animal)
@@ -78,7 +78,7 @@
                                     </select>
                                     @error('meat_grade') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <!-- <div class="col-md-4 mb-3">
                                     <label class="form-check-label">Halal</label>
                                     <input type="checkbox" name="is_halal" class="form-check-input" {{ old('is_halal') ? 'checked' : '' }}>
                                     @error('is_halal') <div class="text-danger">{{ $message }}</div> @enderror
@@ -87,7 +87,7 @@
                                     <label class="form-check-label">Kosher</label>
                                     <input type="checkbox" name="is_kosher" class="form-check-input" {{ old('is_kosher') ? 'checked' : '' }}>
                                     @error('is_kosher') <div class="text-danger">{{ $message }}</div> @enderror
-                                </div>
+                                </div> -->
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Notes</label>
