@@ -16,17 +16,14 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('resource_id')->constrained()->onDelete('cascade');
             $table->json('form_data');
-            $table->string('payment_receipt_path')->nullable();
+            $table->string('payment_reference')->nullable();
             $table->enum('status', ['pending', 'reviewing', 'approved', 'rejected', 'delivered'])->default('pending');
             $table->enum('payment_status', ['pending', 'paid', 'verified', 'failed'])->nullable()->default('pending');
-            $table->string('payment_reference')->nullable(); 
             $table->timestamps();
             $table->unique(['user_id', 'resource_id']);
-            
         });
     }
 
-    
     /**
      * Reverse the migrations.
      */

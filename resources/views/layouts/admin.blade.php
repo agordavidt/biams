@@ -7,6 +7,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta content="Benue State Integrated Agricultural Data Assets Management System" name="description" />
             <meta name="csrf-token" content="{{ csrf_token() }}">
+            
             <meta content="BDIC Team" name="author" />
 
             <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
@@ -329,12 +330,18 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
         <!--- sweet alert ---->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         @stack('scripts')
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
             document.getElementById('logout-form').submit(); }); 
         </script>
+
+
+    @stack('scripts')
     </body>
 
 </html>

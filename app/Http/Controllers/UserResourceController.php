@@ -7,138 +7,215 @@ use App\Models\ResourceApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class UserResourceController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
-        $userPractices = $this->getUserPractices($user);
-        $resources = Resource::where('is_active', true)
-            ->where(function ($query) use ($userPractices) {
-                $query->whereIn('target_practice', $userPractices)
-                    ->orWhere('target_practice', 'all');
-            })->get();
-        $applications = ResourceApplication::where('user_id', $user->id)->get();
+        $resources = Resource::query()
+            ->active()
+            ->forUserPractice($user)
+            ->with(['applications' => function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->get();
 
-        return view('user.resources.index', compact('resources', 'applications'));
+        return view('user.resources.index', compact('resources'));
     }
 
     public function show(Resource $resource)
     {
-        $existingApplication = ResourceApplication::where('user_id', Auth::id())
-            ->where('resource_id', $resource->id)
+        $existingApplication = $resource->applications()
+            ->where('user_id', Auth::id())
             ->first();
+
         return view('user.resources.show', compact('resource', 'existingApplication'));
     }
 
     public function apply(Resource $resource)
     {
-        $existingApplication = ResourceApplication::where('user_id', Auth::id())
-            ->where('resource_id', $resource->id)
-            ->first();
-        if ($existingApplication) {
-            return redirect()->back()->with('error', 'You have already applied for this resource.');
+        if ($resource->applications()->where('user_id', Auth::id())->exists()) {
+            return redirect()->back()
+                ->with('error', 'You have already applied for this resource.');
         }
+
         return view('user.resources.apply', compact('resource'));
+    }
+
+    public function initiatePayment(Request $request, Resource $resource)
+    {
+        $user = Auth::user();
+        $reference = 'RES-' . $user->id . '-' . time();
+        
+        try {
+            $response = Http::accept('application/json')->withHeaders([
+                'authorization' => env('CREDO_PUBLIC_KEY'),
+                'content_type' => 'application/json',
+            ])->post(env('CREDO_URL') . '/transaction/initialize', [
+                'email' => $user->email,
+                'metadata' => [
+                    'resource_id' => $resource->id,
+                    'user_id' => $user->id,
+                    'form_data' => json_encode($request->except(['_token', 'payment_reference']))
+                ],
+                'amount' => ($resource->price * 100),
+                'reference' => $reference,
+                'callbackUrl' => route('payment.callback'),
+                'bearer' => 0,
+            ]);
+            
+            $responseData = $response->collect('data');
+            
+            if (isset($responseData['authorizationUrl'])) {
+                // Store temporary form data in session
+                session()->put('resource_form_data.' . $reference, [
+                    'resource_id' => $resource->id,
+                    'form_data' => $request->except(['_token', 'payment_reference']),
+                ]);
+                
+                return redirect($responseData['authorizationUrl']);
+            }
+            
+            return redirect()->back()->with('error', 'Credo payment gateway took too long to respond.');
+            
+        } catch (\Exception $e) {
+            Log::error('Error initializing payment gateway: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error initializing payment gateway. Please try again.');
+        }
+    }
+
+    public function handlePaymentCallback(Request $request)
+    {
+        // Verify the transaction with Credo
+        try {
+            $response = Http::accept('application/json')->withHeaders([
+                'authorization' => env('CREDO_SECRET_KEY'),
+                'content-type' => 'application/json',
+            ])->get(env('CREDO_URL') . "/transaction/{$request->reference}/verify");
+            
+            if (!$response->successful()) {
+                return redirect()->route('user.resources.index')
+                    ->with('error', 'Payment verification failed. Please try again.');
+            }
+            
+            $paymentData = $response->json('data');
+            
+            // Extract payment status and message
+            $status = $paymentData['status'];
+            $message = $paymentData['statusMessage'] == 'Successfully processed' ? 'Successful' : 'Failed';
+            
+            if ($message == 'Successful') {
+                // Get the form data from session
+                $formData = session()->get('resource_form_data.' . $request->reference);
+                
+                if (!$formData) {
+                    return redirect()->route('user.resources.index')
+                        ->with('error', 'Application data not found. Please try again.');
+                }
+                
+                $resource = Resource::findOrFail($formData['resource_id']);
+                
+                // Create the application
+                $application = ResourceApplication::create([
+                    'user_id' => Auth::id(),
+                    'resource_id' => $resource->id,
+                    'form_data' => $this->processFormData($formData['form_data'], $resource),
+                    'payment_reference' => $request->reference,
+                    'payment_status' => ResourceApplication::PAYMENT_STATUS_VERIFIED,
+                    'status' => ResourceApplication::STATUS_PENDING
+                ]);
+                
+                // Clean up session data
+                session()->forget('resource_form_data.' . $request->reference);
+                
+                return redirect()->route('user.resources.track')
+                    ->with('success', 'Payment successful and application submitted!');
+            } else {
+                return redirect()->route('user.resources.index')
+                    ->with('error', 'Payment failed. Please try again.');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Payment callback error: ' . $e->getMessage());
+            return redirect()->route('user.resources.index')
+                ->with('error', 'Error processing payment callback. Please contact support.');
+        }
     }
 
     public function submit(Request $request, Resource $resource)
     {
-        \Log::info('Submit request received', ['request' => $request->all()]);
-
-        $validationRules = $this->getValidationRules($resource);
-        if ($resource->requires_payment && $resource->payment_option === 'bank_transfer') {
-            $validationRules['payment_receipt'] = 'required|file|mimes:jpg,png,pdf|max:2048';
+        // Only for non-payment resources
+        if ($resource->requires_payment) {
+            return $this->initiatePayment($request, $resource);
         }
+        
+        // Validate the application data
+        $validated = $this->validateApplication($request, $resource);
 
         try {
-            $validated = $request->validate($validationRules);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::info('Validation failed', ['errors' => $e->errors()]);
-            if ($request->ajax()) {
-                return response()->json(['success' => false, 'errors' => $e->errors()], 422);
-            }
-            throw $e; // For non-AJAX, redirect back with errors
+            // Create the application
+            $application = ResourceApplication::create([
+                'user_id' => Auth::id(),
+                'resource_id' => $resource->id,
+                'form_data' => $this->processFormData($request, $resource),
+                'payment_reference' => null,
+                'payment_status' => null,
+                'status' => ResourceApplication::STATUS_PENDING
+            ]);
+
+            return redirect()->route('user.resources.index')
+                ->with('success', 'Application submitted successfully!');
+
+        } catch (\Exception $e) {
+            Log::error('Application submission failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to submit application. Please try again.');
         }
-
-        $formData = [];
-        foreach ($resource->form_fields as $field) {
-            $fieldName = Str::slug($field['label']);
-            if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
-                $file = $request->file($fieldName);
-                $path = $file->store('resource_applications', 'public');
-                $formData[$field['label']] = $path;
-            } else {
-                $formData[$field['label']] = $validated[$fieldName] ?? null;
-            }
-        }
-
-        $applicationData = [
-            'user_id' => Auth::id(),
-            'resource_id' => $resource->id,
-            'form_data' => $formData,
-            'status' => 'pending',
-        ];
-
-        if ($resource->requires_payment) {
-            $applicationData['payment_status'] = 'pending';
-            if ($resource->payment_option === 'bank_transfer' && $request->hasFile('payment_receipt')) {
-                $receipt = $request->file('payment_receipt');
-                $path = $receipt->store('payment_receipts', 'public');
-                $applicationData['payment_receipt_path'] = $path;
-            }
-        }
-
-        ResourceApplication::create($applicationData);
-
-        if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Application submitted successfully']);
-        }
-        return redirect()->route('user.resources.index')
-            ->with('success', 'Application submitted successfully.');
     }
+
     public function track()
     {
-        $applications = ResourceApplication::where('user_id', Auth::id())
-            ->with('resource')
+        $applications = ResourceApplication::with('resource')
+            ->where('user_id', Auth::id())
             ->latest()
             ->get();
+
         return view('user.resources.track', compact('applications'));
     }
 
-    private function getUserPractices($user): array
-    {
-        $practices = [];
-        if ($user->cropFarmers()->exists()) $practices[] = 'crop-farmer';
-        if ($user->animalFarmers()->exists()) $practices[] = 'animal-farmer';
-        if ($user->abattoirOperators()->exists()) $practices[] = 'abattoir-operator';
-        if ($user->processors()->exists()) $practices[] = 'processor';
-        return $practices;
-    }
-
-    private function getValidationRules(Resource $resource): array
+    protected function validateApplication(Request $request, Resource $resource)
     {
         $rules = [];
         foreach ($resource->form_fields as $field) {
             $fieldName = Str::slug($field['label']);
-            $fieldRules = $field['required'] ? 'required' : 'nullable';
-            switch ($field['type']) {
-                case 'number':
-                    $fieldRules .= '|numeric';
-                    break;
-                case 'file':
-                    $fieldRules .= '|file|max:2048';
-                    break;
-                case 'select':
-                    if (!empty($field['options'])) {
-                        $options = is_array($field['options']) ? $field['options'] : explode(',', $field['options']);
-                        $fieldRules .= '|in:' . implode(',', $options);
-                    }
-                    break;
+            $rules[$fieldName] = $field['required'] ? 'required' : 'nullable';
+            
+            if ($field['type'] === 'file') $rules[$fieldName] .= '|file|max:2048';
+            if ($field['type'] === 'number') $rules[$fieldName] .= '|numeric';
+            if ($field['type'] === 'select') {
+                $options = is_array($field['options']) ? $field['options'] : explode(',', $field['options']);
+                $rules[$fieldName] .= '|in:' . implode(',', $options);
             }
-            $rules[$fieldName] = $fieldRules;
         }
-        return $rules;
+
+        return $request->validate($rules);
+    }
+
+    protected function processFormData($request, Resource $resource)
+    {
+        $formData = [];
+        foreach ($resource->form_fields as $field) {
+            $fieldName = Str::slug($field['label']);
+            
+            if ($field['type'] === 'file' && isset($request[$fieldName]) && $request[$fieldName] instanceof \Illuminate\Http\UploadedFile) {
+                $path = $request[$fieldName]->store('resource-applications', 'public');
+                $formData[$field['label']] = $path;
+            } else {
+                $formData[$field['label']] = $request[$fieldName] ?? null;
+            }
+        }
+        return $formData;
     }
 }

@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+
 /*------------------------------------------
 | Farmer & Resource Routes (Onboarded Users)
 |------------------------------------------*/
@@ -89,6 +91,13 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     Route::post('/resources/{resource}/submit', [UserResourceController::class, 'submit'])->name('user.resources.submit');
     Route::get('/resources/applications/track', [UserResourceController::class, 'track'])->name('user.resources.track');
 });
+
+// Payment callback route (credo)
+Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+
+
+
+
 
 /*------------------------------------------
 | Admin Routes

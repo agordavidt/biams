@@ -17,12 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->decimal('price', 10, 2)->default(0.00);
             $table->boolean('requires_payment')->default(false);
-            $table->enum('payment_option', ['bank_transfer', 'entrasact', 'paystack'])->nullable();
-            $table->string('bank_account_name')->nullable();
-            $table->string('bank_account_number')->nullable();
-            $table->string('bank_name')->nullable();
-            $table->text('entrasact_instruction')->nullable();
-            $table->text('paystack_instruction')->nullable();
+            $table->string('credo_merchant_id')->nullable(); // For dynamic recipients
             $table->json('form_fields')->nullable();
             $table->enum('target_practice', ['crop-farmer', 'animal-farmer', 'abattoir-operator', 'processor', 'all']);
             $table->boolean('is_active')->default(true);

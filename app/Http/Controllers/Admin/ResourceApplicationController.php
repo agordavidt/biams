@@ -4,156 +4,128 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResourceApplication;
-use App\Models\User;
-use App\Notifications\ResourcesStatusUpdated;
+use App\Notifications\ResourceStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
 class ResourceApplicationController extends Controller
 {
-    /**
-     * Display a listing of resource applications.
-     *
-     * @param Request $request
-     * @return \Illuminate\View\View
-     */
     public function index(Request $request)
     {
-        $query = ResourceApplication::with(['user', 'resource']);
-
-        // Handle status filtering
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Handle search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->whereHas('user', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                })->orWhereHas('resource', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Get paginated results
-        $applications = $query->latest()->paginate(10);
+        $applications = ResourceApplication::query()
+            ->with(['user', 'resource'])
+            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->search, function($q, $search) {
+                $q->whereHas('user', fn($q) => $q->where('name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%"))
+                ->orWhereHas('resource', fn($q) => $q->where('name', 'like', "%$search%"));
+            })
+            ->latest()
+            ->paginate(15);
 
         return view('admin.resources.applications.index', compact('applications'));
     }
 
-    /**
-     * Display the specified resource application.
-     *
-     * @param ResourceApplication $application
-     * @return \Illuminate\View\View
-     */
     public function show(ResourceApplication $application)
     {
         $application->load(['user', 'resource']);
+        $statusOptions = ResourceApplication::getStatusOptions();
         
-        return view('admin.resources.applications.show', compact('application'));
+        return view('admin.resources.applications.show', [
+            'application' => $application,
+            'statusOptions' => $statusOptions
+        ]);
     }
 
-    /**
-     * Update the status of a resource application.
-     *
-     * @param Request $request
-     * @param ResourceApplication $application
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function updateStatus(Request $request, ResourceApplication $application)
     {
         $validated = $request->validate([
-            'status' => [
-                'required',
-                'string',
-                'in:' . implode(',', ResourceApplication::getStatusOptions())
-            ],
-            'note' => 'nullable|string|max:500'
+            'status' => 'required|in:' . implode(',', ResourceApplication::getStatusOptions()),
+            'notes' => 'nullable|string|max:500'
         ]);
 
-        // Check if the status transition is valid
         if (!$application->canTransitionTo($validated['status'])) {
             return back()
-                ->with('error', 'Invalid status transition.')
+                ->with('error', 'Invalid status transition')
                 ->withInput();
         }
 
-        // Update the application status
-        if ($application->updateStatus($validated['status'])) {
-            // Send notification to user
-            $application->user->notify(new ResourcesStatusUpdated(
-                $application,
-                $validated['note'] ?? null
-            ));
+        try {
+            $application->update(['status' => $validated['status']]);
+            
+            // Notify user of status change
+            $application->user->notify(
+                new ResourceStatusUpdated($application, $validated['notes'] ?? null)
+            );
 
-            return back()->with('success', 'Application status updated successfully.');
+            return back()->with('success', 'Application status updated');
+            
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Failed to update status: ' . $e->getMessage())
+                ->withInput();
         }
-
-        return back()
-            ->with('error', 'Failed to update application status.')
-            ->withInput();
     }
 
-    /**
-     * Export applications data (optional functionality).
-     *
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
+    public function bulkUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'applications' => 'required|array',
+            'applications.*' => 'exists:resource_applications,id',
+            'status' => 'required|in:' . implode(',', ResourceApplication::getStatusOptions()),
+            'notes' => 'nullable|string|max:500'
+        ]);
+
+        $updatedCount = 0;
+        $applications = ResourceApplication::whereIn('id', $validated['applications'])->get();
+
+        foreach ($applications as $application) {
+            if ($application->canTransitionTo($validated['status'])) {
+                $application->update(['status' => $validated['status']]);
+                $application->user->notify(
+                    new ResourceStatusUpdated($application, $validated['notes'] ?? null)
+                );
+                $updatedCount++;
+            }
+        }
+
+        return back()->with('success', "Updated $updatedCount applications");
+    }
+
     public function export(Request $request)
     {
-        $query = ResourceApplication::with(['user', 'resource']);
+        $applications = ResourceApplication::query()
+            ->with(['user', 'resource'])
+            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->date_from, fn($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($request->date_to, fn($q, $date) => $q->whereDate('created_at', '<=', $date))
+            ->get();
 
-        // Apply filters if any
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        $applications = $query->get();
-
-        // Generate CSV
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="applications.csv"',
+            'Content-Disposition' => 'attachment; filename="resource-applications-' . date('Y-m-d') . '.csv"',
         ];
 
         $callback = function() use ($applications) {
             $file = fopen('php://output', 'w');
             
-            // Add headers
+            // Headers
             fputcsv($file, [
-                'ID',
-                'User',
-                'Email',
-                'Resource',
-                'Status',
-                'Submitted Date',
-                'Last Updated'
+                'ID', 'User', 'Email', 'Resource', 
+                'Status', 'Payment Status', 'Applied At', 'Last Updated'
             ]);
 
-            // Add data
-            foreach ($applications as $application) {
+            // Data
+            foreach ($applications as $app) {
                 fputcsv($file, [
-                    $application->id,
-                    $application->user->name,
-                    $application->user->email,
-                    $application->resource->name,
-                    $application->status,
-                    $application->created_at->format('Y-m-d H:i:s'),
-                    $application->updated_at->format('Y-m-d H:i:s')
+                    $app->id,
+                    $app->user->name,
+                    $app->user->email,
+                    $app->resource->name,
+                    ucfirst($app->status),
+                    $app->payment_status ? ucfirst($app->payment_status) : 'N/A',
+                    $app->created_at->format('Y-m-d H:i'),
+                    $app->updated_at->format('Y-m-d H:i')
                 ]);
             }
 
@@ -161,44 +133,5 @@ class ResourceApplicationController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
-    }
-
-    /**
-     * Bulk update application statuses (optional functionality).
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function bulkUpdate(Request $request)
-    {
-        $validated = $request->validate([
-            'applications' => 'required|array',
-            'applications.*' => 'exists:resource_applications,id',
-            'status' => [
-                'required',
-                'string',
-                'in:' . implode(',', ResourceApplication::getStatusOptions())
-            ],
-            'note' => 'nullable|string|max:500'
-        ]);
-
-        $applications = ResourceApplication::whereIn('id', $validated['applications'])->get();
-        $updatedCount = 0;
-
-        foreach ($applications as $application) {
-            if ($application->canTransitionTo($validated['status'])) {
-                if ($application->updateStatus($validated['status'])) {
-                    $updatedCount++;
-                    
-                    // Send notification
-                    $application->user->notify(new ResourcesStatusUpdated(
-                        $application,
-                        $validated['note'] ?? null
-                    ));
-                }
-            }
-        }
-
-        return back()->with('success', "{$updatedCount} applications updated successfully.");
     }
 }

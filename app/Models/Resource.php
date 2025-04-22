@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Resource extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'price', 'requires_payment', 'payment_option',
-        'bank_account_name', 'bank_account_number', 'bank_name',
-        'entrasact_instruction', 'paystack_instruction', 'form_fields',
-        'target_practice', 'is_active',
+        'name', 'description', 'price', 'requires_payment',
+        'credo_merchant_id', 'form_fields', 'target_practice', 'is_active'
     ];
 
     protected $casts = [
@@ -22,27 +22,41 @@ class Resource extends Model
         'form_fields' => 'array',
     ];
 
-    public function applications()
+    // Scopes
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeForUserPractice(Builder $query, User $user): Builder
+    {
+        return $query->where(function($q) use ($user) {
+            $q->where('target_practice', 'all')
+              ->orWhereIn('target_practice', $this->getUserPractices($user));
+        });
+    }
+
+    // Relationships
+    public function applications(): HasMany
     {
         return $this->hasMany(ResourceApplication::class);
     }
 
-    public function isAvailableFor($userPractice): bool
+    // Helper Methods
+    public function isAvailableFor(string $userPractice): bool
     {
         return $this->target_practice === 'all' || $this->target_practice === $userPractice;
     }
 
-    public function getPaymentInstructions(): array
+    protected function getUserPractices(User $user): array
     {
-        return match ($this->payment_option) {
-            'bank_transfer' => [
-                'account_name' => $this->bank_account_name,
-                'account_number' => $this->bank_account_number,
-                'bank_name' => $this->bank_name,
-            ],
-            'entrasact' => ['instruction' => $this->entrasact_instruction],
-            'paystack' => ['instruction' => $this->paystack_instruction],
-            default => [],
-        };
+        $practices = [];
+        
+        if ($user->cropFarmers()->exists()) $practices[] = 'crop-farmer';
+        if ($user->animalFarmers()->exists()) $practices[] = 'animal-farmer';
+        if ($user->abattoirOperators()->exists()) $practices[] = 'abattoir-operator';
+        if ($user->processors()->exists()) $practices[] = 'processor';
+        
+        return $practices;
     }
 }
