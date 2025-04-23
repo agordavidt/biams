@@ -182,20 +182,20 @@
 
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
+                                    <i class="ri-dashboard-line me-2"></i><span class="badge rounded-pill bg-success float-end"></span>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="{{ route('admin.users.summary') }}" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                    <i class="ri-account-circle-line me-2"></i>
                                     <span>Users</span>
                                 </a>                               
                             </li>
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                    <i class="ri-account-circle-line me-2"></i>
                                     <span>Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
@@ -218,7 +218,7 @@
 
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-building-line"></i>
+                                    <i class="ri-building-line me-2"></i>
                                     <span>Abattoirs</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
@@ -236,12 +236,12 @@
                                 </ul>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('admin.livestock.index') }}" class="waves-effect">
                                     <i class="ri-home-gear-line"></i>
                                     <span>Livestock</span>
                                 </a>
-                            </li>
+                            </li> -->
                             <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                 <i class="ri-exchange-dollar-line me-2"></i>
