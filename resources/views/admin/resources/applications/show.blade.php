@@ -58,14 +58,14 @@
                                             <td>{{ ucfirst($application->resource->target_practice) }}</td>
                                         </tr>
                                         @if($application->resource->requires_payment)
-                                            <tr>
-                                                <th scope="row">Payment Status</th>
-                                                <td>{{ ucfirst($application->payment_status) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">Payment Option</th>
-                                                <td>{{ ucfirst(str_replace('_', ' ', $application->resource->payment_option)) }}</td>
-                                            </tr>
+                                        <tr>
+                                            <th scope="row">Payment Status</th>
+                                            <td>
+                                                <span class="badge bg-{{ $application->payment_status === 'verified' ? 'success' : ($application->payment_status === 'failed' ? 'danger' : ($application->payment_status === 'paid' ? 'primary' : 'warning')) }}">
+                                                    {{ $application->getPaymentStatusLabel() }}
+                                                </span>
+                                            </td>
+                                        </tr>                                            
                                         @endif
                                     </tbody>
                                 </table>
@@ -168,9 +168,11 @@
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Status</label>
                                                     <select name="status" class="form-control">
-                                                        @foreach(\App\Models\ResourceApplication::getStatusOptions() as $status)
-                                                            @if($application->canTransitionTo($status))
-                                                                <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+                                                        @foreach(\App\Models\ResourceApplication::getStatusOptions() as $value => $label)
+                                                            @if($application->canTransitionTo($value))
+                                                                <option value="{{ $value }}" {{ $application->status == $value ? 'selected' : '' }}>
+                                                                    {{ $label }}
+                                                                </option>
                                                             @endif
                                                         @endforeach
                                                     </select>

@@ -46,21 +46,21 @@ class ResourceApplication extends Model
     public static function getStatusOptions(): array
     {
         return [
-            self::STATUS_PENDING,
-            self::STATUS_REVIEWING,
-            self::STATUS_APPROVED,
-            self::STATUS_REJECTED,
-            self::STATUS_DELIVERED,
+            self::STATUS_PENDING => 'Pending',
+            self::STATUS_REVIEWING => 'Reviewing',
+            self::STATUS_APPROVED => 'Approved',
+            self::STATUS_REJECTED => 'Rejected',
+            self::STATUS_DELIVERED => 'Delivered',
         ];
     }
 
     public static function getPaymentStatusOptions(): array
     {
         return [
-            self::PAYMENT_STATUS_PENDING,
-            self::PAYMENT_STATUS_PAID,
-            self::PAYMENT_STATUS_VERIFIED,
-            self::PAYMENT_STATUS_FAILED,
+            self::PAYMENT_STATUS_PENDING => 'Pending',
+            self::PAYMENT_STATUS_PAID => 'Paid',
+            self::PAYMENT_STATUS_VERIFIED => 'Verified',
+            self::PAYMENT_STATUS_FAILED => 'Failed',
         ];
     }
 
@@ -77,6 +77,16 @@ class ResourceApplication extends Model
         return in_array($newStatus, $validTransitions[$this->status] ?? []);
     }
 
+    public function canBeEdited(): bool
+    {
+        // Applications can be edited if they're not in final states
+        return in_array($this->status, [
+            self::STATUS_PENDING,
+            self::STATUS_REVIEWING,
+            self::STATUS_APPROVED
+        ]);
+    }
+
     public function updateStatus(string $newStatus): bool
     {
         if (!$this->canTransitionTo($newStatus)) {
@@ -89,5 +99,15 @@ class ResourceApplication extends Model
     public function requiresPayment(): bool
     {
         return $this->resource->requires_payment;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return self::getStatusOptions()[$this->status] ?? $this->status;
+    }
+
+    public function getPaymentStatusLabel(): string
+    {
+        return self::getPaymentStatusOptions()[$this->payment_status] ?? $this->payment_status;
     }
 }
