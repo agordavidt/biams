@@ -244,7 +244,7 @@
                                         <td>{{ $inspection->inspector->name ?? 'N/A' }}</td>
                                         <td>{{ ucfirst($inspection->decision) }}</td>
                                         <td>
-                                            @if ($inspection->has_lameness || $inspection->has_visible_injuries || $inspection->has_abnormal_discharge)
+                                            <!-- @if ($inspection->has_lameness || $inspection->has_visible_injuries || $inspection->has_abnormal_discharge)
                                                 {{ implode(', ', array_filter([
                                                     $inspection->has_lameness ? 'Lameness' : null,
                                                     $inspection->has_visible_injuries ? 'Injuries' : null,
@@ -252,7 +252,7 @@
                                                 ])) }}
                                             @else
                                                 None
-                                            @endif
+                                            @endif -->
                                         </td>
                                     </tr>
                                 @endforeach
