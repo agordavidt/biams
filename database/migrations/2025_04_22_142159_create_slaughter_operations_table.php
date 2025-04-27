@@ -14,27 +14,13 @@ return new class extends Migration
         Schema::create('slaughter_operations', function (Blueprint $table) {
             $table->id();           
             $table->unsignedBigInteger('abattoir_id');
-            $table->foreign('abattoir_id')->references('id')->on('abattoirs')->onDelete('restrict'); 
-            
+            $table->foreign('abattoir_id')->references('id')->on('abattoirs')->onDelete('restrict');             
             $table->unsignedBigInteger('livestock_id');
-            $table->foreign('livestock_id')
-                  ->references('id')
-                  ->on('livestock')
-                  ->onDelete('cascade');
-
+            $table->foreign('livestock_id')->references('id')->on('livestock')->onDelete('cascade');
             $table->unsignedBigInteger('slaughtered_by');
-            $table->foreign('slaughtered_by')
-                  ->references('id')
-                  ->on('abattoir_staff')
-                  ->onDelete('restrict'); 
-
-            // Foreign key for the staff who supervised the slaughter (nullable)
+            $table->foreign('slaughtered_by')->references('id')->on('abattoir_staff')->onDelete('restrict'); 
             $table->unsignedBigInteger('supervised_by')->nullable();
-            $table->foreign('supervised_by')
-                  ->references('id')
-                  ->on('abattoir_staff')
-                  ->onDelete('set null'); // Or 'restrict' or leave as is if no action on delete
-
+            $table->foreign('supervised_by')->references('id')->on('abattoir_staff')->onDelete('set null'); 
             $table->date('slaughter_date');
             $table->time('slaughter_time');
             $table->float('carcass_weight_kg')->nullable();

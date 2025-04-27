@@ -14,29 +14,13 @@ class CreatePostMortemInspectionsTable extends Migration
     public function up()
     {
         Schema::create('post_mortem_inspections', function (Blueprint $table) {
-            $table->id();
-
-            // Foreign key for livestock table
+            $table->id();        
             $table->unsignedBigInteger('livestock_id');
-            $table->foreign('livestock_id')
-                  ->references('id')
-                  ->on('livestock')
-                  ->onDelete('cascade');
-
-            // Foreign key for abattoirs table
+            $table->foreign('livestock_id')->references('id')->on('livestock')->onDelete('cascade');           
             $table->unsignedBigInteger('abattoir_id');
-            $table->foreign('abattoir_id')
-                  ->references('id')
-                  ->on('abattoirs')
-                  ->onDelete('cascade'); // Consider 'restrict' if inspections should prevent abattoir deletion
-
-            // Foreign key for the inspector (abattoir staff)
+            $table->foreign('abattoir_id')->references('id')->on('abattoirs')->onDelete('cascade');            
             $table->unsignedBigInteger('inspector_id');
-            $table->foreign('inspector_id')
-                  ->references('id')
-                  ->on('abattoir_staff')
-                  ->onDelete('restrict'); // Or 'set null' if staff can be deleted
-
+            $table->foreign('inspector_id')->references('id')->on('abattoir_staff')->onDelete('restrict');
             $table->dateTime('inspection_date');
             $table->boolean('carcass_normal')->default(true);
             $table->boolean('organs_normal')->default(true);
