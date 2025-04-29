@@ -30,9 +30,9 @@
                     <!-- Header -->
                     <div class="d-flex justify-content-between mb-3">
                         <h5 class="card-title">{{ $resource->name }}</h5>
-                        <span class="badge bg-{{ $resource->target_practice === 'all' ? 'primary' : 'info' }}">
+                        <!-- <span class="badge bg-{{ $resource->target_practice === 'all' ? 'primary' : 'info' }}">
                             {{ ucfirst(str_replace('-', ' ', $resource->target_practice)) }}
-                        </span>
+                        </span> -->
                     </div>
                     
                     <!-- Description -->

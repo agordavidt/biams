@@ -50,7 +50,7 @@
                             </tbody>
                         </table>
 
-                        {{ $livestock->links() }}
+                        <!-- {{ $livestock->links() }} -->
                     </div>
                 </div>
             </div>
