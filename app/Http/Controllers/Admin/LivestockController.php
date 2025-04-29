@@ -105,15 +105,32 @@ class LivestockController extends Controller
         return redirect()->route('admin.livestock.index')->with('success', 'Livestock updated successfully.');
     }
 
+
     public function inspections(Livestock $livestock)
     {
         $anteInspections = $livestock->anteMortemInspections()->with('abattoir', 'inspector')->get();
         $postInspections = $livestock->postMortemInspections()->with('abattoir', 'inspector')->get();
         $abattoirs = Abattoir::where('status', 'active')->get();
-        $inspectors = AbattoirStaff::whereIn('role', ['veterinary_officer', 'meat_inspector'])->where('is_active', true)->get();
+        
+        // Get the slaughter operation's abattoir if exists
+        $slaughterAbattoir = $livestock->slaughterOperation ? $livestock->slaughterOperation->abattoir : null;
+        
+        $inspectors = AbattoirStaff::whereIn('role', ['veterinary_officer', 'meat_inspector'])
+                        ->where('is_active', true)
+                        ->get();
 
-        return view('admin.livestock.inspections', compact('livestock', 'anteInspections', 'postInspections', 'abattoirs', 'inspectors'));
+        return view('admin.livestock.inspections', compact('livestock', 'anteInspections', 'postInspections', 'abattoirs', 'inspectors', 'slaughterAbattoir'  ));
     }
+
+    // public function inspections(Livestock $livestock)
+    // {
+    //     $anteInspections = $livestock->anteMortemInspections()->with('abattoir', 'inspector')->get();
+    //     $postInspections = $livestock->postMortemInspections()->with('abattoir', 'inspector')->get();
+    //     $abattoirs = Abattoir::where('status', 'active')->get();
+    //     $inspectors = AbattoirStaff::whereIn('role', ['veterinary_officer', 'meat_inspector'])->where('is_active', true)->get();
+
+    //     return view('admin.livestock.inspections', compact('livestock', 'anteInspections', 'postInspections', 'abattoirs', 'inspectors'));
+    // }
 
     public function storeAnteMortemInspection(Request $request, Livestock $livestock)
     {

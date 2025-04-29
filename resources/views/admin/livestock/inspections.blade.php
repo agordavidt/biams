@@ -154,131 +154,145 @@
 
        
         <!-- Post-Mortem Section -->
-        @if($livestock->status === 'slaughtered')
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Post-Mortem Inspection</h5>
-                        @if(!$livestock->postMortemInspections->count())
-                        <form method="POST" action="{{ route('admin.livestock.post-mortem.store', $livestock) }}">
-                            @csrf
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Abattoir*</label>
-                                    <select name="abattoir_id" class="form-control" required>
-                                        <option value="">Select Abattoir</option>
-                                        @foreach ($abattoirs as $abattoir)
-                                            <option value="{{ $abattoir->id }}" @selected(old('abattoir_id') == $abattoir->id)>
-                                                {{ $abattoir->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+@if($livestock->status === 'slaughtered')
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5>Post-Mortem Inspection</h5>
+                @if(!$livestock->postMortemInspections->count())
+                <form method="POST" action="{{ route('admin.livestock.post-mortem.store', $livestock) }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Abattoir</label>
+                            @if($slaughterAbattoir)
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="{{ $slaughterAbattoir->name }} (Slaughter Location)" readonly>
+                                    <span class="input-group-text"><i class="fas fa-check text-success"></i></span>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Inspector*</label>
-                                    <select name="inspector_id" class="form-control" required>
-                                        <option value="">Select Inspector</option>
-                                        @foreach ($inspectors as $inspector)
-                                            <option value="{{ $inspector->id }}" @selected(old('inspector_id') == $inspector->id)>
-                                                {{ $inspector->name }} ({{ ucfirst($inspector->role) }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Inspection Date*</label>
-                                    <input type="datetime-local" name="inspection_date" class="form-control" 
-                                           value="{{ old('inspection_date') }}" required>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="carcass_normal" value="0">
-                                        <input type="checkbox" name="carcass_normal" class="form-check-input" value="1" 
-                                               @checked(old('carcass_normal', true))>
-                                        <label class="form-check-label">Carcass Normal</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="organs_normal" value="0">
-                                        <input type="checkbox" name="organs_normal" class="form-check-input" value="1" 
-                                               @checked(old('organs_normal', true))>
-                                        <label class="form-check-label">Organs Normal</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="lymph_nodes_normal" value="0">
-                                        <input type="checkbox" name="lymph_nodes_normal" class="form-check-input" value="1" 
-                                               @checked(old('lymph_nodes_normal', true))>
-                                        <label class="form-check-label">Lymph Nodes Normal</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="has_parasites" value="0">
-                                        <input type="checkbox" name="has_parasites" class="form-check-input" value="1" 
-                                               @checked(old('has_parasites'))>
-                                        <label class="form-check-label">Parasites Present</label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="hidden" name="has_disease_signs" value="0">
-                                        <input type="checkbox" name="has_disease_signs" class="form-check-input" value="1" 
-                                               @checked(old('has_disease_signs'))>
-                                        <label class="form-check-label">Disease Signs</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-9">
-                                    <label class="form-label">Abnormality Details</label>
-                                    <textarea name="abnormality_details" class="form-control">{{ old('abnormality_details') }}</textarea>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Decision*</label>
-                                    <select name="decision" class="form-control" required>
-                                        <option value="fit_for_consumption" @selected(old('decision') == 'fit_for_consumption')>Fit for Consumption</option>
-                                        <option value="unfit_for_consumption" @selected(old('decision') == 'unfit_for_consumption')>Unfit for Consumption</option>
-                                        <option value="partially_fit" @selected(old('decision') == 'partially_fit')>Partially Fit</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Rejection Reason</label>
-                                    <textarea name="rejection_reason" class="form-control">{{ old('rejection_reason') }}</textarea>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Stamp Number</label>
-                                    <input type="text" name="stamp_number" class="form-control" value="{{ old('stamp_number') }}">
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Notes</label>
-                                <textarea name="notes" class="form-control">{{ old('notes') }}</textarea>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">Record Inspection</button>
-                        </form>
-                        @else
-                            <div class="alert alert-info">
-                                Post-mortem inspection already recorded for this animal.
-                            </div>
-                        @endif
+                                <input type="hidden" name="abattoir_id" value="{{ $slaughterAbattoir->id }}">
+                                <small class="text-muted">Post-mortem must be performed at the slaughter facility</small>
+                            @else
+                                <select name="abattoir_id" class="form-control" required>
+                                    <option value="">Select Abattoir</option>
+                                    @foreach ($abattoirs as $abattoir)
+                                        <option value="{{ $abattoir->id }}" @selected(old('abattoir_id') == $abattoir->id)>
+                                            {{ $abattoir->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="text-danger">Warning: No slaughter record found for this animal</div>
+                            @endif
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Inspector*</label>
+                            <select name="inspector_id" class="form-control" required>
+                                <option value="">Select Inspector</option>
+                                @foreach ($inspectors as $inspector)
+                                    <option value="{{ $inspector->id }}" @selected(old('inspector_id') == $inspector->id)>
+                                        {{ $inspector->name }} ({{ ucfirst($inspector->role) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Inspection Date*</label>
+                            <input type="datetime-local" name="inspection_date" class="form-control" 
+                                   value="{{ old('inspection_date', now()->format('Y-m-d\TH:i')) }}" required>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input type="hidden" name="carcass_normal" value="0">
+                                <input type="checkbox" name="carcass_normal" class="form-check-input" value="1" 
+                                       @checked(old('carcass_normal', true))>
+                                <label class="form-check-label">Carcass Normal</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input type="hidden" name="organs_normal" value="0">
+                                <input type="checkbox" name="organs_normal" class="form-check-input" value="1" 
+                                       @checked(old('organs_normal', true))>
+                                <label class="form-check-label">Organs Normal</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input type="hidden" name="lymph_nodes_normal" value="0">
+                                <input type="checkbox" name="lymph_nodes_normal" class="form-check-input" value="1" 
+                                       @checked(old('lymph_nodes_normal', true))>
+                                <label class="form-check-label">Lymph Nodes Normal</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input type="hidden" name="has_parasites" value="0">
+                                <input type="checkbox" name="has_parasites" class="form-check-input" value="1" 
+                                       @checked(old('has_parasites'))>
+                                <label class="form-check-label">Parasites Present</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input type="hidden" name="has_disease_signs" value="0">
+                                <input type="checkbox" name="has_disease_signs" class="form-check-input" value="1" 
+                                       @checked(old('has_disease_signs'))>
+                                <label class="form-check-label">Disease Signs</label>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Abnormality Details</label>
+                            <textarea name="abnormality_details" class="form-control" rows="2">{{ old('abnormality_details') }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Decision*</label>
+                            <select name="decision" class="form-control" required>
+                                <option value="fit_for_consumption" @selected(old('decision') == 'fit_for_consumption')>Fit for Consumption</option>
+                                <option value="unfit_for_consumption" @selected(old('decision') == 'unfit_for_consumption')>Unfit for Consumption</option>
+                                <option value="partially_fit" @selected(old('decision') == 'partially_fit')>Partially Fit</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Rejection Reason</label>
+                            <textarea name="rejection_reason" class="form-control" rows="2">{{ old('rejection_reason') }}</textarea>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stamp Number</label>
+                            <input type="text" name="stamp_number" class="form-control" value="{{ old('stamp_number') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-clipboard-check"></i> Record Inspection
+                    </button>
+                </form>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Post-mortem inspection already recorded for this animal.
+                    </div>
+                @endif
             </div>
         </div>
-        @endif
+    </div>
+</div>
+@endif
 
         <!-- Inspection History -->
         <div class="row">
