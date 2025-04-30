@@ -39,21 +39,8 @@
                                         <td>{{ $abattoir->lga }}</td>
                                         <td>{{ $abattoir->capacity }}</td>
                                         <td>{{ ucfirst($abattoir->status) }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning edit-abattoir" 
-                                                data-id="{{ $abattoir->id }}"
-                                                data-name="{{ $abattoir->name }}"
-                                                data-registration_number="{{ $abattoir->registration_number }}"
-                                                data-license_number="{{ $abattoir->license_number }}"
-                                                data-address="{{ $abattoir->address }}"
-                                                data-lga="{{ $abattoir->lga }}"
-                                                data-gps_latitude="{{ $abattoir->gps_latitude }}"
-                                                data-gps_longitude="{{ $abattoir->gps_longitude }}"
-                                                data-capacity="{{ $abattoir->capacity }}"
-                                                data-status="{{ $abattoir->status }}"
-                                                data-description="{{ $abattoir->description }}">
-                                                Edit
-                                            </button>
+                                        <td>                                           
+                                        <a href="{{ route('admin.abattoirs.edit', $abattoir->id) }}" class="btn btn-sm btn-warning edit-abattoir">Edit</a>
                                             <a href="{{ route('admin.abattoirs.staff', $abattoir) }}" class="btn btn-sm btn-info">Staff</a>
                                             <a href="{{ route('admin.abattoirs.operations', $abattoir) }}" class="btn btn-sm btn-success">Operations</a>
                                         </td>
