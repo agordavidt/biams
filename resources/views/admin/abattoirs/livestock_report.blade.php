@@ -120,8 +120,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-4">
-                        {{ $livestock->appends(request()->query())->links() }}
+                 <div class="mt-4">
+                        {{ $livestock->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>

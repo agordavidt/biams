@@ -105,9 +105,9 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
+                    </div>                  
                     <div class="mt-4">
-                        {{ $operations->appends(request()->query())->links() }}
+                        {{ $operations->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
