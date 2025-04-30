@@ -18,8 +18,8 @@
 
         body {
             background-color: var(--light-bg);
-            font-family: 'Poppins', sans-serif; /* Updated font family */
-            font-size: 1rem; /* Base: 16px */
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
             line-height: 1.6;
         }
 
@@ -31,13 +31,13 @@
         }
 
         .navbar-brand img {
-            height: 50px; /* Consistent logo size */
+            height: 50px;
             margin-right: 2rem;
         }
 
         .navbar-nav .nav-link {
-            font-weight: 600; /* Semi-bold */
-            font-size: 1.1rem; /* ~17.6px */
+            font-weight: 600;
+            font-size: 1.1rem;
             padding: 0.75rem 1.25rem;
             color: white;
             transition: color 0.3s ease;
@@ -52,7 +52,7 @@
             border-radius: 20px;
             padding: 0.5rem 1.5rem;
             margin-left: 1rem;
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
         }
 
         /* Product Container */
@@ -84,7 +84,7 @@
         }
 
         .product-container h2 {
-            font-size: 2rem; /* ~32px */
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 1rem;
         }
@@ -94,7 +94,7 @@
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
-            font-size: 1.2rem; /* ~19.2px */
+            font-size: 1.2rem;
             display: inline-block;
             margin-bottom: 1rem;
         }
@@ -104,21 +104,21 @@
             color: var(--primary-green);
             padding: 0.3rem 0.8rem;
             border-radius: 12px;
-            font-size: 0.9rem; /* ~14.4px */
+            font-size: 0.9rem;
         }
 
         .product-container .text-muted {
-            font-size: 0.95rem; /* ~15.2px */
+            font-size: 0.95rem;
             font-weight: 400;
         }
 
         .product-container h5 {
-            font-size: 1.5rem; /* ~24px */
+            font-size: 1.5rem;
             font-weight: 600;
         }
 
         .product-container p {
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
             font-weight: 400;
         }
 
@@ -131,12 +131,12 @@
         }
 
         .sidebar-card h5 {
-            font-size: 1.5rem; /* ~24px */
+            font-size: 1.5rem;
             font-weight: 600;
         }
 
         .sidebar-card p {
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
             font-weight: 400;
         }
 
@@ -148,17 +148,17 @@
         }
 
         .similar-item h6 {
-            font-size: 1.1rem; /* ~17.6px */
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
         .similar-item p {
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
             font-weight: 400;
         }
 
         .similar-item small {
-            font-size: 0.9rem; /* ~14.4px */
+            font-size: 0.9rem;
             font-weight: 400;
         }
 
@@ -169,7 +169,7 @@
             padding: 0.7rem 1.5rem;
             border-radius: 25px;
             transition: all 0.3s ease;
-            font-size: 1.1rem; /* ~17.6px */
+            font-size: 1.1rem;
             font-weight: 500;
         }
 
@@ -179,7 +179,7 @@
         }
 
         .btn-outline-success {
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
             font-weight: 500;
         }
 
@@ -192,12 +192,12 @@
         }
 
         .footer h5 {
-            font-size: 1.25rem; /* ~20px */
+            font-size: 1.25rem;
             font-weight: 600;
         }
 
         .footer p, .footer a {
-            font-size: 1rem; /* ~16px */
+            font-size: 1rem;
             font-weight: 400;
         }
 
@@ -226,14 +226,29 @@
             margin-left: 0.5rem;
         }
 
-        /* Contact Details */
-        .contact-details {
-            display: none;
-            margin-top: 1rem;
+        /* Safety tips */
+        .safety-tips {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
-        .contact-details.show {
-            display: block;
+        .safety-tips h6 {
+            color: #ff8f00;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .safety-tips ul {
+            margin-bottom: 0;
+            padding-left: 1.2rem;
+        }
+
+        .safety-tips li {
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
         }
     </style>
 </head>
@@ -306,8 +321,22 @@
                         </div>
                     </div>
                     <div class="mt-4">
+                        
                         <h5 class="fw-bold text-success">Description</h5>
                         <p>{{ $listing->description }}</p>
+
+                        <!-- Safety Tips Section -->
+                        <div class="safety-tips">
+                            <h6><i class="fas fa-shield-alt me-2"></i>Safety Tips</h6>
+                            <ul>
+                                <li>Avoid paying in advance, even for delivery</li>
+                                <li>Meet with the seller at a safe public place</li>
+                                <li>Inspect the item and ensure it's exactly what you want</li>
+                                <li>Make sure that the packed item is the one you've inspected</li>
+                                <li>Only pay if you're satisfied</li>
+                            </ul>
+                            <p class="mt-2 mb-0 small text-muted fst-italic">Note: BSIADAMS is not responsible for any transactions between buyers and sellers.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -326,7 +355,6 @@
                     <p class="text-muted mb-3">
                         <i class="fas fa-phone me-1"></i> {{ $listing->contact}}
                     </p>
-                   
                 </div>
 
                 @if($similarListings->count() > 0)
@@ -359,7 +387,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
+                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
+                    <!-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="Benue Agro Market Logo" class="footer-logo"> -->
                     <p>Empowering farmers, connecting markets</p>
                 </div>
                 <div class="col-md-4">
@@ -377,7 +406,7 @@
             <hr class="bg-light">
             <div class="text-center">
                 <p class="mb-0">© 2025 Benue State Integrated Agricultural Data and Access Management System<br>
-                <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by BDIC 
+                <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by 
                     <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
                 </a></p>
             </div>
@@ -385,11 +414,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showContact() {
-            const contactDetails = document.getElementById('contactDetails');
-            contactDetails.classList.toggle('show');
-        }
-    </script>
 </body>
 </html>
