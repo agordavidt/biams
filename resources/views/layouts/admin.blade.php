@@ -206,8 +206,8 @@
                                 </ul>
                             </li>
                             <li>
-                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
-                                    <i class="ri-handshake-line me-2"></i>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
                             </li>                                                    
@@ -365,5 +365,3 @@
     </body>
 
 </html>
-
-

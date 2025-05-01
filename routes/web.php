@@ -5,7 +5,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
-use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\UserResourceController; 
 use App\Http\Controllers\Admin\ResourceApplicationController;
