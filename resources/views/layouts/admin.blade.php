@@ -206,7 +206,7 @@
                                 </ul>
                             </li>
                             <li>
-                                <a href="#" class="waves-effect">
+                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>

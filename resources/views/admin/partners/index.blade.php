@@ -55,7 +55,7 @@
                                 <th>Contact Person</th>
                                 <th>Resources</th>
                                 <th>Focus Areas</th>
-                                <th>Status</th>
+                                <!-- <th>Status</th> -->
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -73,7 +73,8 @@
                                     <small class="text-muted">{{ $partner->contact_person_email }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-info">{{ $partner->resources_count }}</span>
+                                {{ $partner->resources_count }}
+                                    <!-- <span class="badge bg-info">{{ $partner->resources_count }}</span> -->
                                 </td>
                                 <td>
                                     @foreach(array_slice($partner->focus_areas, 0, 2) as $area)
@@ -83,13 +84,13 @@
                                         <span class="badge bg-secondary">+{{ count($partner->focus_areas) - 2 }}</span>
                                     @endif
                                 </td>
-                                <td>
+                                <!-- <td>
                                     @if($partner->is_active)
                                         <span class="badge bg-success">Active</span>
                                     @else
                                         <span class="badge bg-danger">Inactive</span>
                                     @endif
-                                </td>
+                                </td> -->
                                 <td>
                                     <a href="{{ route('admin.partners.show', $partner) }}" 
                                        class="btn btn-sm btn-primary me-1">

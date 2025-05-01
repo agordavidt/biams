@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 10, 2)->default(0.00);
-            $table->boolean('requires_payment')->default(false);
-            $table->string('credo_merchant_id')->nullable(); // For dynamic recipients
+            $table->boolean('requires_payment')->default(false);           
             $table->json('form_fields')->nullable();
             $table->enum('target_practice', ['crop-farmer', 'animal-farmer', 'abattoir-operator', 'processor', 'all']);
-            $table->boolean('is_active')->default(true);
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }
