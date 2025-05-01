@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Resource extends Model
 {
@@ -13,7 +14,7 @@ class Resource extends Model
 
     protected $fillable = [
         'name', 'description', 'price', 'requires_payment',
-        'credo_merchant_id', 'form_fields', 'target_practice', 'is_active'
+        'credo_merchant_id', 'form_fields', 'target_practice', 'is_active', 'partner_id'
     ];
 
     protected $casts = [
@@ -40,6 +41,13 @@ class Resource extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(ResourceApplication::class);
+    }
+    
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class)->withDefault([
+            'legal_name' => 'Ministry of Agriculture',
+        ]);
     }
 
     // Helper Methods

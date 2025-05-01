@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\UserResourceController; 
 use App\Http\Controllers\Admin\ResourceApplicationController;
 use App\Http\Controllers\MarketplaceController;
@@ -140,6 +141,24 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/resources/{resource}/edit', [ResourceController::class, 'edit'])->name('admin.resources.edit');
     Route::put('/admin/resources/{resource}', [ResourceController::class, 'update'])->name('admin.resources.update');
     Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+
+
+    // Resource Management
+    // Route::get('/admin/resources', [Admin\ResourceController::class, 'index'])->name('admin.resources.index');
+    // Route::get('/admin/resources/create', [Admin\ResourceController::class, 'create'])->name('admin.resources.create');
+    // Route::post('/admin/resources', [Admin\ResourceController::class, 'store'])->name('admin.resources.store');
+    // Route::get('/admin/resources/{resource}/edit', [Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
+    // Route::put('/admin/resources/{resource}', [Admin\ResourceController::class, 'update'])->name('admin.resources.update');
+    // Route::delete('/admin/resources/{resource}', [Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+    
+    // Partner Management
+    Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
+    Route::get('/admin/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
+    Route::post('/admin/partners', [PartnerController::class, 'store'])->name('admin.partners.store');
+    Route::get('/admin/partners/{partner}', [PartnerController::class, 'show'])->name('admin.partners.show');
+    Route::get('/admin/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/admin/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
+    Route::delete('/admin/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
 
     // Resource Applications
     Route::get('/admin/resources/applications', [ResourceApplicationController::class, 'index'])

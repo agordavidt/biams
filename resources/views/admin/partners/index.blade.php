@@ -1,38 +1,33 @@
 @extends('layouts.admin')
 
 @section('content')
-
-   
-   <div class="row">
+<div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Manage Resources</h4>
+            <h4 class="mb-sm-0">Manage Partners</h4>
 
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Resources</li>
+                    <li class="breadcrumb-item active">Partners</li>
                 </ol>
             </div>
-
         </div>
     </div>
 </div>
-
-
 
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title">Resources List</h4>
+                    <h4 class="card-title">Partner Organizations</h4>
                     <div>
-                        <a href="{{ route('admin.partners.index') }}" class="btn btn-secondary me-2">
-                            <i class="ri-building-line align-middle me-1"></i> Manage Partners
+                        <a href="{{ route('admin.resources.index') }}" class="btn btn-secondary me-2">
+                            <i class="ri-list-check align-middle me-1"></i> Manage Resources
                         </a>
-                        <a href="{{ route('admin.resources.create') }}" class="btn btn-primary">
-                            <i class="ri-add-line align-middle me-1"></i> Create New Resource
+                        <a href="{{ route('admin.partners.create') }}" class="btn btn-primary">
+                            <i class="ri-add-line align-middle me-1"></i> Register New Partner
                         </a>
                     </div>
                 </div>
@@ -52,53 +47,59 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table id="resources-table" class="table table-bordered dt-responsive nowrap">
+                    <table id="partners-table" class="table table-bordered dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Partner Organization</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Target Practice</th>
+                                <th>Legal Name</th>
+                                <th>Type</th>
+                                <th>Contact Person</th>
+                                <th>Resources</th>
+                                <th>Focus Areas</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($resources as $resource)
+                            @foreach($partners as $partner)
                             <tr>
-                                <td>{{ $resource->name }}</td>
                                 <td>
-                                    @if($resource->partner_id)
-                                        <a href="{{ route('admin.partners.show', $resource->partner_id) }}">
-                                            {{ $resource->partner->legal_name }}
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Ministry of Agriculture</span>
+                                    <a href="{{ route('admin.partners.show', $partner) }}">
+                                        {{ $partner->legal_name }}
+                                    </a>
+                                </td>
+                                <td>{{ Str::title(str_replace('_', ' ', $partner->organization_type)) }}</td>
+                                <td>
+                                    <div>{{ $partner->contact_person_name }}</div>
+                                    <small class="text-muted">{{ $partner->contact_person_email }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ $partner->resources_count }}</span>
+                                </td>
+                                <td>
+                                    @foreach(array_slice($partner->focus_areas, 0, 2) as $area)
+                                        <span class="badge bg-light text-dark">{{ Str::title(str_replace('_', ' ', $area)) }}</span>
+                                    @endforeach
+                                    @if(count($partner->focus_areas) > 2)
+                                        <span class="badge bg-secondary">+{{ count($partner->focus_areas) - 2 }}</span>
                                     @endif
                                 </td>
-                                <td>{{ Str::limit($resource->description, 50) }}</td>
                                 <td>
-                                    @if($resource->requires_payment)
-                                        <span class="badge bg-success">₦{{ number_format($resource->price, 2) }}</span>
-                                    @else
-                                        <span class="badge bg-info">Free</span>
-                                    @endif
-                                </td>
-                                <td>{{ Str::title(str_replace('-', ' ', $resource->target_practice)) }}</td>
-                                <td>
-                                    @if($resource->is_active)
+                                    @if($partner->is_active)
                                         <span class="badge bg-success">Active</span>
                                     @else
                                         <span class="badge bg-danger">Inactive</span>
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.resources.edit', $resource) }}" 
-                                       class="btn btn-sm btn-info me-2">
+                                    <a href="{{ route('admin.partners.show', $partner) }}" 
+                                       class="btn btn-sm btn-primary me-1">
+                                        <i class="ri-eye-line"></i>
+                                    </a>
+                                    <a href="{{ route('admin.partners.edit', $partner) }}" 
+                                       class="btn btn-sm btn-info me-1">
                                         <i class="ri-edit-line"></i>
                                     </a>
-                                    <form action="{{ route('admin.resources.destroy', $resource) }}" 
+                                    <form action="{{ route('admin.partners.destroy', $partner) }}" 
                                           method="POST" 
                                           class="d-inline delete-form">
                                         @csrf
@@ -117,13 +118,12 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#resources-table').DataTable();
+        $('#partners-table').DataTable();
 
         $('.delete-form').on('submit', function(e) {
             e.preventDefault();
@@ -131,7 +131,7 @@
             
             Swal.fire({
                 title: 'Are you sure?',
-                text: "This action cannot be undone!",
+                text: "This will delete the partner and can't be undone. Any associated resources need to be reassigned first.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',

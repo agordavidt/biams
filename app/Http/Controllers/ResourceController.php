@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Resource;
+use App\Models\Partner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -10,13 +12,14 @@ class ResourceController extends Controller
 {
     public function index()
     {
-        $resources = Resource::all();
+        $resources = Resource::with('partner')->get();
         return view('admin.resources.index', compact('resources'));
     }
 
     public function create()
     {
-        return view('admin.resources.create');
+        $partners = Partner::active()->get();
+        return view('admin.resources.create', compact('partners'));
     }
 
     public function store(Request $request)
@@ -35,7 +38,8 @@ class ResourceController extends Controller
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
             'credo_merchant_id' => 'required_if:requires_payment,true|nullable|string',
             'form_fields' => 'required|json',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'partner_id' => 'nullable|exists:partners,id'
         ]);
 
         if ($validator->fails()) {
@@ -60,7 +64,8 @@ class ResourceController extends Controller
                 'price' => $request->requires_payment ? $request->price : 0,
                 'credo_merchant_id' => $request->requires_payment ? $request->credo_merchant_id : null,
                 'form_fields' => $formFields,
-                'is_active' => $request->boolean('is_active', true)
+                'is_active' => $request->boolean('is_active', true),
+                'partner_id' => $request->partner_id
             ]);
 
             return response()->json([
@@ -80,7 +85,8 @@ class ResourceController extends Controller
 
     public function edit(Resource $resource)
     {
-        return view('admin.resources.edit', compact('resource'));
+        $partners = Partner::active()->get();
+        return view('admin.resources.edit', compact('resource', 'partners'));
     }
 
     public function update(Request $request, Resource $resource)
@@ -99,7 +105,8 @@ class ResourceController extends Controller
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
             'credo_merchant_id' => 'required_if:requires_payment,true|nullable|string',
             'form_fields' => 'required|json',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'partner_id' => 'nullable|exists:partners,id'
         ]);
 
         if ($validator->fails()) {
@@ -123,7 +130,8 @@ class ResourceController extends Controller
                 'price' => $request->requires_payment ? $request->price : 0,
                 'credo_merchant_id' => $request->requires_payment ? $request->credo_merchant_id : null,
                 'form_fields' => $formFields,
-                'is_active' => $request->boolean('is_active', true)
+                'is_active' => $request->boolean('is_active', true),
+                'partner_id' => $request->partner_id
             ]);
 
             return response()->json([

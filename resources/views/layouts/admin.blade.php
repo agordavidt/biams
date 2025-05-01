@@ -206,11 +206,18 @@
                                 </ul>
                             </li>
                             <li>
+                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
+                                    <i class="ri-handshake-line me-2"></i>
+                                    <span>Partners</span>
+                                </a>
+                            </li>                                                    
+                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="#">Onboard Organizations</a></li>
                                     <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
                                     <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
                                 </ul>
