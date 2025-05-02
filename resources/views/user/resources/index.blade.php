@@ -1,16 +1,16 @@
 @extends('layouts.new')
 
 @section('content')
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Available Resources</h4>
-            <div class="page-title-right">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4 class="m-0">Available Resources</h4>
+            <nav aria-label="breadcrumb">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
                     <li class="breadcrumb-item active">Resources</li>
                 </ol>
-            </div>
+            </nav>
         </div>
     </div>
 </div>
@@ -22,57 +22,86 @@
     </div>
 @endif
 
-<div class="row">
-    @foreach($resources as $resource)
+<div class="row g-4">
+    @forelse($resources as $resource)
         <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">{{ $resource->name }}</h5>
-                    <p class="card-text text-muted mb-4">{{ Str::limit($resource->description, 100) }}</p>
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="card-title">{{ $resource->name }}</h5>
+                        <!-- <span class="badge bg-{{ $resource->target_practice === 'all' ? 'primary' : 'info' }}">
+                            {{ ucfirst(str_replace('-', ' ', $resource->target_practice)) }}
+                        </span> -->
+                    </div>
+                    
+                    <!-- Description -->
+                    <p class="card-text text-muted mb-3 flex-grow-1">
+                        {{ Str::limit($resource->description, 120) }}
+                    </p>
 
-                    @php
-                        $application = $applications->where('resource_id', $resource->id)->first();
-                    @endphp
-
-                    @if($application)
+                    <!-- Price (if applicable) -->
+                    @if($resource->requires_payment)
                         <div class="mb-3">
-                            <span class="badge rounded-pill font-size-12 px-3 py-2
-                                @if($application->status === 'approved') bg-success
-                                @elseif($application->status === 'rejected') bg-danger
-                                @else bg-warning
-                                @endif">
-                                Status: {{ ucfirst($application->status) }}
+                            <span class="fw-semibold">
+                                <i class="ri-money-naira-circle-line me-1"></i>
+                                ₦{{ number_format($resource->price, 2) }}
                             </span>
                         </div>
                     @endif
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="font-size-14">
-                            @if($resource->requires_payment)
-                                <i class="ri-money-naira-circle-line me-1"></i>
-                                ₦{{ number_format($resource->price, 2) }}
-                            @else
-                                <span class="text-success">
-                                    <i class="ri-checkbox-circle-line me-1"></i> Free
-                                </span>
-                            @endif
-                        </span>
+                    <!-- Application Status or Apply Button -->
+                    @php
+                        $application = $resource->applications->where('user_id', auth()->id())->first();
+                    @endphp
 
-                        @if(!$application)
-                            <a href="{{ route('user.resources.show', $resource) }}" 
-                               class="btn btn-primary btn-sm waves-effect waves-light">
-                                View Details
-                            </a>
+                    <div class="mt-2">
+                        @if($application)
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge rounded-pill px-3 py-2
+                                    @if($application->status === 'approved') bg-success
+                                    @elseif($application->status === 'rejected') bg-danger
+                                    @else bg-warning @endif">
+                                    {{ ucfirst($application->status) }}
+                                </span>
+                                <a href="{{ route('user.resources.track') }}" 
+                                   class="btn btn-sm btn-outline-info">
+                                    Track Application
+                                </a>
+                            </div>
                         @else
-                            <a href="{{ route('user.resources.track') }}" 
-                               class="btn btn-info btn-sm waves-effect waves-light">
-                                Track Application
+                            <a href="{{ route('user.resources.apply', $resource) }}" 
+                               class="btn btn-primary w-100">
+                                Apply Now
                             </a>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
-    @endforeach
+    @empty
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="avatar-md mx-auto mb-3 bg-light text-primary rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="ri-file-search-line fs-2"></i>
+                    </div>
+                    <h5>No Resources Available</h5>
+                    <p class="text-muted">Check back later for new resources</p>
+                </div>
+            </div>
+        </div>
+    @endforelse
 </div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 0.5rem;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.08) !important;
+    }
+</style>
 @endsection

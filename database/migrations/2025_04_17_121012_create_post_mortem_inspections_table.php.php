@@ -4,18 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreatePostMortemInspectionsTable extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('post_mortem_inspections', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('livestock_id')->constrained()->onDelete('cascade');
-            $table->foreignId('abattoir_id')->constrained();
-            $table->foreignId('inspector_id')->constrained('users');
+            $table->id();        
+            $table->unsignedBigInteger('livestock_id');
+            $table->foreign('livestock_id')->references('id')->on('livestock')->onDelete('cascade');           
+            $table->unsignedBigInteger('abattoir_id');
+            $table->foreign('abattoir_id')->references('id')->on('abattoirs')->onDelete('cascade');            
+            $table->unsignedBigInteger('inspector_id');
+            $table->foreign('inspector_id')->references('id')->on('abattoir_staff')->onDelete('restrict');
             $table->dateTime('inspection_date');
             $table->boolean('carcass_normal')->default(true);
             $table->boolean('organs_normal')->default(true);
@@ -33,9 +38,11 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('post_mortem_inspections');
     }
-};
+}

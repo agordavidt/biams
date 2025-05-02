@@ -1,7 +1,6 @@
 <?php
 
 
-// database/seeders/UsersWithProfilesSeeder.php
 namespace Database\Seeders;
 
 use App\Models\User;

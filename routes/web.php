@@ -5,13 +5,16 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
-use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\UserResourceController; 
 use App\Http\Controllers\Admin\ResourceApplicationController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\MarketplaceMessageController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
 use App\Http\Controllers\Admin\AbattoirController;
+use App\Http\Controllers\Admin\LivestockController;
+use App\Http\Controllers\Admin\AbattoirAnalyticsController;
 use App\Http\Controllers\MarketplaceVisitorController;    
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +69,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+
 /*------------------------------------------
 | Farmer & Resource Routes (Onboarded Users)
 |------------------------------------------*/
@@ -88,6 +93,13 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     Route::post('/resources/{resource}/submit', [UserResourceController::class, 'submit'])->name('user.resources.submit');
     Route::get('/resources/applications/track', [UserResourceController::class, 'track'])->name('user.resources.track');
 });
+
+// Payment callback route (credo)
+Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+
+
+
+
 
 /*------------------------------------------
 | Admin Routes
@@ -130,6 +142,24 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/resources/{resource}', [ResourceController::class, 'update'])->name('admin.resources.update');
     Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
 
+
+    // Resource Management
+    // Route::get('/admin/resources', [Admin\ResourceController::class, 'index'])->name('admin.resources.index');
+    // Route::get('/admin/resources/create', [Admin\ResourceController::class, 'create'])->name('admin.resources.create');
+    // Route::post('/admin/resources', [Admin\ResourceController::class, 'store'])->name('admin.resources.store');
+    // Route::get('/admin/resources/{resource}/edit', [Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
+    // Route::put('/admin/resources/{resource}', [Admin\ResourceController::class, 'update'])->name('admin.resources.update');
+    // Route::delete('/admin/resources/{resource}', [Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+    
+    // Partner Management
+    Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
+    Route::get('/admin/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
+    Route::post('/admin/partners', [PartnerController::class, 'store'])->name('admin.partners.store');
+    Route::get('/admin/partners/{partner}', [PartnerController::class, 'show'])->name('admin.partners.show');
+    Route::get('/admin/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/admin/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
+    Route::delete('/admin/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
+
     // Resource Applications
     Route::get('/admin/resources/applications', [ResourceApplicationController::class, 'index'])
         ->name('admin.applications.index');
@@ -151,6 +181,26 @@ Route::middleware(['auth', 'admin'])->group(function () {
    Route::delete('/admin/abattoirs/{abattoir}/staff/{staff}', [AbattoirController::class, 'removeStaff'])->name('admin.abattoirs.staff.remove');
    Route::get('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'operations'])->name('admin.abattoirs.operations');
    Route::post('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'storeOperation'])->name('admin.abattoirs.operations.store');
+
+
+   // Livestock Management
+   Route::get('/admin/livestock', [LivestockController::class, 'index'])->name('admin.livestock.index');
+   Route::get('/admin/livestock/create', [LivestockController::class, 'create'])->name('admin.livestock.create');
+   Route::post('/admin/livestock', [LivestockController::class, 'store'])->name('admin.livestock.store');
+   Route::get('/admin/livestock/{livestock}/edit', [LivestockController::class, 'edit'])->name('admin.livestock.edit');
+   Route::put('/admin/livestock/{livestock}', [LivestockController::class, 'update'])->name('admin.livestock.update');
+   Route::get('/admin/livestock/{livestock}/inspections', [LivestockController::class, 'inspections'])->name('admin.livestock.inspections');
+   Route::post('/admin/livestock/{livestock}/ante-mortem', [LivestockController::class, 'storeAnteMortemInspection'])->name('admin.livestock.ante-mortem.store');
+   Route::post('/admin/livestock/{livestock}/post-mortem', [LivestockController::class, 'storePostMortemInspection'])->name('admin.livestock.post-mortem.store');
+   Route::get('/admin/livestock/alerts', [LivestockController::class, 'alerts'])->name('admin.livestock.alerts');
+
+
+   // Abattoir and Livestock Analytics
+   Route::get('admin/abattoirs/analytics', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'index'])->name('admin.abattoirs.analytics');
+    Route::get('admin/abattoirs/analytics/report', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'generateReport'])->name('admin.abattoirs.analytics.report');
+    Route::get('admin/abattoirs/analytics/livestock', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'livestockReport'])->name('admin.abattoirs.analytics.livestock');
+    Route::get('admin/abattoirs/analytics/slaughter', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'slaughterReport'])->name('admin.abattoirs.analytics.slaughter');       
+
 });
 
 /*------------------------------------------

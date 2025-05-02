@@ -319,7 +319,7 @@
             <hr class="bg-light">
             <div class="text-center">
                 <p class="mb-0">© 2025 Benue State Integrated Agricultural Data and Access Management System<br>
-                <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by BDIC 
+                <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by 
                     <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
                 </a></p>
             </div>

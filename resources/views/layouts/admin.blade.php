@@ -7,6 +7,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta content="Benue State Integrated Agricultural Data Assets Management System" name="description" />
             <meta name="csrf-token" content="{{ csrf_token() }}">
+            
             <meta content="BDIC Team" name="author" />
 
             <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
@@ -173,7 +174,7 @@
                 <div data-simplebar class="h-100">
                    
 
-                    <!--- Sidemenu -->
+                   <!--- Sidemenu -->
                     <div id="sidebar-menu">
                         <!-- Left Menu Start -->
                         <ul class="metismenu list-unstyled" id="side-menu">
@@ -181,20 +182,20 @@
 
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
+                                    <i class="ri-dashboard-line me-2"></i><span class="badge rounded-pill bg-success float-end"></span>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
 
-                             <li>
+                            <li>
                                 <a href="{{ route('admin.users.summary') }}" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                    <i class="ri-account-circle-line me-2"></i>
                                     <span>Users</span>
                                 </a>                               
                             </li>
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line"></i>
+                                    <i class="ri-account-circle-line me-2"></i>
                                     <span>Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
@@ -204,23 +205,50 @@
                                     <li><a href="{{ route('admin.practices.processors') }}">Processors</a></li>
                                 </ul>
                             </li>
-                             <li>
+                            <li>
+                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
+                                    <i class="ri-group-line me-2"></i>
+                                    <span>Partners</span>
+                                </a>
+                            </li>                                                    
+                            <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="#">Onboard Organizations</a></li>
                                     <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
                                     <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
                                 </ul>
                             </li>
 
                             <li>
-                                <a href="{{ route('admin.abattoirs.index') }}" class="waves-effect">
-                                    <i class="ri-building-line"></i>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-building-line me-2"></i>
                                     <span>Abattoirs</span>
                                 </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.abattoirs.analytics') }}">Analytics</a></li>
+                                    <li><a href="{{ route('admin.abattoirs.index') }}">Manage Abattoirs</a></li>
+                                    <li><a href="{{ route('admin.livestock.index') }}">Manage Livestock</a></li>
+                                    <!-- <li>
+                                        <a href="javascript: void(0);" class="has-arrow">Analytics</a>
+                                        <ul class="sub-menu" aria-expanded="false">
+                                            <li><a href="{{ route('admin.abattoirs.analytics') }}">Dashboard</a></li>
+                                            <li><a href="{{ route('admin.abattoirs.analytics.livestock') }}">Livestock Reports</a></li>
+                                            <li><a href="{{ route('admin.abattoirs.analytics.slaughter') }}">Slaughter Reports</a></li>
+                                        </ul>
+                                    </li> -->
+                                </ul>
                             </li>
+
+                            <!-- <li>
+                                <a href="{{ route('admin.livestock.index') }}" class="waves-effect">
+                                    <i class="ri-home-gear-line"></i>
+                                    <span>Livestock</span>
+                                </a>
+                            </li> -->
                             <li>
                                 <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
                                 <i class="ri-exchange-dollar-line me-2"></i>
@@ -228,7 +256,7 @@
                                 </a>
                             </li>                
                             
-                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
                                 <li> 
                                     <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
@@ -322,14 +350,18 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
         <!--- sweet alert ---->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         @stack('scripts')
 
         <script> 
         document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
             document.getElementById('logout-form').submit(); }); 
         </script>
+
+
+    @stack('scripts')
     </body>
 
 </html>
-
-
