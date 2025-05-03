@@ -216,8 +216,7 @@
                                     <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
                                 </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="#">Onboard Organizations</a></li>
+                                <ul class="sub-menu" aria-expanded="false">                         
                                     <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
                                     <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
                                 </ul>

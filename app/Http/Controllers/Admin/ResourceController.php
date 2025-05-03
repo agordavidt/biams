@@ -7,6 +7,7 @@ use App\Models\Resource;
 use App\Models\Partner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ResourceController extends Controller
 {
@@ -18,7 +19,7 @@ class ResourceController extends Controller
 
     public function create()
     {
-        $partners = Partner::active()->get();
+        $partners = Partner::get();
         return view('admin.resources.create', compact('partners'));
     }
 
@@ -26,9 +27,17 @@ class ResourceController extends Controller
     {
         // Convert checkbox values to proper boolean
         $request->merge([
-            'requires_payment' => $request->has('requires_payment'),
-            'is_active' => $request->has('is_active')
+            'requires_payment' => $request->has('requires_payment')
         ]);
+
+        // Parse dates if provided
+        if ($request->start_date) {
+            $request->merge(['start_date' => Carbon::parse($request->start_date)]);
+        }
+        
+        if ($request->end_date) {
+            $request->merge(['end_date' => Carbon::parse($request->end_date)]);
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -36,9 +45,9 @@ class ResourceController extends Controller
             'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
             'requires_payment' => 'boolean',
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
-            'credo_merchant_id' => 'required_if:requires_payment,true|nullable|string',
             'form_fields' => 'required|json',
-            'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'partner_id' => 'nullable|exists:partners,id'
         ]);
 
@@ -55,16 +64,16 @@ class ResourceController extends Controller
                 throw new \Exception('Invalid form fields format');
             }
 
-            // Create resource with conditional values for payment fields
+            // Create resource with updated fields
             $resource = Resource::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'target_practice' => $request->target_practice,
                 'requires_payment' => (bool)$request->requires_payment, 
                 'price' => $request->requires_payment ? $request->price : 0,
-                'credo_merchant_id' => $request->requires_payment ? $request->credo_merchant_id : null,
                 'form_fields' => $formFields,
-                'is_active' => $request->boolean('is_active', true),
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
                 'partner_id' => $request->partner_id
             ]);
 
@@ -93,9 +102,17 @@ class ResourceController extends Controller
     {
         // Convert checkbox values to proper boolean
         $request->merge([
-            'requires_payment' => $request->has('requires_payment'),
-            'is_active' => $request->has('is_active')
+            'requires_payment' => $request->has('requires_payment')
         ]);
+
+        // Parse dates if provided
+        if ($request->start_date) {
+            $request->merge(['start_date' => Carbon::parse($request->start_date)]);
+        }
+        
+        if ($request->end_date) {
+            $request->merge(['end_date' => Carbon::parse($request->end_date)]);
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -103,9 +120,9 @@ class ResourceController extends Controller
             'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
             'requires_payment' => 'boolean',
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
-            'credo_merchant_id' => 'required_if:requires_payment,true|nullable|string',
             'form_fields' => 'required|json',
-            'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'partner_id' => 'nullable|exists:partners,id'
         ]);
 
@@ -128,9 +145,9 @@ class ResourceController extends Controller
                 'target_practice' => $request->target_practice,
                 'requires_payment' => (bool)$request->requires_payment,
                 'price' => $request->requires_payment ? $request->price : 0,
-                'credo_merchant_id' => $request->requires_payment ? $request->credo_merchant_id : null,
                 'form_fields' => $formFields,
-                'is_active' => $request->boolean('is_active', true),
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
                 'partner_id' => $request->partner_id
             ]);
 
