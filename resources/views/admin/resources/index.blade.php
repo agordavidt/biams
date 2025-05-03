@@ -86,7 +86,7 @@
                                     @if($resource->start_date && $resource->start_date->isFuture())
                                         <span >Not Started</span>
                                     @elseif($resource->end_date)
-                                        <span>{{ $resource->end_date->diffInDays(now()) }} days remaining</span>
+                                        <span>{{ $resource->end_date->diffInDays(now()) }} days </span>
                                     @else
                                         <span >No Expiry</span>
                                     @endif
