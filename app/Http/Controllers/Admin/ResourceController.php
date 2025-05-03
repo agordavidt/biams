@@ -13,7 +13,8 @@ class ResourceController extends Controller
 {
     public function index()
     {
-        $resources = Resource::with('partner')->get();
+        // Only fetch active resources
+        $resources = Resource::with('partner')->active()->get();
         return view('admin.resources.index', compact('resources'));
     }
 
@@ -94,12 +95,27 @@ class ResourceController extends Controller
 
     public function edit(Resource $resource)
     {
+        // Prevent editing if resource is expired
+        if ($resource->isExpired()) {
+            return redirect()->route('admin.resources.index')
+                ->with('error', 'Cannot edit an expired resource.');
+        }
+
         $partners = Partner::active()->get();
         return view('admin.resources.edit', compact('resource', 'partners'));
     }
 
     public function update(Request $request, Resource $resource)
     {
+        // Prevent updating if resource is expired
+        if ($resource->isExpired()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot update an expired resource.',
+                'errors' => ['general' => 'Resource is expired']
+            ], 403);
+        }
+
         // Convert checkbox values to proper boolean
         $request->merge([
             'requires_payment' => $request->has('requires_payment')

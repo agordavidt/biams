@@ -2,8 +2,7 @@
 
 @section('content')
 
-   
-   <div class="row">
+<div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
             <h4 class="mb-sm-0">Manage Resources</h4>
@@ -14,12 +13,9 @@
                     <li class="breadcrumb-item active">Resources</li>
                 </ol>
             </div>
-
         </div>
     </div>
 </div>
-
-
 
 <div class="row">
     <div class="col-12">
@@ -60,7 +56,7 @@
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Target Practice</th>
-                                <th>Status</th>
+                                <th>Validity</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -80,17 +76,19 @@
                                 <td>{{ Str::limit($resource->description, 50) }}</td>
                                 <td>
                                     @if($resource->requires_payment)
-                                        <span class="badge bg-success">₦{{ number_format($resource->price, 2) }}</span>
+                                        <span>₦{{ number_format($resource->price, 2) }}</span>
                                     @else
-                                        <span class="badge bg-info">Free</span>
+                                        <span >Free</span>
                                     @endif
                                 </td>
                                 <td>{{ Str::title(str_replace('-', ' ', $resource->target_practice)) }}</td>
                                 <td>
-                                    @if($resource->is_active)
-                                        <span class="badge bg-success">Active</span>
+                                    @if($resource->start_date && $resource->start_date->isFuture())
+                                        <span >Not Started</span>
+                                    @elseif($resource->end_date)
+                                        <span>{{ $resource->end_date->diffInDays(now()) }} days remaining</span>
                                     @else
-                                        <span class="badge bg-danger">Inactive</span>
+                                        <span >No Expiry</span>
                                     @endif
                                 </td>
                                 <td>
