@@ -57,18 +57,11 @@
                     <div class="flex-grow-1">
                         <h5 class="font-size-16 mb-1">{{ $partner->legal_name }}</h5>
                         <p class="text-muted mb-1">{{ Str::title(str_replace('_', ' ', $partner->organization_type)) }}</p>
-                        <div>
-                            @if($partner->is_active)
-                                <span class="badge badge-soft-success">Active</span>
-                            @else
-                                <span class="badge badge-soft-danger">Inactive</span>
-                            @endif
-                        </div>
                     </div>
                 </div>
 
                 <div class="py-3">
-                    <h5 class="font-size-15">About:</h5>
+                    <h5 class="font-size-15">About:</ Dès h5>
                     <p class="text-muted mb-0">{{ $partner->description }}</p>
                 </div>
 
@@ -103,11 +96,53 @@
                     @if($partner->registration_certificate)
                     <div class="mt-3">
                         <h5 class="font-size-15">Registration Certificate:</h5>
-                        <p class="text-muted mb-0">
-                            <a href="{{ Storage::url($partner->registration_certificate) }}" target="_blank" class="btn btn-sm btn-soft-primary">
-                                <i class="ri-file-text-line me-1"></i> View Document
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ Storage::url($partner->registration_certificate) }}" 
+                               download 
+                               class="btn btn-sm btn-soft-primary">
+                                <i class="ri-download-line me-1"></i> Download
                             </a>
-                        </p>
+                            @if(in_array(pathinfo($partner->registration_certificate, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                <button type="button" 
+                                        class="btn btn-sm btn-soft-info" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#previewModal">
+                                    <i class="ri-eye-line me-1"></i> Preview
+                                </button>
+                            @elseif(pathinfo($partner->registration_certificate, PATHINFO_EXTENSION) === 'pdf')
+                                <a href="{{ Storage::url($partner->registration_certificate) }}" 
+                                   target="_blank" 
+                                   class="btn btn-sm btn-soft-info">
+                                    <i class="ri-eye-line me-1"></i> Preview
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Modal for Image Preview -->
+                    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="previewModalLabel">Certificate Preview</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <img src="{{ Storage::url($partner->registration_certificate) }}" 
+                                         class="img-fluid" 
+                                         alt="Registration Certificate" 
+                                         style="max-height: 600px;">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <a href="{{ Storage::url($partner->registration_certificate) }}" 
+                                       download 
+                                       class="btn btn-primary">
+                                        <i class="ri-download-line me-1"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     @endif
                 </div>

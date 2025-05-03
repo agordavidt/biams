@@ -154,7 +154,7 @@
 
                                     <div class="mb-3">
                                         <label class="form-label" for="registration_certificate">Registration Certificate</label>
-                                        <input type="file" class="form-control @error('registration_certificate') is-invalid @enderror" 
+                                        <input type="file" class="form-control @error('registration_certifiicate') is-invalid @enderror" 
                                             id="registration_certificate" name="registration_certificate">
                                         <small class="form-text text-muted">Accepted formats: PDF, JPG, JPEG, PNG (max 5MB)</small>
                                     </div>
@@ -177,12 +177,6 @@
                                                 id="bank_account_number" name="bank_account_number" value="{{ old('bank_account_number') }}">
                                         </div>
                                     </div>
-
-                                    <!-- <div class="form-check form-switch mt-3">
-                                        <input class="form-check-input" type="checkbox" 
-                                            id="is_active" name="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="is_active">Active Status</label>
-                                    </div> -->
                                 </div>
                             </div>
                         </div>
