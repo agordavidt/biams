@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
+use App\Http\Controllers\Governor\GovernorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmersController;
@@ -143,13 +144,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
 
 
-    // Resource Management
-    // Route::get('/admin/resources', [Admin\ResourceController::class, 'index'])->name('admin.resources.index');
-    // Route::get('/admin/resources/create', [Admin\ResourceController::class, 'create'])->name('admin.resources.create');
-    // Route::post('/admin/resources', [Admin\ResourceController::class, 'store'])->name('admin.resources.store');
-    // Route::get('/admin/resources/{resource}/edit', [Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
-    // Route::put('/admin/resources/{resource}', [Admin\ResourceController::class, 'update'])->name('admin.resources.update');
-    // Route::delete('/admin/resources/{resource}', [Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
     
     // Partner Management
     Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
@@ -309,6 +303,25 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])
         ->name('admin.marketplace.categories.delete');
 });
+
+
+
+/*------------------------------------------
+| Governor Routes
+|------------------------------------------*/
+Route::middleware(['auth', 'governor'])->group(function () {
+    // Dashboard
+    Route::get('/governor/dashboard', [GovernorController::class, 'dashboard'])
+        ->name('governor.dashboard');
+
+    // Analytics and Reports
+    Route::get('/governor/analytics', [GovernorController::class, 'analytics'])
+        ->name('governor.analytics');
+    Route::get('/governor/reports', [GovernorController::class, 'reports'])
+        ->name('governor.reports');
+});
+
+
 
 // Authentication Routes
 require __DIR__.'/auth.php';

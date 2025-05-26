@@ -173,8 +173,7 @@
             <!-- ========== Left Sidebar Start ========== -->
             <div class="vertical-menu">
 
-                <div data-simplebar class="h-100">
-                   
+                <div data-simplebar class="h-100">                  
 
                     <!--- Sidemenu -->
                     <div id="sidebar-menu">
@@ -182,56 +181,26 @@
                             <li class="menu-title">Menu</li>
 
                             <li>
-                                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
+                                <a href="{{ route('governor.dashboard') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
                                     <span>Dashboard</span>
                                 </a>
-                            </li>
-
+                            </li>                           
+                           
                             <li>
-                                <a href="{{ route('super_admin.users') }}" class="waves-effect">
-                                    <i class="ri-user-line"></i>
-                                    <span>Users</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('super_admin.analytics') }}" class="waves-effect">
+                                <a href="{{ route('governor.analytics') }}" class="waves-effect">
                                     <i class="ri-bar-chart-line"></i>
                                     <span>Analytics</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('super_admin.reports') }}" class="waves-effect">
+                                <a href="{{ route('governor.reports') }}" class="waves-effect">
                                     <i class="ri-file-list-line"></i>
                                     <span>Report</span>
                                 </a>
-                            </li>
-
-                            <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-settings-3-line"></i>
-                                    <span>Settings</span>
-                                </a>
-                               
-                            </li>                           
-
-                            <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-shield-keyhole-line"></i>
-                                    <span>Security</span>
-                                </a>                               
-                            </li>
-
+                            </li>              
+                            
                            
-
-                            <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-file-search-line"></i>
-                                    <span>Audit</span>
-                                </a>
-                            </li>
-                           
-
                             <form action="{{ route('logout') }}" method="POST" id="logout-form">
                                 @csrf
                                 <li>

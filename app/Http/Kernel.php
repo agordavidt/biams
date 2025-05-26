@@ -66,6 +66,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         'super_admin' => \App\Http\Middleware\SuperAdmin::class,
+        'governor' => \App\Http\Middleware\GovernorMiddleware::class,
         'user' => \App\Http\Middleware\EnsureUserIsUser::class,
         'profile.incomplete' => \App\Http\Middleware\EnsureProfileIsIncomplete::class,
         'onboarded' => \App\Http\Middleware\EnsureUserIsOnboarded::class,

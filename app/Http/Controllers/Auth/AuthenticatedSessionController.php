@@ -23,7 +23,6 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -35,6 +34,11 @@ class AuthenticatedSessionController extends Controller
         // Redirect super admin to super admin dashboard
         if ($user->role === 'super_admin') {
             return redirect()->route('super_admin.dashboard');
+        }
+
+        // Redirect governor to governor dashboard
+        if ($user->role === 'governor') {
+            return redirect()->route('governor.dashboard');
         }
 
         // Redirect admin to admin dashboard
@@ -51,7 +55,6 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
-    
     /**
      * Destroy an authenticated session.
      */
