@@ -81,11 +81,12 @@
                                                     'pending' => 'warning',
                                                     'default' => 'secondary'
                                                 ];
-                                                $statusColor = $statusColors[$user->status] ?? $statusColors['default'];
+                                                $statusText = ($user->status === 'onboarded') ? 'Activated' : ucfirst($user->status);
+                                                $statusColor = $statusColors[strtolower($user->status)] ?? $statusColors['default'];
                                             @endphp
                                             <div class="d-flex align-items-center">
                                                 <i class="ri-checkbox-blank-circle-fill font-size-10 text-{{ $statusColor }} me-2"></i>
-                                                <span class="text-{{ $statusColor }}">{{ ucfirst($user->status) }}</span>
+                                                <span class="text-{{ $statusColor }}">{{ $statusText }}</span>
                                             </div>
                                         </td>
                                         <td>
@@ -103,7 +104,7 @@
                                                             <form action="{{ route('admin.users.onboard', $user->id) }}" method="POST">
                                                                 @csrf
                                                                 <button type="submit" class="dropdown-item">
-                                                                    <i class="ri-check-double-line me-2 align-middle"></i>Onboard
+                                                                    <i class="ri-check-double-line me-2 align-middle"></i>Activate
                                                                 </button>
                                                             </form>
                                                         </li>

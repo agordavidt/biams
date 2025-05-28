@@ -58,9 +58,9 @@
                                 bg-success
                             @endif">
                             @if (auth()->user()->status === 'pending')
-                                <i class="fas fa-hourglass-half align-middle font-size-18 text-warning"></i> Pending
+                                <i class="fas fa-hourglass-half align-middle font-size-18 text-warning"></i> Inactive
                             @else
-                                <i class="fas fa-check-circle align-middle font-size-18 text-success"></i> Onboarded
+                                <i class="fas fa-check-circle align-middle font-size-18 text-success"></i> Active
                             @endif
                         </span>
                     </div>
@@ -177,8 +177,8 @@
             <div class="card-body">
                 <div class="alert alert-warning text-center">
                     <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                    <h4 class="fw-bold">Onboarding Required</h4>
-                    <p>You must complete your onboarding process to access agricultural practice registration forms.</p>
+                    <h4 class="fw-bold">Activation Required</h4>
+                    <p>Your account must be activated before yu to access agricultural practice registration forms.</p>
                     <p>Please contact the administrator or complete your profile to proceed.</p>
                 </div>
             </div>
