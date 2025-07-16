@@ -67,6 +67,34 @@
                                 <label for="currency" class="form-label">Currency</label>
                                 <input type="text" class="form-control" id="currency" name="currency" value="{{ $settings['currency'] ?? '' }}" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="about_success_story" class="form-label">About Us: Success Story Section (HTML)</label>
+                                <textarea class="form-control" id="about_success_story" name="about_success_story" rows="5">{{ $settings['about_success_story'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="about_structure" class="form-label">About Us: Structure Section (HTML)</label>
+                                <textarea class="form-control" id="about_structure" name="about_structure" rows="5">{{ $settings['about_structure'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="services_main" class="form-label">Services: Main Services Section (HTML)</label>
+                                <textarea class="form-control" id="services_main" name="services_main" rows="5">{{ $settings['services_main'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="services_additional" class="form-label">Services: Additional Services Section (HTML)</label>
+                                <textarea class="form-control" id="services_additional" name="services_additional" rows="5">{{ $settings['services_additional'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="welcome_hero" class="form-label">Welcome: Hero Section (HTML)</label>
+                                <textarea class="form-control" id="welcome_hero" name="welcome_hero" rows="5">{{ $settings['welcome_hero'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="welcome_about" class="form-label">Welcome: About Section (HTML)</label>
+                                <textarea class="form-control" id="welcome_about" name="welcome_about" rows="5">{{ $settings['welcome_about'] ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="welcome_features" class="form-label">Welcome: Features Section (HTML)</label>
+                                <textarea class="form-control" id="welcome_features" name="welcome_features" rows="5">{{ $settings['welcome_features'] ?? '' }}</textarea>
+                            </div>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </form>
                     </div>
