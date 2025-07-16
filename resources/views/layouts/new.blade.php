@@ -1,15 +1,16 @@
+@php use App\Models\Setting; @endphp
 {{-- resources\views\layouts\new.blade.php --}}
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <title>Benue State Integrated Agricultural Assets Data Management System</title>
+    <title>{{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Benue Stat Integrated Agricultural Assets Data Management System" name="description" />
     <meta content="BDIC Team" name="author" />
 
-    <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/favicon.ico') }}">
 
     <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
@@ -147,7 +148,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Benue State Integrated Agricultural Data Assets Management System.
+                        <script>document.write(new Date().getFullYear())</script> © {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}.
                     </div>
                     <div class="col-sm-6">
                         <div class="text-sm-end d-none d-sm-block">

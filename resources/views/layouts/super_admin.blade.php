@@ -1,15 +1,16 @@
+@php use App\Models\Setting; @endphp
 <!DOCTYPE html>
 <html lang="en">
 
         <head>
             <meta charset="utf-8" />
-            <title>Admin | Benue State Integrated Agricultural Data Assets Management System</title>
+            <title>Admin | {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta content="Benue State Integrated Agricultural Data Assets Management System" name="description" />
             <meta name="csrf-token" content="{{ csrf_token() }}">
             <meta content="BDIC Team" name="author" />
 
-            <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+            <link rel="shortcut icon" href="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/favicon.ico') }}">
 
              <!-- Preload critical assets -->
             <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
@@ -92,11 +93,11 @@
                         <div class="navbar-brand-box">
                             <a href="#" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
                                 </span>
                             </a>
@@ -104,12 +105,12 @@
                             <a href="#" class="logo logo-light">
                                 <span class="logo-sm">
 
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
                                 </span>
                                 <span class="logo-lg">
                                     
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
 
                                 </span>
@@ -208,12 +209,19 @@
                             </li>
 
                             <li>
-                                <a href="#" class="waves-effect">
+                                <a href="{{ route('super_admin.settings') }}" class="waves-effect">
                                     <i class="ri-settings-3-line"></i>
                                     <span>Settings</span>
                                 </a>
                                
                             </li>                           
+
+                            <li>
+                                <a href="{{ route('super_admin.content') }}" class="waves-effect">
+                                    <i class="ri-image-edit-line"></i>
+                                    <span>Content Management</span>
+                                </a>
+                            </li>
 
                             <li>
                                 <a href="#" class="waves-effect">
@@ -283,7 +291,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © Benue State Integrated Agricultural Data Assets Management System.
+                                <script>document.write(new Date().getFullYear())</script> © {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}.
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">

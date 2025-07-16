@@ -1,17 +1,18 @@
+@php use App\Models\Setting; @endphp
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benue State Integrated Agricultural Data and Access Management System</title>
+    <title>{{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <link rel="stylesheet" href="{{ asset('dashboard/css/css/MyStyles.css') }}">
 
     <!-- <link rel="icon" href="{{ asset('dashboard/images/favicon.jpg') }}" type="image/x-icon"> -->
-    <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/favicon.ico') }}">
 
     <style>
         :root {
@@ -255,7 +256,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
+                <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="logo-light">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -486,14 +487,14 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo"
+                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo"
                         class="footer-logo">
                     <p>Empowering farmers, connecting markets.</p>
                 </div>
                 <div class="col-md-4">
                     <h5 class="fw-bold">Contact</h5>
-                    <p>Email: info@bsiadams.gov.ng<br>
-                        Phone: +234 000 0000 000</p>
+                    <p>Email: {{ Setting::get('contact_email', 'info@bsiadams.gov.ng') }}<br>
+                        Phone: {{ Setting::get('contact_phone', '+234 000 0000 000') }}</p>
                 </div>
                 <div class="col-md-4 text-md-end">
                     <h5 class="fw-bold">Connect</h5>
@@ -504,7 +505,7 @@
             </div>
             <hr class="bg-light">
             <div class="text-center">
-                <p class="mb-0">© 2025 Benue State Integrated Agricultural Data and Access Management System<br>
+                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}<br>
                     <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by
                         <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
                     </a>

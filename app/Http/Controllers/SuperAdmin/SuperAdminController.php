@@ -317,30 +317,72 @@ class SuperAdminController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // ==================== Content and Data Management ====================
+    // ==================== Content Management (Settings-based) ====================
     public function manageContent()
     {
-        $contents = Content::latest()->get();
-        return view('super_admin.content.index', compact('contents'));
+        $fields = [
+            'site_logo', 'banner', 'site_title', 'contact_email', 'contact_phone', 'address', 'region_name', 'currency',
+            // Add more fields as needed
+        ];
+        $settings = Setting::whereIn('key', $fields)->pluck('value', 'key');
+        return view('super_admin.content.index', compact('settings'));
     }
 
     public function storeContent(Request $request)
     {
-        $request->validate(['title' => 'required', 'body' => 'required']);
-        Content::create($request->all());
-        return redirect()->route('super_admin.content')->with('success', 'Content created successfully.');
-    }
+        $fields = [
+            'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'site_title' => 'required|string|max:255',
+            'contact_email' => 'required|email',
+            'contact_phone' => 'required|string|max:32',
+            'address' => 'required|string|max:255',
+            'region_name' => 'required|string|max:255',
+            'currency' => 'required|string|max:16',
+        ];
+        $validated = $request->validate($fields);
 
-    public function updateContent(Request $request, Content $content)
-    {
-        $request->validate(['title' => 'required', 'body' => 'required']);
-        $content->update($request->all());
+        // Handle file uploads
+        foreach (['site_logo', 'banner'] as $imgField) {
+            if ($request->hasFile($imgField)) {
+                $path = $request->file($imgField)->store('site', 'public');
+                Setting::updateOrCreate(['key' => $imgField], ['value' => $path]);
+            }
+        }
+        // Save other fields
+        foreach ($fields as $key => $rule) {
+            if (!in_array($key, ['site_logo', 'banner'])) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $validated[$key]]);
+            }
+        }
         return redirect()->route('super_admin.content')->with('success', 'Content updated successfully.');
     }
 
-    public function deleteContent(Content $content)
+    public function updateContent(Request $request, $key)
     {
-        $content->delete();
+        $rules = [
+            'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'site_title' => 'nullable|string|max:255',
+            'contact_email' => 'nullable|email',
+            'contact_phone' => 'nullable|string|max:32',
+            'address' => 'nullable|string|max:255',
+            'region_name' => 'nullable|string|max:255',
+            'currency' => 'nullable|string|max:16',
+        ];
+        $request->validate([$key => $rules[$key] ?? 'nullable|string|max:255']);
+        if (in_array($key, ['site_logo', 'banner']) && $request->hasFile($key)) {
+            $path = $request->file($key)->store('site', 'public');
+            Setting::updateOrCreate(['key' => $key], ['value' => $path]);
+        } elseif ($request->has($key)) {
+            Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key)]);
+        }
+        return redirect()->route('super_admin.content')->with('success', 'Content updated successfully.');
+    }
+
+    public function deleteContent($key)
+    {
+        Setting::where('key', $key)->delete();
         return redirect()->route('super_admin.content')->with('success', 'Content deleted successfully.');
     }
 

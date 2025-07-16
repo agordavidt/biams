@@ -248,9 +248,9 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
         ->name('super_admin.content');
     Route::post('/super-admin/content/store', [SuperAdminController::class, 'storeContent'])
         ->name('super_admin.content.store');
-    Route::put('/super-admin/content/{content}/update', [SuperAdminController::class, 'updateContent'])
+    Route::put('/super-admin/content/{key}/update', [SuperAdminController::class, 'updateContent'])
         ->name('super_admin.content.update');
-    Route::delete('/super-admin/content/{content}/delete', [SuperAdminController::class, 'deleteContent'])
+    Route::delete('/super-admin/content/{key}/delete', [SuperAdminController::class, 'deleteContent'])
         ->name('super_admin.content.delete');
 
     // Integrations
