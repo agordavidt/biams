@@ -1,0 +1,135 @@
+# Credo Payment Integration Extraction
+
+## 1. .env Keys (add to your .env file)
+CREDO_PUBLIC_KEY=your_credo_public_key
+CREDO_SECRET_KEY=your_credo_secret_key
+CREDO_URL=https://api.credo.com/v1
+
+## 2. config/services.php
+'credo' => [
+    'key' => env('CREDO_PUBLIC_KEY'),
+    'secret' => env('CREDO_SECRET_KEY'),
+    'test_mode' => env('APP_ENV') !== 'production',
+    'test_merchant_id' => 'TEST_MERCHANT_123'
+],
+
+## 3. Controller Logic (example: UserResourceController.php)
+
+// Import these at the top:
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+// Initiate Payment
+public function initiatePayment(Request $request, Resource $resource)
+{
+    $user = Auth::user();
+    $reference = 'RES-' . $user->id . '-' . time();
+    $formData = $request->except(['_token', 'payment_reference']);
+    $filePaths = [];
+    // Handle file uploads if needed
+    foreach ($resource->form_fields as $field) {
+        $fieldName = Str::slug($field['label']);
+        if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
+            $path = $request->file($fieldName)->store('temp/resource-applications', 'public');
+            $filePaths[$fieldName] = $path;
+            $formData[$fieldName] = $path;
+        }
+    }
+    try {
+        $response = Http::accept('application/json')->withHeaders([
+            'authorization' => env('CREDO_PUBLIC_KEY'),
+            'content_type' => 'application/json',
+        ])->post(env('CREDO_URL') . '/transaction/initialize', [
+            'email' => $user->email,
+            'metadata' => [
+                'resource_id' => $resource->id,
+                'user_id' => $user->id,
+                'form_data' => json_encode($formData),
+                'file_paths' => json_encode($filePaths),
+            ],
+            'amount' => ($resource->price * 100),
+            'reference' => $reference,
+            'callbackUrl' => route('payment.callback'),
+            'bearer' => 0,
+        ]);
+        $responseData = $response->collect('data');
+        if (isset($responseData['authorizationUrl'])) {
+            session()->put('resource_form_data.' . $reference, [
+                'resource_id' => $resource->id,
+                'form_data' => $formData,
+                'file_paths' => $filePaths,
+            ]);
+            return redirect($responseData['authorizationUrl']);
+        }
+        // Clean up files if payment fails
+        foreach ($filePaths as $path) {
+            Storage::disk('public')->delete($path);
+        }
+        return redirect()->back()->with('error', 'Credo payment gateway took too long to respond.');
+    } catch (\Exception $e) {
+        foreach ($filePaths as $path) {
+            Storage::disk('public')->delete($path);
+        }
+        Log::error('Error initializing payment gateway: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Error initializing payment gateway. Please try again.');
+    }
+}
+
+// Payment Callback Handler
+public function handlePaymentCallback(Request $request)
+{
+    try {
+        $response = Http::accept('application/json')->withHeaders([
+            'authorization' => env('CREDO_SECRET_KEY'),
+            'content-type' => 'application/json',
+        ])->get(env('CREDO_URL') . "/transaction/{$request->reference}/verify");
+        if (!$response->successful()) {
+            return redirect()->route('user.resources.index')
+                ->with('error', 'Payment verification failed. Please try again.');
+        }
+        $paymentData = $response->json('data');
+        $status = $paymentData['status'];
+        $message = $paymentData['statusMessage'] == 'Successfully processed' ? 'Successful' : 'Failed';
+        if ($status === 'success') {
+            // Save application, mark as paid, etc.
+            // Clean up session data
+            session()->forget('resource_form_data.' . $request->reference);
+            return redirect()->route('user.resources.track')
+                ->with('success', 'Payment successful and application submitted!');
+        } else {
+            // Clean up files on failed payment
+            $sessionData = session()->get('resource_form_data.' . $request->reference);
+            if ($sessionData && isset($sessionData['file_paths'])) {
+                foreach ($sessionData['file_paths'] as $path) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+            return redirect()->route('user.resources.index')
+                ->with('error', 'Payment failed. Please try again.');
+        }
+    } catch (\Exception $e) {
+        $sessionData = session()->get('resource_form_data.' . $request->reference);
+        if ($sessionData && isset($sessionData['file_paths'])) {
+            foreach ($sessionData['file_paths'] as $path) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+        Log::error('Payment callback error: ' . $e->getMessage());
+        return redirect()->route('user.resources.index')
+            ->with('error', 'Error processing payment callback. Please contact support.');
+    }
+}
+
+## 4. Route Example (web.php)
+// Payment callback route
+Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+
+## 5. Usage Notes
+- Use the `Http` facade for API calls (Laravel 8+ recommended).
+- Store your Credo keys in the `.env` file.
+- The `amount` sent to Credo should be in kobo (multiply Naira by 100).
+- Always handle file cleanup for failed/aborted payments.
+- Store any metadata you need for reconciliation in the `metadata` field.
+- The callback URL should be a route in your app that processes the payment result.
+- You may need to adjust the controller logic to fit your own models and business logic. 

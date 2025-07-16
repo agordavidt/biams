@@ -228,6 +228,14 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
     // Security & Logs
     Route::get('/super-admin/activity-logs', [SuperAdminController::class, 'activityLogs'])
         ->name('super_admin.activity_logs');
+    Route::get('/super-admin/login-logs', [SuperAdminController::class, 'loginLogs'])
+        ->name('super_admin.login_logs');
+    Route::get('/super-admin/login-logs/{loginLog}', [SuperAdminController::class, 'loginLogDetails'])
+        ->name('super_admin.login_log_details');
+    Route::post('/super-admin/block-ip', [SuperAdminController::class, 'blockIP'])
+        ->name('super_admin.block_ip');
+    Route::get('/super-admin/export-login-logs', [SuperAdminController::class, 'exportLoginLogs'])
+        ->name('super_admin.export_login_logs');
     Route::post('/super-admin/users/{user}/force-password-reset', [SuperAdminController::class, 'forcePasswordReset'])
         ->name('super_admin.force_password_reset');
     Route::get('/super-admin/error-logs', [SuperAdminController::class, 'errorLogs'])

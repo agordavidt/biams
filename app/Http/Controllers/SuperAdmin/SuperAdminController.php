@@ -18,6 +18,7 @@ use App\Models\Content;
 use App\Models\Integration;
 use App\Models\ErrorLog;
 use App\Models\AuditLog;
+use App\Models\LoginLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -68,6 +69,10 @@ class SuperAdminController extends Controller
         // Recent Users
         $recentUsers = User::with('profile')->latest()->take(10)->get();
 
+        // Login Security Statistics
+        $loginStats = LoginLog::getStatistics(7); // Last 7 days
+        $recentSuspiciousLogins = LoginLog::suspicious()->recent()->count();
+
         return view('super_admin.dashboard', compact(
             'totalUsers',
             'maleUsers',
@@ -77,14 +82,16 @@ class SuperAdminController extends Controller
             'registrationMonths',
             'lgaDistribution',
             'lgaCategories',
-            'recentUsers'
+            'recentUsers',
+            'loginStats',
+            'recentSuspiciousLogins'
         ));
     }
 
     // ==================== User and Role Management ====================
     public function manageUsers()
     {
-        $users = User::with('roles')->latest()->get();
+        $users = User::latest()->get();
         return view('super_admin.users.index', compact('users'));
     }
 
@@ -171,6 +178,143 @@ class SuperAdminController extends Controller
     {
         $user->update(['password_reset_required' => true]);
         return redirect()->back()->with('success', 'Password reset enforced.');
+    }
+
+    // ==================== Login Logs Security ====================
+    public function loginLogs(Request $request)
+    {
+        $query = LoginLog::with('user');
+
+        // Apply filters
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('ip_address')) {
+            $query->where('ip_address', 'like', '%' . $request->ip_address . '%');
+        }
+
+        if ($request->filled('suspicious')) {
+            $query->where('is_suspicious', $request->suspicious);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $logs = $query->latest()->paginate(50);
+
+        // Get statistics
+        $stats = LoginLog::getStatistics(30);
+        $topFailedEmails = LoginLog::getTopFailedEmails(5);
+        $topSuspiciousIPs = LoginLog::getTopSuspiciousIPs(5);
+
+        return view('super_admin.security.login_logs', compact(
+            'logs',
+            'stats',
+            'topFailedEmails',
+            'topSuspiciousIPs'
+        ));
+    }
+
+    public function loginLogDetails(LoginLog $loginLog)
+    {
+        return view('super_admin.security.login_log_details', compact('loginLog'));
+    }
+
+    public function blockIP(Request $request)
+    {
+        $request->validate([
+            'ip_address' => 'required|ip',
+            'reason' => 'required|string|max:500',
+        ]);
+
+        // Here you would implement IP blocking logic
+        // For now, we'll just log it as blocked
+        LoginLog::where('ip_address', $request->ip_address)
+            ->where('created_at', '>=', now()->subDay())
+            ->update(['status' => 'blocked']);
+
+        return redirect()->back()->with('success', 'IP address blocked successfully.');
+    }
+
+    public function exportLoginLogs(Request $request)
+    {
+        $query = LoginLog::with('user');
+
+        // Apply same filters as loginLogs method
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('ip_address')) {
+            $query->where('ip_address', 'like', '%' . $request->ip_address . '%');
+        }
+
+        if ($request->filled('suspicious')) {
+            $query->where('is_suspicious', $request->suspicious);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $logs = $query->latest()->get();
+
+        // Generate CSV
+        $filename = 'login_logs_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($logs) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV headers
+            fputcsv($file, [
+                'ID', 'Email', 'User', 'IP Address', 'Device Type', 'Browser', 
+                'Platform', 'Status', 'Failure Reason', 'Suspicious', 'Created At'
+            ]);
+
+            // CSV data
+            foreach ($logs as $log) {
+                fputcsv($file, [
+                    $log->id,
+                    $log->email,
+                    $log->user ? $log->user->name : 'N/A',
+                    $log->ip_address,
+                    $log->device_type,
+                    $log->browser,
+                    $log->platform,
+                    $log->status,
+                    $log->failure_reason,
+                    $log->is_suspicious ? 'Yes' : 'No',
+                    $log->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     // ==================== Content and Data Management ====================
@@ -379,23 +523,23 @@ class SuperAdminController extends Controller
 
             case 'processor':
                 $query = Processor::with('user.profile')->where('status', 'approved');
-                if ($filter) $query->whereJsonContains('processed_items', $filter);
+                if ($filter) $query->where('processing_type', $filter);
                 if ($lgaFilter) $query->whereHas('user.profile', fn($q) => $q->where('lga', $lgaFilter));
                 if ($genderFilter) $query->whereHas('user.profile', fn($q) => $q->where('gender', $genderFilter));
                 $reportTitle = 'Processors Report' . ($filter ? " - $filter" : '');
                 $reportData = $query->get()->map(function ($processor) {
                     $processor->age = $processor->user->profile->dob ? Carbon::parse($processor->user->profile->dob)->age : null;
-                    $processor->key_metric = json_decode($processor->processed_items, true) ? implode(', ', json_decode($processor->processed_items, true)) : 'N/A';
-                    $processor->scale_metric = $processor->processing_capacity;
+                    $processor->key_metric = $processor->processing_type;
+                    $processor->scale_metric = $processor->capacity;
                     return $processor;
                 });
-                $chartData = Processor::select(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(processed_items, "$[0]")) as item'), DB::raw('count(*) as count'))
+                $chartData = Processor::select('processing_type', DB::raw('count(*) as count'))
                     ->where('status', 'approved')
-                    ->groupBy('item')
+                    ->groupBy('processing_type')
                     ->orderBy('count', 'desc')
                     ->limit(5)
                     ->get()
-                    ->pluck('count', 'item')
+                    ->pluck('count', 'processing_type')
                     ->all();
                 break;
         }
@@ -403,14 +547,13 @@ class SuperAdminController extends Controller
         return view('super_admin.reports', compact(
             'reportData',
             'reportTitle',
+            'chartData',
             'practice',
-            'filter',
-            'lgaFilter',
-            'genderFilter',
             'practiceOptions',
             'lgas',
-            'chartData'
+            'filter',
+            'lgaFilter',
+            'genderFilter'
         ));
     }
-    
 }

@@ -54,9 +54,16 @@ class ResourceApplicationController extends Controller
             $application->update(['status' => $validated['status']]);
             
             // Notify user of status change
-            $application->user->notify(
-                new ResourceStatusUpdated($application, $validated['notes'] ?? null)
-            );
+            try {
+                $application->user->notify(
+                    new ResourceStatusUpdated($application, $validated['notes'] ?? null)
+                );
+            } catch (\Exception $e) {
+                \Log::error('Notification failed: ' . $e->getMessage(), [
+                    'user_id' => $application->user->id,
+                    'notification' => ResourceStatusUpdated::class,
+                ]);
+            }
 
             return back()->with('success', 'Application status updated');
             

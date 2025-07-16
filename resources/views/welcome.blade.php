@@ -66,8 +66,8 @@
 
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/agro_bg1.jpg') }}');
-            /* background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}'); */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('dashboard/images/agro_bg1.jpg') }}');
+            
             background-size: cover;
             background-position: center;
             color: white;

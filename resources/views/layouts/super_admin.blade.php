@@ -219,7 +219,27 @@
                                 <a href="#" class="waves-effect">
                                     <i class="ri-shield-keyhole-line"></i>
                                     <span>Security</span>
-                                </a>                               
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li>
+                                        <a href="{{ route('super_admin.login_logs') }}" class="waves-effect">
+                                            <i class="ri-login-circle-line"></i>
+                                            <span>Login Logs</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('super_admin.activity_logs') }}" class="waves-effect">
+                                            <i class="ri-file-list-line"></i>
+                                            <span>Activity Logs</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('super_admin.audit_logs') }}" class="waves-effect">
+                                            <i class="ri-shield-check-line"></i>
+                                            <span>Audit Logs</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                            

@@ -16,7 +16,7 @@
         <!-- Statistics Cards -->
         <div class="row">
             <!-- Total Users -->
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-2 col-md-4 col-sm-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex">
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Male Users -->
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-2 col-md-4 col-sm-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex">
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Female Users -->
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-2 col-md-4 col-sm-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex">
@@ -73,7 +73,7 @@
             </div>
 
             <!-- Pending Users -->
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-2 col-md-4 col-sm-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex">
@@ -90,13 +90,51 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Login Security -->
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <div class="flex-grow-1">
+                                <p class="text-truncate font-size-14 mb-2">Suspicious Logins</p>
+                                <h4 class="mb-2">{{ $recentSuspiciousLogins }}</h4>
+                            </div>
+                            <div class="avatar-sm">
+                                <span class="avatar-title bg-light text-danger rounded-3">
+                                    <i class="ri-shield-alert-line font-size-24"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failed Login Attempts -->
+            <div class="col-xl-2 col-md-4 col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <div class="flex-grow-1">
+                                <p class="text-truncate font-size-14 mb-2">Failed Logins (7d)</p>
+                                <h4 class="mb-2">{{ $loginStats['failed_attempts'] }}</h4>
+                            </div>
+                            <div class="avatar-sm">
+                                <span class="avatar-title bg-light text-warning rounded-3">
+                                    <i class="ri-login-circle-line font-size-24"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- End Statistics Cards -->
 
         <!-- Charts -->
         <div class="row">
             <!-- Registration Trends -->
-            <div class="col-xl-6">
+            <div class="col-xl-4">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">Registration Trends</h4>
@@ -106,11 +144,21 @@
             </div>
 
             <!-- User Distribution by LGA -->
-            <div class="col-xl-6">
+            <div class="col-xl-4">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">User Distribution by LGA</h4>
                         <div id="lga-distribution-chart" class="apex-charts" dir="ltr"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Security Overview -->
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Login Security (7 days)</h4>
+                        <div id="login-security-chart" class="apex-charts" dir="ltr"></div>
                     </div>
                 </div>
             </div>
@@ -177,5 +225,16 @@
     };
     var lgaDistributionChart = new ApexCharts(document.querySelector("#lga-distribution-chart"), lgaDistributionOptions);
     lgaDistributionChart.render();
+
+    // Login Security Chart
+    var loginSecurityOptions = {
+        chart: { type: 'donut', height: 350 },
+        series: [{{ $loginStats['successful_logins'] }}, {{ $loginStats['failed_attempts'] }}, {{ $loginStats['suspicious_attempts'] }}],
+        labels: ['Successful', 'Failed', 'Suspicious'],
+        colors: ['#28a745', '#ffc107', '#dc3545'],
+        legend: { position: 'bottom' }
+    };
+    var loginSecurityChart = new ApexCharts(document.querySelector("#login-security-chart"), loginSecurityOptions);
+    loginSecurityChart.render();
 </script>
 @endsection
