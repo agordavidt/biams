@@ -128,7 +128,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/summary', [AdminController::class, 'userSummary'])->name('admin.users.summary');
     Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
     Route::post('/admin/users/{user}/notify', [AdminController::class, 'sendNotification'])->name('admin.users.notify');
-
+    Route::get('/admin/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
+    
     // Registration Management
     Route::get('/admin/registrations', [AdminController::class, 'showRegistrations'])
         ->name('admin.registrations.index');

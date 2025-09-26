@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['user', 'admin'])->default('user');
-            $table->enum('status', ['pending', 'onboarded'])->default('pending');           
+            $table->enum('role', ['user', 'admin', 'super_admin', 'governor'])->default('user');
+            $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('pending');
+            $table->text('rejection_reason')->nullable();
+            $table->timestamp('rejected_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -33,5 +34,3 @@ return new class extends Migration
         Schema::dropIfExists('users');
     }
 };
-
-

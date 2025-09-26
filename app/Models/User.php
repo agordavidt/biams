@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Notifications\CustomVerifyEmail; // Import the custom verification notification
+use App\Notifications\CustomVerifyEmail; 
 
 use App\Models\Farmers\AbattoirOperator;
 use App\Models\Farmers\CropFarmer;
@@ -32,6 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role',
         'status',
+        'rejection_reason',
+        'rejected_at',
     ];
 
     /**
@@ -52,6 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'rejected_at' => 'datetime',
     ];
 
     /**
@@ -69,6 +72,78 @@ class User extends Authenticatable implements MustVerifyEmail
                 'notification' => CustomVerifyEmail::class,
             ]);
         }
+    }
+
+    /**
+     * Scope a query to only include users with role 'user'.
+     */
+    public function scopeRegularUsers($query)
+    {
+        return $query->where('role', 'user');
+    }
+
+    /**
+     * Scope a query to only include pending users.
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope a query to only include onboarded users.
+     */
+    public function scopeOnboarded($query)
+    {
+        return $query->where('status', 'onboarded');
+    }
+
+    /**
+     * Scope a query to only include rejected users.
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    /**
+     * Check if user is onboarded.
+     */
+    public function isOnboarded()
+    {
+        return $this->status === 'onboarded';
+    }
+
+    /**
+     * Check if user is pending.
+     */
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Check if user is rejected.
+     */
+    public function isRejected()
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a regular user.
+     */
+    public function isRegularUser()
+    {
+        return $this->role === 'user';
     }
 
     // Relationships
@@ -113,5 +188,3 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(MarketplaceMessage::class, 'receiver_id');
     }
 }
-
-

@@ -25,11 +25,15 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $totalUsers = User::count();        
-        $newToday = User::whereDate('created_at', Carbon::today())->count();        
-        $pendingUsers = User::where('status', 'pending')->count();        
+        // Only count users with role 'user'
+        $totalUsers = User::where('role', 'user')->count();        
+        $newToday = User::where('role', 'user')->whereDate('created_at', Carbon::today())->count();        
+        $pendingUsers = User::where('role', 'user')->where('status', 'pending')->count();        
         
-        $completedProfiles = Profile::whereNotNull('phone')
+        $completedProfiles = Profile::whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })
+            ->whereNotNull('phone')
             ->whereNotNull('gender')
             ->whereNotNull('dob')
             ->whereNotNull('lga')
@@ -45,10 +49,10 @@ class AdminController extends Controller
             'newToday' => $newToday,
             'pendingUsers' => $pendingUsers,
             'profileCompletion' => $profileCompletion,
-            'recentActivity' => User::where('email_verified_at', '>=', Carbon::now()->subDay())->count()
+            'recentActivity' => User::where('role', 'user')->where('email_verified_at', '>=', Carbon::now()->subDay())->count()
         ];
         
-        // Fixed monthly stats query
+        // Fixed monthly stats query - only for users with role 'user'
         $monthlyStats = User::select(
             DB::raw('DATE_FORMAT(created_at, "%b") as month'),
             DB::raw('YEAR(created_at) as year'),
@@ -56,6 +60,7 @@ class AdminController extends Controller
             DB::raw('COUNT(*) as total'),
             DB::raw('SUM(CASE WHEN status = "onboarded" THEN 1 ELSE 0 END) as onboarded')
         )
+            ->where('role', 'user')
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
             ->groupBy('month', 'year', 'month_num')
             ->orderBy('year', 'asc')
@@ -63,18 +68,28 @@ class AdminController extends Controller
             ->get();
             
         $practiceDistribution = [
-            'Crop Farmers' => CropFarmer::count(),
-            'Animal Farmers' => AnimalFarmer::count(),
-            'Abattoir Operators' => AbattoirOperator::count(),
-            'Processors' => Processor::count()
+            'Crop Farmers' => CropFarmer::whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })->count(),
+            'Animal Farmers' => AnimalFarmer::whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })->count(),
+            'Abattoir Operators' => AbattoirOperator::whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })->count(),
+            'Processors' => Processor::whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })->count()
         ];
         
         $recentUsers = User::with('profile')
+            ->where('role', 'user')
             ->select('users.*')
             ->selectRaw('
                 CASE 
                     WHEN status = "onboarded" THEN "success"
                     WHEN status = "pending" THEN "warning"
+                    WHEN status = "rejected" THEN "danger"
                     ELSE "secondary"
                 END as status_color
             ')
@@ -95,6 +110,9 @@ class AdminController extends Controller
             });
             
         $regionalDistribution = Profile::select('lga', DB::raw('COUNT(*) as count'))
+            ->whereHas('user', function($query) {
+                $query->where('role', 'user');
+            })
             ->whereNotNull('lga')
             ->groupBy('lga')
             ->orderByDesc('count')
@@ -162,37 +180,107 @@ class AdminController extends Controller
     }
 
     /**
-     * Reject a user (reject their profile)
-     **/
+     * Reject a user (reject their profile and deactivate account)
+     * Best practice: Mark as rejected rather than delete to maintain audit trail
+     */
     public function rejectUser(Request $request, User $user)
     {
         $request->validate([
-            'comment' => 'required|string',
+            'comment' => 'required|string|max:1000',
         ]);
 
-        // Update user status to "rejected"
-        $user->update(['status' => 'rejected']);   
+        // Update user status to "rejected" - best practice for audit trail
+        $user->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->comment,
+            'rejected_at' => now()
+        ]);   
 
-        return redirect()->back()->with('success', 'User rejected successfully!');
+        return redirect()->back()->with('success', 'User rejected successfully! Account has been deactivated.');
     }
 
     /**
-     * Display a summary of users.
+     * Display a summary of users with pagination and search.
      */
-    public function userSummary()
+    public function userSummary(Request $request)
     {
-        // Fetch users and their profiles, excluding 'admin' roles
-        $users = User::with('profile')
-            ->where('role', '!=', 'admin')
-            ->get();
+        $query = User::with('profile')->where('role', 'user');
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhereHas('profile', function($profileQuery) use ($search) {
+                      $profileQuery->where('phone', 'LIKE', "%{$search}%")
+                                  ->orWhere('lga', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        // Status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+
+        // Pagination - 15 users per page
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Count statistics for non-admin users
-        $totalUsers = $users->count();
-        $pendingUsers = $users->where('status', 'pending')->count();
-        $approvedUsers = $users->where('status', 'onboarded')->count();
+        $totalUsers = User::where('role', 'user')->count();
+        $pendingUsers = User::where('role', 'user')->where('status', 'pending')->count();
+        $approvedUsers = User::where('role', 'user')->where('status', 'onboarded')->count();
+        $rejectedUsers = User::where('role', 'user')->where('status', 'rejected')->count();
 
-        // Pass users and summary statistics to the view
-        return view('admin.users.summary', compact('users', 'totalUsers', 'pendingUsers', 'approvedUsers'));
+        return view('admin.users.summary', compact(
+            'users', 
+            'totalUsers', 
+            'pendingUsers', 
+            'approvedUsers', 
+            'rejectedUsers'
+        ));
+    }
+
+    /**
+     * Get user details for modal view
+     */
+    public function getUserDetails(User $user)
+    {
+        // Ensure we only show details for users with role 'user'
+        if ($user->role !== 'user') {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $user->load('profile');
+        
+        $userDetails = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
+            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->format('M d, Y H:i') : null,
+            'created_at' => $user->created_at->format('M d, Y H:i'),
+            'updated_at' => $user->updated_at->format('M d, Y H:i'),
+            'profile' => [
+                'phone' => $user->profile->phone ?? 'N/A',
+                'dob' => $user->profile->dob ?? 'N/A',
+                'age' => $user->profile?->dob ? Carbon::parse($user->profile->dob)->age : 'N/A',
+                'gender' => $user->profile->gender ?? 'N/A',
+                'nin' => $user->profile->nin ?? 'N/A',
+                'education' => $user->profile->education ?? 'N/A',
+                'household_size' => $user->profile->household_size ?? 'N/A',
+                'dependents' => $user->profile->dependents ?? 'N/A',
+                'income_level' => $user->profile->income_level ?? 'N/A',
+                'lga' => $user->profile->lga ?? 'N/A',
+                'address' => $user->profile->address ?? 'N/A',
+            ],
+            'rejection_reason' => $user->rejection_reason ?? null,
+            'rejected_at' => $user->rejected_at ? Carbon::parse($user->rejected_at)->format('M d, Y H:i') : null,
+        ];
+
+        return response()->json($userDetails);
     }
 
     /**
@@ -218,28 +306,41 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete a user account.
+     * Permanently delete a user account (use with caution)
+     * Best practice: Only allow this for specific cases, prefer soft deletion
      */
     public function deleteUser(User $user)
     {
+        // Only allow deletion of users with role 'user'
+        if ($user->role !== 'user') {
+            return redirect()->back()->with('error', 'Cannot delete admin users.');
+        }
+
         // Delete the associated profile if it exists
         if ($user->profile) {
             $user->profile->delete();
         }
 
+        // Delete related records
+        $user->cropFarmers()->delete();
+        $user->animalFarmers()->delete();
+        $user->abattoirOperators()->delete();
+        $user->processors()->delete();
+        $user->marketplaceListings()->delete();
+        $user->sentMessages()->delete();
+        $user->receivedMessages()->delete();
+
         // Delete the user account
         $user->delete();
 
-        return redirect()->back()->with('success', 'User account deleted successfully!');
+        return redirect()->back()->with('success', 'User account deleted permanently!');
     }
 
-    /**
-     * Agricultural Practices
-     */
+    // ... rest of the agricultural practices methods remain the same
     public function cropFarmers()
     {
         $applications = CropFarmer::with(['user' => function ($query) {
-            $query->with('profile');
+            $query->with('profile')->where('role', 'user');
         }])->get();
         $type = 'crop-farmer';
         return view('admin.practices.crop-farmers', compact('applications', 'type'));
@@ -248,7 +349,7 @@ class AdminController extends Controller
     public function animalFarmers()
     {
         $applications = AnimalFarmer::with(['user' => function ($query) {
-            $query->with('profile');
+            $query->with('profile')->where('role', 'user');
         }])->get();
         $type = 'animal-farmer';
         return view('admin.practices.animal-farmers', compact('applications', 'type'));
@@ -257,7 +358,7 @@ class AdminController extends Controller
     public function abattoirOperators()
     {
         $applications = AbattoirOperator::with(['user' => function ($query) {
-            $query->with('profile');
+            $query->with('profile')->where('role', 'user');
         }])->get();
         $type = 'abattoir-operator';
         return view('admin.practices.abattoir-operators', compact('applications', 'type'));
@@ -266,7 +367,7 @@ class AdminController extends Controller
     public function processors()
     {
         $applications = Processor::with(['user' => function ($query) {
-            $query->with('profile');
+            $query->with('profile')->where('role', 'user');
         }])->get();
         $type = 'processor';
         return view('admin.practices.processors', compact('applications', 'type'));
