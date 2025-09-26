@@ -18,20 +18,17 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    // app/Http/Controllers/Auth/RegisteredUserController.php
     public function create(): View
     {
         return view('auth.register');
     }
 
-    
     /**
      * Handle an incoming registration request.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-  // app/Http/Controllers/Auth/RegisteredUserController.php
-  public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -47,10 +44,10 @@ class RegisteredUserController extends Controller
             'role' => 'user', // Default role for new users
         ]);
 
-        // Trigger the Registered event (sends verification email)
-        event(new Registered($user));
+        // Log the user in directly after registration
+        Auth::login($user);
 
-        return redirect()->route('verification.notice')->with('success', 'Registration successful! Please verify your email.');
+        // Redirect the user to the profile completion page
+        return redirect()->route('profile.complete')->with('info', 'Registration successful! Please complete your profile to continue.');
     }
-    
 }

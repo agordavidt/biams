@@ -10,7 +10,7 @@ class GovernorMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role === 'governor') { // Adjust 'role' to match your User model
+        if (Auth::check() && Auth::user()->role === 'governor') { 
             return $next($request);
         }
 

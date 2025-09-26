@@ -40,19 +40,38 @@
             margin: 20px 0;
             border-radius: 4px;
         }
+        /* Updated button styles for better email client compatibility */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
         .button {
             display: inline-block;
-            padding: 14px 28px;
+            padding: 16px 32px;
             background-color: #006837;
-            color: white;
+            color: #ffffff !important;
             text-decoration: none;
             border-radius: 4px;
-            margin: 20px 0;
             font-weight: bold;
-            text-align: center;
+            font-size: 16px;
+            /* Critical for email clients */
+            mso-padding-alt: 0;
+            border: none;
         }
         .button:hover {
             background-color: #005129;
+            text-decoration: none;
+        }
+        /* Fallback for Outlook */
+        .button-fallback {
+            background-color: #006837;
+            color: #ffffff;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            font-size: 16px;
         }
         .footer {
             background-color: #f8f9fa;
@@ -65,6 +84,10 @@
             word-break: break-all;
             color: #006837;
             font-size: 0.9em;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 15px 0;
         }
         .social-links {
             margin: 15px 0;
@@ -79,9 +102,7 @@
 <body>
     <div class="container">
         <div class="header">
-            {{-- <img src="{{ asset('images/logo.png') }}" alt="BSIADAMS Logo" class="logo"> --}}
-            <img src="{{ asset('/dashboard/images/favicon.jpg') }}" style="width: 140px; height: 140px"
-        alt="BSIADAMS_logo">
+            <img src="{{ asset('/dashboard/images/favicon.jpg') }}" style="width: 140px; height: 140px" alt="BSIADAMS_logo">
         </div>
         
         <div class="content">
@@ -92,16 +113,20 @@
                 <p>Hello {{ $user->name }}, welcome to BSIADAMS! Please verify your email to complete your registration.</p>
             </div>
             
-            <p>Click the button below to verify your email address:</p>
+            <p>Copy and paste link below to verify your email address:</p>            
+           
+            <div class="link-text">{{ $verificationUrl }}</div>
             
-            <div style="text-align: center;">
-                <a href="{{ $verificationUrl }}" class="button">Verify Email Address</a>
-            </div>
+            <p><strong>Important:</strong> This verification link will expire in 60 minutes for security reasons. If you did not create an account with us, please ignore this email.</p>
             
-            <p>If the button above doesn't work, you can copy and paste the following link into your browser:</p>
-            <p class="link-text">{{ $verificationUrl }}</p>
+            <hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;">
             
-            <p>This link will expire in 60 minutes. If you did not create an account, please ignore this email.</p>
+            <p style="font-size: 14px; color: #666;">
+                <strong>Having trouble?</strong><br>
+                • Make sure you're clicking the link from the same device/browser where you registered<br>
+                • Check your spam/junk folder if you can't find this email<br>
+                • Contact our support team if you continue to have issues
+            </p>
         </div>
         
         <div class="footer">

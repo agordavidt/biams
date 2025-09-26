@@ -45,9 +45,9 @@ Route::get('visitor/marketplace/{listing}', [MarketplaceVisitorController::class
     ->name('visitor.marketplace.show');
 
 /*------------------------------------------
-| Authentication & Profile Routes
+| Authentication & Profile Routes (No Email Verification)
 |------------------------------------------*/
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
     Route::get('/horizontal', function () {
         return view('horizontal');
@@ -56,8 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('application.details');
 });
 
-// Profile Completion
-Route::middleware(['auth', 'verified', 'profile.incomplete'])->group(function () {
+// Profile Completion (for users who haven't completed their profiles)
+Route::middleware(['auth', 'profile.incomplete'])->group(function () {
     Route::get('/profile/complete', [ProfileController::class, 'showCompleteForm'])
         ->name('profile.complete');
     Route::post('/profile/complete', [ProfileController::class, 'complete']);
@@ -70,12 +70,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-
 /*------------------------------------------
 | Farmer & Resource Routes (Onboarded Users)
 |------------------------------------------*/
-Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
+Route::middleware(['auth', 'onboarded'])->group(function () {
     // Agricultural Practices
     Route::get('/farmers/crop', [FarmersController::class, 'showCropFarmerForm'])->name('farmers.crop');
     Route::post('/farmers/crop', [FarmersController::class, 'storeCropFarmer'])->name('farmers.crop.store');
@@ -98,14 +96,13 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
 // Payment callback route (credo)
 Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
 
-
-
-
-
 /*------------------------------------------
-| Admin Routes
+| Admin Routes (No Email Verification)
 |------------------------------------------*/
 Route::middleware(['auth', 'admin'])->group(function () {
+    // Admin Dashboard (add this missing route)
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
     // Farmer Practice Management
     Route::get('/admin/practices/crop-farmers', [AdminController::class, 'cropFarmers'])
         ->name('admin.practices.crop-farmers');
@@ -144,8 +141,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/resources/{resource}', [ResourceController::class, 'update'])->name('admin.resources.update');
     Route::delete('/admin/resources/{resource}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
 
-
-    
     // Partner Management
     Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
     Route::get('/admin/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
@@ -163,43 +158,54 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/resources/applications/{application}/status', [ResourceApplicationController::class, 'updateStatus'])
         ->name('admin.applications.update-status');
 
+    // Abattoir Management
+    Route::get('/admin/abattoirs', [AbattoirController::class, 'index'])->name('admin.abattoirs.index');
+    Route::get('/admin/abattoirs/create', [AbattoirController::class, 'create'])->name('admin.abattoirs.create');
+    Route::post('/admin/abattoirs', [AbattoirController::class, 'store'])->name('admin.abattoirs.store');
+    Route::get('/admin/abattoirs/{abattoir}/edit', [AbattoirController::class, 'edit'])->name('admin.abattoirs.edit');
+    Route::put('/admin/abattoirs/{abattoir}', [AbattoirController::class, 'update'])->name('admin.abattoirs.update');
+    Route::get('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'manageStaff'])->name('admin.abattoirs.staff');
+    Route::post('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'assignStaff'])->name('admin.abattoirs.staff.assign');
+    Route::delete('/admin/abattoirs/{abattoir}/staff/{staff}', [AbattoirController::class, 'removeStaff'])->name('admin.abattoirs.staff.remove');
+    Route::get('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'operations'])->name('admin.abattoirs.operations');
+    Route::post('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'storeOperation'])->name('admin.abattoirs.operations.store');
 
+    // Livestock Management
+    Route::get('/admin/livestock', [LivestockController::class, 'index'])->name('admin.livestock.index');
+    Route::get('/admin/livestock/create', [LivestockController::class, 'create'])->name('admin.livestock.create');
+    Route::post('/admin/livestock', [LivestockController::class, 'store'])->name('admin.livestock.store');
+    Route::get('/admin/livestock/{livestock}/edit', [LivestockController::class, 'edit'])->name('admin.livestock.edit');
+    Route::put('/admin/livestock/{livestock}', [LivestockController::class, 'update'])->name('admin.livestock.update');
+    Route::get('/admin/livestock/{livestock}/inspections', [LivestockController::class, 'inspections'])->name('admin.livestock.inspections');
+    Route::post('/admin/livestock/{livestock}/ante-mortem', [LivestockController::class, 'storeAnteMortemInspection'])->name('admin.livestock.ante-mortem.store');
+    Route::post('/admin/livestock/{livestock}/post-mortem', [LivestockController::class, 'storePostMortemInspection'])->name('admin.livestock.post-mortem.store');
+    Route::get('/admin/livestock/alerts', [LivestockController::class, 'alerts'])->name('admin.livestock.alerts');
 
-   // Abattoir Management
-   Route::get('/admin/abattoirs', [AbattoirController::class, 'index'])->name('admin.abattoirs.index');
-   Route::get('/admin/abattoirs/create', [AbattoirController::class, 'create'])->name('admin.abattoirs.create');
-   Route::post('/admin/abattoirs', [AbattoirController::class, 'store'])->name('admin.abattoirs.store');
-   Route::get('/admin/abattoirs/{abattoir}/edit', [AbattoirController::class, 'edit'])->name('admin.abattoirs.edit');
-   Route::put('/admin/abattoirs/{abattoir}', [AbattoirController::class, 'update'])->name('admin.abattoirs.update');
-   Route::get('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'manageStaff'])->name('admin.abattoirs.staff');
-   Route::post('/admin/abattoirs/{abattoir}/staff', [AbattoirController::class, 'assignStaff'])->name('admin.abattoirs.staff.assign');
-   Route::delete('/admin/abattoirs/{abattoir}/staff/{staff}', [AbattoirController::class, 'removeStaff'])->name('admin.abattoirs.staff.remove');
-   Route::get('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'operations'])->name('admin.abattoirs.operations');
-   Route::post('/admin/abattoirs/{abattoir}/operations', [AbattoirController::class, 'storeOperation'])->name('admin.abattoirs.operations.store');
+    // Abattoir and Livestock Analytics
+    Route::get('/admin/abattoirs/analytics', [AbattoirAnalyticsController::class, 'index'])->name('admin.abattoirs.analytics');
+    Route::get('/admin/abattoirs/analytics/report', [AbattoirAnalyticsController::class, 'generateReport'])->name('admin.abattoirs.analytics.report');
+    Route::get('/admin/abattoirs/analytics/livestock', [AbattoirAnalyticsController::class, 'livestockReport'])->name('admin.abattoirs.analytics.livestock');
+    Route::get('/admin/abattoirs/analytics/slaughter', [AbattoirAnalyticsController::class, 'slaughterReport'])->name('admin.abattoirs.analytics.slaughter');       
 
-
-   // Livestock Management
-   Route::get('/admin/livestock', [LivestockController::class, 'index'])->name('admin.livestock.index');
-   Route::get('/admin/livestock/create', [LivestockController::class, 'create'])->name('admin.livestock.create');
-   Route::post('/admin/livestock', [LivestockController::class, 'store'])->name('admin.livestock.store');
-   Route::get('/admin/livestock/{livestock}/edit', [LivestockController::class, 'edit'])->name('admin.livestock.edit');
-   Route::put('/admin/livestock/{livestock}', [LivestockController::class, 'update'])->name('admin.livestock.update');
-   Route::get('/admin/livestock/{livestock}/inspections', [LivestockController::class, 'inspections'])->name('admin.livestock.inspections');
-   Route::post('/admin/livestock/{livestock}/ante-mortem', [LivestockController::class, 'storeAnteMortemInspection'])->name('admin.livestock.ante-mortem.store');
-   Route::post('/admin/livestock/{livestock}/post-mortem', [LivestockController::class, 'storePostMortemInspection'])->name('admin.livestock.post-mortem.store');
-   Route::get('/admin/livestock/alerts', [LivestockController::class, 'alerts'])->name('admin.livestock.alerts');
-
-
-   // Abattoir and Livestock Analytics
-   Route::get('admin/abattoirs/analytics', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'index'])->name('admin.abattoirs.analytics');
-    Route::get('admin/abattoirs/analytics/report', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'generateReport'])->name('admin.abattoirs.analytics.report');
-    Route::get('admin/abattoirs/analytics/livestock', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'livestockReport'])->name('admin.abattoirs.analytics.livestock');
-    Route::get('admin/abattoirs/analytics/slaughter', [App\Http\Controllers\Admin\AbattoirAnalyticsController::class, 'slaughterReport'])->name('admin.abattoirs.analytics.slaughter');       
-
+    // Admin Marketplace Management
+    Route::get('/admin/marketplace/dashboard', [MarketplaceAdminController::class, 'dashboard'])
+        ->name('admin.marketplace.dashboard');
+    Route::get('/admin/marketplace/listings', [MarketplaceAdminController::class, 'listings'])
+        ->name('admin.marketplace.listings');
+    Route::delete('/admin/marketplace/listings/{listing}', [MarketplaceAdminController::class, 'removeListing'])
+        ->name('admin.marketplace.listings.remove');
+    Route::get('/admin/marketplace/categories', [MarketplaceAdminController::class, 'categories'])
+        ->name('admin.marketplace.categories');
+    Route::post('/admin/marketplace/categories', [MarketplaceAdminController::class, 'storeCategory'])
+        ->name('admin.marketplace.categories.store');
+    Route::put('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'updateCategory'])
+        ->name('admin.marketplace.categories.update');
+    Route::delete('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])
+        ->name('admin.marketplace.categories.delete');
 });
 
 /*------------------------------------------
-| Super Admin Routes
+| Super Admin Routes (No Email Verification)
 |------------------------------------------*/
 Route::middleware(['auth', 'super_admin'])->group(function () {
     // Dashboard
@@ -267,13 +273,26 @@ Route::middleware(['auth', 'super_admin'])->group(function () {
         ->name('super_admin.reports');
 });
 
+/*------------------------------------------
+| Governor Routes (No Email Verification)
+|------------------------------------------*/
+Route::middleware(['auth', 'governor'])->group(function () {
+    // Dashboard
+    Route::get('/governor/dashboard', [GovernorController::class, 'dashboard'])
+        ->name('governor.dashboard');
 
+    // Analytics and Reports
+    Route::get('/governor/analytics', [GovernorController::class, 'analytics'])
+        ->name('governor.analytics');
+    Route::get('/governor/reports', [GovernorController::class, 'reports'])
+        ->name('governor.reports');
+});
 
 /*------------------------------------------
-| Marketplace Routes
+| Marketplace Routes (No Email Verification)
 |------------------------------------------*/
 // User Marketplace (Onboarded Users)
-Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
+Route::middleware(['auth', 'onboarded'])->group(function () {
     // Listings
     Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
     Route::get('/marketplace/listings/{listing}', [MarketplaceController::class, 'show'])->name('marketplace.show');
@@ -294,43 +313,6 @@ Route::middleware(['auth', 'verified', 'onboarded'])->group(function () {
     Route::post('/marketplace/{listing}/messages', [MarketplaceMessageController::class, 'sendMessage'])
         ->name('marketplace.messages.send');
 });
-
-// Admin Marketplace Management
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/marketplace/dashboard', [MarketplaceAdminController::class, 'dashboard'])
-        ->name('admin.marketplace.dashboard');
-    Route::get('/admin/marketplace/listings', [MarketplaceAdminController::class, 'listings'])
-        ->name('admin.marketplace.listings');
-    Route::delete('/admin/marketplace/listings/{listing}', [MarketplaceAdminController::class, 'removeListing'])
-        ->name('admin.marketplace.listings.remove');
-    Route::get('/admin/marketplace/categories', [MarketplaceAdminController::class, 'categories'])
-        ->name('admin.marketplace.categories');
-    Route::post('/admin/marketplace/categories', [MarketplaceAdminController::class, 'storeCategory'])
-        ->name('admin.marketplace.categories.store');
-    Route::put('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'updateCategory'])
-        ->name('admin.marketplace.categories.update');
-    Route::delete('/admin/marketplace/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])
-        ->name('admin.marketplace.categories.delete');
-});
-
-
-
-/*------------------------------------------
-| Governor Routes
-|------------------------------------------*/
-Route::middleware(['auth', 'governor'])->group(function () {
-    // Dashboard
-    Route::get('/governor/dashboard', [GovernorController::class, 'dashboard'])
-        ->name('governor.dashboard');
-
-    // Analytics and Reports
-    Route::get('/governor/analytics', [GovernorController::class, 'analytics'])
-        ->name('governor.analytics');
-    Route::get('/governor/reports', [GovernorController::class, 'reports'])
-        ->name('governor.reports');
-});
-
-
 
 // Authentication Routes
 require __DIR__.'/auth.php';

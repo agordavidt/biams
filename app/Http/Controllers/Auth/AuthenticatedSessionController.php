@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -40,27 +41,36 @@ class AuthenticatedSessionController extends Controller
             // Log successful login
             $this->logLoginAttempt($email, $user, $ipAddress, $userAgent, 'success');
             
-            // Redirect super admin to super admin dashboard
+            Log::info('User login attempt:', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role
+            ]);
+            
+            // Role-based redirects for admin users (no profile completion needed)
             if ($user->role === 'super_admin') {
                 return redirect()->route('super_admin.dashboard');
             }
 
-            // Redirect governor to governor dashboard
             if ($user->role === 'governor') {
                 return redirect()->route('governor.dashboard');
             }
 
-            // Redirect admin to admin dashboard
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
 
-            // Redirect regular users based on profile completion
-            if (!$user->profile) {
-                return redirect()->route('profile.complete')->with('info', 'Please complete your profile.');
+            // For regular users - check profile completion first
+            if ($user->role === 'user') {
+                if (!$user->profile) {
+                    return redirect()->route('profile.complete')->with('info', 'Please complete your profile to continue.');
+                }
+                
+                // User has completed profile, redirect to home
+                return redirect()->intended(RouteServiceProvider::HOME);
             }
-
-            // Redirect to the intended URL or default home
+            
+            // Default redirect
             return redirect()->intended(RouteServiceProvider::HOME);
             
         } catch (ValidationException $e) {

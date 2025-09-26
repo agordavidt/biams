@@ -8,7 +8,8 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; // Import the Log facade
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class VerifyEmailController extends Controller
 {
@@ -17,52 +18,64 @@ class VerifyEmailController extends Controller
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
-        // Debugging: Log the start of the verification process
         Log::info('Email verification process started.');
 
-        // Debugging: Check if the request has a valid signature
-        if (!$request->hasValidSignature()) {
-            Log::error('Invalid or expired verification link.');
-            abort(403, 'Invalid or expired verification link.');
-        }
-
-        // Debugging: Check if the user is authenticated
-        if (!$request->user()) {
-            Log::error('User not authenticated.');
-            abort(403, 'User not authenticated.');
-        }
-
+        // Get the user from the request (this handles the signed URL verification)
         $user = $request->user();
+        
+        if (!$user) {
+            Log::error('User not found during email verification.');
+            return redirect()->route('login')->with('error', 'Invalid verification link.');
+        }
 
-        // Debugging: Log the user's current verification status
         Log::info('User email verification status before verification:', [
+            'user_id' => $user->id,
+            'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
+            'has_verified_email' => $user->hasVerifiedEmail(),
         ]);
 
-        // Debugging: Check if the email is already verified
+        // Check if email is already verified
         if ($user->hasVerifiedEmail()) {
             Log::info('Email is already verified.');
-            return redirect()->intended(RouteServiceProvider::HOME . '?verified=1');
+            
+            // If user has no profile, redirect to complete profile
+            if (!$user->profile) {
+                return redirect()->route('profile.complete')->with('success', 'Your email is already verified. Please complete your profile.');
+            }
+            
+            // Otherwise redirect to home
+            return redirect()->route('home')->with('success', 'Your email is already verified.');
         }
 
-        // Debugging: Attempt to mark the email as verified
+        // Mark email as verified
         if ($user->markEmailAsVerified()) {
             Log::info('Email marked as verified successfully.');
+            
+            // Fire the verified event
             event(new Verified($user));
+            
+            // Refresh the user model to get updated data
+            $user->refresh();
+            
+            Log::info('User email verification status after verification:', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at,
+                'has_verified_email' => $user->hasVerifiedEmail(),
+            ]);
+            
+            // Check if user has completed profile
+            if (!$user->profile) {
+                return redirect()->route('profile.complete')->with('success', 'Email verified successfully! Please complete your profile.');
+            }
+            
+            // User has profile, redirect to dashboard
+            return redirect()->route('home')->with('success', 'Email verified successfully!');
+            
         } else {
             Log::error('Failed to mark email as verified.');
+            return redirect()->route('verification.notice')->with('error', 'Failed to verify email. Please try again.');
         }
-
-        // Debugging: Log the user's verification status after attempting to verify
-        Log::info('User email verification status after verification:', [
-            'email_verified_at' => $user->email_verified_at,
-        ]);
-
-        // Debugging: Log the user in
-        Auth::login($user);
-        Log::info('User logged in after verification.');
-
-        // Redirect to the profile completion page
-        return redirect()->route('profile.complete')->with('status', 'Email verified successfully! Please complete your profile.');
     }
 }
