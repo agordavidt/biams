@@ -8,7 +8,8 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">Practice Reports</h4>
                     <div class="page-title-right">
-                        <a href="{{ route('super_admin.analytics') }}" class="btn btn-light btn-sm">
+                        <!-- FIX: Change from super_admin.analytics to governor.analytics -->
+                        <a href="{{ route('governor.analytics') }}" class="btn btn-light btn-sm">
                             <i class="fas fa-arrow-left me-1"></i> Back to Analytics
                         </a>
                     </div>
@@ -22,7 +23,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Generate Practice Report</h5>
-                        <form method="GET" action="{{ route('super_admin.reports') }}" class="mb-4">
+                        <form method="GET" action="{{ route('governor.reports') }}" class="mb-4">
                             <div class="row g-3">
                                 <div class="col-md-3 col-sm-6">
                                     <select name="practice" class="form-select" onchange="this.form.submit()">

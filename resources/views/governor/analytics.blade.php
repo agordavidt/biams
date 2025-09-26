@@ -7,8 +7,8 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">Data Analytics</h4>
-                    <div class="page-title-right">
-                        <a href="{{ route('super_admin.reports') }}" class="btn btn-primary btn-sm">
+                    <div class="page-title-right">                        
+                        <a href="{{ route('governor.reports') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-file-alt me-1"></i> View Reports
                         </a>
                     </div>

@@ -3,7 +3,7 @@
 
         <head>
             <meta charset="utf-8" />
-            <title>Admin | Benue State Integrated Agricultural Data Assets Management System</title>
+            <title>Governor | Benue State Integrated Agricultural Data Assets Management System</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta content="Benue State Integrated Agricultural Data Assets Management System" name="description" />
             <meta name="csrf-token" content="{{ csrf_token() }}">
