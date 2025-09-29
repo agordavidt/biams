@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Resource;
 use App\Models\ResourceApplication;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -43,7 +44,21 @@ class UserResourceController extends Controller
                 ->with('error', 'You have already applied for this resource.');
         }
 
-        return view('user.resources.apply', compact('resource'));
+        // Check if user has a pending payment for this resource
+        $pendingPayment = Payment::where('customerId', Auth::id())
+            ->where('resourceId', $resource->id)
+            ->where('status', 'success')
+            ->whereDoesntHave('resource.applications', function($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->first();
+
+        // If resource requires payment and no pending payment exists, redirect to payment
+        if ($resource->requires_payment && !$pendingPayment) {
+            return $this->initiatePayment(new Request(), $resource);
+        }
+
+        return view('user.resources.apply', compact('resource', 'pendingPayment'));
     }
 
     public function initiatePayment(Request $request, Resource $resource)
@@ -66,22 +81,36 @@ class UserResourceController extends Controller
         }
 
         try {
-            $response = Http::accept('application/json')->withHeaders([
-                'authorization' => env('CREDO_PUBLIC_KEY'),
-                'content_type' => 'application/json',
-            ])->post(env('CREDO_URL') . '/transaction/initialize', [
-                'email' => $user->email,
-                'metadata' => [
-                    'resource_id' => $resource->id,
-                    'user_id' => $user->id,
-                    'form_data' => json_encode($formData),
-                    'file_paths' => json_encode($filePaths), // Store file paths separately
-                ],
-                'amount' => ($resource->price * 100),
-                'reference' => $reference,
-                'callbackUrl' => route('payment.callback'),
-                'bearer' => 0,
-            ]);
+            // Debug: Log the API key (first few characters only for security)
+            $apiKey = env('CREDO_PUBLIC_KEY');
+            Log::info('Credo API Key (first 10 chars): ' . substr($apiKey, 0, 10));
+            Log::info('Credo URL: ' . env('CREDO_URL'));
+            
+            $response = Http::timeout(30)
+                ->retry(3, 1000) // Retry 3 times with 1 second delay
+                ->accept('application/json')
+                ->withHeaders([
+                    'authorization' => $apiKey,
+                    'content_type' => 'application/json',
+                ])
+                ->post(env('CREDO_URL') . '/transaction/initialize', [
+                    'email' => $user->email,
+                    'metadata' => [
+                        'resource_id' => $resource->id,
+                        'user_id' => $user->id,
+                        'form_data' => json_encode($formData),
+                        'file_paths' => json_encode($filePaths), // Store file paths separately
+                    ],
+                    'amount' => ($resource->price * 100),
+                    'reference' => $reference,
+                    'callbackUrl' => route('payment.callback'),
+                    'bearer' => 0,
+                ]);
+            
+            // Debug: Log response details
+            Log::info('Credo Response Status: ' . $response->status());
+            Log::info('Credo Response Body: ' . $response->body());
+            Log::info('Credo Response Headers: ' . json_encode($response->headers()));
             
             $responseData = $response->collect('data');
             
@@ -109,8 +138,15 @@ class UserResourceController extends Controller
                 Storage::disk('public')->delete($path);
             }
             
-            Log::error('Error initializing payment gateway: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error initializing payment gateway. Please try again.');
+            Log::error('Error initializing payment gateway: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'resource_id' => $resource->id,
+                'reference' => $reference,
+                'error_type' => get_class($e)
+            ]);
+            
+            // Return generic error message to user, detailed error is logged above
+            return redirect()->back()->with('error', 'Unable to process payment at this time. Please try again later or contact support if the issue persists.');
         }
     }
 
@@ -118,10 +154,14 @@ class UserResourceController extends Controller
     {
         // Verify the transaction with Credo
         try {
-            $response = Http::accept('application/json')->withHeaders([
-                'authorization' => env('CREDO_SECRET_KEY'),
-                'content-type' => 'application/json',
-            ])->get(env('CREDO_URL') . "/transaction/{$request->reference}/verify");
+            $response = Http::timeout(30)
+                ->retry(3, 1000)
+                ->accept('application/json')
+                ->withHeaders([
+                    'authorization' => env('CREDO_SECRET_KEY'),
+                    'content-type' => 'application/json',
+                ])
+                ->get(env('CREDO_URL') . "/transaction/{$request->reference}/verify");
             
             if (!$response->successful()) {
                 return redirect()->route('user.resources.index')
@@ -144,38 +184,31 @@ class UserResourceController extends Controller
                 }
                 
                 $resource = Resource::findOrFail($sessionData['resource_id']);
-                $formData = $sessionData['form_data'];
-                $filePaths = $sessionData['file_paths'];
+                $user = Auth::user();
                 
-                // Process form data, moving temporary files to permanent storage
-                $processedFormData = [];
-                foreach ($resource->form_fields as $field) {
-                    $fieldName = Str::slug($field['label']);
-                    if ($field['type'] === 'file' && isset($filePaths[$fieldName])) {
-                        // Move file from temp to permanent storage
-                        $newPath = str_replace('temp/', '', $filePaths[$fieldName]);
-                        Storage::disk('public')->move($filePaths[$fieldName], $newPath);
-                        $processedFormData[$field['label']] = $newPath;
-                    } else {
-                        $processedFormData[$field['label']] = $formData[$fieldName] ?? null;
-                    }
-                }
-                
-                // Create the application
-                $application = ResourceApplication::create([
-                    'user_id' => Auth::id(),
-                    'resource_id' => $resource->id,
-                    'form_data' => $processedFormData,
-                    'payment_reference' => $request->reference,
-                    'payment_status' => ResourceApplication::PAYMENT_STATUS_VERIFIED,
-                    'status' => ResourceApplication::STATUS_PENDING
+                // Log payment information to payments table
+                Payment::create([
+                    'businessName' =>  'BIAMS',
+                    'reference' => $request->reference,
+                    'transAmount' => $resource->price,
+                    'transFee' => 0, // You can calculate this based on your fee structure
+                    'transTotal' => $resource->price,
+                    'transDate' => now(),
+                    'settlementAmount' => $resource->price,
+                    'status' => $status,
+                    'statusMessage' => $paymentData['statusMessage'] ?? 'Payment successful',
+                    'customerId' => $user->id,
+                    'resourceId' => $resource->id,
+                    'resourceOwnerId' => $resource->partner->user_id ?? 1, // Assuming partner has user_id or default to admin
+                    'channelId' => 'WEB',
+                    'currencyCode' => 'NGN'
                 ]);
                 
                 // Clean up session data
                 session()->forget('resource_form_data.' . $request->reference);
                 
-                return redirect()->route('user.resources.track')
-                    ->with('success', 'Payment successful and application submitted!');
+                return redirect()->route('user.resources.apply', $resource)
+                    ->with('success', 'Payment successful! Please complete the application form.');
             } else {
                 // Clean up temporary files on failed payment
                 $sessionData = session()->get('resource_form_data.' . $request->reference);
@@ -206,9 +239,20 @@ class UserResourceController extends Controller
 
     public function submit(Request $request, Resource $resource)
     {
-        // Only for non-payment resources
+        // Check if this is a paid resource and user has completed payment
         if ($resource->requires_payment) {
-            return $this->initiatePayment($request, $resource);
+            // Verify payment exists and is successful
+            $payment = Payment::where('customerId', Auth::id())
+                ->where('resourceId', $resource->id)
+                ->where('status', 'success')
+                ->whereDoesntHave('resource.applications', function($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->first();
+                
+            if (!$payment) {
+                return redirect()->back()->with('error', 'Payment verification failed. Please complete payment first.');
+            }
         }
         
         // Validate the application data
@@ -220,8 +264,8 @@ class UserResourceController extends Controller
                 'user_id' => Auth::id(),
                 'resource_id' => $resource->id,
                 'form_data' => $this->processFormData($request, $resource),
-                'payment_reference' => null,
-                'payment_status' => null,
+                'payment_reference' => $resource->requires_payment ? $payment->reference : null,
+                'payment_status' => $resource->requires_payment ? ResourceApplication::PAYMENT_STATUS_VERIFIED : null,
                 'status' => ResourceApplication::STATUS_PENDING
             ]);
 

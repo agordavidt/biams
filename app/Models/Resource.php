@@ -69,6 +69,11 @@ class Resource extends Model
         ]);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'resourceId');
+    }
+
     // Helper Methods
     public function isActive(): bool
     {

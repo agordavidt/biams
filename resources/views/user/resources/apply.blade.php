@@ -45,6 +45,13 @@
                       enctype="multipart/form-data">
                     @csrf
 
+                    @if($pendingPayment)
+                        <div class="alert alert-success mb-4">
+                            <i class="ri-check-line me-2"></i>
+                            Payment completed successfully! Please complete the application form below.
+                        </div>
+                    @endif
+
                     <h5 class="mb-3">Application Form</h5>
                     
                     @foreach($resource->form_fields as $field)
@@ -92,7 +99,9 @@
                     <div class="form-footer mt-4 pt-3 border-top">
                         <button type="submit" id="submit-button" class="btn btn-success btn-lg w-100">
                             <i class="ri-send-plane-line me-1"></i> 
-                            @if($resource->requires_payment)
+                            @if($resource->requires_payment && $pendingPayment)
+                                Submit Application
+                            @elseif($resource->requires_payment)
                                 Proceed to Payment and Submit
                             @else
                                 Submit Application
