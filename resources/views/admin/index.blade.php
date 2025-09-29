@@ -159,35 +159,28 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Name</th>
-                                <th>LGA</th>
-                                <th>Status</th>
+                                <th>Email</th>
+                                <th>LGA</th>                                
                                 <th>Phone</th>
                                 <th>Gender</th>
-                                <th>Age</th>
-                                <th>Actions</th>
+                                <th>Age</th> 
+                                <th>Status</th>                               
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($recentUsers as $user)
                             <tr>
                                 <td>{{ $user['name'] }}</td>
-                                <td>{{ $user['lga'] }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $user['status_color'] }}">
-                                        {{ $user['status'] }}
-                                    </span>
-                                </td>
+                                <td>{{ $user['email'] }}</td>
+                                <td>{{ $user['lga'] }}</td>                                
                                 <td>{{ $user['phone'] }}</td>
                                 <td>{{ $user['gender'] }}</td>
                                 <td>{{ $user['age'] }}</td>
                                 <td>
-                                    <div class="d-flex gap-2">
-                                        <a href="#" 
-                                           class="btn btn-sm btn-soft-primary">View</a>
-                                        <a href="#" 
-                                           class="btn btn-sm btn-soft-info">Edit</a>
-                                    </div>
-                                </td>
+                                    <span class="badge bg-{{ $user['status_color'] }}">
+                                        {{ $user['status'] }}
+                                    </span>
+                                </td>                                
                             </tr>
                             @endforeach
                         </tbody>

@@ -94,12 +94,13 @@ class AdminController extends Controller
                 END as status_color
             ')
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get()
             ->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
+                    'email' => $user->email,
                     'lga' => $user->profile->lga ?? 'N/A',
                     'status' => ucfirst($user->status),
                     'status_color' => $user->status_color,
