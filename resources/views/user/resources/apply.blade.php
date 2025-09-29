@@ -45,7 +45,7 @@
                       enctype="multipart/form-data">
                     @csrf
 
-                    @if($pendingPayment)
+                    @if($hasPaid)
                         <div class="alert alert-success mb-4">
                             <i class="ri-check-line me-2"></i>
                             Payment completed successfully! Please complete the application form below.
@@ -99,7 +99,7 @@
                     <div class="form-footer mt-4 pt-3 border-top">
                         <button type="submit" id="submit-button" class="btn btn-success btn-lg w-100">
                             <i class="ri-send-plane-line me-1"></i> 
-                            @if($resource->requires_payment && $pendingPayment)
+                            @if($resource->requires_payment && $hasPaid)
                                 Submit Application
                             @elseif($resource->requires_payment)
                                 Proceed to Payment and Submit

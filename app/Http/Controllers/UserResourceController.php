@@ -30,35 +30,36 @@ class UserResourceController extends Controller
 
     public function show(Resource $resource)
     {
+        $user = Auth::user();
         $existingApplication = $resource->applications()
-            ->where('user_id', Auth::id())
+            ->where('user_id', $user->id)
             ->first();
 
-        return view('user.resources.show', compact('resource', 'existingApplication'));
+        $hasPaid = $this->hasUserPaidForResource($user->id, $resource->id);
+        
+        if ($resource->requires_payment && !$hasPaid) {
+            return $this->initiatePayment(new Request(), $resource);
+        }
+
+        return view('user.resources.show', compact('resource', 'existingApplication', 'hasPaid'));
     }
 
     public function apply(Resource $resource)
     {
-        if ($resource->applications()->where('user_id', Auth::id())->exists()) {
+        $user = Auth::user();
+        
+        if ($resource->applications()->where('user_id', $user->id)->exists()) {
             return redirect()->back()
                 ->with('error', 'You have already applied for this resource.');
         }
 
-        // Check if user has a pending payment for this resource
-        $pendingPayment = Payment::where('customerId', Auth::id())
-            ->where('resourceId', $resource->id)
-            ->where('status', 'success')
-            ->whereDoesntHave('resource.applications', function($query) {
-                $query->where('user_id', Auth::id());
-            })
-            ->first();
-
-        // If resource requires payment and no pending payment exists, redirect to payment
-        if ($resource->requires_payment && !$pendingPayment) {
+        $hasPaid = $this->hasUserPaidForResource($user->id, $resource->id);
+        
+        if ($resource->requires_payment && !$hasPaid) {
             return $this->initiatePayment(new Request(), $resource);
         }
 
-        return view('user.resources.apply', compact('resource', 'pendingPayment'));
+        return view('user.resources.apply', compact('resource', 'hasPaid'));
     }
 
     public function initiatePayment(Request $request, Resource $resource)
@@ -107,10 +108,6 @@ class UserResourceController extends Controller
                     'bearer' => 0,
                 ]);
             
-            // Debug: Log response details
-            Log::info('Credo Response Status: ' . $response->status());
-            Log::info('Credo Response Body: ' . $response->body());
-            Log::info('Credo Response Headers: ' . json_encode($response->headers()));
             
             $responseData = $response->collect('data');
             
@@ -138,14 +135,13 @@ class UserResourceController extends Controller
                 Storage::disk('public')->delete($path);
             }
             
-            Log::error('Error initializing payment gateway: ' . $e->getMessage(), [
-                'user_id' => $user->id,
-                'resource_id' => $resource->id,
-                'reference' => $reference,
-                'error_type' => get_class($e)
-            ]);
+            // Log::error('Error initializing payment gateway: ' . $e->getMessage(), [
+            //     'user_id' => $user->id,
+            //     'resource_id' => $resource->id,
+            //     'reference' => $reference,
+            //     'error_type' => get_class($e)
+            // ]);
             
-            // Return generic error message to user, detailed error is logged above
             return redirect()->back()->with('error', 'Unable to process payment at this time. Please try again later or contact support if the issue persists.');
         }
     }
@@ -191,15 +187,15 @@ class UserResourceController extends Controller
                     'businessName' =>  'BIAMS',
                     'reference' => $request->reference,
                     'transAmount' => $resource->price,
-                    'transFee' => 0, // You can calculate this based on your fee structure
+                    'transFee' => 0,
                     'transTotal' => $resource->price,
                     'transDate' => now(),
                     'settlementAmount' => $resource->price,
-                    'status' => $status,
+                    'status' => 'success', 
                     'statusMessage' => $paymentData['statusMessage'] ?? 'Payment successful',
                     'customerId' => $user->id,
                     'resourceId' => $resource->id,
-                    'resourceOwnerId' => $resource->partner->user_id ?? 1, // Assuming partner has user_id or default to admin
+                    'resourceOwnerId' => $resource->partner->user_id ?? 1, 
                     'channelId' => 'WEB',
                     'currencyCode' => 'NGN'
                 ]);
@@ -208,7 +204,7 @@ class UserResourceController extends Controller
                 session()->forget('resource_form_data.' . $request->reference);
                 
                 return redirect()->route('user.resources.apply', $resource)
-                    ->with('success', 'Payment successful! Please complete the application form.');
+                    ->with('success', 'Payment successful! You can now complete the application form.');
             } else {
                 // Clean up temporary files on failed payment
                 $sessionData = session()->get('resource_form_data.' . $request->reference);
@@ -231,7 +227,7 @@ class UserResourceController extends Controller
                 }
             }
             
-            Log::error('Payment callback error: ' . $e->getMessage());
+            // Log::error('Payment callback error: ' . $e->getMessage());
             return redirect()->route('user.resources.index')
                 ->with('error', 'Error processing payment callback. Please contact support.');
         }
@@ -320,5 +316,16 @@ class UserResourceController extends Controller
             }
         }
         return $formData;
+    }
+
+    /**
+     * Check if user has successfully paid for a resource
+     */
+    protected function hasUserPaidForResource($userId, $resourceId)
+    {
+        return Payment::where('customerId', $userId)
+            ->where('resourceId', $resourceId)
+            ->where('status', 'success')
+            ->exists();
     }
 }

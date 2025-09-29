@@ -91,10 +91,10 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::get('/resources/{resource}/apply', [UserResourceController::class, 'apply'])->name('user.resources.apply');
     Route::post('/resources/{resource}/submit', [UserResourceController::class, 'submit'])->name('user.resources.submit');
     Route::get('/resources/applications/track', [UserResourceController::class, 'track'])->name('user.resources.track');
+    
+    // Payment callback route (credo)
+    Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
 });
-
-// Payment callback route (credo)
-Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
 
 /*------------------------------------------
 | Admin Routes (No Email Verification)
