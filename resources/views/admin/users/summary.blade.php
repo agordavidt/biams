@@ -89,9 +89,9 @@
                     <!-- Header with Add User Button -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="card-title mb-0">List of Registered Users</h4>
-                        <a class="btn btn-primary waves-effect waves-light popup-form" href="#add-user-form">
+                        <!-- <a class="btn btn-primary waves-effect waves-light popup-form" href="#add-user-form">
                             <i class="ri-add-line align-middle me-1"></i> Add User
-                        </a>
+                        </a> -->
                     </div>
 
                     <!-- Search and Filter Form -->

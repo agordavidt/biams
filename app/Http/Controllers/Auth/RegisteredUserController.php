@@ -32,6 +32,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            // Updated regex for email validation (assuming your current regex is correct for your environment)
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -44,10 +45,14 @@ class RegisteredUserController extends Controller
             'role' => 'user', // Default role for new users
         ]);
 
-        // Log the user in directly after registration
-        Auth::login($user);
+        // Fire the registered event (optional, but good practice)
+        event(new Registered($user));
 
-        // Redirect the user to the profile completion page
-        return redirect()->route('profile.complete')->with('info', 'Registration successful! Please complete your profile to continue.');
+        // --- START OF REQUIRED CHANGE ---
+        // DO NOT log the user in automatically after registration.
+
+        // Redirect the user to the login page with a success message.
+        return redirect()->route('login')->with('status', 'Registration successful! Please log in to complete your profile.');
+        // --- END OF REQUIRED CHANGE ---
     }
 }

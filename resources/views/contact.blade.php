@@ -241,7 +241,7 @@
                 <div class="col-lg-4">
                     <div class="contact-form">
                         <h2>Get in Touch</h2>
-                        <form action="#" method="POST">
+                        <form action="#">
                             @csrf
                             <input type="text" class="form-control" name="name" placeholder="Your Name" required>
                             <input type="email" class="form-control" name="email" placeholder="Email Address" required>
