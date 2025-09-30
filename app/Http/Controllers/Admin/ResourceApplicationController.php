@@ -7,6 +7,8 @@ use App\Models\ResourceApplication;
 use App\Notifications\ResourceStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log; 
+
 
 class ResourceApplicationController extends Controller
 {
@@ -18,7 +20,7 @@ class ResourceApplicationController extends Controller
             ->when($request->search, function($q, $search) {
                 $q->whereHas('user', fn($q) => $q->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%"))
-                ->orWhereHas('resource', fn($q) => $q->where('name', 'like', "%$search%"));
+                    ->orWhereHas('resource', fn($q) => $q->where('name', 'like', "%$search%"));
             })
             ->latest()
             ->paginate(15);
@@ -37,35 +39,46 @@ class ResourceApplicationController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, ResourceApplication $application)
+
+    public function grant(Request $request, ResourceApplication $application)
     {
+        return $this->processStatusUpdate($request, $application, ResourceApplication::STATUS_APPROVED, 'Resource granted successfully.');
+    }
+
+    public function decline(Request $request, ResourceApplication $application)
+    {
+        return $this->processStatusUpdate($request, $application, ResourceApplication::STATUS_REJECTED, 'Resource application declined.');
+    }
+
+    protected function processStatusUpdate(Request $request, ResourceApplication $application, string $newStatus, string $successMessage)
+    {
+        // Validate notes only, as status is hardcoded
         $validated = $request->validate([
-            'status' => 'required|in:' . implode(',', ResourceApplication::getStatusOptions()),
             'notes' => 'nullable|string|max:500'
         ]);
 
-        if (!$application->canTransitionTo($validated['status'])) {
+        // Use the simplified canTransitionTo check
+        if (!$application->canTransitionTo($newStatus)) {
             return back()
-                ->with('error', 'Invalid status transition')
-                ->withInput();
+                ->with('error', 'Invalid status transition. Application must be pending.');
         }
 
         try {
-            $application->update(['status' => $validated['status']]);
+            $application->update(['status' => $newStatus]);
             
             // Notify user of status change
             try {
                 $application->user->notify(
                     new ResourceStatusUpdated($application, $validated['notes'] ?? null)
                 );
-            } catch (\Exception $e) {
+            } catch (\Exception $e) {                
                 \Log::error('Notification failed: ' . $e->getMessage(), [
                     'user_id' => $application->user->id,
-                    'notification' => ResourceStatusUpdated::class,
+                    'notification' => \App\Notifications\ResourceStatusUpdated::class, 
                 ]);
             }
 
-            return back()->with('success', 'Application status updated');
+            return back()->with('success', $successMessage);
             
         } catch (\Exception $e) {
             return back()
@@ -73,13 +86,13 @@ class ResourceApplicationController extends Controller
                 ->withInput();
         }
     }
-
+    
     public function bulkUpdate(Request $request)
     {
         $validated = $request->validate([
             'applications' => 'required|array',
-            'applications.*' => 'exists:resource_applications,id',
-            'status' => 'required|in:' . implode(',', ResourceApplication::getStatusOptions()),
+            'applications.*' => 'exists:resource_applications,id', 
+            'status' => 'required|in:' . ResourceApplication::STATUS_APPROVED . ',' . ResourceApplication::STATUS_REJECTED,
             'notes' => 'nullable|string|max:500'
         ]);
 
@@ -89,9 +102,18 @@ class ResourceApplicationController extends Controller
         foreach ($applications as $application) {
             if ($application->canTransitionTo($validated['status'])) {
                 $application->update(['status' => $validated['status']]);
-                $application->user->notify(
-                    new ResourceStatusUpdated($application, $validated['notes'] ?? null)
-                );
+                
+                try {
+                    $application->user->notify(
+                        new ResourceStatusUpdated($application, $validated['notes'] ?? null)
+                    );
+                } catch (\Exception $e) {                   
+                    \Log::error('Bulk notification failed: ' . $e->getMessage(), [
+                        'user_id' => $application->user->id,
+                        'notification' => \App\Notifications\ResourceStatusUpdated::class, 
+                    ]);
+                }
+                
                 $updatedCount++;
             }
         }

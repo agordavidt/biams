@@ -21,10 +21,9 @@ class ResourceApplication extends Model
 
     // Status Constants
     const STATUS_PENDING = 'pending';
-    const STATUS_REVIEWING = 'reviewing';
     const STATUS_APPROVED = 'approved';
     const STATUS_REJECTED = 'rejected';
-    const STATUS_DELIVERED = 'delivered';
+    
 
     const PAYMENT_STATUS_PENDING = 'pending';
     const PAYMENT_STATUS_PAID = 'paid';
@@ -47,10 +46,9 @@ class ResourceApplication extends Model
     {
         return [
             self::STATUS_PENDING => 'Pending',
-            self::STATUS_REVIEWING => 'Reviewing',
-            self::STATUS_APPROVED => 'Approved',
-            self::STATUS_REJECTED => 'Rejected',
-            self::STATUS_DELIVERED => 'Delivered',
+            self::STATUS_APPROVED => 'Granted/Approved',
+            self::STATUS_REJECTED => 'Declined/Rejected',
+            
         ];
     }
 
@@ -64,28 +62,25 @@ class ResourceApplication extends Model
         ];
     }
 
-    public function canTransitionTo(string $newStatus): bool
+     public function canTransitionTo(string $newStatus): bool
     {
+        
         $validTransitions = [
-            self::STATUS_PENDING => [self::STATUS_REVIEWING, self::STATUS_REJECTED],
-            self::STATUS_REVIEWING => [self::STATUS_APPROVED, self::STATUS_REJECTED],
-            self::STATUS_APPROVED => [self::STATUS_DELIVERED],
+            self::STATUS_PENDING => [self::STATUS_APPROVED, self::STATUS_REJECTED],
+            self::STATUS_APPROVED => [], 
             self::STATUS_REJECTED => [],
-            self::STATUS_DELIVERED => [],
         ];
 
         return in_array($newStatus, $validTransitions[$this->status] ?? []);
     }
 
-    public function canBeEdited(): bool
+
+     public function canBeEdited(): bool
     {
-        // Applications can be edited if they're not in final states
-        return in_array($this->status, [
-            self::STATUS_PENDING,
-            self::STATUS_REVIEWING,
-            self::STATUS_APPROVED
-        ]);
+      
+        return $this->status === self::STATUS_PENDING;
     }
+
 
     public function updateStatus(string $newStatus): bool
     {

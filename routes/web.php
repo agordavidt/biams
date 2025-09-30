@@ -154,12 +154,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
 
     // Resource Applications
+
+    // Existing routes (unchanged)
     Route::get('/admin/resources/applications', [ResourceApplicationController::class, 'index'])
         ->name('admin.applications.index');
     Route::get('/admin/resources/applications/{application}', [ResourceApplicationController::class, 'show'])
         ->name('admin.applications.show');
-    Route::put('/admin/resources/applications/{application}/status', [ResourceApplicationController::class, 'updateStatus'])
-        ->name('admin.applications.update-status');
+    Route::post('/admin/resources/applications/{application}/grant', [ResourceApplicationController::class, 'grant'])
+        ->name('admin.applications.grant'); 
+    Route::post('/admin/resources/applications/{application}/decline', [ResourceApplicationController::class, 'decline'])
+        ->name('admin.applications.decline');    
+    Route::post('/admin/resources/applications/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])
+        ->name('admin.applications.bulk-update'); 
 
     // Abattoir Management
     Route::get('/admin/abattoirs', [AbattoirController::class, 'index'])->name('admin.abattoirs.index');

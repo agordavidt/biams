@@ -125,34 +125,36 @@
             </div>
 
             <!-- Status Update Form -->
-            @if($application->canBeEdited())
-                <div class="border rounded p-3 bg-light">
-                    <h5 class="mb-3">Update Status</h5>
-                    <form action="{{ route('admin.applications.update-status', $application) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
-                                    @foreach(\App\Models\ResourceApplication::getStatusOptions() as $value => $label)
-                                        @if($application->canTransitionTo($value))
-                                            <option value="{{ $value }}">{{ $label }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Notes (Optional)</label>
-                                <textarea name="notes" rows="3" class="form-control"
-                                    placeholder="Add notes for the applicant..."></textarea>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ri-check-line me-1"></i> Update Status
-                        </button>
-                    </form>
-                </div>
+    @if($application->canBeEdited())
+            <div class="border rounded p-3 bg-light">
+            <h5 class="mb-3">Grant or Decline Resource</h5>            
+
+            <form action="{{ route('admin.applications.grant', $application) }}" method="POST" class="d-inline-block me-2">
+            @csrf
+            <div class="mb-3">
+            <textarea name="notes" rows="2" class="form-control" style="min-width: 300px;"
+            placeholder="Notes for Grant (Optional)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">
+            <i class="ri-check-line me-1"></i> Grant Resource
+            </button>
+            </form>
+
+            <form action="{{ route('admin.applications.decline', $application) }}" method="POST" class="d-inline-block">
+            @csrf
+            <div class="mb-3">
+            <textarea name="notes" rows="2" class="form-control" style="min-width: 300px;"
+            placeholder="Reason for Decline (Required)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to DECLINE this application?');">
+            <i class="ri-close-line me-1"></i> Decline Resource
+            </button>
+            </form>
+            </div>
+            @else
+            <div class="alert alert-info">
+            The application status is <span class="fw-bold">{{ $application->getStatusLabel() }} </span>and cannot be updated further.
+            </div>
             @endif
         </div>
     </div>
