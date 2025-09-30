@@ -36,6 +36,16 @@
                         </thead>
                         <tbody>
                             @foreach($submissions as $index => $submission)
+                                @php
+                                    // Determine the type route parameter
+                                    $typeRoute = match($submission->type) {
+                                        'Crop Farming' => 'crop',
+                                        'Animal Farming' => 'animal',
+                                        'Abattoir Operator' => 'abattoir',
+                                        'Processing & Value Addition' => 'processor',
+                                        default => ''
+                                    };
+                                @endphp
                                 <tr>
                                     <td>{{ $index + 1}}</td>
                                     <td>{{ $submission->id }}</td>
@@ -59,7 +69,8 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-primary btn-sm waves-effect waves-light">
+                                        <a href="{{ route('farmers.submission.view', ['type' => $typeRoute, 'id' => $submission->id]) }}" 
+                                           class="btn btn-primary btn-sm waves-effect waves-light">
                                             <i class="ri-eye-line align-middle me-1"></i> View
                                         </a>
                                     </td>

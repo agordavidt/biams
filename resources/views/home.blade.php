@@ -69,23 +69,59 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0">Agricultural Practices</h4>
+                @if($registrations->count() > 0)
+                    <a href="{{ route('farmers.submissions') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                @endif
             </div>
             <div class="card-body">
                 @if($registrations->count() > 0)
                     <div class="list-group">
-                        @foreach($registrations as $registration)
-                            <a href="{{ route('application.details', ['id' => $registration->id]) }}" 
+                        @foreach($registrations->take(5) as $registration)
+                            <a href="{{ route('farmers.submission.view', ['type' => $registration->type_slug, 'id' => $registration->id]) }}" 
                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                {{ $registration->type }}
-                                <span class="badge bg-primary rounded-pill">View Details</span>
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ $registration->type }}</span>
+                                        <span class="badge @switch($registration->status)
+                                            @case('approved')
+                                                bg-success
+                                                @break
+                                            @case('pending')
+                                                bg-warning
+                                                @break
+                                            @case('rejected')
+                                                bg-danger
+                                                @break
+                                            @default
+                                                bg-secondary
+                                        @endswitch">
+                                            {{ ucfirst($registration->status) }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">Submitted {{ $registration->created_at->diffForHumans() }}</small>
+                                </div>
+                                <i class="ri-arrow-right-line"></i>
                             </a>
                         @endforeach
                     </div>
+                    @if($registrations->count() > 5)
+                        <div class="text-center mt-3">
+                            <a href="{{ route('farmers.submissions') }}" class="btn btn-link">
+                                View {{ $registrations->count() - 5 }} more submissions
+                            </a>
+                        </div>
+                    @endif
                 @else
-                    <div class="alert alert-info text-center">
+                    <div class="alert alert-info text-center mb-0">
+                        <i class="ri-information-line fs-4 d-block mb-2"></i>
                         No agricultural practice registrations yet.
+                        <div class="mt-2">
+                            <small class="text-muted">Get started by selecting a practice below</small>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -160,7 +196,7 @@
                         </a>
                     </div>
 
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         <a href="#" class="card card-body text-center h-100 text-decoration-none shadow-sm hover-shadow">
                             <div class="mb-3">
                                 <i class="fas fa-tree fa-3x text-secondary"></i>
@@ -168,7 +204,7 @@
                             <h5 class="card-title mb-1 fw-semibold">Agroforestry</h5>
                             <p class="card-text text-muted small">Sustainable forest management</p>
                         </a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

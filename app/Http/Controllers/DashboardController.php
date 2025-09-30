@@ -6,11 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\AgriculturalPractice;
 use Illuminate\Http\Request;
 
-
 class DashboardController extends Controller
 {
-
-    protected $user; // Declare the $user property to use on showApplicationDetails
     public function index()
     {
         $user = Auth::user();
@@ -25,44 +22,25 @@ class DashboardController extends Controller
         $registrations = collect()
             ->merge($cropFarmers->map(function ($registration) {
                 $registration->type = 'Crop Farming';
+                $registration->type_slug = 'crop'; // Add slug for routing
                 return $registration;
             }))
             ->merge($animalFarmers->map(function ($registration) {
                 $registration->type = 'Animal Farming';
+                $registration->type_slug = 'animal'; // Add slug for routing
                 return $registration;
             }))
             ->merge($abattoirOperators->map(function ($registration) {
                 $registration->type = 'Abattoir Operator';
+                $registration->type_slug = 'abattoir'; // Add slug for routing
                 return $registration;
             }))
             ->merge($processors->map(function ($registration) {
                 $registration->type = 'Processing & Value Addition';
+                $registration->type_slug = 'processor'; // Add slug for routing
                 return $registration;
             }));
 
-
         return view('home', compact('user', 'registrations'));
     }
-
-
-
-
-    public function showApplicationDetails($id)
-        {
-            // Fetch the registration based on the ID
-            $registration = collect()
-                ->merge($this->user->cropFarmers)
-                ->merge($this->user->animalFarmers)
-                ->merge($this->user->abattoirOperators)
-                ->merge($this->user->processors)
-                ->firstWhere('id', $id);
-
-            if (!$registration) {
-                abort(404, 'Application not found.');
-            }
-
-            return view('application.details', compact('registration'));
-        }
 }
-
- 

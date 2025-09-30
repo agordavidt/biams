@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
@@ -210,5 +209,46 @@ class FarmersController extends Controller
         return view('farmers.submissions', compact('submissions', 'submissionCount'));
     }
 
+    // Method to view a specific submission
+    public function viewSubmission($type, $id)
+    {
+        $user = Auth::user();
+        $submission = null;
 
-}    
+        // Fetch the submission based on type
+        switch ($type) {
+            case 'crop':
+                $submission = CropFarmer::where('id', $id)
+                    ->where('user_id', $user->id)
+                    ->firstOrFail();
+                $submission->type = 'Crop Farming';
+                break;
+            
+            case 'animal':
+                $submission = AnimalFarmer::where('id', $id)
+                    ->where('user_id', $user->id)
+                    ->firstOrFail();
+                $submission->type = 'Animal Farming';
+                break;
+            
+            case 'abattoir':
+                $submission = AbattoirOperator::where('id', $id)
+                    ->where('user_id', $user->id)
+                    ->firstOrFail();
+                $submission->type = 'Abattoir Operator';
+                break;
+            
+            case 'processor':
+                $submission = Processor::where('id', $id)
+                    ->where('user_id', $user->id)
+                    ->firstOrFail();
+                $submission->type = 'Processing & Value Addition';
+                break;
+            
+            default:
+                abort(404);
+        }
+
+        return view('farmers.submission-detail', compact('submission', 'type'));
+    }
+}

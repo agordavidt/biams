@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 /*------------------------------------------
 | Farmer & Resource Routes (Onboarded Users)
 |------------------------------------------*/
@@ -84,6 +85,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     Route::get('/farmers/processor', [FarmersController::class, 'showProcessorForm'])->name('farmers.processor');
     Route::post('/farmers/processor', [FarmersController::class, 'storeProcessor'])->name('farmers.processor.store');
     Route::get('/farmers/submissions', [FarmersController::class, 'showSubmissions'])->name('farmers.submissions');
+    Route::get('/farmers/submissions/{type}/{id}', [FarmersController::class, 'viewSubmission'])->name('farmers.submission.view');
 
     // Resources
     Route::get('/resources', [UserResourceController::class, 'index'])->name('user.resources.index');
@@ -95,6 +97,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
     // Payment callback route (credo)
     Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
 });
+
 
 /*------------------------------------------
 | Admin Routes (No Email Verification)
