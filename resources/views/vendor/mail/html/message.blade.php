@@ -2,7 +2,7 @@
 {{-- Header --}}
 <x-slot:header>
 <x-mail::header :url="config('app.url')">
-Benue State Integrated Agricultural Data Assets Management System
+Benue State Smart Agricultural System and Data Management
 </x-mail::header>
 </x-slot:header>
 
@@ -21,7 +21,7 @@ Benue State Integrated Agricultural Data Assets Management System
 {{-- Footer --}}
 <x-slot:footer>
 <x-mail::footer>
-© {{ date('Y') }} Benue State Integrated Agricultural Data Assets Management System. @lang('All rights reserved.')
+© {{ date('Y') }} Benue State Smart Agricultural System and Data Management. @lang('All rights reserved.')
 </x-mail::footer>
 </x-slot:footer>
 </x-mail::layout>

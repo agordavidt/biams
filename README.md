@@ -1,4 +1,4 @@
-# Benue State Integrated Agricultural Data Assets Management System
+# Benue State Smart Agricultural System and Data Management
 
 
 

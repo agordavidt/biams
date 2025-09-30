@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}</title>
+    <title>About Us - {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -372,7 +372,7 @@
             </div>
             <hr class="bg-light">
             <div class="text-center">
-                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}<br>
+                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}<br>
                 <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by 
                     <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
                 </a></p>

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}</title>
+    <title>{{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -279,7 +279,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Benue State Integrated Agricultural Data and Access Management System
+            <h1 class="display-4 fw-bold mb-4">Benue State Smart Agricultural System and Data Management
             </h1>
             <p class="lead mb-5">Empowering farmers with digital solutions for better agricultural management</p>
             <a href="{{ route('login') }}" class="btn btn-primary me-3">Get Started</a>
@@ -505,7 +505,7 @@
             </div>
             <hr class="bg-light">
             <div class="text-center">
-                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data and Access Management System') }}<br>
+                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}<br>
                     <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by
                         <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
                     </a>

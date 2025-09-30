@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>{{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}</title>
+    <title>{{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Benue Stat Integrated Agricultural Assets Data Management System" name="description" />
     <meta content="BDIC Team" name="author" />
@@ -148,7 +148,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}.
+                        <script>document.write(new Date().getFullYear())</script> © {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}.
                     </div>
                     <div class="col-sm-6">
                         <div class="text-sm-end d-none d-sm-block">

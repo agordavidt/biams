@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Complete Your Profile - {{ Setting::get('site_title', 'Benue State Integrated Agricultural Data Assets Management System') }}</title>
+    <title>Complete Your Profile - {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Benue Stat Integrated Agricultural Assets Data Management System" name="description" />
     <meta content="BDIC Team" name="author" />

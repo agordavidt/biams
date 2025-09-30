@@ -212,7 +212,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Benue State Integrated Agricultural Data Assets Management System.
+                        <script>document.write(new Date().getFullYear())</script> © Benue State Smart Agricultural System and Data Management.
                     </div>
                     <div class="col-sm-6">
                         <div class="text-sm-end d-none d-sm-block">

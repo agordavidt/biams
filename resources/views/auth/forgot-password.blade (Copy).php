@@ -121,7 +121,7 @@
         
         <div id="welcome-content" class="text-center">
             <img src="{{ asset('dashboard/images/favicon.jpg') }}" alt="Logo" class="logo" width="140"> 
-            <h3 class="mb-4">Welcome to Benue State Integrated Agricultural Data and Access Management System</h3>
+            <h3 class="mb-4">Welcome to Benue State Smart Agricultural System and Data Management</h3>
             <p class="lead mb-4">{{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}</p>
            
         

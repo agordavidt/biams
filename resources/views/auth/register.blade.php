@@ -15,8 +15,7 @@
                                     <div class="text-center">
                                         {{-- <img src="{{ asset('/dashboard/images/maize_icon.png') }}" style="width: 185px;"
                                         alt="logo"> --}}
-                                        <h4 class="mt-1 mb-5 pb-1">Benue State Agricultural Data and Access Management
-                                            System</h4>
+                                        <h4 class="mt-1 mb-5 pb-1">Benue State Smart Agricultural System and Data Management</h4>
 
                                     </div>
 

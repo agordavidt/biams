@@ -120,7 +120,7 @@
         <!-- Initial Welcome Screen -->
         <div id="welcome-content" class="text-center">
             <!-- <img src="{{ asset('dashboard/images/benue_logo.jpeg') }}" alt="Logo" class="logo"> -->
-            <h3 class="mb-4">Welcome to Benue State Integrated Agricultural Data Assets Management System</h3>
+            <h3 class="mb-4">Welcome to Benue State Smart Agricultural System and Data Management</h3>
             <p class="lead mb-4">Complete your profile to unlock all features and start your agricultural journey with us.</p>
             
             <ul class="benefits-list text-start">

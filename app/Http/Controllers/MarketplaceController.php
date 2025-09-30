@@ -174,7 +174,7 @@ class MarketplaceController extends Controller
             'location' => 'required|string|max:255',
             'contact' => 'required|string|max:11',         
             'image' => 'nullable|image|max:2048', // 2MB max
-            'expires_in' => 'nullable|integer|in:7,14,30,60', // Days until expiration (only if extending)
+            'expires_in' => 'nullable|integer|in:7,14,30,60', 
         ]);
         
         $listing->title = $request->title;
