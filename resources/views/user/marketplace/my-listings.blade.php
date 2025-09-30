@@ -112,9 +112,9 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('marketplace.messages.conversation', $listing) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Messages">
+                                            <!-- <a href="{{ route('marketplace.messages.conversation', $listing) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Messages">
                                                 <i class="ri-message-3-line"></i>
-                                            </a>
+                                            </a> -->
                                             <a href="{{ route('marketplace.edit', $listing) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Edit">
                                                 <i class="ri-edit-2-line"></i>
                                             </a>
