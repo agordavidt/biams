@@ -49,9 +49,34 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // 💡 NEW: Check the user's status immediately after successful authentication
+        $user = Auth::user();
+        
+        if ($user->status !== 'onboarded') {
+            // Logout the user to prevent session hijacking if they are authenticated
+            Auth::logout();
+
+            // Clear the throttle key to allow them to try again if their status changes
+            RateLimiter::clear($this->throttleKey());
+
+            // Provide a tailored message based on their status
+            $message = match ($user->status) {
+                'pending' => 'Your account is pending approval. Please check back later or contact support.',
+                'rejected' => 'Your account registration was rejected. Please contact support.',
+                default => 'Account status prevents login. Contact support.',
+            };
+
+            throw ValidationException::withMessages([
+                'email' => $message,
+            ]);
+        }
+        // 💡 END NEW
+
         RateLimiter::clear($this->throttleKey());
     }
 
+    // ... rest of the class (ensureIsNotRateLimited and throttleKey methods are unchanged)
+    
     /**
      * Ensure the login request is not rate limited.
      *

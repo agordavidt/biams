@@ -133,3 +133,18 @@ Route::get('/payment/callback', [UserResourceController::class, 'handlePaymentCa
 - Store any metadata you need for reconciliation in the `metadata` field.
 - The callback URL should be a route in your app that processes the payment result.
 - You may need to adjust the controller logic to fit your own models and business logic. 
+
+
+
+
+
+============ text cards ===============
+Card Number: 5555 5555 5555 4444
+
+Expiry: 09/25
+
+CVV: 556
+
+PIN: N/A
+
+OTP: N/A

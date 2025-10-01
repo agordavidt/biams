@@ -33,7 +33,8 @@ class AuthenticatedSessionController extends Controller
         $userAgent = $request->userAgent();
         
         try {
-            $request->authenticate();
+            // NOTE: The 'status:onboarded' check is now inside LoginRequest::authenticate()
+            $request->authenticate(); 
             $request->session()->regenerate();
             
             $user = auth()->user();
@@ -41,27 +42,38 @@ class AuthenticatedSessionController extends Controller
             // Log successful login
             $this->logLoginAttempt($email, $user, $ipAddress, $userAgent, 'success');
             
+            // 💡 UPDATED: Fetch user's role from Spatie for logging (if available)
             Log::info('User login attempt:', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'role' => $user->role
+                // Get the name of the first role for logging/context
+                'role' => $user->roles->first()->name ?? 'N/A' 
             ]);
             
-            // Role-based redirects for admin users (no profile completion needed)
-            if ($user->role === 'super_admin') {
+            // 💡 UPDATED: Role-based redirects using Spatie's hasRole() method
+            
+            // Redirect for Super Admin
+            if ($user->hasRole('Super Admin')) {
                 return redirect()->route('super_admin.dashboard');
             }
 
-            if ($user->role === 'governor') {
+            // Redirect for Governor
+            if ($user->hasRole('Governor')) {
                 return redirect()->route('governor.dashboard');
             }
 
-            if ($user->role === 'admin') {
+            // Redirect for State Admin (formerly 'admin')
+            if ($user->hasRole('State Admin')) { 
                 return redirect()->route('admin.dashboard');
             }
+            
+            // Redirect for LGA Admin (Example of a new role)
+            if ($user->hasRole('LGA Admin')) { 
+                return redirect()->route('admin.dashboard'); // Assuming same dashboard route as State Admin
+            }
 
-            // For regular users - check profile completion first
-            if ($user->role === 'user') {
+            // For regular users (check if they have the 'User' role)
+            if ($user->hasRole('User')) { 
                 if (!$user->profile) {
                     return redirect()->route('profile.complete')->with('info', 'Please complete your profile to continue.');
                 }
@@ -70,7 +82,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->intended(RouteServiceProvider::HOME);
             }
             
-            // Default redirect
+            // Default redirect (e.g., if a user has a role not explicitly mapped here, or no role but is authenticated)
             return redirect()->intended(RouteServiceProvider::HOME);
             
         } catch (ValidationException $e) {
@@ -86,6 +98,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // ... (unchanged)
         $user = auth()->user();
         
         Auth::guard('web')->logout();
@@ -100,6 +113,8 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 
+    // ... rest of the class (logLoginAttempt method is unchanged)
+    
     /**
      * Log login attempt
      */

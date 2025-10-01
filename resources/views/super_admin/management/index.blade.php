@@ -1,0 +1,222 @@
+@extends('layouts.super_admin')
+
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Management Overview</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('super_admin.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Management Overview</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Users Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Users</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ App\Models\User::count() }}">0</span>
+                        </h4>
+                        <div class="mb-1">
+                            <a href="{{ route('super_admin.management.users.index') }}" class="text-decoration-underline">Manage Users</a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-user-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Departments</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ App\Models\Department::count() }}">0</span>
+                        </h4>
+                        <div class="mb-1">
+                            <a href="{{ route('super_admin.management.departments.index') }}" class="text-decoration-underline">Manage Departments</a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-building-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agencies Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Agencies</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ App\Models\Agency::count() }}">0</span>
+                        </h4>
+                        <div class="mb-1">
+                            <a href="{{ route('super_admin.management.agencies.index') }}" class="text-decoration-underline">Manage Agencies</a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-community-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LGAs Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total LGAs</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ App\Models\LGA::count() }}">0</span>
+                        </h4>
+                        <div class="mb-1">
+                            <a href="{{ route('super_admin.management.lgas.index') }}" class="text-decoration-underline">Manage LGAs</a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-map-pin-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Quick Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ route('super_admin.management.users.create') }}" class="btn btn-primary btn-lg">
+                        <i class="ri-user-add-line align-middle me-2"></i>
+                        Create New User
+                    </a>
+                    <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="ri-user-settings-line align-middle me-2"></i>
+                        Manage Users
+                    </a>
+                    <a href="{{ route('super_admin.management.departments.index') }}" class="btn btn-outline-success btn-lg">
+                        <i class="ri-building-line align-middle me-2"></i>
+                        Manage Departments
+                    </a>
+                    <a href="{{ route('super_admin.management.agencies.index') }}" class="btn btn-outline-info btn-lg">
+                        <i class="ri-community-line align-middle me-2"></i>
+                        Manage Agencies
+                    </a>
+                    <a href="{{ route('super_admin.management.lgas.index') }}" class="btn btn-outline-warning btn-lg">
+                        <i class="ri-map-pin-line align-middle me-2"></i>
+                        Manage LGAs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Recent Activity</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-5">
+                    <i class="ri-history-line display-4"></i>
+                    <p class="mt-2">No recent activity to display</p>
+                    <p class="text-muted small">Activity logging will appear here once management operations are performed.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">System Statistics</h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6">
+                        <div class="p-3">
+                            <h4 class="text-primary">{{ App\Models\User::where('status', 'onboarded')->count() }}</h4>
+                            <p class="text-muted mb-0">Onboarded Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3">
+                            <h4 class="text-warning">{{ App\Models\User::where('status', 'pending')->count() }}</h4>
+                            <p class="text-muted mb-0">Pending Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3">
+                            <h4 class="text-danger">{{ App\Models\User::where('status', 'rejected')->count() }}</h4>
+                            <p class="text-muted mb-0">Rejected Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3">
+                            <h4 class="text-success">{{ App\Models\Agency::with('department')->count() }}</h4>
+                            <p class="text-muted mb-0">Agencies with Departments</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simple counter animation
+        const counters = document.querySelectorAll('.counter-value');
+        const speed = 200;
+
+        counters.forEach(counter => {
+            const animate = () => {
+                const value = +counter.getAttribute('data-target');
+                const data = +counter.innerText;
+                const time = value / speed;
+                
+                if(data < value) {
+                    counter.innerText = Math.ceil(data + time);
+                    setTimeout(animate, 1);
+                } else {
+                    counter.innerText = value;
+                }
+            }
+            
+            animate();
+        });
+    });
+</script>
+@endpush

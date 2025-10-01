@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-    /**
+        /**
      * The application's global HTTP middleware stack.
      *
      * These middleware are run during every request to your application.
@@ -63,13 +63,13 @@ class Kernel extends HttpKernel
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class, 
-        'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
-        'super_admin' => \App\Http\Middleware\SuperAdmin::class,
-        'governor' => \App\Http\Middleware\GovernorMiddleware::class,
-        'user' => \App\Http\Middleware\EnsureUserIsUser::class,
+        'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+        // 💡 Keep the logic-based middleware
         'profile.incomplete' => \App\Http\Middleware\EnsureProfileIsIncomplete::class,
         'onboarded' => \App\Http\Middleware\EnsureUserIsOnboarded::class,
         
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
     ];
 }
