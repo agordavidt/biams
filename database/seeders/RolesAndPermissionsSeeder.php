@@ -43,6 +43,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // Governor/State-level Permissions
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
 
+            // ADD THIS NEW PERMISSION
+            'view_lga_dashboard', // <--- NEW
+
             // LGA-level Permissions
             'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
 
@@ -71,7 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
         ]);
         $lgaAdminRole->syncPermissions([
-            'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+             'view_lga_dashboard', 'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
         ]);
         $userRole->syncPermissions([
             'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',

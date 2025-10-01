@@ -52,6 +52,7 @@ class ManagementController extends Controller
 
     public function storeUser(Request $request)
     {
+        // 🚨 UPDATE 1: Removed 'status' from validation. The status will be set to 'pending' by default.
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
@@ -59,14 +60,14 @@ class ManagementController extends Controller
             'role_id' => ['required', 'exists:roles,id'],
             'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
             'administrative_id' => 'nullable|integer',
-            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])],
         ]);
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'status' => $data['status'],
+            // ✅ UPDATE 2: Hardcode status to 'pending' on creation.
+            'status' => 'pending', 
         ]);
 
         $role = Role::findById($data['role_id']);
@@ -78,9 +79,10 @@ class ManagementController extends Controller
             $user->save();
         }
 
-        
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User created successfully.');
+        // 💡 Recommendation: Update success message to reflect the pending status.
+        return redirect()->route('super_admin.management.users.index')->with('success', 'User created successfully and is currently **pending** approval.');
     }
+
 
     public function editUser(User $user)
     {
@@ -97,6 +99,7 @@ class ManagementController extends Controller
 
     public function updateUser(Request $request, User $user)
     {
+        //
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -104,12 +107,14 @@ class ManagementController extends Controller
             'role_id' => ['required', 'exists:roles,id'],
             'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
             'administrative_id' => 'nullable|integer',
-            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])],
+            // ✅ 'status' is REQUIRED for updates
+            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])], 
         ]);
 
         $user->name = $data['name'];
         $user->email = $data['email'];
-        $user->status = $data['status'];
+        // ✅ Status is updated from the edit form.
+        $user->status = $data['status']; 
         
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
@@ -128,7 +133,6 @@ class ManagementController extends Controller
         
         $user->save();
 
-        // FIX: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index'
         return redirect()->route('super_admin.management.users.index')->with('success', 'User updated successfully.');
     }
 

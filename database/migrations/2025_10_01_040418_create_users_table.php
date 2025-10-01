@@ -20,9 +20,7 @@ return new class extends Migration
             // Links a user to their LGA, Department, or Agency.
             $table->nullableMorphs('administrative'); // Creates administrative_id and administrative_type
 
-            $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('pending')->comment('User onboarding workflow status');
-            $table->text('rejection_reason')->nullable();
-            
+            $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('onboarded')->comment('User onboarding workflow status');            
             $table->rememberToken();
             $table->timestamps();
 

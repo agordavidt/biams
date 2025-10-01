@@ -54,19 +54,7 @@
                                     <div class="mb-3">
                                         <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Account Status <span class="text-danger">*</span></label>
-                                        <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
-                                            <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending Approval</option>
-                                            <option value="onboarded" {{ old('status') == 'onboarded' ? 'selected' : '' }}>Onboarded (Active)</option>
-                                            <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                                        </select>
-                                        @error('status')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                    </div>                                    
                                 </div>
 
                                 <div class="col-md-6">

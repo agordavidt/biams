@@ -5,6 +5,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardCo
 use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
+use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 use Illuminate\Support\Facades\Route;
@@ -26,7 +27,8 @@ require __DIR__.'/auth.php';
 | Authenticated User Routes (Base Level)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'onboarded'])->group(function () {
+// Note: Removed 'onboarded' middleware check here if it was custom, as the status logic is removed
+Route::middleware(['auth'])->group(function () {
     Route::get(RouteServiceProvider::HOME, [UserDashboardController::class, 'index'])->name('home');
     Route::get('/marketplace', function() {
         return view('user.marketplace');
@@ -40,12 +42,12 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 */
 
 // Super Admin Routes
-Route::middleware(['auth', 'role:Super Admin'])->prefix('super-admin')->name('super_admin.')->group(function () {
+Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->prefix('super-admin')->name('super_admin.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Management Routes
+    // Management Routes (Simplified example, ensure permissions are applied across all routes)
     Route::prefix('management')->name('management.')->group(function () {
         // Management Index
         Route::get('/', [ManagementController::class, 'index'])->name('index');
@@ -94,6 +96,8 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
 });
 
 // LGA Admin Routes
-Route::middleware(['auth', 'role:LGA Admin'])->prefix('lga-admin')->group(function () {
+// 💡 FIX: Using permission middleware is often more reliable for granular dashboard access.
+// Ensure the LGA Admin role has the 'view_lga_dashboard' permission in the database.
+Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->group(function () {
     Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('lga_admin.dashboard');
 });
