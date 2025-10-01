@@ -1,0 +1,547 @@
+--- aunthentication flow   
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Providers\RouteServiceProvider;
+use App\Models\LoginLog;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+
+class AuthenticatedSessionController extends Controller
+{
+    /**
+     * Display the login view.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $email = $request->email;
+        $ipAddress = $request->ip();
+        $userAgent = $request->userAgent();
+        
+        try {
+            // The 'status:onboarded' check has been removed from LoginRequest::authenticate()
+            $request->authenticate(); 
+            $request->session()->regenerate();
+            
+            $user = auth()->user();
+            
+            // Log successful login
+            $this->logLoginAttempt($email, $user, $ipAddress, $userAgent, 'success');
+            
+            // Fetch user's role from Spatie for logging/context
+            Log::info('User login attempt:', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                // Get the name of the first role for logging/context
+                'role' => $user->roles->first()->name ?? 'N/A' 
+            ]);
+            
+            // Role-based redirects using Spatie's hasRole() method
+            
+            // Redirect for Super Admin
+            if ($user->hasRole('Super Admin')) {
+                return redirect()->route('super_admin.dashboard');
+            }
+
+            // Redirect for Governor
+            if ($user->hasRole('Governor')) {
+                return redirect()->route('governor.dashboard');
+            }
+
+            // Redirect for State Admin
+            if ($user->hasRole('State Admin')) { 
+                return redirect()->route('admin.dashboard');
+            }
+            
+            // Redirect for LGA Admin
+            if ($user->hasRole('LGA Admin')) { 
+                // Redirecting to a dedicated LGA dashboard route
+                return redirect()->route('lga_admin.dashboard'); 
+            }
+
+            // For regular users (check if they have the 'User' role)
+            if ($user->hasRole('User')) { 
+                // PROFILE COMPLETION LOGIC REMOVED: All standard users redirect to home immediately
+                return redirect()->intended(RouteServiceProvider::HOME);
+            }
+            
+            // Default redirect (e.g., if a user has a role not explicitly mapped here)
+            return redirect()->intended(RouteServiceProvider::HOME);
+            
+        } catch (ValidationException $e) {
+            // Log failed login attempt
+            $this->logLoginAttempt($email, null, $ipAddress, $userAgent, 'failed', 'Invalid credentials');
+            
+            throw $e;
+        }
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $user = auth()->user();
+        
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Log logout if user was authenticated
+        if ($user) {
+            $this->logLoginAttempt($user->email, $user, $request->ip(), $request->userAgent(), 'logout');
+        }
+
+        return redirect('/');
+    }
+    
+    /**
+     * Log login attempt
+     */
+    private function logLoginAttempt($email, $user = null, $ipAddress = null, $userAgent = null, $status = 'failed', $failureReason = null)
+    {
+        try {
+            $deviceInfo = LoginLog::getDeviceInfo($userAgent);
+            $isSuspicious = LoginLog::isSuspicious($email, $ipAddress, $userAgent);
+            
+            LoginLog::create([
+                'email' => $email,
+                'user_id' => $user ? $user->id : null,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent,
+                'device_type' => $deviceInfo['device_type'],
+                'browser' => $deviceInfo['browser'],
+                'platform' => $deviceInfo['platform'],
+                'status' => $status,
+                'failure_reason' => $failureReason,
+                'is_suspicious' => $isSuspicious,
+                'metadata' => [
+                    'session_id' => session()->getId(),
+                    'timestamp' => now()->toISOString(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            // Log the error but don't break the authentication flow
+            \Log::error('Failed to log login attempt: ' . $e->getMessage());
+        }
+    }
+}
+
+
+--- login request
+<?php
+
+namespace App\Http\Requests\Auth;
+
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+
+class LoginRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Attempt to authenticate the request's credentials.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        // NOTE: The user status check (pending/rejected) has been removed from the
+        // login request. Since all users are now set to 'onboarded' by default,
+        // and the profile completion step is removed, successful Auth::attempt()
+        // is now sufficient for allowing the user to proceed.
+        
+        RateLimiter::clear($this->throttleKey());
+    }
+
+    
+    /**
+     * Ensure the login request is not rate limited.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function ensureIsNotRateLimited(): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
+        }
+
+        event(new Lockout($this));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    /**
+     * Get the rate limiting throttle key for the request.
+     */
+    public function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+    }
+}
+
+
+
+
+--- views for the super admin management
+@extends('layouts.super_admin')
+@section('content')
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0">Create New User</h4>
+                    <div class="page-title-right">                       
+                        <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line align-middle me-1"></i> Back to Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('super_admin.management.users.store') }}">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Basic Information</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" 
+                                               value="{{ old('name') }}" required>
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
+                                               value="{{ old('email') }}" required>
+                                        @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                                    </div>                                    
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Role & Unit Assignment</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="role_id" class="form-label">Assign Role <span class="text-danger">*</span></label>
+                                        <select name="role_id" id="role_id" class="form-control @error('role_id') is-invalid @enderror" required>
+                                            <option value="">-- Select Role --</option>
+                                            @foreach($roles as $id => $name)
+                                                <option value="{{ $id }}" {{ old('role_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('role_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div id="administrative_unit_section" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="ri-information-line"></i> This role requires administrative unit assignment.
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="administrative_type" class="form-label">Administrative Unit Type</label>
+                                            <select id="administrative_type" name="administrative_type" class="form-control @error('administrative_type') is-invalid @enderror">
+                                                <option value="">-- Select Type --</option>
+                                                <option value="Department" {{ old('administrative_type') == 'Department' ? 'selected' : '' }}>Department</option>
+                                                <option value="Agency" {{ old('administrative_type') == 'Agency' ? 'selected' : '' }}>Agency</option>
+                                                <option value="LGA" {{ old('administrative_type') == 'LGA' ? 'selected' : '' }}>LGA</option>
+                                            </select>
+                                            @error('administrative_type')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="administrative_id" class="form-label">Administrative Unit</label>
+                                            <select id="administrative_id" name="administrative_id" class="form-control @error('administrative_id') is-invalid @enderror">
+                                                <option value="">-- Select Unit --</option>
+                                            </select>
+                                            @error('administrative_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-save-line align-middle me-1"></i> Create User
+                                </button>
+                                {{-- FIX 1: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index' --}}
+                                <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    const departments = @json($departments);
+    const agencies = @json($agencies);
+    const lgas = @json($lgas);
+    const unitRoleIds = Object.keys(@json($unitRoles)).map(id => String(id));
+
+    const roleSelect = document.getElementById('role_id');
+    const unitSection = document.getElementById('administrative_unit_section');
+    const unitTypeSelect = document.getElementById('administrative_type');
+    const unitIdSelect = document.getElementById('administrative_id');
+
+    roleSelect.addEventListener('change', toggleUnitSection);
+    unitTypeSelect.addEventListener('change', updateUnits);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleUnitSection();
+        if (unitTypeSelect.value) {
+            updateUnits();
+        }
+    });
+
+    function toggleUnitSection() {
+        const selectedRoleId = String(roleSelect.value);
+
+        if (unitRoleIds.includes(selectedRoleId)) {
+            unitSection.style.display = 'block';
+        } else {
+            unitSection.style.display = 'none';
+            unitTypeSelect.value = '';
+            unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+        }
+        
+        updateUnits();
+    }
+
+    function updateUnits() {
+        const type = unitTypeSelect.value;
+        unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+
+        let units = [];
+        if (type === 'Department') {
+            units = departments;
+        } else if (type === 'Agency') {
+            units = agencies;
+        } else if (type === 'LGA') {
+            units = lgas;
+        }
+        
+        units.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.id;
+            option.textContent = unit.name;
+            unitIdSelect.appendChild(option);
+        });
+
+        {{-- FIX 2: Removed reference to $user, which is not passed to the create view --}}
+        const oldUnitId = '{{ old('administrative_id') }}'; 
+        if (oldUnitId) {
+            unitIdSelect.value = oldUnitId;
+        }
+    }
+</script>
+@endpush
+
+
+
+--- superadmin Routes  
+<?php
+
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\ManagementController;
+use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
+use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
+use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
+use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController; // <--- NEW IMPORT
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+
+use Illuminate\Support\Facades\Route;
+use App\Providers\RouteServiceProvider;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/', function () {
+    return view('welcome');
+});
+
+require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated User Routes (Base Level)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get(RouteServiceProvider::HOME, [UserDashboardController::class, 'index'])->name('home');
+    Route::get('/marketplace', function() {
+        return view('user.marketplace');
+    })->name('marketplace')->middleware('role:User');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Role-Gated Admin Routes (using Spatie Role Middleware)
+|--------------------------------------------------------------------------
+*/
+
+// Super Admin Routes
+Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->prefix('super-admin')->name('super_admin.')->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Management Routes (Simplified example, ensure permissions are applied across all routes)
+    Route::prefix('management')->name('management.')->group(function () {
+        // Management Index
+        Route::get('/', [ManagementController::class, 'index'])->name('index');
+        
+        // User Management Routes
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [ManagementController::class, 'users'])->name('index');
+            Route::get('/create', [ManagementController::class, 'createUser'])->name('create');
+            Route::post('/', [ManagementController::class, 'storeUser'])->name('store');
+            Route::get('/{user}/edit', [ManagementController::class, 'editUser'])->name('edit');
+            Route::put('/{user}', [ManagementController::class, 'updateUser'])->name('update');
+            Route::delete('/{user}', [ManagementController::class, 'destroyUser'])->name('destroy');
+        });
+
+        // Department Management Routes
+        Route::prefix('departments')->name('departments.')->group(function () {
+            Route::get('/', [ManagementController::class, 'departments'])->name('index');
+            Route::post('/', [ManagementController::class, 'storeDepartment'])->name('store');
+            Route::put('/{department}', [ManagementController::class, 'updateDepartment'])->name('update');
+            Route::delete('/{department}', [ManagementController::class, 'destroyDepartment'])->name('destroy');
+        });
+
+        // Agency Management Routes
+        Route::prefix('agencies')->name('agencies.')->group(function () {
+            Route::get('/', [ManagementController::class, 'agencies'])->name('index');
+            Route::post('/', [ManagementController::class, 'storeAgency'])->name('store');
+            Route::put('/{agency}', [ManagementController::class, 'updateAgency'])->name('update');
+            Route::delete('/{agency}', [ManagementController::class, 'destroyAgency'])->name('destroy');
+        });
+
+        // LGA Management Routes
+        Route::prefix('lgas')->name('lgas.')->group(function () {
+            Route::get('/', [ManagementController::class, 'lgas'])->name('index');
+        });
+    });
+});
+
+// Governor Routes
+Route::middleware(['auth', 'role:Governor'])->prefix('governor')->group(function () {
+    Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('governor.dashboard');
+});
+
+// State Admin Routes
+Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [StateAdminDashboardController::class, 'index'])->name('admin.dashboard');
+});
+
+// LGA Admin Routes
+Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
+    Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Management Routes for Enrollment Agents
+    Route::middleware('permission:manage_lga_agents')->prefix('agents')->name('agents.')->group(function () {
+        Route::get('/', [LGAAdminManagementController::class, 'index'])->name('index');
+        Route::get('/create', [LGAAdminManagementController::class, 'create'])->name('create');
+        Route::post('/', [LGAAdminManagementController::class, 'store'])->name('store');
+        Route::get('/{agent}/edit', [LGAAdminManagementController::class, 'edit'])->name('edit');
+        Route::put('/{agent}', [LGAAdminManagementController::class, 'update'])->name('update');
+        Route::delete('/{agent}', [LGAAdminManagementController::class, 'destroy'])->name('destroy');
+    });
+});
+
+
+
+

@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <div class="container mx-auto p-4"> <div class="bg-white shadow-lg rounded-lg p-6"> <h1 class="text-3xl font-bold text-gray-800 mb-4">LGA Administrator Dashboard</h1> <h2 class="text-xl text-indigo-600 mb-6">Welcome, {{ Auth::user()->name }} ({{ $lgaName }})</h2>
+@extends('layouts.lga_admin')
+
+@section('content')
+
+<div class="container mx-auto p-4"> <div class="bg-white shadow-lg rounded-lg p-6"> <h1 class="text-3xl font-bold text-gray-800 mb-4">LGA Administrator Dashboard</h1> {{-- Added null coalesce operator for robustness just in case $lgaName is not set --}} <h2 class="text-xl text-indigo-600 mb-6">Welcome, {{ Auth::user()->name }} ({{ $lgaName ?? 'Your LGA' }})</h2>
 
     <p class="text-gray-600 mb-8">
-        You are logged in as an LGA Administrator. From here, you manage farmer registrations and resource distribution manifests specific to the {{ $lgaName }} Local Government Area.
+        You are logged in as an **LGA Administrator**. From here, you manage farmer registrations and resource distribution manifests specific to the {{ $lgaName ?? 'Your LGA' }} Local Government Area.
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -40,5 +36,6 @@
     </div>
 </div>
 
-</body>
-</html>
+</div> 
+
+@endsection

@@ -6,6 +6,7 @@ use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
+use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController; // <--- NEW IMPORT
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,6 @@ require __DIR__.'/auth.php';
 | Authenticated User Routes (Base Level)
 |--------------------------------------------------------------------------
 */
-// Note: Removed 'onboarded' middleware check here if it was custom, as the status logic is removed
 Route::middleware(['auth'])->group(function () {
     Route::get(RouteServiceProvider::HOME, [UserDashboardController::class, 'index'])->name('home');
     Route::get('/marketplace', function() {
@@ -96,8 +96,16 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
 });
 
 // LGA Admin Routes
-// 💡 FIX: Using permission middleware is often more reliable for granular dashboard access.
-// Ensure the LGA Admin role has the 'view_lga_dashboard' permission in the database.
-Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->group(function () {
-    Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('lga_admin.dashboard');
+Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
+    Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Management Routes for Enrollment Agents
+    Route::middleware('permission:manage_lga_agents')->prefix('agents')->name('agents.')->group(function () {
+        Route::get('/', [LGAAdminManagementController::class, 'index'])->name('index');
+        Route::get('/create', [LGAAdminManagementController::class, 'create'])->name('create');
+        Route::post('/', [LGAAdminManagementController::class, 'store'])->name('store');
+        Route::get('/{agent}/edit', [LGAAdminManagementController::class, 'edit'])->name('edit');
+        Route::put('/{agent}', [LGAAdminManagementController::class, 'update'])->name('update');
+        Route::delete('/{agent}', [LGAAdminManagementController::class, 'destroy'])->name('destroy');
+    });
 });
