@@ -12,27 +12,18 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-
 class ManagementController extends Controller
 {
-
-
     public function index()
     {
         return view('super_admin.management.index');
     }
 
-     /*
-
-    |--------------------------------------------------------------------------
-
-    | User Management
-
-    |--------------------------------------------------------------------------
-
-    */
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
 
     public function users()
     {
@@ -53,23 +44,92 @@ class ManagementController extends Controller
         return view('super_admin.management.users.create', compact('roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
     }
 
-   public function storeUser(StoreUserRequest $request)
+    public function storeUser(Request $request)
     {
-        $data = $request->validated();
-
+        // Define global roles that don't need administrative units
+        $globalRoles = ['Super Admin', 'Governor'];
+        
+        // Base validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role_id' => 'required|exists:roles,id',
+        ];
+        
+        // Get the selected role to check if it needs administrative unit
+        $selectedRole = null;
+        if ($request->role_id) {
+            $selectedRole = Role::find($request->role_id);
+        }
+        
+        // Add administrative unit validation if role requires it
+        if ($selectedRole && !in_array($selectedRole->name, $globalRoles)) {
+            $rules['administrative_type'] = [
+                'required', 
+                'string', 
+                Rule::in(['Department', 'Agency', 'LGA'])
+            ];
+            $rules['administrative_id'] = 'required|integer';
+        }
+        
+        // Validate the request
+        $validated = $request->validate($rules, [
+            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+            'role_id.required' => 'Please select a role for this user.',
+        ]);
+        
+        // Additional validation: Check if administrative unit exists
+        if (!empty($validated['administrative_type']) && !empty($validated['administrative_id'])) {
+            $modelClass = "App\\Models\\{$validated['administrative_type']}";
+            
+            if (!class_exists($modelClass)) {
+                return back()->withErrors(['administrative_type' => 'Invalid administrative type selected.'])->withInput();
+            }
+            
+            $unitExists = $modelClass::where('id', $validated['administrative_id'])->exists();
+            
+            if (!$unitExists) {
+                return back()->withErrors([
+                    'administrative_id' => "The selected {$validated['administrative_type']} does not exist."
+                ])->withInput();
+            }
+            
+            // Validate role-unit compatibility
+            $roleUnitMap = [
+                'LGA Admin' => ['LGA'],
+                'Enrollment Agent' => ['LGA'],
+                'State Admin' => ['Department', 'Agency'],
+            ];
+            
+            if ($selectedRole && isset($roleUnitMap[$selectedRole->name])) {
+                $allowedTypes = $roleUnitMap[$selectedRole->name];
+                
+                if (!in_array($validated['administrative_type'], $allowedTypes)) {
+                    return back()->withErrors([
+                        'administrative_type' => "The role '{$selectedRole->name}' can only be assigned to: " . 
+                            implode(' or ', $allowedTypes) . '.'
+                    ])->withInput();
+                }
+            }
+        }
+        
+        // Create the user
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'status' => 'onboarded', // ✅ Fixed: onboarded by default
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'status' => 'onboarded',
         ]);
 
-        $role = Role::findById($data['role_id']);
-        $user->assignRole($role);
+        // Assign role
+        $user->assignRole($selectedRole);
 
-        if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = $data['administrative_type'];
-            $user->administrative_id = $data['administrative_id'];
+        // Assign administrative unit if provided
+        if (!empty($validated['administrative_type']) && !empty($validated['administrative_id'])) {
+            $user->administrative_type = "App\\Models\\{$validated['administrative_type']}";
+            $user->administrative_id = $validated['administrative_id'];
             $user->save();
         }
 
@@ -77,7 +137,6 @@ class ManagementController extends Controller
             ->route('super_admin.management.users.index')
             ->with('success', 'User created successfully and is now active.');
     }
-
 
     public function editUser(User $user)
     {
@@ -92,26 +151,100 @@ class ManagementController extends Controller
         return view('super_admin.management.users.edit', compact('user', 'roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
     }
 
-   public function updateUser(UpdateUserRequest $request, User $user)
+    public function updateUser(Request $request, User $user)
     {
-        $this->authorize('update', $user);
+        // Define global roles that don't need administrative units
+        $globalRoles = ['Super Admin', 'Governor'];
         
-        $data = $request->validated();
-
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->status = $data['status'];
+        // Base validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id)
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+            'role_id' => 'required|exists:roles,id',
+            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])],
+        ];
         
-        if (!empty($data['password'])) {
-            $user->password = Hash::make($data['password']);
+        // Get the selected role to check if it needs administrative unit
+        $selectedRole = null;
+        if ($request->role_id) {
+            $selectedRole = Role::find($request->role_id);
+        }
+        
+        // Add administrative unit validation if role requires it
+        if ($selectedRole && !in_array($selectedRole->name, $globalRoles)) {
+            $rules['administrative_type'] = [
+                'required', 
+                'string', 
+                Rule::in(['Department', 'Agency', 'LGA'])
+            ];
+            $rules['administrative_id'] = 'required|integer';
+        }
+        
+        // Validate the request
+        $validated = $request->validate($rules, [
+            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+        ]);
+        
+        // Additional validation: Check if administrative unit exists
+        if (!empty($validated['administrative_type']) && !empty($validated['administrative_id'])) {
+            $modelClass = "App\\Models\\{$validated['administrative_type']}";
+            
+            if (!class_exists($modelClass)) {
+                return back()->withErrors(['administrative_type' => 'Invalid administrative type selected.'])->withInput();
+            }
+            
+            $unitExists = $modelClass::where('id', $validated['administrative_id'])->exists();
+            
+            if (!$unitExists) {
+                return back()->withErrors([
+                    'administrative_id' => "The selected {$validated['administrative_type']} does not exist."
+                ])->withInput();
+            }
+            
+            // Validate role-unit compatibility
+            $roleUnitMap = [
+                'LGA Admin' => ['LGA'],
+                'Enrollment Agent' => ['LGA'],
+                'State Admin' => ['Department', 'Agency'],
+            ];
+            
+            if ($selectedRole && isset($roleUnitMap[$selectedRole->name])) {
+                $allowedTypes = $roleUnitMap[$selectedRole->name];
+                
+                if (!in_array($validated['administrative_type'], $allowedTypes)) {
+                    return back()->withErrors([
+                        'administrative_type' => "The role '{$selectedRole->name}' can only be assigned to: " . 
+                            implode(' or ', $allowedTypes) . '.'
+                    ])->withInput();
+                }
+            }
+        }
+        
+        // Update user basic info
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->status = $validated['status'];
+        
+        // Update password if provided
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
         }
 
-        $role = Role::findById($data['role_id']);
-        $user->syncRoles([$role]);
+        // Sync role
+        $user->syncRoles([$selectedRole]);
 
-        if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = $data['administrative_type'];
-            $user->administrative_id = $data['administrative_id'];
+        // Update administrative unit
+        if (!empty($validated['administrative_type']) && !empty($validated['administrative_id'])) {
+            $user->administrative_type = "App\\Models\\{$validated['administrative_type']}";
+            $user->administrative_id = $validated['administrative_id'];
         } else {
             $user->administrative_type = null;
             $user->administrative_id = null;
@@ -127,10 +260,8 @@ class ManagementController extends Controller
     public function destroyUser(User $user)
     {
         $user->delete();
-        // FIX: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index'
         return redirect()->route('super_admin.management.users.index')->with('success', 'User deleted successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------

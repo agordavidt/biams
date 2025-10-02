@@ -182,8 +182,7 @@
                                     <i class="ri-user-settings-line"></i>
                                     <span>Management</span>
                                 </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('super_admin.management.index') }}" class="submenu-item">Overview</a></li>
+                                <ul class="sub-menu" aria-expanded="false">                                    
                                     <li><a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">User Management</a></li>
                                     <li><a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">Departments</a></li>
                                     <li><a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">Agencies</a></li>

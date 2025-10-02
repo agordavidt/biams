@@ -1,284 +1,74 @@
----\resources\views\layouts\super_admin.blade.php
+--- please move the super-admin index view to the dashboard
 
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>Super Admin | {{ 'Benue State Smart Agricultural System and Data Management' }}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta content="BDIC Team" name="author" />
-        <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
-        <!-- Preload critical assets -->
-        <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
-        <link rel="preload" href="{{ asset('dashboard/js/app.js') }}" as="script">
-        <!-- Consolidated CSS bundles -->
-        <link href="{{ asset('dashboard/css/vendor-bundle.css') }}" rel="stylesheet">
-        <link href="{{ asset('dashboard/css/app-bundle.css') }}" rel="stylesheet">
-        <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/libs/datatables.net-select-bs4/css//select.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
-        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-        <style>
-            .status-badge {
-                padding: 0.25rem 0.5rem;
-                border-radius: 9999px;
-                font-size: 0.75rem;
-                font-weight: 500;
-            }
-            .status-pending {
-                background-color: #fef3c7;
-                color: #92400e;
-            }
-            .status-approved {
-                background-color: #dcfce7;
-                color: #166534;
-            }
-            .status-rejected {
-                background-color: #fee2e2;
-                color: #991b1b;
-            }
-            #map {
-                height: 500px;
-                width: 100%;
-                border-radius: 0.5rem;
-                border: 1px solid #e5e7eb;
-            }
-            .action-btn {
-                padding: 0.25rem;
-                border-radius: 0.375rem;
-                border: none;
-                background: transparent;
-            }
-            .action-btn:hover {
-                background-color: #f3f4f6;
-            }
-            .approve-btn:hover {
-                color: #059669;
-                background-color: #ecfdf5;
-            }
-            .reject-btn:hover {
-                color: #dc2626;
-                background-color: #fef2f2;
-            }
-            /* Form Styles */
-            .form-control, select {
-                margin-bottom: 1rem;
-                padding: 0.5rem;
-                border-radius: 0.375rem;
-                border: 1px solid #e5e7eb;
-                width: 100%;
-            }
-            button[type="submit"] {
-                background-color: #1e40af;
-                color: white;
-                padding: 0.5rem 1rem;
-                border-radius: 0.375rem;
-                border: none;
-                cursor: pointer;
-            }
-            button[type="submit"]:hover {
-                background-color: #1e3a8a;
-            }
-            h4 {
-                margin-bottom: 1rem;
-            }
-            /* Submenu Styles */
-            .submenu-item {
-                padding-left: 2.5rem !important;
-                font-size: 0.875rem;
-            }
-            .submenu-item.active {
-                background-color: rgba(59, 130, 246, 0.1);
-                color: #1e40af;
-            }
-        </style>
-    </head>
-    <body data-topbar="dark">
-        <div id="layout-wrapper">
-            <header id="page-topbar">
-                <div class="navbar-header">
-                    <div class="d-flex">
-                        <!-- LOGO -->
-                        <div class="navbar-brand-box">
-                            <a href="#" class="logo logo-dark">
-                                <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
-                                </span>
-                            </a>
-                            <a href="#" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
-                                </span>
-                            </a>
-                        </div>
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                            <i class="ri-menu-2-line align-middle"></i>
-                        </button>
-                        <!-- App Search-->
-                        <form class="app-search d-none d-lg-block">
-                            <div class="position-relative">
-                                <input type="text" class="form-control" placeholder="Search...">
-                                <span class="ri-search-line"></span>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="d-flex">
-                        <div class="dropdown d-inline-block d-lg-none ms-2">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-search-line"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                aria-labelledby="page-header-search-dropdown">
-                                <form class="p-3">
-                                    <div class="mb-3 m-0">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search ...">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <!-- ========== Left Sidebar Start ========== -->
-            <div class="vertical-menu">
-                <div data-simplebar class="h-100">
-                    <!--- Sidemenu -->
-                    <div id="sidebar-menu">
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
-                            <li>
-                                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i>
-                                    <span>Dashboard</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-user-settings-line"></i>
-                                    <span>Management</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('super_admin.management.index') }}" class="submenu-item">Overview</a></li>
-                                    <li><a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">User Management</a></li>
-                                    <li><a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">Departments</a></li>
-                                    <li><a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">Agencies</a></li>
-                                    <li><a href="{{ route('super_admin.management.lgas.index') }}" class="submenu-item">LGAs</a></li>
-                                </ul>
-                            </li>
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                                @csrf
-                                <li>
-                                    <a class="text-danger" href="#" id="logout-link"> 
-                                        <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> 
-                                        <span>Logout</span> 
-                                    </a>
-                                </li>
-                            </form>
-                        </ul>
-                    </div>
-                    <!-- Sidebar -->
-                </div>
-            </div>
-            <!-- Left Sidebar End -->
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
-            <div class="main-content">
-                <div class="page-content">
-                    <div class="container-fluid">
-                        @yield('content')
-                    </div>
-                </div>
-                <!-- End Page-content -->
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © {{ 'Benue State Smart Agricultural System and Data Management' }}.
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Powered by BDIC
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-            <!-- end main content-->
-        </div>
-        <!-- END layout-wrapper -->
-        <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/simplebar/simplebar.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/node-waves/waves.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/apexcharts/apexcharts.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/jszip/jszip.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/pdfmake/build/pdfmake.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/pdfmake/build/vfs_fonts.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-select/js/dataTables.select.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dashboard/js/pages/datatables.init.js') }}"></script>
-        <script src="{{ asset('dashboard/js/app.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
-        <script src="{{ asset('dashboard/js/pages/lightbox.init.js') }}"></script>
-        <script src="{{ asset('dashboard/js/vendor-bundle.js') }}" defer></script>
-        <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
-        @stack('scripts')
-        <script>
-            document.getElementById('logout-link').addEventListener('click', function(event) { 
-                event.preventDefault();
-                document.getElementById('logout-form').submit(); 
-            });
-        </script>
-    </body>
-</html>
+
+<?php
+
+namespace App\Http\Controllers\SuperAdmin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        return view('super_admin.dashboard');
+    }
+}
 
 
 
---- sample view
+routes:
+// Super Admin Routes
+Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->prefix('super-admin')->name('super_admin.')->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Management Routes (Simplified example, ensure permissions are applied across all routes)
+    Route::prefix('management')->name('management.')->group(function () {
+        // Management Index
+        Route::get('/', [ManagementController::class, 'index'])->name('index');
+        
+        // User Management Routes
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [ManagementController::class, 'users'])->name('index');
+            Route::get('/create', [ManagementController::class, 'createUser'])->name('create');
+            Route::post('/', [ManagementController::class, 'storeUser'])->name('store');
+            Route::get('/{user}/edit', [ManagementController::class, 'editUser'])->name('edit');
+            Route::put('/{user}', [ManagementController::class, 'updateUser'])->name('update');
+            Route::delete('/{user}', [ManagementController::class, 'destroyUser'])->name('destroy');
+        });
+
+        // Department Management Routes
+        Route::prefix('departments')->name('departments.')->group(function () {
+            Route::get('/', [ManagementController::class, 'departments'])->name('index');
+            Route::post('/', [ManagementController::class, 'storeDepartment'])->name('store');
+            Route::put('/{department}', [ManagementController::class, 'updateDepartment'])->name('update');
+            Route::delete('/{department}', [ManagementController::class, 'destroyDepartment'])->name('destroy');
+        });
+
+        // Agency Management Routes
+        Route::prefix('agencies')->name('agencies.')->group(function () {
+            Route::get('/', [ManagementController::class, 'agencies'])->name('index');
+            Route::post('/', [ManagementController::class, 'storeAgency'])->name('store');
+            Route::put('/{agency}', [ManagementController::class, 'updateAgency'])->name('update');
+            Route::delete('/{agency}', [ManagementController::class, 'destroyAgency'])->name('destroy');
+        });
+
+        // LGA Management Routes
+        Route::prefix('lgas')->name('lgas.')->group(function () {
+            Route::get('/', [ManagementController::class, 'lgas'])->name('index');
+        });
+    });
+});
+
+
+
+
+
+
+----\resources\views\super_admin\management\index.blade.php
 @extends('layouts.super_admin')
 
 
@@ -501,3 +291,4 @@
     });
 </script>
 @endpush
+

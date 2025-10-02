@@ -1,15 +1,10 @@
 <?php
 
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
-use App\Models\Department;
-use App\Models\Agency;
-use App\Models\LGA;
 
 class StoreUserRequest extends FormRequest
 {
@@ -71,6 +66,8 @@ class StoreUserRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
+            // IMPORTANT: These run BEFORE validated() is called
+            // So administrative_type is still in simple format (e.g., "Department")
             $this->validateAdministrativeUnit($validator);
             $this->validateRoleUnitCompatibility($validator);
         });
@@ -127,10 +124,14 @@ class StoreUserRequest extends FormRequest
             'State Admin' => ['Department', 'Agency'],
         ];
 
+        // CRITICAL FIX: Use the raw input value (not the converted one)
+        // At this point, administrative_type is still "Department", not "App\Models\Department"
+        $administrativeType = $this->input('administrative_type');
+
         if (isset($roleUnitMap[$role->name])) {
             $allowedTypes = $roleUnitMap[$role->name];
             
-            if (!in_array($this->administrative_type, $allowedTypes)) {
+            if (!in_array($administrativeType, $allowedTypes)) {
                 $validator->errors()->add(
                     'administrative_type',
                     "The role '{$role->name}' can only be assigned to: " . 
@@ -142,12 +143,14 @@ class StoreUserRequest extends FormRequest
 
     /**
      * Get validated data with administrative unit properly formatted.
+     * This is called AFTER validation passes.
      */
     public function validated($key = null, $default = null)
     {
         $data = parent::validated($key, $default);
         
         // Format administrative_type to full class name if provided
+        // This conversion happens AFTER all validation is complete
         if (!empty($data['administrative_type'])) {
             $data['administrative_type'] = "App\\Models\\{$data['administrative_type']}";
         }
