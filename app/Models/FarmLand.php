@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+class FarmLand extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'farmer_id',
+        'name',
+        'farm_type',
+        'total_size_hectares',
+        'ownership_status',
+        'geolocation_geojson',
+    ];
+
+    protected $casts = [
+        'total_size_hectares' => 'decimal:4',
+    ];
+
+    // ==================== Relationships ====================
+
+    public function farmer(): BelongsTo
+    {
+        return $this->belongsTo(Farmer::class);
+    }
+
+    // Dynamic Relationship to Practice Details
+    public function practiceDetails(): HasOne
+    {
+        switch ($this->farm_type) {
+            case 'crops':
+                return $this->hasOne(CropPracticeDetails::class);
+            case 'livestock':
+                return $this->hasOne(LivestockPracticeDetails::class);
+            case 'fisheries':
+                return $this->hasOne(FisheriesPracticeDetails::class);
+            case 'orchards':
+                return $this->hasOne(OrchardPracticeDetails::class);
+            default:
+                return $this->hasOne(Model::class); // Fallback
+        }
+    }
+}

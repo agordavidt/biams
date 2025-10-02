@@ -1,626 +1,246 @@
--- Controller
 <?php
 
-namespace App\Http\Controllers\SuperAdmin;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Department;
-use App\Models\Agency;
-use App\Models\LGA;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-
-class ManagementController extends Controller
-{
-
-
-    public function index()
-    {
-        return view('super_admin.management.index');
-    }
-
-     /*
-
-    |--------------------------------------------------------------------------
-
-    | User Management
-
-    |--------------------------------------------------------------------------
-
-    */
-
-    public function users()
-    {
-        $users = User::with(['roles', 'administrativeUnit'])->get();
-        return view('super_admin.management.users.index', compact('users'));
-    }
-
-    public function createUser()
-    {
-        $globalRoles = ['Super Admin', 'Governor'];        
-        $unitRoles = Role::whereNotIn('name', $globalRoles)->pluck('name', 'id');
-        $globalRoles = Role::whereIn('name', $globalRoles)->pluck('name', 'id');
-        $roles = $globalRoles->merge($unitRoles);
-        $departments = Department::all();
-        $agencies = Agency::all();
-        $lgas = LGA::all();
-
-        return view('super_admin.management.users.create', compact('roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
-    }
-
-    public function storeUser(Request $request)
-    {
-        // 🚨 UPDATE 1: Removed 'status' from validation. The status will be set to 'pending' by default.
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => ['required', 'exists:roles,id'],
-            'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
-            'administrative_id' => 'nullable|integer',
-        ]);
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            // ✅ UPDATE 2: Hardcode status to 'pending' on creation.
-            'status' => 'pending', 
-        ]);
-
-        $role = Role::findById($data['role_id']);
-        $user->assignRole($role);
-
-        if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = "App\\Models\\{$data['administrative_type']}";
-            $user->administrative_id = $data['administrative_id'];
-            $user->save();
-        }
-
-        // 💡 Recommendation: Update success message to reflect the pending status.
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User created successfully and is currently **pending** approval.');
-    }
-
-
-    public function editUser(User $user)
-    {
-        $globalRoles = ['Super Admin', 'Governor'];        
-        $unitRoles = Role::whereNotIn('name', $globalRoles)->pluck('name', 'id');
-        $globalRoles = Role::whereIn('name', $globalRoles)->pluck('name', 'id');
-        $roles = $globalRoles->merge($unitRoles);
-        $departments = Department::all();
-        $agencies = Agency::all();
-        $lgas = LGA::all();
-
-        return view('super_admin.management.users.edit', compact('user', 'roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
-    }
-
-    public function updateUser(Request $request, User $user)
-    {
-        //
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id' => ['required', 'exists:roles,id'],
-            'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
-            'administrative_id' => 'nullable|integer',
-            // ✅ 'status' is REQUIRED for updates
-            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])], 
-        ]);
-
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        // ✅ Status is updated from the edit form.
-        $user->status = $data['status']; 
-        
-        if (!empty($data['password'])) {
-            $user->password = Hash::make($data['password']);
-        }
-
-        $role = Role::findById($data['role_id']);
-        $user->syncRoles([$role]);
-
-        if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = "App\\Models\\{$data['administrative_type']}";
-            $user->administrative_id = $data['administrative_id'];
-        } else {
-            $user->administrative_type = null;
-            $user->administrative_id = null;
-        }
-        
-        $user->save();
-
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User updated successfully.');
-    }
-
-    public function destroyUser(User $user)
-    {
-        $user->delete();
-        // FIX: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index'
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User deleted successfully.');
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Department Management
-    |--------------------------------------------------------------------------
-    */
-
-    public function departments()
-    {
-        $departments = Department::withCount('users')->get();
-        return view('super_admin.management.departments.index', compact('departments'));
-    }
-
-    public function storeDepartment(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|unique:departments,name|max:255',
-            'abbreviation' => 'nullable|string|max:50',
-        ]);
-
-        Department::create($data);
-
-        return response()->json(['success' => true, 'message' => 'Department created successfully.']);
-    }
-
-    public function updateDepartment(Request $request, Department $department)
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('departments', 'name')->ignore($department->id)],
-            'abbreviation' => 'nullable|string|max:50',
-        ]);
-
-        $department->update($data);
-
-        return response()->json(['success' => true, 'message' => 'Department updated successfully.']);
-    }
-
-    public function destroyDepartment(Department $department)
-    {
-        if ($department->users()->count() > 0) {
-            return response()->json(['success' => false, 'message' => 'Cannot delete department with assigned users.'], 422);
-        }
-
-        $department->delete();
-        return response()->json(['success' => true, 'message' => 'Department deleted successfully.']);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Agency Management
-    |--------------------------------------------------------------------------
-    */
-
-    public function agencies()
-    {
-        $agencies = Agency::with('department')->withCount('users')->get();
-        $departments = Department::all();
-        return view('super_admin.management.agencies.index', compact('agencies', 'departments'));
-    }
-
-    public function storeAgency(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|unique:agencies,name|max:255',
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
-        Agency::create($data);
-
-        return response()->json(['success' => true, 'message' => 'Agency created successfully.']);
-    }
-
-    public function updateAgency(Request $request, Agency $agency)
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('agencies', 'name')->ignore($agency->id)],
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
-        $agency->update($data);
-
-        return response()->json(['success' => true, 'message' => 'Agency updated successfully.']);
-    }
-
-    public function destroyAgency(Agency $agency)
-    {
-        if ($agency->users()->count() > 0) {
-            return response()->json(['success' => false, 'message' => 'Cannot delete agency with assigned users.'], 422);
-        }
-
-        $agency->delete();
-        return response()->json(['success' => true, 'message' => 'Agency deleted successfully.']);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LGA Management
-    |--------------------------------------------------------------------------
-    */
-
-    public function lgas()
-    {
-        $lgas = LGA::withCount('users')->get();
-        return view('super_admin.management.lgas.index', compact('lgas'));
-    }
-}
-
-
--- seeders
-<?php
-
-namespace Database\Seeders;
-
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\LGA;
-use App\Models\Department;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-
-class RolesAndPermissionsSeeder extends Seeder
-{
-    public function run(): void
-    {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        $lga = LGA::where('code', 'MDK')->first();
-        if (!$lga) {
-            $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
-            return;
-        }
-
-        $dept_agric = Department::where('abbreviation', 'MAFS')->first();
-        if (!$dept_agric) {
-            $this->command->error("Ministry of Agriculture (MAFS) not found. Run DepartmentAndAgencySeeder first.");
-            return;
-        }
-
-        // Define Permissions
-        $permissions = [
-            // Super Admin Permissions
-            'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
-            'manage_agencies', 'system_settings', 'view_audit_logs', 'export_all_data',
-
-            // Governor/State-level Permissions
-            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
-
-            // LGA Admin Permissions
-            'view_lga_dashboard', 'manage_lga_agents', // Added manage_lga_agents
-
-            // LGA-level Permissions
-            'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
-
-            // Enrollment Agent Permissions
-            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles',
-
-            // Standard User Permissions
-            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
-        }
-
-        // Define Roles
-        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
-        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
-        $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
-        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
-        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']); // Added
-        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
-
-        // Assign Permissions to Roles
-        $superAdminRole->syncPermissions($permissions);
-        
-        $governorRole->syncPermissions([
-            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
-        ]);
-        
-        $stateAdminRole->syncPermissions([
-            'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
-            'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
-        ]);
-        
-        $lgaAdminRole->syncPermissions([
-            'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
-            'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
-        ]);
-
-        $enrollmentAgentRole->syncPermissions([
-            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
-        ]);
-        
-        $userRole->syncPermissions([
-            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
-        ]);
-
-        // Create Initial Users
-        User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
-            'name' => 'System Super Administrator',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-        ])->syncRoles([$superAdminRole]);
-
-        User::firstOrCreate(['email' => 'governor@benue.gov.ng'], [
-            'name' => 'Executive Governor',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-        ])->syncRoles([$governorRole]);
-
-        User::firstOrCreate(['email' => 'stateadmin@benue.gov.ng'], [
-            'name' => 'State Administrator (Agric)',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-            'administrative_id' => $dept_agric->id,
-            'administrative_type' => Department::class,
-        ])->syncRoles([$stateAdminRole]);
-
-        User::firstOrCreate(['email' => 'lgaadmin@makurdi.gov.ng'], [
-            'name' => 'Makurdi LGA Administrator',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-            'administrative_id' => $lga->id,
-            'administrative_type' => LGA::class,
-        ])->syncRoles([$lgaAdminRole]);
-
-        User::firstOrCreate(['email' => 'farmer@test.com'], [
-            'name' => 'Test Farmer User',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-            'administrative_id' => $lga->id,
-            'administrative_type' => LGA::class,
-        ])->syncRoles([$userRole]);
-
-        $this->command->info('✅ Roles, permissions, and initial test users seeded successfully!');
-    }
-}
-
-
-class LgaSeeder extends Seeder
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
     /**
-     * Run the database seeds.
+     * Run the migrations.
      */
-    public function run(): void
+    public function up(): void
     {
-        $lgas = [
-            // List of the 23 LGAs in Benue State (with illustrative codes)
-           
-            ['name' => 'Makurdi', 'code' => 'MDK'],
-            ['name' => 'Gboko', 'code' => 'GBK'],
-            ['name' => 'Gwer East', 'code' => 'GWE'],
-            ['name' => 'Gwer West', 'code' => 'GWW'],
-            ['name' => 'Vandeikya', 'code' => 'VND'],
-            ['name' => 'Konshisha', 'code' => 'KNS'],
-            ['name' => 'Buruku', 'code' => 'BRK'],
-            ['name' => 'Ushongo', 'code' => 'USG'],
-            ['name' => 'Logo', 'code' => 'LGO'],
-            ['name' => 'Ukum', 'code' => 'UKM'],
-            ['name' => 'Katsina-Ala', 'code' => 'KTA'],
-            ['name' => 'Kwande', 'code' => 'KWD'],
-            ['name' => 'Tarka', 'code' => 'TRK'],
-            ['name' => 'Guma', 'code' => 'GUM'],            
-            ['name' => 'Otukpo', 'code' => 'OTK'],
-            ['name' => 'Okpokwu', 'code' => 'OPK'],
-            ['name' => 'Ohimini', 'code' => 'OHM'],
-            ['name' => 'Ogbadibo', 'code' => 'OGB'],
-            ['name' => 'Agatu', 'code' => 'AGT'],
-            ['name' => 'Apa', 'code' => 'APA'],
-            ['name' => 'Oju', 'code' => 'OJU'],
-            ['name' => 'Obi', 'code' => 'OBI'],
-            ['name' => 'Ado', 'code' => 'ADO'],
-        ];
-
-        foreach ($lgas as $lga) {
-            LGA::firstOrCreate(['name' => $lga['name']], $lga);
-        }
-
-        $this->command->info('Benue State LGAs seeded successfully!');
+        Schema::create('farmers', function (Blueprint $table) {
+            $table->id();
+            
+            // Core Identity & Authentication
+            $table->string('nin')->unique()->comment('National Identification Number');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')
+                  ->comment('Links to users table for authentication');
+            
+            // Personal Demographics
+            $table->string('full_name');
+            $table->string('phone_primary')->unique();
+            $table->string('phone_secondary')->nullable();
+            $table->string('email')->unique();
+            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed']);
+            $table->date('date_of_birth');
+            
+            // Location & Administrative Data
+            $table->foreignId('lga_id')->constrained('lgas')->onDelete('restrict');
+            $table->string('ward');
+            $table->text('residential_address');
+            
+            // Geolocation for Residence
+            $table->decimal('residence_latitude', 10, 8)->nullable();
+            $table->decimal('residence_longitude', 11, 8)->nullable();
+            
+            // Socio-Economic Profile
+            $table->enum('educational_level', [
+                'none', 
+                'primary', 
+                'secondary', 
+                'tertiary', 
+                'vocational'
+            ]);
+            $table->integer('household_size')->unsigned()->default(1);
+            $table->enum('primary_occupation', [
+                'full_time_farmer',
+                'part_time_farmer',
+                'civil_servant',
+                'trader',
+                'artisan',
+                'student',
+                'other'
+            ]);
+            $table->string('other_occupation')->nullable();
+            
+            // Cooperative Linkage
+            $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');
+            
+            // Enrollment & Administrative Tracking
+            $table->foreignId('enrolled_by')->constrained('users')->onDelete('restrict')
+                  ->comment('Enrollment Officer who registered this farmer');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')
+                  ->comment('LGA Admin who approved this enrollment');
+            
+            // Status & Workflow
+            $table->enum('status', [
+                'pending_lga_review',
+                'pending_activation',
+                'active',
+                'suspended',
+                'rejected'
+            ])->default('pending_lga_review');
+            $table->text('rejection_reason')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('activated_at')->nullable();
+            
+            // System-Generated Credentials (Cleared after first login)
+            $table->string('initial_password')->nullable()
+                  ->comment('Temporary storage for initial password - cleared on first login');
+            $table->boolean('password_changed')->default(false);
+            
+            // Metadata
+            $table->json('additional_info')->nullable()
+                  ->comment('Flexible field for future expansion');
+            
+            $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes for Performance
+            $table->index(['lga_id', 'status']);
+            $table->index('enrolled_by');
+            $table->index('approved_by');
+            $table->index(['residence_latitude', 'residence_longitude']);
+        });
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('farmers');
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <?php
 
-namespace Database\Seeders;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Seeder;
-use App\Models\Department;
-use App\Models\Agency;
-
-class DepartmentAndAgencySeeder extends Seeder
+return new class extends Migration
 {
     /**
-     * Run the database seeds.
+     * Run the migrations.
      */
-    public function run(): void
+    public function up(): void
     {
-        // 1. Seed Departments
-        $dept_agric = Department::firstOrCreate([
-            'name' => 'Ministry of Agriculture and Food Security',
-            'abbreviation' => 'MAFS',
-        ]);
-        
-        $dept_dev = Department::firstOrCreate([
-            'name' => 'Agricultural Development and Empowerment Programmes',
-            'abbreviation' => 'ADEP',
-        ]);
-
-        $dept_water = Department::firstOrCreate([
-            'name' => 'Ministry of Water Resources and Environment',
-            'abbreviation' => 'MWRE',
-        ]);
-        
-        $dept_land = Department::firstOrCreate([
-            'name' => 'Ministry of Lands and Survey',
-            'abbreviation' => 'MLS',
-        ]);
-
-
-        // 2. Seed Agencies linked to Departments
-        
-        // Agencies under MAFS
-        Agency::firstOrCreate([
-            'name' => 'Mechanised Farming Pilot Scheme',
-            'department_id' => $dept_agric->id
-        ]);
-
-        Agency::firstOrCreate([
-            'name' => 'Benue State Agricultural and Rural Development Authority (BNARDA)',
-            'department_id' => $dept_agric->id
-        ]);
-        
-        // Agencies under ADEP
-        Agency::firstOrCreate([
-            'name' => 'Benue State Agricultural Development Corporation (BSADC)',
-            'department_id' => $dept_dev->id
-        ]);
-
-        Agency::firstOrCreate([
-            'name' => 'Agricultural Resource Management Agency',
-            'department_id' => $dept_dev->id
-        ]);
-        
-        // Agencies under MWRE (Example)
-        Agency::firstOrCreate([
-            'name' => 'Water and Soil Conservation Unit',
-            'department_id' => $dept_water->id
-        ]);
-
-
-        $this->command->info('✅ Departments and Agencies seeded successfully!');
+        Schema::create('farmers', function (Blueprint $table) {
+            $table->id();
+            
+            // Core Identity & Authentication
+            $table->string('nin')->unique()->comment('National Identification Number');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')
+                  ->comment('Links to users table for authentication');
+            
+            // Personal Demographics
+            $table->string('full_name');
+            $table->string('phone_primary')->unique();
+            $table->string('phone_secondary')->nullable();
+            $table->string('email')->unique();
+            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed']);
+            $table->date('date_of_birth');
+            
+            // Location & Administrative Data
+            $table->foreignId('lga_id')->constrained('lgas')->onDelete('restrict');
+            $table->string('ward');
+            $table->text('residential_address');
+            
+            // Geolocation for Residence
+            $table->decimal('residence_latitude', 10, 8)->nullable();
+            $table->decimal('residence_longitude', 11, 8)->nullable();
+            
+            // Socio-Economic Profile
+            $table->enum('educational_level', [
+                'none', 
+                'primary', 
+                'secondary', 
+                'tertiary', 
+                'vocational'
+            ]);
+            $table->integer('household_size')->unsigned()->default(1);
+            $table->enum('primary_occupation', [
+                'full_time_farmer',
+                'part_time_farmer',
+                'civil_servant',
+                'trader',
+                'artisan',
+                'student',
+                'other'
+            ]);
+            $table->string('other_occupation')->nullable();
+            
+            // Cooperative Linkage
+            $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');
+            
+            // Enrollment & Administrative Tracking
+            $table->foreignId('enrolled_by')->constrained('users')->onDelete('restrict')
+                  ->comment('Enrollment Officer who registered this farmer');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')
+                  ->comment('LGA Admin who approved this enrollment');
+            
+            // Status & Workflow
+            $table->enum('status', [
+                'pending_lga_review',
+                'pending_activation',
+                'active',
+                'suspended',
+                'rejected'
+            ])->default('pending_lga_review');
+            $table->text('rejection_reason')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('activated_at')->nullable();
+            
+            // System-Generated Credentials (Cleared after first login)
+            $table->string('initial_password')->nullable()
+                  ->comment('Temporary storage for initial password - cleared on first login');
+            $table->boolean('password_changed')->default(false);
+            
+            // Metadata
+            $table->json('additional_info')->nullable()
+                  ->comment('Flexible field for future expansion');
+            
+            $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes for Performance
+            $table->index(['lga_id', 'status']);
+            $table->index('enrolled_by');
+            $table->index('approved_by');
+            $table->index(['residence_latitude', 'residence_longitude']);
+        });
     }
-}
-
-
---- Models
-
-class User extends Authenticatable implements MustVerifyEmail
-{
-    use HasApiTokens, HasFactory, Notifiable, HasRoles; //  Use Spatie Trait
-
-    protected $fillable = [
-        'name',
-        'email',
-        'phone_number',
-        'password',
-        'status',
-        'administrative_id',
-        'administrative_type',
-        // Add all other columns here
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
 
     /**
-     * Get the owning administrative unit (LGA, Department, or Agency).
+     * Reverse the migrations.
      */
-    public function administrativeUnit()
+    public function down(): void
     {
-        // Define the polymorphic relationship for scoping the user
-        return $this->morphTo('administrative');
+        Schema::dropIfExists('farmers');
     }
-    
-    // Add other scopes/methods (e.g., isOnboarded()) as needed...
-}
-
-
-class Agency extends Model
-{
-
-    protected $table = 'agencies';
-
-
-    use HasFactory;
-    protected $fillable = ['name', 'department_id'];
-
-    /**
-     * Get all users scoped to this Agency.
-     */
-    public function users()
-    {
-        return $this->morphMany(User::class, 'administrative');
-    }
-    
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
-}
-
-
-class Department extends Model
-{
-    protected $table = 'departments';
-
-    use HasFactory;
-    protected $fillable = ['name', 'abbreviation'];
-
-    /**
-     * Get all users scoped to this Department.
-     */
-    public function users()
-    {
-        return $this->morphMany(User::class, 'administrative');
-    }
-
-    public function agencies()
-    {
-        return $this->hasMany(Agency::class);
-    }
-}
-
-
-class LGA extends Model
-{
-    protected $table = 'lgas';
-
-    
-    use HasFactory;
-    protected $fillable = ['name', 'code'];
-
-    /**
-     * Get all users scoped to this LGA.
-     */
-    public function users()
-    {
-        return $this->morphMany(User::class, 'administrative');
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};
 
 
 

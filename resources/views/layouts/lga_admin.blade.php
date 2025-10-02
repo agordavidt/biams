@@ -150,50 +150,77 @@
                 </div>
             </header>
             
-            <div class="vertical-menu">
-                <div data-simplebar class="h-100">
-                    <div id="sidebar-menu">
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
+        <div class="vertical-menu">
+            <div data-simplebar class="h-100">
+                <div id="sidebar-menu">
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li class="menu-title">Core</li>
+
+                        <li>
+                            <a href="{{ route('lga_admin.dashboard') }}" class="waves-effect">
+                                <i class="ri-dashboard-line"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        
+                        <li class="menu-title">Enrollment & Review</li>
+
+                        <li>
+                            <a href="{{ route('lga_admin.farmers.index') }}" class="waves-effect">
+                                <i class="ri-list-check-2"></i>
+                                <span>Review Submissions</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <i class="ri-user-line"></i>
+                                <span>Farmer Management</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                {{-- The main index page now serves the primary review function --}}
+                                <li><a href="{{ route('lga_admin.farmers.index') }}" class="submenu-item">Pending Review</a></li>
+                                {{-- Placeholder for all farmers (active/approved) in the LGA --}}
+                                <li><a href="#" class="submenu-item">View All Farmers</a></li> 
+                            </ul>
+                        </li>
+                        
+                        <li class="menu-title">Administration</li>
+
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <i class="ri-team-line"></i>
+                                <span>Enrollment Agents</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li><a href="{{ route('lga_admin.agents.index') }}" class="submenu-item">Manage Agents</a></li>
+                                <li><a href="{{ route('lga_admin.agents.create') }}" class="submenu-item">Create New Agent</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- Logout Functionality --}}
+                        <li class="menu-title">System</li>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                            @csrf
                             <li>
-                                <a href="{{ route('lga_admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i>
-                                    <span>Dashboard</span>
+                                <a class="text-danger" href="#" id="logout-link"> 
+                                    <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> 
+                                    <span>Logout</span> 
                                 </a>
                             </li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-team-line"></i>
-                                    <span>Enrollment Agents</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('lga_admin.agents.index') }}" class="submenu-item">View All Agents</a></li>
-                                    <li><a href="{{ route('lga_admin.agents.create') }}" class="submenu-item">Create New Agent</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-user-line"></i>
-                                    <span>Farmer Management</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="#" class="submenu-item">View All Farmers</a></li>
-                                    <li><a href="#" class="submenu-item">Pending Approvals</a></li>
-                                </ul>
-                            </li>
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                                @csrf
-                                <li>
-                                    <a class="text-danger" href="#" id="logout-link"> 
-                                        <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> 
-                                        <span>Logout</span> 
-                                    </a>
-                                </li>
-                            </form>
-                        </ul>
-                    </div>
+                        </form>
+                    </ul>
                 </div>
             </div>
+        </div>
+
+<script>
+    // Required to handle the POST request for logout
+    document.getElementById('logout-link').addEventListener('click', function (event) {
+        event.preventDefault();
+        document.getElementById('logout-form').submit();
+    });
+</script>
             
             <div class="main-content">
                 <div class="page-content">

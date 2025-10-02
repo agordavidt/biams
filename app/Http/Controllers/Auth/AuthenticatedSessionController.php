@@ -78,14 +78,25 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('enrollment.dashboard');
             }
 
-            // For regular users (check if they have the 'User' role)
+            
+            // =======================================================
+            // Farmer-Specific Login Flow (Standard Users)
+            // =======================================================
             if ($user->hasRole('User')) { 
-                // PROFILE COMPLETION LOGIC REMOVED: All standard users redirect to home immediately
-                return redirect()->intended(RouteServiceProvider::HOME);
+                $farmer = $user->farmerProfile;
+
+                // Check if this is the first login using the 'password_changed' flag
+                // This check is CRITICAL for security (forcing a change of the auto-generated PIN)
+                if ($farmer && $farmer->password_changed === false) {
+                    return redirect()->route('password.force_change');
+                }
+                
+                // If password has been changed or no farmer profile exists (shouldn't happen for a 'User' role)
+                return redirect()->intended(RouteServiceProvider::HOME); 
             }
             
             // Default redirect (e.g., if a user has a role not explicitly mapped here)
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return redirect()->intended(RouteServiceProvider::HOME);            
             
         } catch (ValidationException $e) {
             // Log failed login attempt

@@ -1,215 +1,230 @@
----enrollment agent dashboard
-
-
-@extends('layouts.enrollment_agent')
-
-@section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Enrollment Agent Dashboard</h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Welcome Card -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h5 class="card-title mb-2">Welcome back, {{ $agent->name }}!</h5>
-                        <p class="text-muted mb-0">
-                            <i class="ri-map-pin-line me-1"></i>
-                            {{ $agent->administrativeUnit->name ?? 'N/A' }} LGA
-                        </p>
-                        <p class="text-muted small mb-0">
-                            <i class="ri-mail-line me-1"></i>{{ $agent->email }}
-                        </p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-primary-subtle text-primary rounded-circle font-size-24">
-                                <i class="ri-user-line"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Statistics Cards -->
-<div class="row">
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Farmers</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ $stats['total_farmers'] }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-team-line display-6 text-muted"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Verified Farmers</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ $stats['verified_farmers'] }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-checkbox-circle-line display-6 text-success"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Pending Verification</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ $stats['pending_verification'] }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-time-line display-6 text-warning"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">This Month</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ $stats['this_month_enrollments'] }}">0</span>
-                        </h4>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-calendar-line display-6 text-primary"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Quick Actions</h4>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('enrollment.farmers.create') }}" class="btn btn-primary btn-lg">
-                        <i class="ri-user-add-line align-middle me-2"></i>
-                        Enroll New Farmer
-                    </a>
-                    <a href="{{ route('enrollment.farmers.index') }}" class="btn btn-outline-primary btn-lg">
-                        <i class="ri-list-check align-middle me-2"></i>
-                        View All Farmers
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Recent Activity</h4>
-            </div>
-            <div class="card-body">
-                <div class="text-center text-muted py-4">
-                    <i class="ri-history-line display-4"></i>
-                    <p class="mt-2 mb-0">No recent activity</p>
-                    <p class="text-muted small">Your farmer enrollment activities will appear here</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Information Card -->
-<div class="row">
-    <div class="col-12">
-        <div class="card border-primary">
-            <div class="card-body">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="ri-information-line display-6 text-primary"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5 class="card-title">Getting Started</h5>
-                        <p class="card-text mb-2">As an Enrollment Agent, you can:</p>
-                        <ul class="mb-0">
-                            <li>Enroll new farmers into the system</li>
-                            <li>Verify farmer information and documentation</li>
-                            <li>Update existing farmer profiles</li>
-                            <li>View farmers within your LGA</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Counter animation
-        const counters = document.querySelectorAll('.counter-value');
-        const speed = 200;
-
-        counters.forEach(counter => {
-            const animate = () => {
-                const value = +counter.getAttribute('data-target');
-                const data = +counter.innerText;
-                const time = value / speed;
-                
-                if(data < value) {
-                    counter.innerText = Math.ceil(data + time);
-                    setTimeout(animate, 1);
-                } else {
-                    counter.innerText = value;
-                }
-            }
+-- migrations
+Schema::create('cooperatives', function (Blueprint $table) {
+            $table->id();
             
-            animate();
+            // Core Identity & Compliance
+            $table->string('registration_number')->unique()->comment('Unique Government/Association ID');
+            $table->string('name')->comment('Cooperative Name');
+            
+            // Contact Details
+            $table->string('contact_person')->nullable()->comment('Name of the primary official');
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            
+            // Scale & Activity
+            $table->integer('total_member_count')->unsigned()->default(0)->comment('Number of members reported by the cooperative');
+            $table->decimal('total_land_size', 15, 2)->nullable()->comment('Aggregate land managed by the cooperative (ha)');
+            $table->json('primary_activities')->nullable()->comment('Input procurement, processing, marketing, etc. (Multi-Select)');
+            
+            // Metadata
+            $table->foreignId('lga_id')->nullable()->constrained('lgas')->onDelete('set null')
+                  ->comment('Primary LGA for the cooperative');
+            $table->foreignId('registered_by')->constrained('users')->onDelete('restrict')
+                  ->comment('The Enrollment Agent or Admin who registered the cooperative');
+
+            $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes
+            $table->index('lga_id');
+            $table->index('registration_number');
+
+
+
+
+             Schema::create('farmers', function (Blueprint $table) {
+            $table->id();
+            
+            // Core Identity & Authentication
+            $table->string('nin')->unique()->comment('National Identification Number');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')
+                  ->comment('Links to users table for authentication');
+            
+            // Personal Demographics
+            $table->string('full_name');
+            $table->string('phone_primary')->unique();
+            $table->string('phone_secondary')->nullable();
+            $table->string('email')->unique();
+            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed']);
+            $table->date('date_of_birth');
+            
+            // Location & Administrative Data
+            $table->foreignId('lga_id')->constrained('lgas')->onDelete('restrict');
+            $table->string('ward');
+            $table->text('residential_address');
+            
+            // Geolocation for Residence
+            $table->decimal('residence_latitude', 10, 8)->nullable();
+            $table->decimal('residence_longitude', 11, 8)->nullable();
+            
+            // Socio-Economic Profile
+            $table->enum('educational_level', [
+                'none', 
+                'primary', 
+                'secondary', 
+                'tertiary', 
+                'vocational'
+            ]);
+            $table->integer('household_size')->unsigned()->default(1);
+            $table->enum('primary_occupation', [
+                'full_time_farmer',
+                'part_time_farmer',
+                'civil_servant',
+                'trader',
+                'artisan',
+                'student',
+                'other'
+            ]);
+            $table->string('other_occupation')->nullable();
+            
+            // Cooperative Linkage
+            $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');
+            
+            // Enrollment & Administrative Tracking
+            $table->foreignId('enrolled_by')->constrained('users')->onDelete('restrict')
+                  ->comment('Enrollment Officer who registered this farmer');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')
+                  ->comment('LGA Admin who approved this enrollment');
+            
+            // Status & Workflow
+            $table->enum('status', [
+                'pending_lga_review',
+                'pending_activation',
+                'active',
+                'suspended',
+                'rejected'
+            ])->default('pending_lga_review');
+            $table->text('rejection_reason')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('activated_at')->nullable();
+            
+            // System-Generated Credentials (Cleared after first login)
+            $table->string('initial_password')->nullable()
+                  ->comment('Temporary storage for initial password - cleared on first login');
+            $table->boolean('password_changed')->default(false);
+            
+            // Metadata
+            $table->json('additional_info')->nullable()
+                  ->comment('Flexible field for future expansion');
+            
+            $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes for Performance
+            $table->index(['lga_id', 'status']);
+            $table->index('enrolled_by');
+            $table->index('approved_by');
+            $table->index(['residence_latitude', 'residence_longitude']);
         });
-    });
-</script>
-@endpush
+
+
+
+                Schema::create('farm_lands', function (Blueprint $table) {
+            $table->id(); // Farm ID (Primary Key)
+            
+            // Linkage
+            $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade')
+                  ->comment('Links the farm back to the Farmer Profile');
+            
+            // Plot Details
+            $table->string('name')->comment('E.g., "Home Plot," "River Field"');
+            $table->enum('farm_type', ['crops', 'livestock', 'fisheries', 'orchards', 'forestry'])
+                  ->comment('Used to dynamically load the next sub-form');
+            $table->decimal('total_size_hectares', 10, 4)
+                  ->comment('The registered size of this specific plot (ha)');
+            $table->enum('ownership_status', ['owned', 'leased', 'shared', 'communal']);
+            
+            // Geospatial Data
+            // Storing GeoJSON as a TEXT/JSON field for simplicity across various database systems.
+            $table->longText('geolocation_geojson')->nullable()
+                  ->comment('Actual farm boundaries (polygon) or center point (point) as GeoJSON string');
+            
+            $table->timestamps();
+            $table->softDeletes();
+            
+            // Indexes
+            $table->index('farmer_id');
+            $table->index('farm_type');
+        });
+    }
+
+
+
+    {
+        Schema::create('crop_practice_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
+            
+            $table->string('crop_type');
+            $table->string('variety')->nullable();
+            $table->decimal('expected_yield_kg', 10, 2)->nullable();
+            $table->enum('farming_method', ['irrigation', 'rain_fed', 'organic', 'mixed']);
+            
+            $table->timestamps();
+            
+            $table->index('crop_type');
+        });
+    }
+
+
+
+        Schema::create('livestock_practice_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
+            
+            $table->string('animal_type');
+            $table->integer('herd_flock_size')->unsigned();
+            $table->enum('breeding_practice', ['open_grazing', 'ranching', 'intensive', 'semi_intensive']);
+            
+            $table->timestamps();
+            
+            $table->index('animal_type');
+        });
+    }
+
+    Schema::create('fisheries_practice_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
+            
+            $table->enum('fishing_type', ['aquaculture_pond', 'riverine', 'reservoir']);
+            $table->string('species_raised');
+            $table->decimal('pond_size_sqm', 10, 2)->nullable();
+            $table->decimal('expected_harvest_kg', 10, 2)->nullable();
+            
+            $table->timestamps();
+            
+            $table->index('fishing_type');
+        });
+
+
+        Schema::create('orchard_practice_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
+            
+            $table->string('tree_type');
+            $table->integer('number_of_trees')->unsigned();
+            $table->enum('maturity_stage', ['seedling', 'immature', 'producing']);
+            
+            $table->timestamps();
+            
+            $table->index('tree_type');
+        });
+
+
+        Schema::create('cooperative_farmer', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade');
+            $table->foreignId('cooperative_id')->constrained('cooperatives')->onDelete('cascade');
+            $table->string('membership_number')->nullable();
+            $table->date('joined_date')->nullable();
+            $table->date('exit_date')->nullable();
+            $table->enum('membership_status', ['active', 'inactive', 'pending'])->default('active');
+            $table->string('position')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+            $table->unique(['farmer_id', 'cooperative_id']);
+            $table->index('membership_status');
+        });
 
 

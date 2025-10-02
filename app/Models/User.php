@@ -54,4 +54,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $query->forAdministrativeUnit(LGA::class, $lgaId);
     }
+
+    // ==================== Relationships ====================
+    // Add a reverse relationship to the Farmer profile.
+    public function farmerProfile()
+    {
+        // A User can only have one Farmer profile associated with it
+        return $this->hasOne(Farmer::class, 'user_id');
+    }
 }

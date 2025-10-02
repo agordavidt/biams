@@ -1,0 +1,50 @@
+- to be used by the lga admin controller that will activate farmer accounts
+
+
+// In a new or existing Admin/LGA Admin Controller (e.g., FarmerActivationController.php)
+
+use App\Models\Farmer;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+// ... inside a method like activateFarmerAccount($farmerId, Request $request) ...
+
+    public function activateFarmerAccount(string $farmerId)
+    {
+        $farmer = Farmer::findOrFail($farmerId);
+        
+        // 1. Check Pre-conditions
+        if (!$farmer->canBeActivated()) {
+            return back()->with('error', 'Farmer status must be pending_activation.');
+        }
+
+        // Use the phone number as the temporary account name if the name field is not unique enough
+        $username = Str::slug($farmer->full_name, '_') . '_' . $farmer->id; 
+        
+        // 2. Create the User Account
+        $user = User::create([
+            'name' => $farmer->full_name,
+            // The Revised Plan requires email be mandatory
+            'email' => $farmer->email, 
+            'phone_number' => $farmer->phone_primary,
+            // Use the initial_password (PIN) stored in the farmer profile
+            'password' => Hash::make($farmer->initial_password), 
+            'email_verified_at' => now(), // Skip verification as per plan
+            'status' => 'active', 
+            // Link to the farmer's LGA for scoping/filtering
+            'administrative_id' => $farmer->lga_id, 
+            'administrative_type' => \App\Models\LGA::class, 
+        ]);
+        
+        // 3. Assign the 'User' Role
+        $user->assignRole('User');
+
+        // 4. Update the Farmer Profile (Activate and Link)
+        $farmer->activate($user); // Sets status to 'active' and user_id
+
+        // 5. Send Activation SMS (Not implemented here, but critical next step)
+        // SmsService::sendActivationPin($farmer->phone_primary, $farmer->initial_password);
+
+        return back()->with('success', 'Farmer account activated. SMS notification sent.');
+    }
