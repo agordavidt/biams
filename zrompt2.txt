@@ -1,175 +1,44 @@
---- please move the super-admin index view to the dashboard
+---enrollment agent dashboard
 
 
-<?php
-
-namespace App\Http\Controllers\SuperAdmin;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-class DashboardController extends Controller
-{
-    public function index()
-    {
-        return view('super_admin.dashboard');
-    }
-}
-
-
-
-routes:
-// Super Admin Routes
-Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->prefix('super-admin')->name('super_admin.')->group(function () {
-    
-    // Dashboard
-    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
-
-    // Management Routes (Simplified example, ensure permissions are applied across all routes)
-    Route::prefix('management')->name('management.')->group(function () {
-        // Management Index
-        Route::get('/', [ManagementController::class, 'index'])->name('index');
-        
-        // User Management Routes
-        Route::prefix('users')->name('users.')->group(function () {
-            Route::get('/', [ManagementController::class, 'users'])->name('index');
-            Route::get('/create', [ManagementController::class, 'createUser'])->name('create');
-            Route::post('/', [ManagementController::class, 'storeUser'])->name('store');
-            Route::get('/{user}/edit', [ManagementController::class, 'editUser'])->name('edit');
-            Route::put('/{user}', [ManagementController::class, 'updateUser'])->name('update');
-            Route::delete('/{user}', [ManagementController::class, 'destroyUser'])->name('destroy');
-        });
-
-        // Department Management Routes
-        Route::prefix('departments')->name('departments.')->group(function () {
-            Route::get('/', [ManagementController::class, 'departments'])->name('index');
-            Route::post('/', [ManagementController::class, 'storeDepartment'])->name('store');
-            Route::put('/{department}', [ManagementController::class, 'updateDepartment'])->name('update');
-            Route::delete('/{department}', [ManagementController::class, 'destroyDepartment'])->name('destroy');
-        });
-
-        // Agency Management Routes
-        Route::prefix('agencies')->name('agencies.')->group(function () {
-            Route::get('/', [ManagementController::class, 'agencies'])->name('index');
-            Route::post('/', [ManagementController::class, 'storeAgency'])->name('store');
-            Route::put('/{agency}', [ManagementController::class, 'updateAgency'])->name('update');
-            Route::delete('/{agency}', [ManagementController::class, 'destroyAgency'])->name('destroy');
-        });
-
-        // LGA Management Routes
-        Route::prefix('lgas')->name('lgas.')->group(function () {
-            Route::get('/', [ManagementController::class, 'lgas'])->name('index');
-        });
-    });
-});
-
-
-
-
-
-
-----\resources\views\super_admin\management\index.blade.php
-@extends('layouts.super_admin')
-
+@extends('layouts.enrollment_agent')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Management Overview</h4>
+            <h4 class="mb-sm-0">Enrollment Agent Dashboard</h4>
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('super_admin.dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Management Overview</li>
+                    <li class="breadcrumb-item active">Dashboard</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Welcome Card -->
 <div class="row">
-    <!-- Users Card -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
+    <div class="col-12">
+        <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Users</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ App\Models\User::count() }}">0</span>
-                        </h4>
-                        <div class="mb-1">
-                            <a href="{{ route('super_admin.management.users.index') }}" class="text-decoration-underline">Manage Users</a>
-                        </div>
+                        <h5 class="card-title mb-2">Welcome back, {{ $agent->name }}!</h5>
+                        <p class="text-muted mb-0">
+                            <i class="ri-map-pin-line me-1"></i>
+                            {{ $agent->administrativeUnit->name ?? 'N/A' }} LGA
+                        </p>
+                        <p class="text-muted small mb-0">
+                            <i class="ri-mail-line me-1"></i>{{ $agent->email }}
+                        </p>
                     </div>
                     <div class="flex-shrink-0">
-                        <i class="ri-user-line display-6 text-muted"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Departments Card -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Departments</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ App\Models\Department::count() }}">0</span>
-                        </h4>
-                        <div class="mb-1">
-                            <a href="{{ route('super_admin.management.departments.index') }}" class="text-decoration-underline">Manage Departments</a>
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-primary-subtle text-primary rounded-circle font-size-24">
+                                <i class="ri-user-line"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-building-line display-6 text-muted"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Agencies Card -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Agencies</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ App\Models\Agency::count() }}">0</span>
-                        </h4>
-                        <div class="mb-1">
-                            <a href="{{ route('super_admin.management.agencies.index') }}" class="text-decoration-underline">Manage Agencies</a>
-                        </div>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-community-line display-6 text-muted"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- LGAs Card -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total LGAs</span>
-                        <h4 class="mb-3">
-                            <span class="counter-value" data-target="{{ App\Models\LGA::count() }}">0</span>
-                        </h4>
-                        <div class="mb-1">
-                            <a href="{{ route('super_admin.management.lgas.index') }}" class="text-decoration-underline">Manage LGAs</a>
-                        </div>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="ri-map-pin-line display-6 text-muted"></i>
                     </div>
                 </div>
             </div>
@@ -177,6 +46,82 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
     </div>
 </div>
 
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Farmers</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['total_farmers'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-team-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Verified Farmers</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['verified_farmers'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-checkbox-circle-line display-6 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Pending Verification</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['pending_verification'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-time-line display-6 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">This Month</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['this_month_enrollments'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-calendar-line display-6 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
@@ -185,25 +130,13 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('super_admin.management.users.create') }}" class="btn btn-primary btn-lg">
+                    <a href="{{ route('enrollment.farmers.create') }}" class="btn btn-primary btn-lg">
                         <i class="ri-user-add-line align-middle me-2"></i>
-                        Create New User
+                        Enroll New Farmer
                     </a>
-                    <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-outline-primary btn-lg">
-                        <i class="ri-user-settings-line align-middle me-2"></i>
-                        Manage Users
-                    </a>
-                    <a href="{{ route('super_admin.management.departments.index') }}" class="btn btn-outline-success btn-lg">
-                        <i class="ri-building-line align-middle me-2"></i>
-                        Manage Departments
-                    </a>
-                    <a href="{{ route('super_admin.management.agencies.index') }}" class="btn btn-outline-info btn-lg">
-                        <i class="ri-community-line align-middle me-2"></i>
-                        Manage Agencies
-                    </a>
-                    <a href="{{ route('super_admin.management.lgas.index') }}" class="btn btn-outline-warning btn-lg">
-                        <i class="ri-map-pin-line align-middle me-2"></i>
-                        Manage LGAs
+                    <a href="{{ route('enrollment.farmers.index') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="ri-list-check align-middle me-2"></i>
+                        View All Farmers
                     </a>
                 </div>
             </div>
@@ -216,47 +149,34 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
                 <h4 class="card-title mb-0">Recent Activity</h4>
             </div>
             <div class="card-body">
-                <div class="text-center text-muted py-5">
+                <div class="text-center text-muted py-4">
                     <i class="ri-history-line display-4"></i>
-                    <p class="mt-2">No recent activity to display</p>
-                    <p class="text-muted small">Activity logging will appear here once management operations are performed.</p>
+                    <p class="mt-2 mb-0">No recent activity</p>
+                    <p class="text-muted small">Your farmer enrollment activities will appear here</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Information Card -->
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">System Statistics</h4>
-            </div>
+        <div class="card border-primary">
             <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3 col-6">
-                        <div class="p-3">
-                            <h4 class="text-primary">{{ App\Models\User::where('status', 'onboarded')->count() }}</h4>
-                            <p class="text-muted mb-0">Onboarded Users</p>
-                        </div>
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="ri-information-line display-6 text-primary"></i>
                     </div>
-                    <div class="col-md-3 col-6">
-                        <div class="p-3">
-                            <h4 class="text-warning">{{ App\Models\User::where('status', 'pending')->count() }}</h4>
-                            <p class="text-muted mb-0">Pending Users</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="p-3">
-                            <h4 class="text-danger">{{ App\Models\User::where('status', 'rejected')->count() }}</h4>
-                            <p class="text-muted mb-0">Rejected Users</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="p-3">
-                            <h4 class="text-success">{{ App\Models\Agency::with('department')->count() }}</h4>
-                            <p class="text-muted mb-0">Agencies with Departments</p>
-                        </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="card-title">Getting Started</h5>
+                        <p class="card-text mb-2">As an Enrollment Agent, you can:</p>
+                        <ul class="mb-0">
+                            <li>Enroll new farmers into the system</li>
+                            <li>Verify farmer information and documentation</li>
+                            <li>Update existing farmer profiles</li>
+                            <li>View farmers within your LGA</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -268,7 +188,7 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Simple counter animation
+        // Counter animation
         const counters = document.querySelectorAll('.counter-value');
         const speed = 200;
 
@@ -291,4 +211,5 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
     });
 </script>
 @endpush
+
 
