@@ -40,7 +40,7 @@ class Farmer extends Model
         'rejection_reason',
         'approved_at',
         'activated_at',
-        'initial_password',
+        'initial_password',        
         'password_changed',
         'additional_info',
     ];

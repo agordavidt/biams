@@ -8,7 +8,7 @@ use App\Models\Farmer;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB; // Added DB use statement for clarity
+use Illuminate\Support\Facades\DB; 
 
 class FarmerReviewController extends Controller
 {
@@ -141,4 +141,5 @@ class FarmerReviewController extends Controller
             return back()->with('error', 'Activation failed: ' . $e->getMessage());
         }
     }
+    
 }

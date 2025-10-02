@@ -80,7 +80,7 @@ return new class extends Migration
             
             // System-Generated Credentials (Cleared after first login)
             $table->string('initial_password')->nullable()
-                  ->comment('Temporary storage for initial password - cleared on first login');
+                  ->comment('Temporary storage for initial password - cleared on first login');            
             $table->boolean('password_changed')->default(false);
             
             // Metadata
