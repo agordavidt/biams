@@ -12,6 +12,9 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+
 class ManagementController extends Controller
 {
 
@@ -50,37 +53,29 @@ class ManagementController extends Controller
         return view('super_admin.management.users.create', compact('roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
     }
 
-    public function storeUser(Request $request)
+   public function storeUser(StoreUserRequest $request)
     {
-        // 🚨 UPDATE 1: Removed 'status' from validation. The status will be set to 'pending' by default.
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => ['required', 'exists:roles,id'],
-            'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
-            'administrative_id' => 'nullable|integer',
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            // ✅ UPDATE 2: Hardcode status to 'pending' on creation.
-            'status' => 'pending', 
+            'status' => 'onboarded', // ✅ Fixed: onboarded by default
         ]);
 
         $role = Role::findById($data['role_id']);
         $user->assignRole($role);
 
         if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = "App\\Models\\{$data['administrative_type']}";
+            $user->administrative_type = $data['administrative_type'];
             $user->administrative_id = $data['administrative_id'];
             $user->save();
         }
 
-        // 💡 Recommendation: Update success message to reflect the pending status.
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User created successfully and is currently **pending** approval.');
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User created successfully and is now active.');
     }
 
 
@@ -97,24 +92,15 @@ class ManagementController extends Controller
         return view('super_admin.management.users.edit', compact('user', 'roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
     }
 
-    public function updateUser(Request $request, User $user)
+   public function updateUser(UpdateUserRequest $request, User $user)
     {
-        //
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id' => ['required', 'exists:roles,id'],
-            'administrative_type' => ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])],
-            'administrative_id' => 'nullable|integer',
-            // ✅ 'status' is REQUIRED for updates
-            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])], 
-        ]);
+        $this->authorize('update', $user);
+        
+        $data = $request->validated();
 
         $user->name = $data['name'];
         $user->email = $data['email'];
-        // ✅ Status is updated from the edit form.
-        $user->status = $data['status']; 
+        $user->status = $data['status'];
         
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
@@ -124,7 +110,7 @@ class ManagementController extends Controller
         $user->syncRoles([$role]);
 
         if (!empty($data['administrative_type']) && !empty($data['administrative_id'])) {
-            $user->administrative_type = "App\\Models\\{$data['administrative_type']}";
+            $user->administrative_type = $data['administrative_type'];
             $user->administrative_id = $data['administrative_id'];
         } else {
             $user->administrative_type = null;
@@ -133,7 +119,9 @@ class ManagementController extends Controller
         
         $user->save();
 
-        return redirect()->route('super_admin.management.users.index')->with('success', 'User updated successfully.');
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User updated successfully.');
     }
 
     public function destroyUser(User $user)

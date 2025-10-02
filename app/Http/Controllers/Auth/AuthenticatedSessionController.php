@@ -73,6 +73,11 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('lga_admin.dashboard'); 
             }
 
+            // Redirect for Enrollment Agent
+            if ($user->hasRole('Enrollment Agent')) {
+                return redirect()->route('enrollment.dashboard');
+            }
+
             // For regular users (check if they have the 'User' role)
             if ($user->hasRole('User')) { 
                 // PROFILE COMPLETION LOGIC REMOVED: All standard users redirect to home immediately

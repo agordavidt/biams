@@ -44,5 +44,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphTo('administrative');
     }
     
-    // Add other scopes/methods (e.g., isOnboarded()) as needed...
+   public function scopeForAdministrativeUnit($query, $type, $id)
+    {
+        return $query->where('administrative_type', $type)
+                    ->where('administrative_id', $id);
+    }
+
+    public function scopeForLGA($query, $lgaId)
+    {
+        return $query->forAdministrativeUnit(LGA::class, $lgaId);
+    }
 }

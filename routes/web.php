@@ -6,8 +6,10 @@ use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
-use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController; // <--- NEW IMPORT
+use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+
+use App\Http\Controllers\EnrollmentAgent;
 
 use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
@@ -107,5 +109,26 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
         Route::get('/{agent}/edit', [LGAAdminManagementController::class, 'edit'])->name('edit');
         Route::put('/{agent}', [LGAAdminManagementController::class, 'update'])->name('update');
         Route::delete('/{agent}', [LGAAdminManagementController::class, 'destroy'])->name('destroy');
+    });
+});
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Enrollment Agent Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Enrollment Agent'])->prefix('enrollment')->name('enrollment.')->group(function () {
+    Route::get('/dashboard', [EnrollmentAgent\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Farmer enrollment routes
+    Route::prefix('farmers')->name('farmers.')->group(function () {
+        Route::get('/', [EnrollmentAgent\FarmerController::class, 'index'])->name('index');
+        Route::get('/create', [EnrollmentAgent\FarmerController::class, 'create'])->name('create');
+        Route::post('/', [EnrollmentAgent\FarmerController::class, 'store'])->name('store');
+        Route::get('/{farmer}/edit', [EnrollmentAgent\FarmerController::class, 'edit'])->name('edit');
+        Route::put('/{farmer}', [EnrollmentAgent\FarmerController::class, 'update'])->name('update');
+        Route::get('/{farmer}', [EnrollmentAgent\FarmerController::class, 'show'])->name('show');
     });
 });

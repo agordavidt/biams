@@ -1,0 +1,210 @@
+@extends('layouts.enrollment_agent')
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Enrollment Agent Dashboard</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Card -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title mb-2">Welcome back, {{ $agent->name }}!</h5>
+                        <p class="text-muted mb-0">
+                            <i class="ri-map-pin-line me-1"></i>
+                            {{ $agent->administrativeUnit->name ?? 'N/A' }} LGA
+                        </p>
+                        <p class="text-muted small mb-0">
+                            <i class="ri-mail-line me-1"></i>{{ $agent->email }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-primary-subtle text-primary rounded-circle font-size-24">
+                                <i class="ri-user-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Total Farmers</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['total_farmers'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-team-line display-6 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Verified Farmers</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['verified_farmers'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-checkbox-circle-line display-6 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">Pending Verification</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['pending_verification'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-time-line display-6 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="text-muted mb-3 lh-1 d-block text-truncate">This Month</span>
+                        <h4 class="mb-3">
+                            <span class="counter-value" data-target="{{ $stats['this_month_enrollments'] }}">0</span>
+                        </h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="ri-calendar-line display-6 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Quick Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ route('enrollment.farmers.create') }}" class="btn btn-primary btn-lg">
+                        <i class="ri-user-add-line align-middle me-2"></i>
+                        Enroll New Farmer
+                    </a>
+                    <a href="{{ route('enrollment.farmers.index') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="ri-list-check align-middle me-2"></i>
+                        View All Farmers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Recent Activity</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-4">
+                    <i class="ri-history-line display-4"></i>
+                    <p class="mt-2 mb-0">No recent activity</p>
+                    <p class="text-muted small">Your farmer enrollment activities will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Information Card -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="ri-information-line display-6 text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="card-title">Getting Started</h5>
+                        <p class="card-text mb-2">As an Enrollment Agent, you can:</p>
+                        <ul class="mb-0">
+                            <li>Enroll new farmers into the system</li>
+                            <li>Verify farmer information and documentation</li>
+                            <li>Update existing farmer profiles</li>
+                            <li>View farmers within your LGA</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Counter animation
+        const counters = document.querySelectorAll('.counter-value');
+        const speed = 200;
+
+        counters.forEach(counter => {
+            const animate = () => {
+                const value = +counter.getAttribute('data-target');
+                const data = +counter.innerText;
+                const time = value / speed;
+                
+                if(data < value) {
+                    counter.innerText = Math.ceil(data + time);
+                    setTimeout(animate, 1);
+                } else {
+                    counter.innerText = value;
+                }
+            }
+            
+            animate();
+        });
+    });
+</script>
+@endpush
