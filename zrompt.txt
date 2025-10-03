@@ -1,320 +1,70 @@
-===Farmers Enrollment Flow
---- migrations
+-- models
+class LGA extends Model
+{
+    protected $table = 'lgas';
 
-       Schema::create('cooperatives', function (Blueprint $table) {
-            $table->id();
-            
-            // Core Identity & Compliance
-            $table->string('registration_number')->unique()->comment('Unique Government/Association ID');
-            $table->string('name')->comment('Cooperative Name');
-            
-            // Contact Details
-            $table->string('contact_person')->nullable()->comment('Name of the primary official');
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            
-            // Scale & Activity
-            $table->integer('total_member_count')->unsigned()->default(0)->comment('Number of members reported by the cooperative');
-            $table->decimal('total_land_size', 15, 2)->nullable()->comment('Aggregate land managed by the cooperative (ha)');
-            $table->json('primary_activities')->nullable()->comment('Input procurement, processing, marketing, etc. (Multi-Select)');
-            
-            // Metadata
-            $table->foreignId('lga_id')->nullable()->constrained('lgas')->onDelete('set null')
-                  ->comment('Primary LGA for the cooperative');
-            $table->foreignId('registered_by')->constrained('users')->onDelete('restrict')
-                  ->comment('The Enrollment Agent or Admin who registered the cooperative');
-
-            $table->timestamps();
-            $table->softDeletes();
-            
-            // Indexes
-            $table->index('lga_id');
-            $table->index('registration_number');
-        });
-       
-        Schema::create('farmers', function (Blueprint $table) {
-            $table->id();
-            
-            // Core Identity & Authentication
-            $table->string('nin')->unique()->comment('National Identification Number');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')
-                  ->comment('Links to users table for authentication');
-            
-            // Personal Demographics
-            $table->string('full_name');
-            $table->string('phone_primary')->unique();
-            $table->string('phone_secondary')->nullable();
-            $table->string('email')->unique();
-            $table->enum('gender', ['male', 'female', 'other']);
-            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed']);
-            $table->date('date_of_birth');
-            
-            // Location & Administrative Data
-            $table->foreignId('lga_id')->constrained('lgas')->onDelete('restrict');
-            $table->string('ward');
-            $table->text('residential_address');
-            
-            // Geolocation for Residence
-            $table->decimal('residence_latitude', 10, 8)->nullable();
-            $table->decimal('residence_longitude', 11, 8)->nullable();
-            
-            // Socio-Economic Profile
-            $table->enum('educational_level', [
-                'none', 
-                'primary', 
-                'secondary', 
-                'tertiary', 
-                'vocational'
-            ]);
-            $table->integer('household_size')->unsigned()->default(1);
-            $table->enum('primary_occupation', [
-                'full_time_farmer',
-                'part_time_farmer',
-                'civil_servant',
-                'trader',
-                'artisan',
-                'student',
-                'other'
-            ]);
-            $table->string('other_occupation')->nullable();
-            
-            // Cooperative Linkage
-            $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');
-            
-            // Enrollment & Administrative Tracking
-            $table->foreignId('enrolled_by')->constrained('users')->onDelete('restrict')
-                  ->comment('Enrollment Officer who registered this farmer');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')
-                  ->comment('LGA Admin who approved this enrollment');
-            
-            // Status & Workflow
-            $table->enum('status', [
-                'pending_lga_review',
-                'pending_activation',
-                'active',
-                'suspended',
-                'rejected'
-            ])->default('pending_lga_review');
-            $table->text('rejection_reason')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->timestamp('activated_at')->nullable();
-            
-            // System-Generated Credentials (Cleared after first login)
-            $table->string('initial_password')->nullable()
-                  ->comment('Temporary storage for initial password - cleared on first login');
-            $table->boolean('password_changed')->default(false);
-            
-            // Metadata
-            $table->json('additional_info')->nullable()
-                  ->comment('Flexible field for future expansion');
-            
-            $table->timestamps();
-            $table->softDeletes();
-            
-            // Indexes for Performance
-            $table->index(['lga_id', 'status']);
-            $table->index('enrolled_by');
-            $table->index('approved_by');
-            $table->index(['residence_latitude', 'residence_longitude']);
-        });
     
+    use HasFactory;
+    protected $fillable = ['name', 'code'];
+
+    /**
+     * Get all users scoped to this LGA.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
+    }
+}
 
 
 
-        Schema::create('farmers', function (Blueprint $table) {
-            $table->id();
-            
-            // Core Identity & Authentication
-            $table->string('nin')->unique()->comment('National Identification Number');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')
-                  ->comment('Links to users table for authentication');
-            
-            // Personal Demographics
-            $table->string('full_name');
-            $table->string('phone_primary')->unique();
-            $table->string('phone_secondary')->nullable();
-            $table->string('email')->unique();
-            $table->enum('gender', ['male', 'female', 'other']);
-            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed']);
-            $table->date('date_of_birth');
-            
-            // Location & Administrative Data
-            $table->foreignId('lga_id')->constrained('lgas')->onDelete('restrict');
-            $table->string('ward');
-            $table->text('residential_address');
-            
-            // Geolocation for Residence
-            $table->decimal('residence_latitude', 10, 8)->nullable();
-            $table->decimal('residence_longitude', 11, 8)->nullable();
-            
-            // Socio-Economic Profile
-            $table->enum('educational_level', [
-                'none', 
-                'primary', 
-                'secondary', 
-                'tertiary', 
-                'vocational'
-            ]);
-            $table->integer('household_size')->unsigned()->default(1);
-            $table->enum('primary_occupation', [
-                'full_time_farmer',
-                'part_time_farmer',
-                'civil_servant',
-                'trader',
-                'artisan',
-                'student',
-                'other'
-            ]);
-            $table->string('other_occupation')->nullable();
-            
-            // Cooperative Linkage
-            $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');
-            
-            // Enrollment & Administrative Tracking
-            $table->foreignId('enrolled_by')->constrained('users')->onDelete('restrict')
-                  ->comment('Enrollment Officer who registered this farmer');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null')
-                  ->comment('LGA Admin who approved this enrollment');
-            
-            // Status & Workflow
-            $table->enum('status', [
-                'pending_lga_review',
-                'pending_activation',
-                'active',
-                'suspended',
-                'rejected'
-            ])->default('pending_lga_review');
-            $table->text('rejection_reason')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->timestamp('activated_at')->nullable();
-            
-            // System-Generated Credentials (Cleared after first login)
-            $table->string('initial_password')->nullable()
-                  ->comment('Temporary storage for initial password - cleared on first login');
-            $table->boolean('password_changed')->default(false);
-            
-            // Metadata
-            $table->json('additional_info')->nullable()
-                  ->comment('Flexible field for future expansion');
-            
-            $table->timestamps();
-            $table->softDeletes();
-            
-            // Indexes for Performance
-            $table->index(['lga_id', 'status']);
-            $table->index('enrolled_by');
-            $table->index('approved_by');
-            $table->index(['residence_latitude', 'residence_longitude']);
-        });
-   
 
-           Schema::create('farm_lands', function (Blueprint $table) {
-            $table->id(); // Farm ID (Primary Key)
-            
-            // Linkage
-            $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade')
-                  ->comment('Links the farm back to the Farmer Profile');
-            
-            // Plot Details
-            $table->string('name')->comment('E.g., "Home Plot," "River Field"');
-            $table->enum('farm_type', ['crops', 'livestock', 'fisheries', 'orchards', 'forestry'])
-                  ->comment('Used to dynamically load the next sub-form');
-            $table->decimal('total_size_hectares', 10, 4)
-                  ->comment('The registered size of this specific plot (ha)');
-            $table->enum('ownership_status', ['owned', 'leased', 'shared', 'communal']);
-            
-            // Geospatial Data
-            // Storing GeoJSON as a TEXT/JSON field for simplicity across various database systems.
-            $table->longText('geolocation_geojson')->nullable()
-                  ->comment('Actual farm boundaries (polygon) or center point (point) as GeoJSON string');
-            
-            $table->timestamps();
-            $table->softDeletes();
-            
-            // Indexes
-            $table->index('farmer_id');
-            $table->index('farm_type');
-        });
+class Department extends Model
+{
+    protected $table = 'departments';
+
+    use HasFactory;
+    protected $fillable = ['name', 'abbreviation'];
+
+    /**
+     * Get all users scoped to this Department.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
     }
 
-
- Schema::create('crop_practice_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
-            
-            $table->string('crop_type');
-            $table->string('variety')->nullable();
-            $table->decimal('expected_yield_kg', 10, 2)->nullable();
-            $table->enum('farming_method', ['irrigation', 'rain_fed', 'organic', 'mixed']);
-            
-            $table->timestamps();
-            
-            $table->index('crop_type');
-        });
-
-
-
-        
-        Schema::create('livestock_practice_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
-            
-            $table->string('animal_type');
-            $table->integer('herd_flock_size')->unsigned();
-            $table->enum('breeding_practice', ['open_grazing', 'ranching', 'intensive', 'semi_intensive']);
-            
-            $table->timestamps();
-            
-            $table->index('animal_type');
-        });
+    public function agencies()
+    {
+        return $this->hasMany(Agency::class);
     }
-
-    Schema::create('fisheries_practice_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
-            
-            $table->enum('fishing_type', ['aquaculture_pond', 'riverine', 'reservoir']);
-            $table->string('species_raised');
-            $table->decimal('pond_size_sqm', 10, 2)->nullable();
-            $table->decimal('expected_harvest_kg', 10, 2)->nullable();
-            
-            $table->timestamps();
-            
-            $table->index('fishing_type');
-        });
+}
 
 
-        Schema::create('orchard_practice_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('farm_land_id')->unique()->constrained('farm_lands')->onDelete('cascade');
-            
-            $table->string('tree_type');
-            $table->integer('number_of_trees')->unsigned();
-            $table->enum('maturity_stage', ['seedling', 'immature', 'producing']);
-            
-            $table->timestamps();
-            
-            $table->index('tree_type');
-        });
+class Agency extends Model
+{
+
+    protected $table = 'agencies';
 
 
-        Schema::create('cooperative_farmer', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('farmer_id')->constrained('farmers')->onDelete('cascade');
-            $table->foreignId('cooperative_id')->constrained('cooperatives')->onDelete('cascade');
-            $table->string('membership_number')->nullable();
-            $table->date('joined_date')->nullable();
-            $table->date('exit_date')->nullable();
-            $table->enum('membership_status', ['active', 'inactive', 'pending'])->default('active');
-            $table->string('position')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamps();
-            $table->unique(['farmer_id', 'cooperative_id']);
-            $table->index('membership_status');
-        });
+    use HasFactory;
+    protected $fillable = ['name', 'department_id'];
 
-=== -- models
-        class User extends Authenticatable implements MustVerifyEmail
+    /**
+     * Get all users scoped to this Agency.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
+    }
+    
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+}
+
+lass User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles; //  Use Spatie Trait
 
@@ -368,495 +118,255 @@
     }
 }
 
-class Farmer extends Model
-{
-    use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'nin',
-        'user_id',
-        'full_name',
-        'phone_primary',
-        'phone_secondary',
-        'email',
-        'gender',
-        'marital_status',
-        'date_of_birth',
-        'lga_id',
-        'ward',
-        'residential_address',
-        'residence_latitude',
-        'residence_longitude',
-        'educational_level',
-        'household_size',
-        'primary_occupation',
-        'other_occupation',
-        'cooperative_id',
-        'enrolled_by',
-        'approved_by',
-        'status',
-        'rejection_reason',
-        'approved_at',
-        'activated_at',
-        'initial_password',
-        'password_changed',
-        'additional_info',
-    ];
-
-    protected $hidden = [
-        'initial_password',
-    ];
-
-    protected $casts = [
-        'date_of_birth' => 'date',
-        'approved_at' => 'datetime',
-        'activated_at' => 'datetime',
-        'household_size' => 'integer',
-        'password_changed' => 'boolean',
-        'additional_info' => 'array',
-        'residence_latitude' => 'decimal:8',
-        'residence_longitude' => 'decimal:8',
-    ];
-
-    /**
-     * Boot method to handle model events
-     */
-    protected static function boot()
+-- migrations and seeders
+ public function up(): void
     {
-        parent::boot();
-
-        // Auto-generate initial password when farmer is created
-        static::creating(function ($farmer) {
-            if (empty($farmer->initial_password)) {
-                $farmer->initial_password = Str::random(12); // Secure random password
-            }
+        Schema::create('lgas', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('code')->unique()->comment('Internal LGA code or abbreviation');
+            $table->timestamps();
         });
     }
 
-    // ==================== Relationships ====================
 
-    /**
-     * The user account associated with this farmer (after activation)
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
 
-    /**
-     * The LGA this farmer belongs to
-     */
-    public function lga(): BelongsTo
-    {
-        return $this->belongsTo(LGA::class);
-    }
+    Schema::create('departments', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('abbreviation')->nullable();
+            $table->timestamps();
+        });
 
-    /**
-     * The primary cooperative this farmer belongs to
-     */
-    public function cooperative(): BelongsTo
-    {
-        return $this->belongsTo(Cooperative::class);
-    }
 
-    /**
-     * All cooperatives this farmer is a member of (many-to-many)
-     */
-    public function cooperatives(): BelongsToMany
-    {
-        return $this->belongsToMany(Cooperative::class, 'cooperative_farmer')
-            ->withPivot([
-                'membership_number',
-                'joined_date',
-                'exit_date',
-                'membership_status',
-                'position',
-                'notes'
-            ])
-            ->withTimestamps();
-    }
 
-    /**
-     * The enrollment officer who registered this farmer
-     */
-    public function enrolledBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'enrolled_by');
-    }
+         Schema::create('agencies', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null');
+            $table->timestamps();
+        });
 
-    /**
-     * The LGA admin who approved this farmer
-     */
-    public function approvedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by');
-    }
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone_number')->nullable()->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
 
-    /**
-     * All farm lands owned by this farmer
-     */
-    public function farmLands(): HasMany
-    {
-        return $this->hasMany(FarmLand::class);
-    }
+            // Administrative Scope (Polymorphic Relationship)
+            // Links a user to their LGA, Department, or Agency.
+            $table->nullableMorphs('administrative'); // Creates administrative_id and administrative_type
 
-    // ==================== Scopes ====================
+            $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('onboarded')->comment('User onboarding workflow status');            
+            $table->rememberToken();
+            $table->timestamps();
 
-    /**
-     * Scope for farmers in a specific LGA
-     */
-    public function scopeForLGA($query, $lgaId)
-    {
-        return $query->where('lga_id', $lgaId);
-    }
+            // Index for faster lookups based on scope
+            $table->index(['administrative_id', 'administrative_type']);
+        });
 
-    /**
-     * Scope for farmers enrolled by a specific officer
-     */
-    public function scopeEnrolledBy($query, $userId)
-    {
-        return $query->where('enrolled_by', $userId);
-    }
 
-    /**
-     * Scope for pending review farmers
-     */
-    public function scopePendingReview($query)
-    {
-        return $query->where('status', 'pending_lga_review');
-    }
 
-    /**
-     * Scope for active farmers
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
 
-    /**
-     * Scope for farmers needing activation
-     */
-    public function scopePendingActivation($query)
-    {
-        return $query->where('status', 'pending_activation');
-    }
-
-    // ==================== Helper Methods ====================
-
-    /**
-     * Get the farmer's age
-     */
-    public function getAgeAttribute(): int
-    {
-        return $this->date_of_birth->age ?? 0;
-    }
-
-    /**
-     * Get full location string
-     */
-    public function getFullLocationAttribute(): string
-    {
-        return "{$this->ward}, {$this->lga->name}";
-    }
-
-    /**
-     * Check if farmer has completed first login
-     */
-    public function hasChangedPassword(): bool
-    {
-        return $this->password_changed;
-    }
-
-    /**
-     * Check if farmer can be activated
-     */
-    public function canBeActivated(): bool
-    {
-        return $this->status === 'pending_activation' && !empty($this->initial_password);
-    }
-
-    /**
-     * Check if farmer is awaiting LGA approval
-     */
-    public function isPendingApproval(): bool
-    {
-        return $this->status === 'pending_lga_review';
-    }
-
-    /**
-     * Approve farmer enrollment
-     */
-    public function approve(User $admin): bool
-    {
-        $this->status = 'pending_activation';
-        $this->approved_by = $admin->id;
-        $this->approved_at = now();
-        return $this->save();
-    }
-
-    /**
-     * Reject farmer enrollment
-     */
-    public function reject(User $admin, string $reason): bool
-    {
-        $this->status = 'rejected';
-        $this->approved_by = $admin->id;
-        $this->rejection_reason = $reason;
-        return $this->save();
-    }
-
-    /**
-     * Activate farmer account
-     */
-    public function activate(User $user): bool
-    {
-        $this->user_id = $user->id;
-        $this->status = 'active';
-        $this->activated_at = now();
-        return $this->save();
-    }
-
-    /**
-     * Clear initial password after first login
-     */
-    public function clearInitialPassword(): bool
-    {
-        $this->initial_password = null;
-        $this->password_changed = true;
-        return $this->save();
-    }
-
-    /**
-     * Get total farm land size
-     */
-    public function getTotalFarmSizeAttribute(): float
-    {
-        return $this->farmLands()->sum('total_size_hectares') ?? 0;
-    }
-
-    /**
-     * Get count of farms by type
-     */
-    public function getFarmCountByType(string $type): int
-    {
-        return $this->farmLands()->where('farm_type', $type)->count();
-    }
-}
-
-class FarmLand extends Model
+        class RolesAndPermissionsSeeder extends Seeder
 {
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'farmer_id',
-        'name',
-        'farm_type',
-        'total_size_hectares',
-        'ownership_status',
-        'geolocation_geojson',
-    ];
-
-    protected $casts = [
-        'total_size_hectares' => 'decimal:4',
-    ];
-
-    // ==================== Relationships ====================
-
-    public function farmer(): BelongsTo
+    public function run(): void
     {
-        return $this->belongsTo(Farmer::class);
-    }
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-    // Dynamic Relationship to Practice Details
-    public function practiceDetails(): HasOne
-    {
-        switch ($this->farm_type) {
-            case 'crops':
-                return $this->hasOne(CropPracticeDetails::class);
-            case 'livestock':
-                return $this->hasOne(LivestockPracticeDetails::class);
-            case 'fisheries':
-                return $this->hasOne(FisheriesPracticeDetails::class);
-            case 'orchards':
-                return $this->hasOne(OrchardPracticeDetails::class);
-            default:
-                return $this->hasOne(Model::class); // Fallback
+        $lga = LGA::where('code', 'MDK')->first();
+        if (!$lga) {
+            $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
+            return;
         }
+
+        $dept_agric = Department::where('abbreviation', 'MAFS')->first();
+        if (!$dept_agric) {
+            $this->command->error("Ministry of Agriculture (MAFS) not found. Run DepartmentAndAgencySeeder first.");
+            return;
+        }
+
+        // Define Permissions
+        $permissions = [
+            // Super Admin Permissions
+            'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
+            'manage_agencies', 'system_settings', 'view_audit_logs', 'export_all_data',
+
+            // Governor/State-level Permissions
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
+
+            // LGA Admin Permissions
+            'view_lga_dashboard', 'manage_lga_agents', // Added manage_lga_agents
+
+            // LGA-level Permissions
+            'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+
+            // Enrollment Agent Permissions
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles',
+
+            // Standard User Permissions
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
+
+        // Define Roles
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
+        $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
+        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
+        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']); // Added
+        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+
+        // Assign Permissions to Roles
+        $superAdminRole->syncPermissions($permissions);
+        
+        $governorRole->syncPermissions([
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
+        ]);
+        
+        $stateAdminRole->syncPermissions([
+            'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
+            'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
+        ]);
+        
+        $lgaAdminRole->syncPermissions([
+            'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
+            'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+        ]);
+
+        $enrollmentAgentRole->syncPermissions([
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
+        ]);
+        
+        $userRole->syncPermissions([
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ]);
+
+        // Create Initial Users
+        User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
+            'name' => 'System Super Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$superAdminRole]);
+
+        User::firstOrCreate(['email' => 'governor@benue.gov.ng'], [
+            'name' => 'Executive Governor',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$governorRole]);
+
+        User::firstOrCreate(['email' => 'stateadmin@benue.gov.ng'], [
+            'name' => 'State Administrator (Agric)',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $dept_agric->id,
+            'administrative_type' => Department::class,
+        ])->syncRoles([$stateAdminRole]);
+
+        User::firstOrCreate(['email' => 'lgaadmin@makurdi.gov.ng'], [
+            'name' => 'Makurdi LGA Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$lgaAdminRole]);
+
+        User::firstOrCreate(['email' => 'agent@makurdi.gov.ng'], [
+            'name' => 'Test Enrollment Agent',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$enrollmentAgentRole]);
+
+        User::firstOrCreate(['email' => 'farmer@test.com'], [
+            'name' => 'Test Farmer User',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$userRole]);
+
+        $this->command->info('✅ Roles, permissions, and initial test users seeded successfully!');
     }
 }
 
-class Cooperative extends Model
-{
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'registration_number',
-        'name',
-        'contact_person',
-        'phone',
-        'email',
-        'total_member_count',
-        'total_land_size',
-        'primary_activities',
-        'lga_id',
-        'registered_by',
-    ];
-
-    protected $casts = [
-        'primary_activities' => 'array',
-        'total_land_size' => 'decimal:2',
-    ];
-
-    // ==================== Relationships ====================
-
-    /**
-     * The primary LGA this cooperative is based in.
-     */
-    public function lga(): BelongsTo
+ public function run(): void
     {
-        return $this->belongsTo(LGA::class);
-    }
+        // 1. Seed Departments
+        $dept_agric = Department::firstOrCreate([
+            'name' => 'Ministry of Agriculture and Food Security',
+            'abbreviation' => 'MAFS',
+        ]);
+        
+        $dept_dev = Department::firstOrCreate([
+            'name' => 'Agricultural Development and Empowerment Programmes',
+            'abbreviation' => 'ADEP',
+        ]);
 
-    /**
-     * The farmers who have this cooperative set as their primary cooperative (one-to-many).
-     */
-    public function primaryFarmers(): HasMany
-    {
-        return $this->hasMany(Farmer::class, 'cooperative_id');
-    }
+        $dept_water = Department::firstOrCreate([
+            'name' => 'Ministry of Water Resources and Environment',
+            'abbreviation' => 'MWRE',
+        ]);
+        
+        $dept_land = Department::firstOrCreate([
+            'name' => 'Ministry of Lands and Survey',
+            'abbreviation' => 'MLS',
+        ]);
 
-    /**
-     * All farmers who are members of this cooperative (many-to-many).
-     */
-    public function members(): BelongsToMany
-    {
-        return $this->belongsToMany(Farmer::class, 'cooperative_farmer')
-            ->withPivot([
-                'membership_number',
-                'joined_date',
-                'exit_date',
-                'membership_status',
-                'position',
-                'notes'
-            ])
-            ->withTimestamps();
-    }
-}
 
-class OrchardPracticeDetails extends Model
-{
-    use HasFactory;
-    
-    protected $table = 'orchard_practice_details';
+        // 2. Seed Agencies linked to Departments
+        
+        // Agencies under MAFS
+        Agency::firstOrCreate([
+            'name' => 'Mechanised Farming Pilot Scheme',
+            'department_id' => $dept_agric->id
+        ]);
 
-    protected $fillable = [
-        'farm_land_id',
-        'tree_type',
-        'number_of_trees',
-        'maturity_stage',
-    ];
+        Agency::firstOrCreate([
+            'name' => 'Benue State Agricultural and Rural Development Authority (BNARDA)',
+            'department_id' => $dept_agric->id
+        ]);
+        
+        // Agencies under ADEP
+        Agency::firstOrCreate([
+            'name' => 'Benue State Agricultural Development Corporation (BSADC)',
+            'department_id' => $dept_dev->id
+        ]);
 
-    protected $casts = [
-        'number_of_trees' => 'integer',
-    ];
+        Agency::firstOrCreate([
+            'name' => 'Agricultural Resource Management Agency',
+            'department_id' => $dept_dev->id
+        ]);
+        
+        // Agencies under MWRE (Example)
+        Agency::firstOrCreate([
+            'name' => 'Water and Soil Conservation Unit',
+            'department_id' => $dept_water->id
+        ]);
 
-    public function farmLand(): BelongsTo
-    {
-        return $this->belongsTo(FarmLand::class);
-    }
-}
 
-class LGA extends Model
-{
-    protected $table = 'lgas';
-
-    
-    use HasFactory;
-    protected $fillable = ['name', 'code'];
-
-    /**
-     * Get all users scoped to this LGA.
-     */
-    public function users()
-    {
-        return $this->morphMany(User::class, 'administrative');
-    }
-}
-
-class CropPracticeDetails extends Model
-{
-    use HasFactory;
-    
-    // Note: No SoftDeletes as this data is deleted when FarmLand is deleted (via migration cascade)
-    protected $table = 'crop_practice_details';
-
-    protected $fillable = [
-        'farm_land_id',
-        'crop_type',
-        'variety',
-        'expected_yield_kg',
-        'farming_method',
-    ];
-
-    protected $casts = [
-        'expected_yield_kg' => 'decimal:2',
-    ];
-
-    public function farmLand(): BelongsTo
-    {
-        return $this->belongsTo(FarmLand::class);
+        $this->command->info('✅ Departments and Agencies seeded successfully!');
     }
 }
 
 
-class FisheriesPracticeDetails extends Model
-{
-    use HasFactory;
-    
-    protected $table = 'fisheries_practice_details';
 
-    protected $fillable = [
-        'farm_land_id',
-        'fishing_type',
-        'species_raised',
-        'pond_size_sqm',
-        'expected_harvest_kg',
-    ];
 
-    protected $casts = [
-        'pond_size_sqm' => 'decimal:2',
-        'expected_harvest_kg' => 'decimal:2',
-    ];
 
-    public function farmLand(): BelongsTo
-    {
-        return $this->belongsTo(FarmLand::class);
-    }
-}
 
-class LivestockPracticeDetails extends Model
-{
-    use HasFactory;
-    
-    protected $table = 'livestock_practice_details';
-
-    protected $fillable = [
-        'farm_land_id',
-        'animal_type',
-        'herd_flock_size',
-        'breeding_practice',
-    ];
-
-    protected $casts = [
-        'herd_flock_size' => 'integer',
-    ];
-
-    public function farmLand(): BelongsTo
-    {
-        return $this->belongsTo(FarmLand::class);
-    }
-}
 
 
 

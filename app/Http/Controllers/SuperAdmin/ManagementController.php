@@ -41,6 +41,7 @@ class ManagementController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // CORRECT: Use the actual relationship method name
         $users = User::with(['roles', 'administrativeUnit'])->get();
         return view('super_admin.management.users.index', compact('users'));
     }

@@ -1,1078 +1,568 @@
+-- Controllers
 <?php
 
-namespace App\Http\Requests;
-
-use Illuminate\Foundation\Http\FormRequest;
-
-class StoreFarmerRequest extends FormRequest
-{
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        return [
-            // Step 1: Personal & Identity
-            'nin' => ['required', 'string', 'max:15', 'unique:farmers,nin'],
-            'full_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:farmers,email'],
-            'phone_primary' => ['required', 'string', 'max:15', 'unique:farmers,phone_primary'],
-            'phone_secondary' => ['nullable', 'string', 'max:15'],
-            'date_of_birth' => ['required', 'date', 'before:today'],
-            'gender' => ['required', 'in:male,female,other'],
-            'marital_status' => ['required', 'in:single,married,divorced,widowed'],
-            'lga_id' => ['required', 'exists:lgas,id'],
-            'ward' => ['required', 'string', 'max:255'],
-            'residential_address' => ['required', 'string'],
-            'residence_latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'residence_longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'educational_level' => ['required', 'in:none,primary,secondary,tertiary,vocational'],
-            'household_size' => ['required', 'integer', 'min:1'],
-            'primary_occupation' => ['required', 'in:full_time_farmer,part_time_farmer,civil_servant,trader,artisan,student,other'],
-            'other_occupation' => ['required_if:primary_occupation,other', 'nullable', 'string', 'max:255'],
-            'cooperative_id' => ['nullable', 'exists:cooperatives,id'],
-
-            // Step 2: Farm & Land Details
-            'farm_name' => ['required', 'string', 'max:255'],
-            'farm_type' => ['required', 'in:crops,livestock,fisheries,orchards,forestry'],
-            'total_size_hectares' => ['required', 'numeric', 'min:0.01', 'max:99999.9999'],
-            'ownership_status' => ['required', 'in:owned,leased,shared,communal'],
-            'geolocation_geojson' => ['required', 'string'],
-
-            // Step 3: Practice Details (conditional based on farm_type)
-            'crop_type' => ['required_if:farm_type,crops,orchards', 'nullable', 'string', 'max:255'],
-            'variety' => ['nullable', 'string', 'max:255'],
-            'expected_yield_kg' => ['nullable', 'numeric', 'min:0'],
-            'farming_method' => ['required_if:farm_type,crops', 'nullable', 'in:irrigation,rain_fed,organic,mixed'],
-
-            'animal_type' => ['required_if:farm_type,livestock', 'nullable', 'string', 'max:255'],
-            'herd_flock_size' => ['required_if:farm_type,livestock', 'nullable', 'integer', 'min:1'],
-            'breeding_practice' => ['required_if:farm_type,livestock', 'nullable', 'in:open_grazing,ranching,intensive,semi_intensive'],
-
-            'fishing_type' => ['required_if:farm_type,fisheries', 'nullable', 'in:aquaculture_pond,riverine,reservoir'],
-            'species_raised' => ['required_if:farm_type,fisheries', 'nullable', 'string', 'max:255'],
-            'pond_size_sqm' => ['nullable', 'numeric', 'min:0'],
-            'expected_harvest_kg' => ['nullable', 'numeric', 'min:0'],
-
-            'tree_type' => ['required_if:farm_type,orchards', 'nullable', 'string', 'max:255'],
-            'number_of_trees' => ['required_if:farm_type,orchards', 'nullable', 'integer', 'min:1'],
-            'maturity_stage' => ['required_if:farm_type,orchards', 'nullable', 'in:seedling,immature,producing'],
-
-            // Media uploads
-            'farmer_photo' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
-            'farm_photo' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'nin.unique' => 'This NIN is already registered in the system.',
-            'email.unique' => 'This email address is already registered.',
-            'phone_primary.unique' => 'This phone number is already registered.',
-            'date_of_birth.before' => 'Date of birth must be in the past.',
-            'other_occupation.required_if' => 'Please specify the other occupation.',
-            'crop_type.required_if' => 'Crop type is required for crop farming.',
-            'animal_type.required_if' => 'Animal type is required for livestock farming.',
-            'fishing_type.required_if' => 'Fishing type is required for fisheries.',
-            'tree_type.required_if' => 'Tree type is required for orchards.',
-        ];
-    }
-}
-
-
-<?php
-
-namespace App\Http\Controllers\EnrollmentAgent;
+namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreFarmerRequest;
-use App\Models\Farmer;
-use App\Models\FarmLand;
-use App\Models\CropPracticeDetails;
-use App\Models\LivestockPracticeDetails;
-use App\Models\FisheriesPracticeDetails;
-use App\Models\OrchardPracticeDetails;
-use App\Models\LGA;
-use App\Models\Cooperative;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\Agency;
+use App\Models\LGA;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class FarmerController extends Controller
+class ManagementController extends Controller
 {
-    /**
-     * Display a listing of farmers enrolled by the current agent.
-     */
+    protected $globalRoles = ['Super Admin', 'Governor'];
+    protected $unitRoleMap = [
+        'LGA Admin' => ['LGA'],
+        'Enrollment Agent' => ['LGA'],
+        'State Admin' => ['Department', 'Agency'],
+    ];
+
+    protected function getUnitRoleIds()
+    {
+        $unitRoleNames = array_keys($this->unitRoleMap);
+        return Role::whereIn('name', $unitRoleNames)->pluck('id')->map(fn($id) => (string)$id)->toArray();
+    }
+    
     public function index()
     {
-        $farmers = Farmer::with(['lga', 'cooperative', 'farmLands'])
-            ->enrolledBy(auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-        return view('enrollment_agent.farmers.index', compact('farmers'));
+        return view('super_admin.management.index');
     }
 
-    /**
-     * Show the form for creating a new farmer profile.
-     */
-    public function create()
+    public function users()
     {
-        $lgas = LGA::orderBy('name')->get();
-        $cooperatives = Cooperative::orderBy('name')->get();
-        
-        return view('enrollment_agent.farmers.create', compact('lgas', 'cooperatives'));
-    }
-
-    /**
-     * Store a newly created farmer profile with farm and practice details.
-     */
-    public function store(StoreFarmerRequest $request)
-    {
-        try {
-            DB::beginTransaction();
-
-            // Step 1: Create Farmer Profile
-            $farmerData = $request->only([
-                'nin', 'full_name', 'email', 'phone_primary', 'phone_secondary',
-                'date_of_birth', 'gender', 'marital_status', 'lga_id', 'ward',
-                'residential_address', 'residence_latitude', 'residence_longitude',
-                'educational_level', 'household_size', 'primary_occupation',
-                'other_occupation', 'cooperative_id'
-            ]);
-
-            $farmerData['enrolled_by'] = auth()->id();
-            $farmerData['status'] = 'pending_lga_review';
-            $farmerData['initial_password'] = Str::random(12);
-            $farmerData['password_changed'] = false;
-
-            $farmer = Farmer::create($farmerData);
-
-            // Step 2: Handle Photo Uploads
-            if ($request->hasFile('farmer_photo')) {
-                $farmerPhotoPath = $request->file('farmer_photo')->store(
-                    'farmers/photos/' . $farmer->id,
-                    'public'
-                );
-                $farmer->update(['farmer_photo' => $farmerPhotoPath]);
-            }
-
-            // Step 3: Create Farm Land Entry
-            $farmLandData = $request->only([
-                'farm_name', 'farm_type', 'total_size_hectares',
-                'ownership_status', 'geolocation_geojson'
-            ]);
-
-            $farmLand = $farmer->farmLands()->create($farmLandData);
-
-            // Step 4: Handle Farm Photo Upload
-            if ($request->hasFile('farm_photo')) {
-                $farmPhotoPath = $request->file('farm_photo')->store(
-                    'farms/photos/' . $farmLand->id,
-                    'public'
-                );
-                $farmLand->update(['farm_photo' => $farmPhotoPath]);
-            }
-
-            // Step 5: Create Practice Details Based on Farm Type
-            $this->createPracticeDetails($farmLand, $request);
-
-            DB::commit();
-
-            return redirect()
-                ->route('enrollment.farmers.index')
-                ->with('success', 'Farmer profile submitted successfully for LGA review. Enrollment ID: ' . $farmer->id);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            // Log the error for debugging
-            \Log::error('Farmer Enrollment Error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error', 'Error submitting farmer profile: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Create practice-specific details based on farm type
-     */
-    private function createPracticeDetails(FarmLand $farmLand, StoreFarmerRequest $request)
-    {
-        switch ($farmLand->farm_type) {
-            case 'crops':
-                CropPracticeDetails::create([
-                    'farm_land_id' => $farmLand->id,
-                    'crop_type' => $request->crop_type,
-                    'variety' => $request->variety,
-                    'expected_yield_kg' => $request->expected_yield_kg,
-                    'farming_method' => $request->farming_method,
-                ]);
-                break;
-
-            case 'livestock':
-                LivestockPracticeDetails::create([
-                    'farm_land_id' => $farmLand->id,
-                    'animal_type' => $request->animal_type,
-                    'herd_flock_size' => $request->herd_flock_size,
-                    'breeding_practice' => $request->breeding_practice,
-                ]);
-                break;
-
-            case 'fisheries':
-                FisheriesPracticeDetails::create([
-                    'farm_land_id' => $farmLand->id,
-                    'fishing_type' => $request->fishing_type,
-                    'species_raised' => $request->species_raised,
-                    'pond_size_sqm' => $request->pond_size_sqm,
-                    'expected_harvest_kg' => $request->expected_harvest_kg,
-                ]);
-                break;
-
-            case 'orchards':
-                OrchardPracticeDetails::create([
-                    'farm_land_id' => $farmLand->id,
-                    'tree_type' => $request->tree_type,
-                    'number_of_trees' => $request->number_of_trees,
-                    'maturity_stage' => $request->maturity_stage,
-                ]);
-                // Also create crop details if crop_type is provided for orchards
-                if ($request->filled('crop_type')) {
-                    CropPracticeDetails::create([
-                        'farm_land_id' => $farmLand->id,
-                        'crop_type' => $request->crop_type,
-                        'variety' => $request->variety,
-                        'expected_yield_kg' => $request->expected_yield_kg,
-                        'farming_method' => $request->farming_method ?? 'organic',
-                    ]);
-                }
-                break;
-        }
-    }
-
-    /**
-     * Display the specified farmer profile.
-     */
-    public function show(Farmer $farmer)
-    {
-        // Ensure enrollment officer can only view their own enrollments
-        if ($farmer->enrolled_by !== auth()->id()) {
+        if (!Auth::user()->can('manage_users')) {
             abort(403, 'Unauthorized action.');
         }
-        
-        $farmer->load([
-            'lga',
-            'cooperative',
-            'enrolledBy',
-            'approvedBy',
-            'farmLands.cropPracticeDetails',
-            'farmLands.livestockPracticeDetails',
-            'farmLands.fisheriesPracticeDetails',
-            'farmLands.orchardPracticeDetails'
+
+        $users = User::with(['roles', 'administrativeUnit'])->get();
+        return view('super_admin.management.users.index', compact('users'));
+    }
+
+    public function createUser()
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $roles = Role::pluck('name', 'id');
+        $unitRoles = Role::whereNotIn('name', $this->globalRoles)->pluck('name', 'id');
+        $departments = Department::all();
+        $agencies = Agency::all();
+        $lgas = LGA::all();
+
+        return view('super_admin.management.users.create', compact('roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Log incoming request for debugging
+        Log::info('Store User Request', [
+            'role_id' => $request->input('role_id'),
+            'administrative_type' => $request->input('administrative_type'),
+            'administrative_id' => $request->input('administrative_id'),
         ]);
 
-        return view('enrollment_agent.farmers.show', compact('farmer'));
-    }
+        // 1. Define Base Rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role_id' => ['required', 'exists:roles,id'],
+        ];
 
-    /**
-     * Show the form for editing (resubmitting) the specified farmer profile.
-     */
-    public function edit(Farmer $farmer)
-    {
-        if ($farmer->enrolled_by !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $messages = [
+            'administrative_type.required' => 'This role requires an administrative unit type to be selected.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+            'role_id.required' => 'Please select a role for this user.',
+        ];
 
-        // Only allow editing if pending or rejected
-        if (in_array($farmer->status, ['active', 'pending_activation'])) {
-            return redirect()
-                ->route('enrollment.farmers.show', $farmer)
-                ->with('error', 'Cannot edit a profile that has been approved or activated.');
-        }
-
-        $farmer->load('farmLands.cropPracticeDetails', 'farmLands.livestockPracticeDetails', 
-                     'farmLands.fisheriesPracticeDetails', 'farmLands.orchardPracticeDetails');
+        // 2. Get the role to check if it requires administrative unit
+        $role = Role::find($request->input('role_id'));
         
-        $lgas = LGA::orderBy('name')->get();
-        $cooperatives = Cooperative::orderBy('name')->get();
-
-        return view('enrollment_agent.farmers.edit', compact('farmer', 'lgas', 'cooperatives'));
-    }
-
-    /**
-     * Update/Resubmit the specified farmer profile.
-     */
-    public function update(StoreFarmerRequest $request, Farmer $farmer)
-    {
-        if ($farmer->enrolled_by !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
+        // 3. Add conditional rules if role requires unit
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+            $rules['administrative_id'] = ['required', 'integer', 'min:1'];
         }
 
-        // Prevent update if already approved
-        if (in_array($farmer->status, ['active', 'pending_activation'])) {
-            return back()->with('error', 'Profile is approved and cannot be modified.');
-        }
+        // 4. Run Validation
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        // 5. Custom validation in after callback
+        $validator->after(function ($validator) use ($request, $role) { 
+            if ($this->shouldValidateUnitFields($role)) {
+                $this->validateAdministrativeUnitExistence($validator, $request); 
+                $this->validateRoleUnitCompatibility($validator, $request, $role); 
+            }
+        });
+
+        // 6. Validate and get data
+        $data = $validator->validate();
+
+        // 7. Prepare administrative unit data
+        $administrativeType = null;
+        $administrativeId = null;
         
-        try {
-            DB::beginTransaction();
+        // KEY FIX: Check if role requires unit and data is provided
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            // For unit-based roles, these fields are required by validation
+            $shortType = $data['administrative_type']; // e.g., "Department", "Agency", "LGA"
+            $administrativeType = "App\\Models\\{$shortType}";
+            $administrativeId = $data['administrative_id'];
             
-            // Update Farmer Profile
-            $farmerData = $request->only([
-                'nin', 'full_name', 'email', 'phone_primary', 'phone_secondary',
-                'date_of_birth', 'gender', 'marital_status', 'lga_id', 'ward',
-                'residential_address', 'residence_latitude', 'residence_longitude',
-                'educational_level', 'household_size', 'primary_occupation',
-                'other_occupation', 'cooperative_id'
-            ]);
+            // Additional safety check
+            if (!$administrativeId || $administrativeId < 1) {
+                return back()->withErrors([
+                    'administrative_id' => 'A valid administrative unit must be selected for this role.'
+                ])->withInput();
+            }
+        }
+        
+        // 8. Create User with explicit field assignment
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'status' => 'onboarded',
+            'administrative_type' => $administrativeType,
+            'administrative_id' => $administrativeId,
+        ]);
 
-            $farmer->update($farmerData);
+        // Log what was saved
+        Log::info('User Created', [
+            'user_id' => $user->id,
+            'administrative_type' => $user->administrative_type,
+            'administrative_id' => $user->administrative_id,
+        ]);
 
-            // Reset status to pending review
-            $farmer->status = 'pending_lga_review';
-            $farmer->rejection_reason = null;
-            $farmer->save();
+        // 9. Assign Role
+        $user->assignRole($role);
 
-            // Update photos if new ones uploaded
-            if ($request->hasFile('farmer_photo')) {
-                if ($farmer->farmer_photo) {
-                    Storage::disk('public')->delete($farmer->farmer_photo);
-                }
-                $farmerPhotoPath = $request->file('farmer_photo')->store(
-                    'farmers/photos/' . $farmer->id,
-                    'public'
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User created successfully and is now active.');
+    }
+
+    public function editUser(User $user)
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $roles = Role::pluck('name', 'id');
+        $unitRoles = Role::whereNotIn('name', $this->globalRoles)->pluck('name', 'id');
+        $departments = Department::all();
+        $agencies = Agency::all();
+        $lgas = LGA::all();
+
+        return view('super_admin.management.users.edit', compact('user', 'roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Log incoming request
+        Log::info('Update User Request', [
+            'user_id' => $user->id,
+            'role_id' => $request->input('role_id'),
+            'administrative_type' => $request->input('administrative_type'),
+            'administrative_id' => $request->input('administrative_id'),
+        ]);
+        
+        // 1. Define Base Rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => 'nullable|string|min:8|confirmed',
+            'role_id' => ['required', 'exists:roles,id'],
+            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])],
+        ];
+        
+        $messages = [
+            'administrative_type.required' => 'This role requires an administrative unit type to be selected.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+            'role_id.required' => 'Please select a role for this user.',
+        ];
+
+        // 2. Get the role
+        $role = Role::find($request->input('role_id'));
+        
+        // 3. Conditional Unit Rules
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+            $rules['administrative_id'] = ['required', 'integer', 'min:1'];
+        } else {
+            // For global roles, make fields nullable
+            $rules['administrative_type'] = 'nullable';
+            $rules['administrative_id'] = 'nullable';
+        }
+
+        // 4. Run Validation
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        // 5. Custom validation
+        $validator->after(function ($validator) use ($request, $role) {
+            if ($this->shouldValidateUnitFields($role) && $request->filled('administrative_type') && $request->filled('administrative_id')) {
+                $this->validateAdministrativeUnitExistence($validator, $request);
+                $this->validateRoleUnitCompatibility($validator, $request, $role);
+            }
+        });
+
+        $data = $validator->validate();
+
+        // 6. Update basic fields
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->status = $data['status'];
+        
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
+
+        // 7. Handle Administrative Unit
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            // Unit-based role - set administrative fields
+            $shortType = $data['administrative_type'];
+            $user->administrative_type = "App\\Models\\{$shortType}";
+            $user->administrative_id = $data['administrative_id'];
+        } else {
+            // Global role - clear administrative fields
+            $user->administrative_type = null;
+            $user->administrative_id = null;
+        }
+
+        // Log what will be saved
+        Log::info('User Update', [
+            'user_id' => $user->id,
+            'administrative_type' => $user->administrative_type,
+            'administrative_id' => $user->administrative_id,
+        ]);
+        
+        // 8. Sync Role and Save
+        $user->syncRoles([$role]);
+        $user->save();
+
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User updated successfully.');
+    }
+
+    public function destroyUser(User $user)
+    {
+        if (!Auth::user()->can('manage_users') || Auth::id() === $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user->delete();
+        return redirect()->route('super_admin.management.users.index')->with('success', 'User deleted successfully.');
+    }
+
+    protected function shouldValidateUnitFields(Role $role = null)
+    {
+        return $role && !in_array($role->name, $this->globalRoles);
+    }
+    
+    protected function validateAdministrativeUnitExistence($validator, $request): void
+    {
+        $type = $request->input('administrative_type');
+        $id = $request->input('administrative_id');
+        
+        if (!$type || !$id) {
+            return;
+        }
+
+        $modelClass = "App\\Models\\{$type}";
+        
+        if (!class_exists($modelClass)) {
+            $validator->errors()->add('administrative_type', 'Invalid administrative type selected.');
+            return;
+        }
+        
+        $exists = $modelClass::where('id', $id)->exists();
+        
+        if (!$exists) {
+            $validator->errors()->add('administrative_id', "The selected {$type} does not exist.");
+        }
+    }
+
+    protected function validateRoleUnitCompatibility($validator, $request, Role $role): void
+    {
+        $type = $request->input('administrative_type');
+
+        if (!$type) {
+            return;
+        }
+
+        if (isset($this->unitRoleMap[$role->name])) {
+            $allowedTypes = $this->unitRoleMap[$role->name];
+            
+            if (!in_array($type, $allowedTypes)) {
+                $validator->errors()->add(
+                    'administrative_type',
+                    "The role '{$role->name}' can only be assigned to: " . 
+                    implode(' or ', $allowedTypes) . '.'
                 );
-                $farmer->update(['farmer_photo' => $farmerPhotoPath]);
             }
-
-            // Update Farm Land
-            $farmLand = $farmer->farmLands()->first();
-            
-            if ($farmLand) {
-                $farmLandData = $request->only([
-                    'farm_name', 'farm_type', 'total_size_hectares',
-                    'ownership_status', 'geolocation_geojson'
-                ]);
-                
-                $farmLand->update($farmLandData);
-
-                if ($request->hasFile('farm_photo')) {
-                    if ($farmLand->farm_photo) {
-                        Storage::disk('public')->delete($farmLand->farm_photo);
-                    }
-                    $farmPhotoPath = $request->file('farm_photo')->store(
-                        'farms/photos/' . $farmLand->id,
-                        'public'
-                    );
-                    $farmLand->update(['farm_photo' => $farmPhotoPath]);
-                }
-
-                // Delete old practice details and create new ones
-                $this->deletePracticeDetails($farmLand);
-                $this->createPracticeDetails($farmLand, $request);
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('enrollment.farmers.index')
-                ->with('success', 'Farmer profile updated and resubmitted for LGA review.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            \Log::error('Farmer Update Error: ' . $e->getMessage());
-
-            return back()
-                ->withInput()
-                ->with('error', 'Error updating profile: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Delete existing practice details
-     */
-    private function deletePracticeDetails(FarmLand $farmLand)
+    // Department, Agency, LGA management methods remain the same...
+    public function departments()
     {
-        $farmLand->cropPracticeDetails()->delete();
-        $farmLand->livestockPracticeDetails()->delete();
-        $farmLand->fisheriesPracticeDetails()->delete();
-        $farmLand->orchardPracticeDetails()->delete();
-    }
-
-    /**
-     * Remove the specified farmer from storage.
-     */
-    public function destroy(Farmer $farmer)
-    {
-        if ($farmer->enrolled_by !== auth()->id()) {
+        if (!Auth::user()->can('manage_departments')) {
             abort(403, 'Unauthorized action.');
         }
-        
-        // Only allow deletion if not approved
-        if (in_array($farmer->status, ['active', 'pending_activation'])) {
-            return back()->with('error', 'Cannot delete an approved or activated profile.');
+
+        $departments = Department::withCount('users')->get();
+        return view('super_admin.management.departments.index', compact('departments'));
+    }
+
+    public function storeDepartment(Request $request)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
         }
 
-        try {
-            // Delete associated photos
-            if ($farmer->farmer_photo) {
-                Storage::disk('public')->delete($farmer->farmer_photo);
-            }
+        $data = $request->validate([
+            'name' => 'required|string|unique:departments,name|max:255',
+            'abbreviation' => 'nullable|string|max:50',
+        ]);
 
-            foreach ($farmer->farmLands as $farmLand) {
-                if ($farmLand->farm_photo) {
-                    Storage::disk('public')->delete($farmLand->farm_photo);
-                }
-            }
+        Department::create($data);
 
-            $farmer->delete();
+        return response()->json(['success' => true, 'message' => 'Department created successfully.']);
+    }
 
-            return redirect()
-                ->route('enrollment.farmers.index')
-                ->with('success', 'Farmer profile deleted successfully.');
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting profile: ' . $e->getMessage());
+    public function updateDepartment(Request $request, Department $department)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
         }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('departments', 'name')->ignore($department->id)],
+            'abbreviation' => 'nullable|string|max:50',
+        ]);
+
+        $department->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Department updated successfully.']);
+    }
+
+    public function destroyDepartment(Department $department)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($department->users()->count() > 0) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete department with assigned users.'], 422);
+        }
+
+        $department->delete();
+        return response()->json(['success' => true, 'message' => 'Department deleted successfully.']);
+    }
+
+    public function agencies()
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $agencies = Agency::with('department')->withCount('users')->get();
+        $departments = Department::all();
+        return view('super_admin.management.agencies.index', compact('agencies', 'departments'));
+    }
+
+    public function storeAgency(Request $request)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|unique:agencies,name|max:255',
+            'department_id' => 'required|exists:departments,id',
+        ]);
+
+        Agency::create($data);
+
+        return response()->json(['success' => true, 'message' => 'Agency created successfully.']);
+    }
+
+    public function updateAgency(Request $request, Agency $agency)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('agencies', 'name')->ignore($agency->id)],
+            'department_id' => 'required|exists:departments,id',
+        ]);
+
+        $agency->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Agency updated successfully.']);
+    }
+
+    public function destroyAgency(Agency $agency)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($agency->users()->count() > 0) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete agency with assigned users.'], 422);
+        }
+
+        $agency->delete();
+        return response()->json(['success' => true, 'message' => 'Agency deleted successfully.']);
+    }
+
+    public function lgas()
+    {
+        if (!Auth::user()->can('manage_lgas')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $lgas = LGA::withCount('users')->get();
+        return view('super_admin.management.lgas.index', compact('lgas'));
     }
 }
 
 
-@extends('layouts.enrollment_agent')
-
+-- view_state_analytics
+===create view
+@extends('layouts.super_admin')
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0">Enroll New Farmer</h4>
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('enrollment.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('enrollment.farmers.index') }}">Farmers</a></li>
-                        <li class="breadcrumb-item active">Create</li>
-                    </ol>
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0">Create New User</h4>
+                    <div class="page-title-right">                       
+                        <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line align-middle me-1"></i> Back to Users
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="ri-error-warning-line me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Farmer Enrollment Survey</h5>
-                    <p class="text-muted">Complete all sections accurately. Fields marked with <span class="text-danger">*</span> are required.</p>
-
-                    <form id="enrollment-form" action="{{ route('enrollment.farmers.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        
-                        {{-- Progress Indicator --}}
-                        <div class="progress mb-4" style="height: 3px;">
-                            <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 33.33%"></div>
-                        </div>
-
-                        {{-- Tab Navigation --}}
-                        <ul class="nav nav-pills nav-justified mb-3" id="enrollment-tabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="step1-tab" data-bs-toggle="pill" data-bs-target="#step1" type="button" role="tab">
-                                    <i class="ri-user-line d-block fs-20 mb-1"></i>
-                                    <span class="d-none d-sm-block">Personal Info</span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="step2-tab" data-bs-toggle="pill" data-bs-target="#step2" type="button" role="tab" disabled>
-                                    <i class="ri-map-pin-line d-block fs-20 mb-1"></i>
-                                    <span class="d-none d-sm-block">Farm Details</span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="step3-tab" data-bs-toggle="pill" data-bs-target="#step3" type="button" role="tab" disabled>
-                                    <i class="ri-plants-line d-block fs-20 mb-1"></i>
-                                    <span class="d-none d-sm-block">Practice & Media</span>
-                                </button>
-                            </li>
-                        </ul>
-
-                        {{-- Tab Content --}}
-                        <div class="tab-content" id="enrollment-content">
-                            
-                            {{-- STEP 1: Personal & Identity Information --}}
-                            <div class="tab-pane fade show active" id="step1" role="tabpanel">
-                                <h5 class="mb-3">Personal Information</h5>
-                                
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="nin" class="form-label">NIN (National ID) <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('nin') is-invalid @enderror" 
-                                               id="nin" name="nin" value="{{ old('nin') }}" required 
-                                               maxlength="15" placeholder="e.g., 12345678901">
-                                        @error('nin')
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('super_admin.management.users.store') }}" id="createUserForm">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Basic Information</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" 
+                                               value="{{ old('name') }}" required>
+                                        @error('name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-4 mb-3">
-                                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('full_name') is-invalid @enderror" 
-                                               id="full_name" name="full_name" value="{{ old('full_name') }}" required>
-                                        @error('full_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
+                                    <div class="mb-3">
                                         <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                               id="email" name="email" value="{{ old('email') }}" required>
+                                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
+                                               value="{{ old('email') }}" required>
                                         @error('email')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                                    </div>                                    
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="phone_primary" class="form-label">Primary Phone <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control @error('phone_primary') is-invalid @enderror" 
-                                               id="phone_primary" name="phone_primary" value="{{ old('phone_primary') }}" 
-                                               required placeholder="080XXXXXXXX">
-                                        @error('phone_primary')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="phone_secondary" class="form-label">Secondary Phone</label>
-                                        <input type="tel" class="form-control @error('phone_secondary') is-invalid @enderror" 
-                                               id="phone_secondary" name="phone_secondary" value="{{ old('phone_secondary') }}" 
-                                               placeholder="080XXXXXXXX">
-                                        @error('phone_secondary')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" 
-                                               id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" 
-                                               required max="{{ date('Y-m-d') }}">
-                                        @error('date_of_birth')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('gender') is-invalid @enderror" 
-                                                id="gender" name="gender" required>
-                                            <option value="">Select Gender</option>
-                                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
-                                            <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @error('gender')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="marital_status" class="form-label">Marital Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('marital_status') is-invalid @enderror" 
-                                                id="marital_status" name="marital_status" required>
-                                            <option value="">Select Status</option>
-                                            <option value="single" {{ old('marital_status') == 'single' ? 'selected' : '' }}>Single</option>
-                                            <option value="married" {{ old('marital_status') == 'married' ? 'selected' : '' }}>Married</option>
-                                            <option value="divorced" {{ old('marital_status') == 'divorced' ? 'selected' : '' }}>Divorced</option>
-                                            <option value="widowed" {{ old('marital_status') == 'widowed' ? 'selected' : '' }}>Widowed</option>
-                                        </select>
-                                        @error('marital_status')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="educational_level" class="form-label">Education Level <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('educational_level') is-invalid @enderror" 
-                                                id="educational_level" name="educational_level" required>
-                                            <option value="">Select Level</option>
-                                            <option value="none" {{ old('educational_level') == 'none' ? 'selected' : '' }}>No Formal Education</option>
-                                            <option value="primary" {{ old('educational_level') == 'primary' ? 'selected' : '' }}>Primary</option>
-                                            <option value="secondary" {{ old('educational_level') == 'secondary' ? 'selected' : '' }}>Secondary</option>
-                                            <option value="tertiary" {{ old('educational_level') == 'tertiary' ? 'selected' : '' }}>Tertiary</option>
-                                            <option value="vocational" {{ old('educational_level') == 'vocational' ? 'selected' : '' }}>Vocational</option>
-                                        </select>
-                                        @error('educational_level')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <h5 class="mt-4 mb-3">Location & Socio-Economic</h5>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="lga_id" class="form-label">LGA <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('lga_id') is-invalid @enderror" 
-                                                id="lga_id" name="lga_id" required>
-                                            <option value="">Select LGA</option>
-                                            @foreach($lgas as $lga)
-                                                <option value="{{ $lga->id }}" {{ old('lga_id') == $lga->id ? 'selected' : '' }}>
-                                                    {{ $lga->name }}
-                                                </option>
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Role & Unit Assignment</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="role_id" class="form-label">Assign Role <span class="text-danger">*</span></label>
+                                        <select name="role_id" id="role_id" class="form-control @error('role_id') is-invalid @enderror" required>
+                                            <option value="">-- Select Role --</option>
+                                            @foreach($roles as $id => $name)
+                                                <option value="{{ $id }}" {{ old('role_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
                                             @endforeach
                                         </select>
-                                        @error('lga_id')
+                                        @error('role_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-4 mb-3">
-                                        <label for="ward" class="form-label">Ward <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('ward') is-invalid @enderror" 
-                                               id="ward" name="ward" value="{{ old('ward') }}" required>
-                                        @error('ward')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                    <div id="administrative_unit_section" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="ri-information-line"></i> This role requires administrative unit assignment.
+                                        </div>
 
-                                    <div class="col-md-4 mb-3">
-                                        <label for="cooperative_id" class="form-label">Cooperative (Optional)</label>
-                                        <select class="form-select @error('cooperative_id') is-invalid @enderror" 
-                                                id="cooperative_id" name="cooperative_id">
-                                            <option value="">None - Individual Farmer</option>
-                                            @foreach($cooperatives as $coop)
-                                                <option value="{{ $coop->id }}" {{ old('cooperative_id') == $coop->id ? 'selected' : '' }}>
-                                                    {{ $coop->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('cooperative_id')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+                                        <div class="mb-3">
+                                            <label for="administrative_type" class="form-label">Administrative Unit Type <span class="text-danger" id="type_required">*</span></label>
+                                            <select id="administrative_type" name="administrative_type" class="form-control @error('administrative_type') is-invalid @enderror">
+                                                <option value="">-- Select Type --</option>
+                                                <option value="Department" {{ old('administrative_type') == 'Department' ? 'selected' : '' }}>Department</option>
+                                                <option value="Agency" {{ old('administrative_type') == 'Agency' ? 'selected' : '' }}>Agency</option>
+                                                <option value="LGA" {{ old('administrative_type') == 'LGA' ? 'selected' : '' }}>LGA</option>
+                                            </select>
+                                            @error('administrative_type')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-                                <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label for="residential_address" class="form-label">Residential Address <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @error('residential_address') is-invalid @enderror" 
-                                                  id="residential_address" name="residential_address" rows="2" required>{{ old('residential_address') }}</textarea>
-                                        @error('residential_address')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <div class="mb-3">
+                                            <label for="administrative_id" class="form-label">Administrative Unit <span class="text-danger" id="unit_required">*</span></label>
+                                            <select id="administrative_id" name="administrative_id" class="form-control @error('administrative_id') is-invalid @enderror">
+                                                <option value="">-- Select Unit --</option>
+                                            </select>
+                                            @error('administrative_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="residence_latitude" class="form-label">Residence Latitude</label>
-                                        <input type="number" step="0.00000001" class="form-control @error('residence_latitude') is-invalid @enderror" 
-                                               id="residence_latitude" name="residence_latitude" value="{{ old('residence_latitude') }}" 
-                                               placeholder="e.g., 7.7400">
-                                        @error('residence_latitude')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="residence_longitude" class="form-label">Residence Longitude</label>
-                                        <input type="number" step="0.00000001" class="form-control @error('residence_longitude') is-invalid @enderror" 
-                                               id="residence_longitude" name="residence_longitude" value="{{ old('residence_longitude') }}" 
-                                               placeholder="e.g., 8.5200">
-                                        @error('residence_longitude')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="household_size" class="form-label">Household Size <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control @error('household_size') is-invalid @enderror" 
-                                               id="household_size" name="household_size" value="{{ old('household_size', 1) }}" 
-                                               required min="1">
-                                        @error('household_size')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="primary_occupation" class="form-label">Primary Occupation <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('primary_occupation') is-invalid @enderror" 
-                                                id="primary_occupation" name="primary_occupation" required>
-                                            <option value="">Select Occupation</option>
-                                            <option value="full_time_farmer" {{ old('primary_occupation') == 'full_time_farmer' ? 'selected' : '' }}>Full-Time Farmer</option>
-                                            <option value="part_time_farmer" {{ old('primary_occupation') == 'part_time_farmer' ? 'selected' : '' }}>Part-Time Farmer</option>
-                                            <option value="civil_servant" {{ old('primary_occupation') == 'civil_servant' ? 'selected' : '' }}>Civil Servant</option>
-                                            <option value="trader" {{ old('primary_occupation') == 'trader' ? 'selected' : '' }}>Trader</option>
-                                            <option value="artisan" {{ old('primary_occupation') == 'artisan' ? 'selected' : '' }}>Artisan</option>
-                                            <option value="student" {{ old('primary_occupation') == 'student' ? 'selected' : '' }}>Student</option>
-                                            <option value="other" {{ old('primary_occupation') == 'other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @error('primary_occupation')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6 mb-3" id="other_occupation_wrapper" style="display: {{ old('primary_occupation') == 'other' ? 'block' : 'none' }};">
-                                        <label for="other_occupation" class="form-label">Specify Other Occupation <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('other_occupation') is-invalid @enderror" 
-                                               id="other_occupation" name="other_occupation" value="{{ old('other_occupation') }}">
-                                        @error('other_occupation')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-end mt-4">
-                                    <button type="button" class="btn btn-primary" id="next-to-step2">
-                                        Next: Farm Details <i class="ri-arrow-right-line"></i>
-                                    </button>
                                 </div>
                             </div>
 
-                            {{-- STEP 2: Farm & Land Details --}}
-                            <div class="tab-pane fade" id="step2" role="tabpanel">
-                                <h5 class="mb-3">Farm Plot Information</h5>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="farm_name" class="form-label">Farm Name/Reference <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('farm_name') is-invalid @enderror" 
-                                               id="farm_name" name="farm_name" value="{{ old('farm_name') }}" 
-                                               required placeholder="e.g., Home Farm, River Plot">
-                                        @error('farm_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="farm_type" class="form-label">Farm Type <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('farm_type') is-invalid @enderror" 
-                                                id="farm_type" name="farm_type" required>
-                                            <option value="">Select Farm Type</option>
-                                            <option value="crops" {{ old('farm_type') == 'crops' ? 'selected' : '' }}>Crops/Arable Farming</option>
-                                            <option value="livestock" {{ old('farm_type') == 'livestock' ? 'selected' : '' }}>Livestock</option>
-                                            <option value="fisheries" {{ old('farm_type') == 'fisheries' ? 'selected' : '' }}>Fisheries/Aquaculture</option>
-                                            <option value="orchards" {{ old('farm_type') == 'orchards' ? 'selected' : '' }}>Orchards/Perennial</option>
-                                            <option value="forestry" {{ old('farm_type') == 'forestry' ? 'selected' : '' }}>Forestry</option>
-                                        </select>
-                                        @error('farm_type')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">This determines the practice details in Step 3</small>
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label for="total_size_hectares" class="form-label">Total Size (Hectares) <span class="text-danger">*</span></label>
-                                        <input type="number" step="0.0001" class="form-control @error('total_size_hectares') is-invalid @enderror" 
-                                               id="total_size_hectares" name="total_size_hectares" value="{{ old('total_size_hectares') }}" 
-                                               required min="0.01" placeholder="e.g., 2.5">
-                                        @error('total_size_hectares')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="ownership_status" class="form-label">Ownership Status <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('ownership_status') is-invalid @enderror" 
-                                                id="ownership_status" name="ownership_status" required>
-                                            <option value="">Select Status</option>
-                                            <option value="owned" {{ old('ownership_status') == 'owned' ? 'selected' : '' }}>Owned</option>
-                                            <option value="leased" {{ old('ownership_status') == 'leased' ? 'selected' : '' }}>Leased</option>
-                                            <option value="shared" {{ old('ownership_status') == 'shared' ? 'selected' : '' }}>Shared</option>
-                                            <option value="communal" {{ old('ownership_status') == 'communal' ? 'selected' : '' }}>Communal</option>
-                                        </select>
-                                        @error('ownership_status')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <h5 class="mt-4 mb-3">Geospatial Data</h5>
-                                <div class="alert alert-info">
-                                    <i class="ri-information-line me-2"></i>
-                                    Use a GPS device or mobile app to capture the farm boundaries as GeoJSON format.
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label for="geolocation_geojson" class="form-label">Farm Boundaries (GeoJSON) <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @error('geolocation_geojson') is-invalid @enderror" 
-                                                  id="geolocation_geojson" name="geolocation_geojson" rows="6" required 
-                                                  placeholder='{"type": "Polygon", "coordinates": [[[8.52, 7.74], [8.53, 7.74], [8.53, 7.75], [8.52, 7.75], [8.52, 7.74]]]}'>{{ old('geolocation_geojson') }}</textarea>
-                                        @error('geolocation_geojson')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">Paste the GeoJSON coordinates captured from your GPS tool</small>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-secondary" id="back-to-step1">
-                                        <i class="ri-arrow-left-line"></i> Previous
-                                    </button>
-                                    <button type="button" class="btn btn-primary" id="next-to-step3">
-                                        Next: Practice Details <i class="ri-arrow-right-line"></i>
-                                    </button>
-                                </div>
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-save-line align-middle me-1"></i> Create User
+                                </button>
+                                <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">Cancel</a>
                             </div>
-
-                            {{-- STEP 3: Practice Details & Media --}}
-                            <div class="tab-pane fade" id="step3" role="tabpanel">
-                                <h5 class="mb-3">Farming Practice Details</h5>
-
-                                <div id="practice-container">
-                                    {{-- Default Message --}}
-                                    <div id="practice-default" class="alert alert-warning" style="display: {{ old('farm_type') ? 'none' : 'block' }};">
-                                        <i class="ri-alert-line me-2"></i>
-                                        Please select a <strong>Farm Type</strong> in Step 2 to display the relevant practice details form.
-                                    </div>
-
-                                    {{-- Crops Practice Details --}}
-                                    <div id="practice-crops" class="practice-section" style="display: {{ old('farm_type') == 'crops' ? 'block' : 'none' }};">
-                                        <h6 class="mb-3">Crop Farming Details</h6>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="crop_type" class="form-label">Primary Crop Type <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('crop_type') is-invalid @enderror" 
-                                                       id="crop_type" name="crop_type" value="{{ old('crop_type') }}" 
-                                                       placeholder="e.g., Maize, Rice, Cassava">
-                                                @error('crop_type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="variety" class="form-label">Variety</label>
-                                                <input type="text" class="form-control @error('variety') is-invalid @enderror" 
-                                                       id="variety" name="variety" value="{{ old('variety') }}" 
-                                                       placeholder="e.g., Yellow Maize">
-                                                @error('variety')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="expected_yield_kg" class="form-label">Expected Yield (kg)</label>
-                                                <input type="number" step="0.01" class="form-control @error('expected_yield_kg') is-invalid @enderror" 
-                                                       id="expected_yield_kg" name="expected_yield_kg" value="{{ old('expected_yield_kg') }}" 
-                                                       min="0" placeholder="e.g., 5000">
-                                                @error('expected_yield_kg')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="farming_method" class="form-label">Farming Method <span class="text-danger">*</span></label>
-                                                <select class="form-select @error('farming_method') is-invalid @enderror" 
-                                                        id="farming_method" name="farming_method">
-                                                    <option value="">Select Method</option>
-                                                    <option value="irrigation" {{ old('farming_method') == 'irrigation' ? 'selected' : '' }}>Irrigation</option>
-                                                    <option value="rain_fed" {{ old('farming_method') == 'rain_fed' ? 'selected' : '' }}>Rain-fed</option>
-                                                    <option value="organic" {{ old('farming_method') == 'organic' ? 'selected' : '' }}>Organic</option>
-                                                    <option value="mixed" {{ old('farming_method') == 'mixed' ? 'selected' : '' }}>Mixed</option>
-                                                </select>
-                                                @error('farming_method')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Livestock Practice Details --}}
-                                    <div id="practice-livestock" class="practice-section" style="display: {{ old('farm_type') == 'livestock' ? 'block' : 'none' }};">
-                                        <h6 class="mb-3">Livestock Farming Details</h6>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="animal_type" class="form-label">Animal Type <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('animal_type') is-invalid @enderror" 
-                                                       id="animal_type" name="animal_type" value="{{ old('animal_type') }}" 
-                                                       placeholder="e.g., Cattle, Goats, Poultry">
-                                                @error('animal_type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="herd_flock_size" class="form-label">Herd/Flock Size <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('herd_flock_size') is-invalid @enderror" 
-                                                       id="herd_flock_size" name="herd_flock_size" value="{{ old('herd_flock_size') }}" 
-                                                       min="1" placeholder="e.g., 50">
-                                                @error('herd_flock_size')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="breeding_practice" class="form-label">Breeding Practice <span class="text-danger">*</span></label>
-                                                <select class="form-select @error('breeding_practice') is-invalid @enderror" 
-                                                        id="breeding_practice" name="breeding_practice">
-                                                    <option value="">Select Practice</option>
-                                                    <option value="open_grazing" {{ old('breeding_practice') == 'open_grazing' ? 'selected' : '' }}>Open Grazing</option>
-                                                    <option value="ranching" {{ old('breeding_practice') == 'ranching' ? 'selected' : '' }}>Ranching</option>
-                                                    <option value="intensive" {{ old('breeding_practice') == 'intensive' ? 'selected' : '' }}>Intensive</option>
-                                                    <option value="semi_intensive" {{ old('breeding_practice') == 'semi_intensive' ? 'selected' : '' }}>Semi-Intensive</option>
-                                                </select>
-                                                @error('breeding_practice')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Fisheries Practice Details --}}
-                                    <div id="practice-fisheries" class="practice-section" style="display: {{ old('farm_type') == 'fisheries' ? 'block' : 'none' }};">
-                                        <h6 class="mb-3">Fisheries/Aquaculture Details</h6>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="fishing_type" class="form-label">Fishing Type <span class="text-danger">*</span></label>
-                                                <select class="form-select @error('fishing_type') is-invalid @enderror" 
-                                                        id="fishing_type" name="fishing_type">
-                                                    <option value="">Select Type</option>
-                                                    <option value="aquaculture_pond" {{ old('fishing_type') == 'aquaculture_pond' ? 'selected' : '' }}>Aquaculture Pond</option>
-                                                    <option value="riverine" {{ old('fishing_type') == 'riverine' ? 'selected' : '' }}>Riverine</option>
-                                                    <option value="reservoir" {{ old('fishing_type') == 'reservoir' ? 'selected' : '' }}>Reservoir</option>
-                                                </select>
-                                                @error('fishing_type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="species_raised" class="form-label">Species Raised <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('species_raised') is-invalid @enderror" 
-                                                       id="species_raised" name="species_raised" value="{{ old('species_raised') }}" 
-                                                       placeholder="e.g., Catfish, Tilapia">
-                                                @error('species_raised')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="pond_size_sqm" class="form-label">Pond Size (m²)</label>
-                                                <input type="number" step="0.01" class="form-control @error('pond_size_sqm') is-invalid @enderror" 
-                                                       id="pond_size_sqm" name="pond_size_sqm" value="{{ old('pond_size_sqm') }}" 
-                                                       min="0" placeholder="e.g., 100">
-                                                @error('pond_size_sqm')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="expected_harvest_kg" class="form-label">Expected Harvest (kg)</label>
-                                                <input type="number" step="0.01" class="form-control @error('expected_harvest_kg') is-invalid @enderror" 
-                                                       id="expected_harvest_kg" name="expected_harvest_kg" value="{{ old('expected_harvest_kg') }}" 
-                                                       min="0" placeholder="e.g., 2000">
-                                                @error('expected_harvest_kg')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Orchards Practice Details --}}
-                                    <div id="practice-orchards" class="practice-section" style="display: {{ old('farm_type') == 'orchards' ? 'block' : 'none' }};">
-                                        <h6 class="mb-3">Orchard/Perennial Farming Details</h6>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="tree_type" class="form-label">Tree Type <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control @error('tree_type') is-invalid @enderror" 
-                                                       id="tree_type" name="tree_type" value="{{ old('tree_type') }}" 
-                                                       placeholder="e.g., Mango, Orange, Cashew">
-                                                @error('tree_type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="number_of_trees" class="form-label">Number of Trees <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('number_of_trees') is-invalid @enderror" 
-                                                       id="number_of_trees" name="number_of_trees" value="{{ old('number_of_trees') }}" 
-                                                       min="1" placeholder="e.g., 100">
-                                                @error('number_of_trees')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="maturity_stage" class="form-label">Maturity Stage <span class="text-danger">*</span></label>
-                                                <select class="form-select @error('maturity_stage') is-invalid @enderror" 
-                                                        id="maturity_stage" name="maturity_stage">
-                                                    <option value="">Select Stage</option>
-                                                    <option value="seedling" {{ old('maturity_stage') == 'seedling' ? 'selected' : '' }}>Seedling</option>
-                                                    <option value="immature" {{ old('maturity_stage') == 'immature' ? 'selected' : '' }}>Immature</option>
-                                                    <option value="producing" {{ old('maturity_stage') == 'producing' ? 'selected' : '' }}>Producing</option>
-                                                </select>
-                                                @error('maturity_stage')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <h5 class="mt-4 mb-3">Media Upload & Verification</h5>
-                                <div class="alert alert-info">
-                                    <i class="ri-information-line me-2"></i>
-                                    Upload clear, recent photos. Maximum file size: 2MB per image.
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="farmer_photo" class="form-label">Farmer's Passport Photo <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control @error('farmer_photo') is-invalid @enderror" 
-                                               id="farmer_photo" name="farmer_photo" accept="image/jpeg,image/jpg,image/png" required>
-                                        @error('farmer_photo')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">Clear headshot of the farmer</small>
-                                        <div id="farmer_photo_preview" class="mt-2"></div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label for="farm_photo" class="form-label">Farm Photo <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control @error('farm_photo') is-invalid @enderror" 
-                                               id="farm_photo" name="farm_photo" accept="image/jpeg,image/jpg,image/png" required>
-                                        @error('farm_photo')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">Photo showing the farm/land</small>
-                                        <div id="farm_photo_preview" class="mt-2"></div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary" id="back-to-step2">
-                                        <i class="ri-arrow-left-line"></i> Previous
-                                    </button>
-                                    <button type="submit" class="btn btn-success" id="submit-btn">
-                                        <i class="ri-check-line"></i> Submit Enrollment
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1080,158 +570,135 @@ class FarmerController extends Controller
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Tab navigation elements
-    const step1Tab = document.getElementById('step1-tab');
-    const step2Tab = document.getElementById('step2-tab');
-    const step3Tab = document.getElementById('step3-tab');
-    const progressBar = document.getElementById('progress-bar');
+    const departments = @json($departments);
+    const agencies = @json($agencies);
+    const lgas = @json($lgas);
+    const unitRoleIds = Object.keys(@json($unitRoles)).map(id => String(id));
 
-    // Navigation buttons
-    const nextToStep2 = document.getElementById('next-to-step2');
-    const nextToStep3 = document.getElementById('next-to-step3');
-    const backToStep1 = document.getElementById('back-to-step1');
-    const backToStep2 = document.getElementById('back-to-step2');
+    const roleSelect = document.getElementById('role_id');
+    const unitSection = document.getElementById('administrative_unit_section');
+    const unitTypeSelect = document.getElementById('administrative_type');
+    const unitIdSelect = document.getElementById('administrative_id');
+    const form = document.getElementById('createUserForm');
 
-    // Farm type select
-    const farmTypeSelect = document.getElementById('farm_type');
-
-    // Primary occupation select
-    const primaryOccupationSelect = document.getElementById('primary_occupation');
-    const otherOccupationWrapper = document.getElementById('other_occupation_wrapper');
-
-    // Update progress bar
-    function updateProgress(step) {
-        const width = (step / 3) * 100;
-        progressBar.style.width = width + '%';
-    }
-
-    // Step 1 to Step 2
-    nextToStep2.addEventListener('click', function() {
-        if (validateStep1()) {
-            step2Tab.disabled = false;
-            const tab = new bootstrap.Tab(step2Tab);
-            tab.show();
-            updateProgress(2);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-
-    // Step 2 to Step 3
-    nextToStep3.addEventListener('click', function() {
-        if (validateStep2()) {
-            step3Tab.disabled = false;
-            const tab = new bootstrap.Tab(step3Tab);
-            tab.show();
-            updateProgress(3);
-            updatePracticeDetails();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-
-    // Back to Step 1
-    backToStep1.addEventListener('click', function() {
-        const tab = new bootstrap.Tab(step1Tab);
-        tab.show();
-        updateProgress(1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // Back to Step 2
-    backToStep2.addEventListener('click', function() {
-        const tab = new bootstrap.Tab(step2Tab);
-        tab.show();
-        updateProgress(2);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // Validate Step 1
-    function validateStep1() {
-        const requiredFields = [
-            'nin', 'full_name', 'email', 'phone_primary', 'date_of_birth',
-            'gender', 'marital_status', 'lga_id', 'ward', 'residential_address',
-            'educational_level', 'household_size', 'primary_occupation'
-        ];
-
-        let isValid = true;
-        let firstInvalidField = null;
-
-        requiredFields.forEach(function(fieldName) {
-            const field = document.getElementById(fieldName);
-            if (field && !field.value.trim()) {
-                field.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = field;
-            } else if (field) {
-                field.classList.remove('is-invalid');
-            }
+    // Event Listeners
+    roleSelect.addEventListener('change', toggleUnitSection);
+    unitTypeSelect.addEventListener('change', updateUnits);
+    
+    // Add change listener to administrative_id to log selection
+    unitIdSelect.addEventListener('change', function() {
+        console.log('Administrative Unit Selected:', {
+            value: unitIdSelect.value,
+            text: unitIdSelect.options[unitIdSelect.selectedIndex]?.text,
+            disabled: unitIdSelect.disabled
         });
-
-        // Check other_occupation if primary_occupation is "other"
-        if (primaryOccupationSelect.value === 'other') {
-            const otherOccupationField = document.getElementById('other_occupation');
-            if (!otherOccupationField.value.trim()) {
-                otherOccupationField.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = otherOccupationField;
-            }
-        }
-
-        if (!isValid && firstInvalidField) {
-            firstInvalidField.focus();
-            alert('Please fill in all required fields in Step 1');
-        }
-
-        return isValid;
-    }
-
-    // Validate Step 2
-    function validateStep2() {
-        const requiredFields = [
-            'farm_name', 'farm_type', 'total_size_hectares', 
-            'ownership_status', 'geolocation_geojson'
-        ];
-
-        let isValid = true;
-        let firstInvalidField = null;
-
-        requiredFields.forEach(function(fieldName) {
-            const field = document.getElementById(fieldName);
-            if (field && !field.value.trim()) {
-                field.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = field;
-            } else if (field) {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid && firstInvalidField) {
-            firstInvalidField.focus();
-            alert('Please fill in all required fields in Step 2');
-        }
-
-        return isValid;
-    }
-
-    // Show/hide other occupation field
-    primaryOccupationSelect.addEventListener('change', function() {
-        if (this.value === 'other') {
-            otherOccupationWrapper.style.display = 'block';
-            document.getElementById('other_occupation').required = true;
-        } else {
-            otherOccupationWrapper.style.display = 'none';
-            document.getElementById('other_occupation').required = false;
+    });
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleUnitSection();
+        if (unitTypeSelect.value) {
+            updateUnits();
         }
     });
 
-    // Update practice details based on farm type
-    function updatePracticeDetails() {
-        const farmType = farmTypeSelect.value;
+    // Add form submission validation with more logging
+    form.addEventListener('submit', function(e) {
+        console.log('=== FORM SUBMISSION TRIGGERED ===');
         
-        // Hide all practice sections
-        document.querySelectorAll('.practice-section').forEach(function(section) {
-            section.style.display = 'none';
-            // Clear required attributes
+        const selectedRoleId = String(roleSelect.value);
+        console.log('Selected Role ID:', selectedRoleId);
+        console.log('Is Unit Role?', unitRoleIds.includes(selectedRoleId));
+        
+        if (unitRoleIds.includes(selectedRoleId)) {
+            // For unit-based roles, ensure fields are filled
+            console.log('Administrative Type Value:', unitTypeSelect.value);
+            console.log('Administrative ID Value:', unitIdSelect.value);
+            console.log('Administrative Type Disabled?', unitTypeSelect.disabled);
+            console.log('Administrative ID Disabled?', unitIdSelect.disabled);
+            
+            if (!unitTypeSelect.value || !unitIdSelect.value) {
+                e.preventDefault();
+                console.error('❌ VALIDATION FAILED: Missing administrative fields');
+                alert('Please select both Administrative Unit Type and Administrative Unit for this role.');
+                return false;
+            }
+            
+            // Log what we're about to submit
+            console.log('✅ SUBMITTING FORM WITH:', {
+                role_id: roleSelect.value,
+                administrative_type: unitTypeSelect.value,
+                administrative_id: unitIdSelect.value,
+                administrative_id_text: unitIdSelect.options[unitIdSelect.selectedIndex]?.text
+            });
+        } else {
+            // For global roles, ensure administrative fields are cleared/disabled
+            console.log('✅ SUBMITTING FORM FOR GLOBAL ROLE (no administrative unit)');
+        }
+        
+        console.log('=== FORM WILL NOW SUBMIT ===');
+    });
+
+    function toggleUnitSection() {
+        const selectedRoleId = String(roleSelect.value);
+
+        if (unitRoleIds.includes(selectedRoleId)) {
+            // Show section and enable fields
+            unitSection.style.display = 'block';
+            unitTypeSelect.disabled = false;
+            unitIdSelect.disabled = false;
+            unitTypeSelect.required = true;
+            unitIdSelect.required = true;
+            
+            // If there's an old value, restore it
+            const oldType = '{{ old("administrative_type") }}';
+            if (oldType && !unitTypeSelect.value) {
+                unitTypeSelect.value = oldType;
+                updateUnits();
+            }
+        } else {
+            // Hide section and disable fields (disabled fields aren't submitted)
+            unitSection.style.display = 'none';
+            unitTypeSelect.disabled = true;
+            unitIdSelect.disabled = true;
+            unitTypeSelect.required = false;
+            unitIdSelect.required = false;
+            
+            // Clear values when disabled
+            unitTypeSelect.value = '';
+            unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+        }
+    }
+
+    function updateUnits() {
+        const type = unitTypeSelect.value;
+        unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+
+        let units = [];
+        if (type === 'Department') {
+            units = departments;
+        } else if (type === 'Agency') {
+            units = agencies;
+        } else if (type === 'LGA') {
+            units = lgas;
+        }
+        
+        units.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.id;
+            option.textContent = unit.name;
+            unitIdSelect.appendChild(option);
+        });
+
+        // Restore old value if exists
+        const oldUnitId = '{{ old('administrative_id') }}'; 
+        if (oldUnitId) {
+            unitIdSelect.value = oldUnitId;
+        }
+        
+        console.log(`Loaded ${units.length} units for type: ${type}`);
+    }
+</script>
+@endpush
