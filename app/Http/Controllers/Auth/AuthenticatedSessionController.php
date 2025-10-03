@@ -82,17 +82,17 @@ class AuthenticatedSessionController extends Controller
             // =======================================================
             // Farmer-Specific Login Flow (Standard Users)
             // =======================================================
+           // In the store method, update the farmer redirect section:
             if ($user->hasRole('User')) { 
                 $farmer = $user->farmerProfile;
 
                 // Check if this is the first login using the 'password_changed' flag
-                // This check is CRITICAL for security (forcing a change of the auto-generated PIN)
                 if ($farmer && $farmer->password_changed === false) {
                     return redirect()->route('password.force_change');
                 }
                 
-                // If password has been changed or no farmer profile exists (shouldn't happen for a 'User' role)
-                return redirect()->intended(RouteServiceProvider::HOME); 
+                // If password has been changed, redirect to farmer dashboard
+                return redirect()->route('farmer.dashboard'); 
             }
             
             // Default redirect (e.g., if a user has a role not explicitly mapped here)

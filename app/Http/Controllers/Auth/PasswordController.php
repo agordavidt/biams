@@ -3,81 +3,70 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Farmer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 
 class PasswordController extends Controller
 {
     /**
-     * Update the user's password.
-     */
-    public function update(Request $request): RedirectResponse
-    {
-        $validated = $request->validateWithBag('updatePassword', [
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
-        ]);
-
-        $request->user()->update([
-            'password' => Hash::make($validated['password']),
-        ]);
-
-        return back()->with('status', 'password-updated');
-    }
-
-
-    /**
-     * Display the form to force a password change (first login).
+     * Show the force password change form for farmers
      */
     public function forceChangePasswordForm()
     {
-        // View requires only the new password fields (current password is known implicitly)
-        return view('auth.passwords.force-change');
+        $user = Auth::user();
+        $farmer = $user->farmerProfile;
+        
+        // Security check - ensure only farmers with unchanged passwords can access this
+        if (!$farmer || $farmer->password_changed) {
+            return redirect()->route('home');
+        }
+        
+        return view('auth.force-password-change', [
+            'farmer' => $farmer
+        ]);
     }
 
-
     /**
-     * Handles the forced password change on first login for Farmers.
+     * Update the initial password for farmers
      */
-    public function updateInitialPassword(Request $request): RedirectResponse
+    public function updateInitialPassword(Request $request)
     {
-        $user = $request->user();
+        $user = Auth::user();
+        $farmer = $user->farmerProfile;
+        
+        // Security validation
+        if (!$farmer || $farmer->password_changed) {
+            return redirect()->route('home');
+        }
 
-        $validated = $request->validate([
-            // Use current_password to verify the system-generated password, 
-            // but we call it 'initial_password' in the form context.
-            'current_password' => ['required', 'current_password'], 
-            'password' => ['required', Password::defaults(), 'confirmed'],
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        try {
-            DB::beginTransaction();
-            
-            // 1. Update the User model password
-            $user->update([
-                'password' => Hash::make($validated['password']),
+        // Verify the initial password matches
+        if ($request->current_password !== $farmer->initial_password) {
+            throw ValidationException::withMessages([
+                'current_password' => 'The provided initial password is incorrect.',
             ]);
-
-            // 2. Update the linked Farmer profile for security and workflow
-            if ($user->farmerProfile) {
-                $user->farmerProfile->clearInitialPassword(); // Method defined in Farmer model
-            }
-
-            DB::commit();
-
-            // Log user out to force a fresh session with the new credentials
-            auth('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect()->route('login')
-                ->with('status', 'Your initial password has been successfully updated. Please log in with your new password.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to update initial password.');
         }
+
+        // Update user password
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Mark farmer as having changed password
+        $farmer->update([
+            'password_changed' => true,
+            'initial_password' => null // Clear the initial password for security
+        ]);
+
+        return redirect()->route('farmer.dashboard')
+            ->with('success', 'Password updated successfully! Welcome to your dashboard.');
     }
 }

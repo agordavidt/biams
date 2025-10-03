@@ -182,3 +182,20 @@ Route::middleware(['auth', 'role:Enrollment Agent'])->prefix('enrollment')->name
         Route::delete('/{farmer}', [EnrollmentFarmerController::class, 'destroy'])->name('destroy');
     });
 });
+
+
+// Farmer Routes (Standard Users with Farmer Profile)
+Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+    
+    // Marketplace routes
+    Route::get('/marketplace', function() {
+        return view('user.marketplace');
+    })->name('marketplace');
+    
+    Route::get('/resources', function() {
+        return view('user.resources');
+    })->name('resources');
+});
