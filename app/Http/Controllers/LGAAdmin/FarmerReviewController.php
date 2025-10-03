@@ -6,140 +6,223 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Farmer;
 use App\Models\User;
+use App\Models\LGA;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class FarmerReviewController extends Controller
 {
+    protected $cacheTTL = 300;
+    
     /**
-     * Display a listing of farmers pending review and those already reviewed in the admin's LGA.
+     * Display a listing of farmers with optimized queries
      */
-    public function index()
+    public function index(Request $request)
     {
         $lgaId = auth()->user()->administrative_id;
         
-        // 1. Load farmers pending review (Paginated)
-        $pendingFarmers = Farmer::forLGA($lgaId)
-            ->pendingReview()
-            ->with('enrolledBy')
-            ->orderBy('created_at', 'asc')
-            ->paginate(15, ['*'], 'pending_page');
+        $data = Cache::remember("lga_admin_farmers_{$lgaId}", $this->cacheTTL, function () use ($lgaId) {
+            return $this->getFarmerData($lgaId);
+        });
 
-        // 2. Load rejected/approved farmers for tracking (Paginated, only if needed for a large table, otherwise count is fine)
-        $reviewedFarmers = Farmer::forLGA($lgaId)
-            ->whereIn('status', ['rejected', 'pending_activation', 'active'])
-            ->with('enrolledBy')
-            ->orderBy('approved_at', 'desc')
-            ->paginate(15, ['*'], 'reviewed_page');
-
-        // 3. Calculate Counts for dashboard cards (The missing logic)
-        $baseQuery = Farmer::forLGA($lgaId);
-
-        $rejectedCount = (clone $baseQuery)->where('status', 'rejected')->count();
-        $activeCount = (clone $baseQuery)->where('status', 'active')->count();
-
-        // 4. Pass all data to the view
-        return view('lga_admin.farmers.index', compact('pendingFarmers', 'reviewedFarmers', 'rejectedCount', 'activeCount'));
+        return view('lga_admin.farmers.index', $data);
     }
 
     /**
-     * Display the specified farmer profile for detailed review.
+     * Optimized data fetching
+     */
+    private function getFarmerData($lgaId)
+    {
+        $baseQuery = Farmer::forLGA($lgaId)
+            ->select(['id', 'full_name', 'nin', 'email', 'status', 'created_at', 'enrolled_by', 'approved_at', 'initial_password'])
+            ->with(['enrolledBy:id,name', 'approvedBy:id,name']);
+
+        $counts = [
+            'pending' => (clone $baseQuery)->pendingReview()->count(),
+            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
+            'active' => (clone $baseQuery)->where('status', 'active')->count(),
+            'pending_activation' => (clone $baseQuery)->where('status', 'pending_activation')->count(),
+        ];
+
+        $pendingFarmers = (clone $baseQuery)
+            ->pendingReview()
+            ->orderBy('created_at', 'asc')
+            ->paginate(20, ['*'], 'pending_page');
+
+        $reviewedFarmers = (clone $baseQuery)
+            ->whereIn('status', ['rejected', 'pending_activation', 'active', 'suspended'])
+            ->orderBy('approved_at', 'desc')
+            ->paginate(20, ['*'], 'reviewed_page');
+
+        return [
+            'pendingFarmers' => $pendingFarmers,
+            'reviewedFarmers' => $reviewedFarmers,
+            'counts' => $counts
+        ];
+    }
+
+    /**
+     * Display farmer profile
      */
     public function show(Farmer $farmer)
     {
-        // Enforce boundary check: Admin can only review farmers in their LGA
         if ($farmer->lga_id !== auth()->user()->administrative_id) {
             abort(403, 'Unauthorized access to farmer outside your LGA.');
         }
 
-        $farmer->load('enrolledBy', 'approvedBy', 'cooperative', 'farmLands.practiceDetails');
+        $farmer->load([
+            'enrolledBy:id,name,email',
+            'approvedBy:id,name',
+            'cooperative:id,name',
+            'farmLands' => function ($query) {
+                $query->select(['id', 'farmer_id', 'name', 'farm_type', 'total_size_hectares', 'ownership_status', 'geolocation_geojson'])
+                    ->with([
+                        'cropPracticeDetails',
+                        'livestockPracticeDetails', 
+                        'fisheriesPracticeDetails',
+                        'orchardPracticeDetails'
+                    ]);
+            }
+        ]);
 
         return view('lga_admin.farmers.show', compact('farmer'));
     }
 
     /**
-     * Approve the farmer enrollment.
+     * Approve farmer enrollment AND create user account immediately
      */
     public function approve(Farmer $farmer)
     {
-        if ($farmer->lga_id !== auth()->user()->administrative_id || $farmer->status !== 'pending_lga_review') {
+        if (!$this->canProcessFarmer($farmer, 'pending_lga_review')) {
             return back()->with('error', 'Enrollment is not eligible for approval.');
         }
-        
-        $admin = auth()->user();
 
-        if ($farmer->approve($admin)) {
-            return back()->with('success', 'Farmer profile approved. Status changed to Pending Activation.');
-        }
-
-        return back()->with('error', 'Failed to approve profile.');
-    }
-
-    /**
-     * Reject the farmer enrollment.
-     */
-    public function reject(Request $request, Farmer $farmer)
-    {
-        $request->validate(['rejection_reason' => ['required', 'string', 'min:10']]);
-
-        if ($farmer->lga_id !== auth()->user()->administrative_id || $farmer->status !== 'pending_lga_review') {
-            return back()->with('error', 'Enrollment is not eligible for rejection.');
-        }
-        
-        $admin = auth()->user();
-        
-        if ($farmer->reject($admin, $request->rejection_reason)) {
-            return back()->with('success', 'Farmer profile rejected. Enrollment Officer can now resubmit.');
-        }
-
-        return back()->with('error', 'Failed to reject profile.');
-    }
-
-    /**
-     * Activate the farmer account: creates the User record and links it to the Farmer.
-     */
-    public function activate(Farmer $farmer)
-    {
-        if ($farmer->status !== 'pending_activation') {
-            return back()->with('error', 'Profile must be Approved (Pending Activation) before final activation.');
+        // Check if user already exists
+        if (User::where('email', $farmer->email)->exists()) {
+            return back()->with('error', 'A user account with this email already exists.');
         }
 
         try {
             DB::beginTransaction();
 
-            // 1. Create the User Account
-            $user = User::create([
-                'name' => $farmer->full_name,
-                'email' => $farmer->email,
-                'phone_number' => $farmer->phone_primary,
-                // Hashing the initial password for the User table
-                'password' => Hash::make($farmer->initial_password), 
-                'email_verified_at' => now(), 
-                'status' => 'active', 
-                'administrative_id' => $farmer->lga_id, 
-                'administrative_type' => \App\Models\LGA::class, 
-            ]);
+            $admin = auth()->user();
             
-            // 2. Assign the 'User' Role
-            $user->assignRole('User');
+            // 1. Create user account first
+            $user = $this->createFarmerUserAccount($farmer);
+            
+            // 2. Approve farmer and link to user account
+            $farmer->status = 'pending_activation';
+            $farmer->approved_by = $admin->id;
+            $farmer->approved_at = now();
+            $farmer->user_id = $user->id; // Link the user account
+            $farmer->save();
 
-            // 3. Link and Activate Farmer Profile
-            $farmer->activate($user);
-
-            // 4. Send Notification (Optional, but recommended)
-            // \App\Services\SmsService::sendActivationPin($farmer->phone_primary, $farmer->initial_password);
+            Log::info('Farmer approved and user account created', [
+                'farmer_id' => $farmer->id,
+                'user_id' => $user->id,
+                'admin_id' => $admin->id,
+            ]);
 
             DB::commit();
 
-            return back()->with('success', 'Farmer account successfully activated. User account created and credentials notified.');
+            $this->clearFarmerCache($farmer->lga_id);
+
+            return back()->with('success', 
+                "Farmer profile approved and user account created!\n" .
+                "Login credentials for the farmer:\n" .
+                "Email: {$farmer->email}\n" .
+                "Password: {$farmer->initial_password}\n\n" .
+                "The farmer can now login and will be forced to change their password."
+            );
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Handle unique constraint violation if email/phone already existed
-            if ($e instanceof ValidationException) throw $e;
-            return back()->with('error', 'Activation failed: ' . $e->getMessage());
+            Log::error('Farmer approval failed: ' . $e->getMessage());
+            return back()->with('error', 'Approval failed: ' . $e->getMessage());
         }
     }
-    
+
+    /**
+     * Reject farmer enrollment
+     */
+    public function reject(Request $request, Farmer $farmer)
+    {
+        $request->validate([
+            'rejection_reason' => ['required', 'string', 'min:10', 'max:500']
+        ]);
+
+        if (!$this->canProcessFarmer($farmer, 'pending_lga_review')) {
+            return back()->with('error', 'Enrollment is not eligible for rejection.');
+        }
+
+        DB::transaction(function () use ($farmer, $request) {
+            $admin = auth()->user();
+            $farmer->reject($admin, $request->rejection_reason);
+            
+            Log::info('Farmer enrollment rejected', [
+                'farmer_id' => $farmer->id,
+                'admin_id' => $admin->id,
+                'reason' => $request->rejection_reason,
+            ]);
+        });
+
+        $this->clearFarmerCache($farmer->lga_id);
+
+        return back()->with('success', 'Farmer profile rejected. Enrollment Officer can now resubmit.');
+    }
+
+   
+
+    /**
+     * Create farmer user account with proper user status
+     */
+    private function createFarmerUserAccount(Farmer $farmer): User
+    {
+        return User::create([
+            'name' => $farmer->full_name,
+            'email' => $farmer->email,
+            'phone_number' => $farmer->phone_primary,
+            'password' => Hash::make($farmer->initial_password),
+            'email_verified_at' => now(),
+            'status' => 'onboarded', // User status, not farmer status
+            'administrative_id' => $farmer->lga_id,
+            'administrative_type' => LGA::class,
+        ])->assignRole('User');
+    }
+
+    /**
+     * Check if farmer can be processed
+     */
+    private function canProcessFarmer(Farmer $farmer, string $requiredStatus): bool
+    {
+        return $farmer->lga_id === auth()->user()->administrative_id && 
+               $farmer->status === $requiredStatus;
+    }
+
+    /**
+     * Clear cache
+     */
+    private function clearFarmerCache($lgaId): void
+    {
+        Cache::forget("lga_admin_farmers_{$lgaId}");
+    }
+
+    /**
+     * View farmer credentials (for LGA Admin and Enrollment Agent access)
+     */
+    public function viewCredentials(Farmer $farmer)
+    {
+        if ($farmer->lga_id !== auth()->user()->administrative_id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        if (!in_array($farmer->status, ['pending_activation', 'active'])) {
+            return back()->with('error', 'Credentials are only available for approved farmers.');
+        }
+
+        return view('lga_admin.farmers.credentials', compact('farmer'));
+    }
 }

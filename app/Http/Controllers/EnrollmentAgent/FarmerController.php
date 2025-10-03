@@ -4,6 +4,7 @@ namespace App\Http\Controllers\EnrollmentAgent;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFarmerRequest;
+use App\Http\Requests\StoreFarmLandRequest;
 use App\Models\Farmer;
 use App\Models\FarmLand;
 use App\Models\CropPracticeDetails;
@@ -54,11 +55,14 @@ class FarmerController extends Controller
             // Step 1: Create Farmer Profile
             $farmerData = $request->only([
                 'nin', 'full_name', 'email', 'phone_primary', 'phone_secondary',
-                'date_of_birth', 'gender', 'marital_status', 'lga_id', 'ward',
+                'date_of_birth', 'gender', 'marital_status', 'ward',
                 'residential_address', 'residence_latitude', 'residence_longitude',
                 'educational_level', 'household_size', 'primary_occupation',
                 'other_occupation', 'cooperative_id'
             ]);
+
+            $agentLgaId = auth()->user()->administrativeUnit->id;
+            $farmerData['lga_id'] = $agentLgaId;
 
             $farmerData['enrolled_by'] = auth()->id();
             $farmerData['status'] = 'pending_lga_review';
@@ -90,7 +94,10 @@ class FarmerController extends Controller
                     'farms/photos/' . $farmLand->id,
                     'public'
                 );
-                $farmLand->update(['farm_photo' => $farmPhotoPath]);
+                // Store farm photo path in additional_info
+                $additionalInfo = $farmer->additional_info ?? [];
+                $additionalInfo['farm_photo_path'] = $farmPhotoPath;
+                $farmer->update(['additional_info' => $additionalInfo]);
             }
 
             // Step 5: Create Practice Details Based on Farm Type
@@ -105,7 +112,6 @@ class FarmerController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // Log the error for debugging
             \Log::error('Farmer Enrollment Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
@@ -158,16 +164,6 @@ class FarmerController extends Controller
                     'number_of_trees' => $request->number_of_trees,
                     'maturity_stage' => $request->maturity_stage,
                 ]);
-                // Also create crop details if crop_type is provided for orchards
-                if ($request->filled('crop_type')) {
-                    CropPracticeDetails::create([
-                        'farm_land_id' => $farmLand->id,
-                        'crop_type' => $request->crop_type,
-                        'variety' => $request->variety,
-                        'expected_yield_kg' => $request->expected_yield_kg,
-                        'farming_method' => $request->farming_method ?? 'organic',
-                    ]);
-                }
                 break;
         }
     }
@@ -187,13 +183,97 @@ class FarmerController extends Controller
             'cooperative',
             'enrolledBy',
             'approvedBy',
-            'farmLands.cropPracticeDetails',
-            'farmLands.livestockPracticeDetails',
-            'farmLands.fisheriesPracticeDetails',
-            'farmLands.orchardPracticeDetails'
+            'farmLands' => function($query) {
+                $query->with([
+                    'cropPracticeDetails',
+                    'livestockPracticeDetails', 
+                    'fisheriesPracticeDetails',
+                    'orchardPracticeDetails'
+                ]);
+            }
         ]);
 
         return view('enrollment_agent.farmers.show', compact('farmer'));
+    }
+
+    /**
+     * Show the form for adding a new farmland to an existing farmer.
+     */
+    public function createFarmLand(Farmer $farmer)
+    {
+        if ($farmer->enrolled_by !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Only allow adding farmlands to approved farmers
+        if (!in_array($farmer->status, ['pending_activation', 'active'])) {
+            return redirect()
+                ->route('enrollment.farmers.show', $farmer)
+                ->with('error', 'Cannot add farmlands to a profile that is not approved.');
+        }
+
+        return view('enrollment_agent.farmers.create-farmland', compact('farmer'));
+    }
+
+    /**
+     * Store a new farmland for an existing farmer.
+     */
+    public function storeFarmLand(StoreFarmLandRequest $request, Farmer $farmer)
+    {
+        if ($farmer->enrolled_by !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Only allow adding farmlands to approved farmers
+        if (!in_array($farmer->status, ['pending_activation', 'active'])) {
+            return back()->with('error', 'Cannot add farmlands to a profile that is not approved.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Create Farm Land Entry
+            $farmLandData = $request->only([
+                'name', 'farm_type', 'total_size_hectares',
+                'ownership_status', 'geolocation_geojson'
+            ]);
+
+            $farmLand = $farmer->farmLands()->create($farmLandData);
+
+            // Create Practice Details Based on Farm Type
+            $this->createPracticeDetails($farmLand, $request);
+
+            DB::commit();
+
+            return redirect()
+                ->route('enrollment.farmers.show', $farmer)
+                ->with('success', 'Farmland added successfully to farmer profile.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('FarmLand Creation Error: ' . $e->getMessage());
+
+            return back()
+                ->withInput()
+                ->with('error', 'Error adding farmland: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show farmer credentials
+     */
+    public function showCredentials(Farmer $farmer)
+    {
+        if ($farmer->enrolled_by !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!in_array($farmer->status, ['pending_activation', 'active'])) {
+            return back()->with('error', 'Credentials are only available for approved farmers.');
+        }
+
+        return view('enrollment_agent.farmers.credentials', compact('farmer'));
     }
 
     /**
@@ -212,8 +292,14 @@ class FarmerController extends Controller
                 ->with('error', 'Cannot edit a profile that has been approved or activated.');
         }
 
-        $farmer->load('farmLands.cropPracticeDetails', 'farmLands.livestockPracticeDetails', 
-                     'farmLands.fisheriesPracticeDetails', 'farmLands.orchardPracticeDetails');
+        $farmer->load(['farmLands' => function($query) {
+            $query->with([
+                'cropPracticeDetails',
+                'livestockPracticeDetails', 
+                'fisheriesPracticeDetails',
+                'orchardPracticeDetails'
+            ]);
+        }]);
         
         $lgas = LGA::orderBy('name')->get();
         $cooperatives = Cooperative::orderBy('name')->get();
@@ -241,7 +327,7 @@ class FarmerController extends Controller
             // Update Farmer Profile
             $farmerData = $request->only([
                 'nin', 'full_name', 'email', 'phone_primary', 'phone_secondary',
-                'date_of_birth', 'gender', 'marital_status', 'lga_id', 'ward',
+                'date_of_birth', 'gender', 'marital_status', 'ward',
                 'residential_address', 'residence_latitude', 'residence_longitude',
                 'educational_level', 'household_size', 'primary_occupation',
                 'other_occupation', 'cooperative_id'
@@ -249,9 +335,11 @@ class FarmerController extends Controller
 
             $farmer->update($farmerData);
 
-            // Reset status to pending review
+            // Reset status to pending review and clear rejection reason
             $farmer->status = 'pending_lga_review';
             $farmer->rejection_reason = null;
+            $farmer->approved_by = null;
+            $farmer->approved_at = null;
             $farmer->save();
 
             // Update photos if new ones uploaded
@@ -266,7 +354,7 @@ class FarmerController extends Controller
                 $farmer->update(['farmer_photo' => $farmerPhotoPath]);
             }
 
-            // Update Farm Land
+            // Update Farm Land (first farmland only for edits)
             $farmLand = $farmer->farmLands()->first();
             
             if ($farmLand) {
@@ -278,14 +366,16 @@ class FarmerController extends Controller
                 $farmLand->update($farmLandData);
 
                 if ($request->hasFile('farm_photo')) {
-                    if ($farmLand->farm_photo) {
-                        Storage::disk('public')->delete($farmLand->farm_photo);
+                    $additionalInfo = $farmer->additional_info ?? [];
+                    if (isset($additionalInfo['farm_photo_path'])) {
+                        Storage::disk('public')->delete($additionalInfo['farm_photo_path']);
                     }
                     $farmPhotoPath = $request->file('farm_photo')->store(
                         'farms/photos/' . $farmLand->id,
                         'public'
                     );
-                    $farmLand->update(['farm_photo' => $farmPhotoPath]);
+                    $additionalInfo['farm_photo_path'] = $farmPhotoPath;
+                    $farmer->update(['additional_info' => $additionalInfo]);
                 }
 
                 // Delete old practice details and create new ones
@@ -341,10 +431,9 @@ class FarmerController extends Controller
                 Storage::disk('public')->delete($farmer->farmer_photo);
             }
 
-            foreach ($farmer->farmLands as $farmLand) {
-                if ($farmLand->farm_photo) {
-                    Storage::disk('public')->delete($farmLand->farm_photo);
-                }
+            $additionalInfo = $farmer->additional_info ?? [];
+            if (isset($additionalInfo['farm_photo_path'])) {
+                Storage::disk('public')->delete($additionalInfo['farm_photo_path']);
             }
 
             $farmer->delete();

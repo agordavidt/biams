@@ -182,15 +182,8 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="lga_id" class="form-label">LGA <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('lga_id') is-invalid @enderror" 
-                                                id="lga_id" name="lga_id" required>
-                                            <option value="">Select LGA</option>
-                                            @foreach($lgas as $lga)
-                                                <option value="{{ $lga->id }}" {{ old('lga_id') == $lga->id ? 'selected' : '' }}>
-                                                    {{ $lga->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <input type="text" class="form-control" value="{{ auth()->user()->administrativeUnit->name }}" readonly>
+                                        <input type="hidden" name="lga_id" value="{{ auth()->user()->administrativeUnit->id }}">
                                         @error('lga_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

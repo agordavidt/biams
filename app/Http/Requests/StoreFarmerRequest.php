@@ -13,6 +13,7 @@ class StoreFarmerRequest extends FormRequest
 
     public function rules(): array
     {
+        $agentLgaId = auth()->user()->administrativeUnit->id;
         return [
             // Step 1: Personal & Identity
             'nin' => ['required', 'string', 'max:15', 'unique:farmers,nin'],
@@ -23,7 +24,7 @@ class StoreFarmerRequest extends FormRequest
             'date_of_birth' => ['required', 'date', 'before:today'],
             'gender' => ['required', 'in:male,female,other'],
             'marital_status' => ['required', 'in:single,married,divorced,widowed'],
-            'lga_id' => ['required', 'exists:lgas,id'],
+             'lga_id' => ['required', 'in:' . $agentLgaId], 
             'ward' => ['required', 'string', 'max:255'],
             'residential_address' => ['required', 'string'],
             'residence_latitude' => ['nullable', 'numeric', 'between:-90,90'],

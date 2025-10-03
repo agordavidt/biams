@@ -285,4 +285,25 @@ class Farmer extends Model
     {
         return $this->farmLands()->where('farm_type', $type)->count();
     }
+
+    
+
+    /**
+     * Bulk status update method
+     */
+    public static function bulkUpdateStatus(array $farmerIds, string $status, User $admin = null): int
+    {
+        $updates = ['status' => $status];
+        
+        if ($admin && in_array($status, ['pending_activation', 'rejected'])) {
+            $updates['approved_by'] = $admin->id;
+            $updates['approved_at'] = now();
+        }
+        
+        if ($status === 'rejected') {
+            $updates['rejection_reason'] = 'Bulk rejection';
+        }
+
+        return static::whereIn('id', $farmerIds)->update($updates);
+    }
 }

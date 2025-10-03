@@ -2,14 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Enrollment Agent | {{ 'Benue State Smart Agricultural System and Data Management' }}</title>
+        <title>LGA Admin | Benue State Smart Agricultural System and Data Management</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta content="BDIC Team" name="author" />
         <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
         
-        <!-- CSS -->
         <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
         <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
@@ -42,9 +41,8 @@
             <header id="page-topbar">
                 <div class="navbar-header">
                     <div class="d-flex">
-                        <!-- LOGO -->
                         <div class="navbar-brand-box">
-                            <a href="#" class="logo logo-dark">
+                            <a href="{{ route('lga_admin.dashboard') }}" class="logo logo-dark">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -52,7 +50,7 @@
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
                             </a>
-                            <a href="#" class="logo logo-light">
+                            <a href="{{ route('lga_admin.dashboard') }}" class="logo logo-light">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -64,7 +62,6 @@
                         <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
                             <i class="ri-menu-2-line align-middle"></i>
                         </button>
-                        <!-- App Search-->
                         <form class="app-search d-none d-lg-block">
                             <div class="position-relative">
                                 <input type="text" class="form-control" placeholder="Search...">
@@ -85,53 +82,49 @@
                                 <a class="dropdown-item text-danger" href="#" id="logout-link">
                                     <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> Logout
                                 </a>
+                                {{-- Hidden form for logout --}}
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
             
-            <!-- Left Sidebar -->
             <div class="vertical-menu">
                 <div data-simplebar class="h-100">
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
                             
-                           <li>
-                                <a href="{{ route('enrollment.dashboard') }}" class="waves-effect">
+                            <li>
+                                <a href="{{ route('lga_admin.dashboard') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-user-add-line"></i>
-                                    <span>Farmer Management</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('enrollment.farmers.index') }}">All Farmers</a></li>
-                                    <li><a href="{{ route('enrollment.farmers.create') }}">Enroll New Farmer</a></li>
-                                </ul>
-                            </li>
                             
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                                @csrf
-                                <li>
-                                    <a class="text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> 
-                                        <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> 
-                                        <span>Logout</span> 
-                                    </a>
-                                </li>
-                            </form>
+                            <li>
+                                <a href="{{ route('lga_admin.farmers.index') }}" class="waves-effect">
+                                    <i class="ri-file-user-line"></i>
+                                    <span>Farmer Review</span>
+                                </a>
+                            </li>
+
+                            {{-- Conditional link based on provided routes for agent management --}}
+                            @can('manage_lga_agents')
+                            <li>
+                                <a href="{{ route('lga_admin.agents.index') }}" class="waves-effect">
+                                    <i class="ri-group-line"></i>
+                                    <span>Manage Agents</span>
+                                </a>
+                            </li>
+                            @endcan
+
                         </ul>
                     </div>
-                </div>
+                    </div>
             </div>
-            <!-- Left Sidebar End -->
-            
-            <!-- Main Content -->
             <div class="main-content">
                 <div class="page-content">
                     <div class="container-fluid">
@@ -170,7 +163,6 @@
             </div>
         </div>
         
-        <!-- Scripts -->
         <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
@@ -184,6 +176,7 @@
         <script>
             document.getElementById('logout-link').addEventListener('click', function(event) { 
                 event.preventDefault();
+                // Assumes a route named 'logout' exists for the logout form action
                 document.getElementById('logout-form').submit(); 
             });
         </script>

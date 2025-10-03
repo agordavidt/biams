@@ -137,7 +137,10 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
         // Action: Reject the enrollment and provide a reason
         Route::post('/{farmer}/reject', [FarmerReviewController::class, 'reject'])->name('reject');
         // Action: Trigger activation and create User account
-        Route::post('/{farmer}/activate', [FarmerReviewController::class, 'activate'])->name('activate');
+        Route::get('/{farmer}/credentials', [FarmerReviewController::class, 'viewCredentials'])->name('view-credentials');
+        // Bulk actions
+       
+        Route::get('/export', [FarmerReviewController::class, 'export'])->name('export');
     });
 });
 
@@ -151,25 +154,31 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
 | Enrollment Agent Routes - Submission/Resubmission Workflow
 |--------------------------------------------------------------------------
 */
+
+
+// Enrollment Agent Routes
 Route::middleware(['auth', 'role:Enrollment Agent'])->prefix('enrollment')->name('enrollment.')->group(function () {
     Route::get('/dashboard', [EnrollmentDashboardController::class, 'index'])->name('dashboard');
     
     // Farmer enrollment routes
     Route::prefix('farmers')->name('farmers.')->group(function () {
-        // Index shows ALL submissions (Pending, Rejected, Accepted/Active)
         Route::get('/', [EnrollmentFarmerController::class, 'index'])->name('index'); 
         Route::get('/create', [EnrollmentFarmerController::class, 'create'])->name('create');
-        // Submission route
         Route::post('/', [EnrollmentFarmerController::class, 'store'])->name('store');
         
-        // Show route to view details and rejection reason
+        // Show and credentials
         Route::get('/{farmer}', [EnrollmentFarmerController::class, 'show'])->name('show');
+        Route::get('/{farmer}/credentials', [EnrollmentFarmerController::class, 'showCredentials'])->name('credentials');
         
-        // The EDIT route is now specifically for UPDATING/RESUBMITTING a PENDING/REJECTED farmer
+        // Edit and update
         Route::get('/{farmer}/edit', [EnrollmentFarmerController::class, 'edit'])->name('edit');
         Route::put('/{farmer}', [EnrollmentFarmerController::class, 'update'])->name('update');
         
-        // Route to delete a submission (only if pending/rejected)
+        // Farmland management
+        Route::get('/{farmer}/farmlands/create', [EnrollmentFarmerController::class, 'createFarmLand'])->name('farmlands.create');
+        Route::post('/{farmer}/farmlands', [EnrollmentFarmerController::class, 'storeFarmLand'])->name('farmlands.store');
+        
+        // Delete
         Route::delete('/{farmer}', [EnrollmentFarmerController::class, 'destroy'])->name('destroy');
     });
 });
