@@ -56,6 +56,7 @@ return new class extends Migration
                 'other'
             ]);
             $table->string('other_occupation')->nullable();
+            $table->string('farmer_photo')->nullable()->comment('Path to farmer passport photo');
             
             // Cooperative Linkage
             $table->foreignId('cooperative_id')->nullable()->constrained('cooperatives')->onDelete('set null');

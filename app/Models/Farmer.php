@@ -43,6 +43,7 @@ class Farmer extends Model
         'initial_password',        
         'password_changed',
         'additional_info',
+        'farmer_photo',
     ];
 
     protected $hidden = [

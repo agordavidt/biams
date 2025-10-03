@@ -19,7 +19,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ route('super_admin.management.users.store') }}">
+                        <form method="POST" action="{{ route('super_admin.management.users.store') }}" id="createUserForm">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
@@ -79,7 +79,7 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="administrative_type" class="form-label">Administrative Unit Type</label>
+                                            <label for="administrative_type" class="form-label">Administrative Unit Type <span class="text-danger" id="type_required">*</span></label>
                                             <select id="administrative_type" name="administrative_type" class="form-control @error('administrative_type') is-invalid @enderror">
                                                 <option value="">-- Select Type --</option>
                                                 <option value="Department" {{ old('administrative_type') == 'Department' ? 'selected' : '' }}>Department</option>
@@ -92,7 +92,7 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="administrative_id" class="form-label">Administrative Unit</label>
+                                            <label for="administrative_id" class="form-label">Administrative Unit <span class="text-danger" id="unit_required">*</span></label>
                                             <select id="administrative_id" name="administrative_id" class="form-control @error('administrative_id') is-invalid @enderror">
                                                 <option value="">-- Select Unit --</option>
                                             </select>
@@ -108,7 +108,6 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="ri-save-line align-middle me-1"></i> Create User
                                 </button>
-                                {{-- FIX 1: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index' --}}
                                 <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
@@ -131,10 +130,22 @@
     const unitSection = document.getElementById('administrative_unit_section');
     const unitTypeSelect = document.getElementById('administrative_type');
     const unitIdSelect = document.getElementById('administrative_id');
+    const form = document.getElementById('createUserForm');
 
+    // Event Listeners
     roleSelect.addEventListener('change', toggleUnitSection);
     unitTypeSelect.addEventListener('change', updateUnits);
     
+    // Add change listener to administrative_id to log selection
+    unitIdSelect.addEventListener('change', function() {
+        console.log('Administrative Unit Selected:', {
+            value: unitIdSelect.value,
+            text: unitIdSelect.options[unitIdSelect.selectedIndex]?.text,
+            disabled: unitIdSelect.disabled
+        });
+    });
+    
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         toggleUnitSection();
         if (unitTypeSelect.value) {
@@ -142,18 +153,72 @@
         }
     });
 
+    // Add form submission validation with more logging
+    form.addEventListener('submit', function(e) {
+        console.log('=== FORM SUBMISSION TRIGGERED ===');
+        
+        const selectedRoleId = String(roleSelect.value);
+        console.log('Selected Role ID:', selectedRoleId);
+        console.log('Is Unit Role?', unitRoleIds.includes(selectedRoleId));
+        
+        if (unitRoleIds.includes(selectedRoleId)) {
+            // For unit-based roles, ensure fields are filled
+            console.log('Administrative Type Value:', unitTypeSelect.value);
+            console.log('Administrative ID Value:', unitIdSelect.value);
+            console.log('Administrative Type Disabled?', unitTypeSelect.disabled);
+            console.log('Administrative ID Disabled?', unitIdSelect.disabled);
+            
+            if (!unitTypeSelect.value || !unitIdSelect.value) {
+                e.preventDefault();
+                console.error('❌ VALIDATION FAILED: Missing administrative fields');
+                alert('Please select both Administrative Unit Type and Administrative Unit for this role.');
+                return false;
+            }
+            
+            // Log what we're about to submit
+            console.log('✅ SUBMITTING FORM WITH:', {
+                role_id: roleSelect.value,
+                administrative_type: unitTypeSelect.value,
+                administrative_id: unitIdSelect.value,
+                administrative_id_text: unitIdSelect.options[unitIdSelect.selectedIndex]?.text
+            });
+        } else {
+            // For global roles, ensure administrative fields are cleared/disabled
+            console.log('✅ SUBMITTING FORM FOR GLOBAL ROLE (no administrative unit)');
+        }
+        
+        console.log('=== FORM WILL NOW SUBMIT ===');
+    });
+
     function toggleUnitSection() {
         const selectedRoleId = String(roleSelect.value);
 
         if (unitRoleIds.includes(selectedRoleId)) {
+            // Show section and enable fields
             unitSection.style.display = 'block';
+            unitTypeSelect.disabled = false;
+            unitIdSelect.disabled = false;
+            unitTypeSelect.required = true;
+            unitIdSelect.required = true;
+            
+            // If there's an old value, restore it
+            const oldType = '{{ old("administrative_type") }}';
+            if (oldType && !unitTypeSelect.value) {
+                unitTypeSelect.value = oldType;
+                updateUnits();
+            }
         } else {
+            // Hide section and disable fields (disabled fields aren't submitted)
             unitSection.style.display = 'none';
+            unitTypeSelect.disabled = true;
+            unitIdSelect.disabled = true;
+            unitTypeSelect.required = false;
+            unitIdSelect.required = false;
+            
+            // Clear values when disabled
             unitTypeSelect.value = '';
             unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
         }
-        
-        updateUnits();
     }
 
     function updateUnits() {
@@ -176,11 +241,13 @@
             unitIdSelect.appendChild(option);
         });
 
-        {{-- FIX 2: Removed reference to $user, which is not passed to the create view --}}
+        // Restore old value if exists
         const oldUnitId = '{{ old('administrative_id') }}'; 
         if (oldUnitId) {
             unitIdSelect.value = oldUnitId;
         }
+        
+        console.log(`Loaded ${units.length} units for type: ${type}`);
     }
 </script>
 @endpush

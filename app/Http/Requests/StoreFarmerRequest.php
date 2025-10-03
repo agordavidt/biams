@@ -34,15 +34,15 @@ class StoreFarmerRequest extends FormRequest
             'other_occupation' => ['required_if:primary_occupation,other', 'nullable', 'string', 'max:255'],
             'cooperative_id' => ['nullable', 'exists:cooperatives,id'],
 
-            // Step 2: Farm & Land Details
-            'farm_name' => ['required', 'string', 'max:255'],
+            // Step 2: Farm & Land Details - FIX FIELD NAME
+            'name' => ['required', 'string', 'max:255'], // 
             'farm_type' => ['required', 'in:crops,livestock,fisheries,orchards,forestry'],
             'total_size_hectares' => ['required', 'numeric', 'min:0.01', 'max:99999.9999'],
             'ownership_status' => ['required', 'in:owned,leased,shared,communal'],
             'geolocation_geojson' => ['required', 'string'],
 
-            // Step 3: Practice Details (conditional based on farm_type)
-            'crop_type' => ['required_if:farm_type,crops,orchards', 'nullable', 'string', 'max:255'],
+            // Step 3: Practice Details - FIX ORCHARD VALIDATION
+            'crop_type' => ['required_if:farm_type,crops', 'nullable', 'string', 'max:255'], // Removed orchards
             'variety' => ['nullable', 'string', 'max:255'],
             'expected_yield_kg' => ['nullable', 'numeric', 'min:0'],
             'farming_method' => ['required_if:farm_type,crops', 'nullable', 'in:irrigation,rain_fed,organic,mixed'],
@@ -60,10 +60,11 @@ class StoreFarmerRequest extends FormRequest
             'number_of_trees' => ['required_if:farm_type,orchards', 'nullable', 'integer', 'min:1'],
             'maturity_stage' => ['required_if:farm_type,orchards', 'nullable', 'in:seedling,immature,producing'],
 
-            // Media uploads
+            // Media uploads (keep as is, but need datase columns)
             'farmer_photo' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
             'farm_photo' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
-        ];
+        
+            ];
     }
 
     public function messages(): array

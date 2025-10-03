@@ -1,0 +1,1055 @@
+--- create view;
+@extends('layouts.super_admin')
+@section('content')
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0">Create New User</h4>
+                    <div class="page-title-right">                       
+                        <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line align-middle me-1"></i> Back to Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('super_admin.management.users.store') }}">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Basic Information</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" 
+                                               value="{{ old('name') }}" required>
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
+                                               value="{{ old('email') }}" required>
+                                        @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                                    </div>                                    
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h5 class="mb-3">Role & Unit Assignment</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="role_id" class="form-label">Assign Role <span class="text-danger">*</span></label>
+                                        <select name="role_id" id="role_id" class="form-control @error('role_id') is-invalid @enderror" required>
+                                            <option value="">-- Select Role --</option>
+                                            @foreach($roles as $id => $name)
+                                                <option value="{{ $id }}" {{ old('role_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('role_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div id="administrative_unit_section" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="ri-information-line"></i> This role requires administrative unit assignment.
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="administrative_type" class="form-label">Administrative Unit Type</label>
+                                            <select id="administrative_type" name="administrative_type" class="form-control @error('administrative_type') is-invalid @enderror">
+                                                <option value="">-- Select Type --</option>
+                                                <option value="Department" {{ old('administrative_type') == 'Department' ? 'selected' : '' }}>Department</option>
+                                                <option value="Agency" {{ old('administrative_type') == 'Agency' ? 'selected' : '' }}>Agency</option>
+                                                <option value="LGA" {{ old('administrative_type') == 'LGA' ? 'selected' : '' }}>LGA</option>
+                                            </select>
+                                            @error('administrative_type')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="administrative_id" class="form-label">Administrative Unit</label>
+                                            <select id="administrative_id" name="administrative_id" class="form-control @error('administrative_id') is-invalid @enderror">
+                                                <option value="">-- Select Unit --</option>
+                                            </select>
+                                            @error('administrative_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-save-line align-middle me-1"></i> Create User
+                                </button>
+                                {{-- FIX 1: Changed route from 'super_admin.management.users' to 'super_admin.management.users.index' --}}
+                                <a href="{{ route('super_admin.management.users.index') }}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    const departments = @json($departments);
+    const agencies = @json($agencies);
+    const lgas = @json($lgas);
+    const unitRoleIds = Object.keys(@json($unitRoles)).map(id => String(id));
+
+    const roleSelect = document.getElementById('role_id');
+    const unitSection = document.getElementById('administrative_unit_section');
+    const unitTypeSelect = document.getElementById('administrative_type');
+    const unitIdSelect = document.getElementById('administrative_id');
+
+    roleSelect.addEventListener('change', toggleUnitSection);
+    unitTypeSelect.addEventListener('change', updateUnits);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleUnitSection();
+        if (unitTypeSelect.value) {
+            updateUnits();
+        }
+    });
+
+    function toggleUnitSection() {
+        const selectedRoleId = String(roleSelect.value);
+
+        if (unitRoleIds.includes(selectedRoleId)) {
+            unitSection.style.display = 'block';
+        } else {
+            unitSection.style.display = 'none';
+            unitTypeSelect.value = '';
+            unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+        }
+        
+        updateUnits();
+    }
+
+    function updateUnits() {
+        const type = unitTypeSelect.value;
+        unitIdSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+
+        let units = [];
+        if (type === 'Department') {
+            units = departments;
+        } else if (type === 'Agency') {
+            units = agencies;
+        } else if (type === 'LGA') {
+            units = lgas;
+        }
+        
+        units.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.id;
+            option.textContent = unit.name;
+            unitIdSelect.appendChild(option);
+        });
+
+        {{-- FIX 2: Removed reference to $user, which is not passed to the create view --}}
+        const oldUnitId = '{{ old('administrative_id') }}'; 
+        if (oldUnitId) {
+            unitIdSelect.value = oldUnitId;
+        }
+    }
+</script>
+@endpush
+
+
+
+-- controller
+<?php
+
+namespace App\Http\Controllers\SuperAdmin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\Agency;
+use App\Models\LGA;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+
+class ManagementController extends Controller
+{
+    // Define Global and Unit-based roles for centralized logic
+    protected $globalRoles = ['Super Admin', 'Governor'];
+    protected $unitRoleMap = [
+        'LGA Admin' => ['LGA'],
+        'Enrollment Agent' => ['LGA'],
+        'State Admin' => ['Department', 'Agency'], // Keeping the original business logic from the error description
+    ];
+
+    /**
+     * Helper to get Role IDs that require an administrative unit.
+     */
+    protected function getUnitRoleIds()
+    {
+        $unitRoleNames = array_keys($this->unitRoleMap);
+        return Role::whereIn('name', $unitRoleNames)->pluck('id')->map(fn($id) => (string)$id)->toArray();
+    }
+    
+    // --- General Management Index ---
+
+    public function index()
+    {
+        return view('super_admin.management.index');
+    }
+
+    // --------------------------------------------------------------------------
+    // User Management
+    // --------------------------------------------------------------------------
+
+    public function users()
+    {
+        // Policy Check: Assumes 'Super Admin' has permission via Spatie or Gates.
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $users = User::with(['roles', 'administrativeUnit'])->get();
+        return view('super_admin.management.users.index', compact('users'));
+    }
+
+    public function createUser()
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $roles = Role::pluck('name', 'id');
+        $unitRoles = Role::whereNotIn('name', $this->globalRoles)->pluck('name', 'id');
+        $departments = Department::all();
+        $agencies = Agency::all();
+        $lgas = LGA::all();
+
+        return view('super_admin.management.users.create', compact('roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 1. Define Base Rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role_id' => ['required', 'exists:roles,id'],
+        ];
+
+        $messages = [
+            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+            'role_id.required' => 'Please select a role for this user.',
+        ];
+
+        // 2. Conditional Unit Rules (If role requires unit)
+        $role = Role::find($request->input('role_id'));
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+            $rules['administrative_id'] = 'required|integer';
+        }
+
+        // 3. Run Validation
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        // 4. Custom Unit Existence and Compatibility Validation
+        // FIX: Add $request to the use clause to make it accessible inside the closure.
+        $validator->after(function ($validator) use ($request, $role) { 
+            if ($this->shouldValidateUnitFields($role)) {
+                // Check if administrative_id exists in the correct table (Department, Agency, or LGA)
+                $this->validateAdministrativeUnitExistence($validator, $request); 
+                
+                // Check Role-Unit Compatibility (The Fix)
+                $this->validateRoleUnitCompatibility($validator, $request, $role); 
+            }
+        });
+
+        $data = $validator->validate();
+
+
+        // 5. Data Manipulation for Storage
+        $administrativeType = null;
+        if (!empty($data['administrative_type'])) {
+            $administrativeType = "App\\Models\\{$data['administrative_type']}";
+        }
+        
+        // 6. Create User
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'status' => 'onboarded',
+            'administrative_type' => $administrativeType,
+            'administrative_id' => $data['administrative_id'] ?? null,
+        ]);
+
+        // 7. Assign Role
+        $user->assignRole($role);
+
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User created successfully and is now active.');
+    }
+
+    public function editUser(User $user)
+    {
+        // Policy Check: Assumes 'Super Admin' can update any user.
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+        // $this->authorize('update', $user); // Removed Policy
+
+        $roles = Role::pluck('name', 'id');
+        $unitRoles = Role::whereNotIn('name', $this->globalRoles)->pluck('name', 'id');
+        $departments = Department::all();
+        $agencies = Agency::all();
+        $lgas = LGA::all();
+
+        return view('super_admin.management.users.edit', compact('user', 'roles', 'unitRoles', 'departments', 'agencies', 'lgas'));
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        // Policy Check: Assumes 'Super Admin' can update any user.
+        if (!Auth::user()->can('manage_users')) {
+            abort(403, 'Unauthorized action.');
+        }
+        // $this->authorize('update', $user); // Removed Policy
+        
+        // 1. Define Base Rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => 'nullable|string|min:8|confirmed',
+            'role_id' => ['required', 'exists:roles,id'],
+            'status' => ['required', Rule::in(['onboarded', 'pending', 'rejected'])],
+        ];
+        
+        $messages = [
+            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_id.required' => 'Please select a specific administrative unit.',
+            'role_id.required' => 'Please select a role for this user.',
+        ];
+
+        // 2. Conditional Unit Rules (If role requires unit)
+        $role = Role::find($request->input('role_id'));
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            $rules['administrative_type'] = ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+            $rules['administrative_id'] = 'nullable|integer';
+        } else {
+            // For global roles, ensure administrative fields are explicitly nullable
+            $rules['administrative_type'] = 'nullable';
+            $rules['administrative_id'] = 'nullable';
+        }
+
+        // 3. Run Validation
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            // 4. Custom Unit Existence and Compatibility Validation
+            // FIX: Add $request to the use clause to make it accessible inside the closure.
+            $validator->after(function ($validator) use ($request, $role) {
+                if ($this->shouldValidateUnitFields($role) && $request->filled('administrative_type') && $request->filled('administrative_id')) {
+                    // Check if administrative_id exists in the correct table (Department, Agency, or LGA)
+                    $this->validateAdministrativeUnitExistence($validator, $request);
+                    
+                    // Check Role-Unit Compatibility (The Fix)
+                    $this->validateRoleUnitCompatibility($validator, $request, $role);
+                }
+            });
+
+            $data = $validator->validate();
+
+        // 5. Data Manipulation
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->status = $data['status'];
+        
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
+
+        // Handle Administrative Unit (Set to null if no unit is selected for a unit-based role, or if it's a global role)
+        $administrativeType = null;
+        $administrativeId = null;
+
+        if ($request->filled('administrative_type') && $request->filled('administrative_id')) {
+            $administrativeType = "App\\Models\\{$data['administrative_type']}";
+            $administrativeId = $data['administrative_id'];
+        }
+
+        $user->administrative_type = $administrativeType;
+        $user->administrative_id = $administrativeId;
+        
+        // 6. Sync Role
+        $user->syncRoles([$role]);
+        $user->save();
+
+        return redirect()
+            ->route('super_admin.management.users.index')
+            ->with('success', 'User updated successfully.');
+    }
+
+    public function destroyUser(User $user)
+    {
+        // Policy Check: Assumes 'Super Admin' can delete any user except themselves.
+        if (!Auth::user()->can('manage_users') || Auth::id() === $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user->delete();
+        return redirect()->route('super_admin.management.users.index')->with('success', 'User deleted successfully.');
+    }
+
+    // --------------------------------------------------------------------------
+    // Custom Validation Helpers
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determine if a role requires unit validation.
+     */
+    protected function shouldValidateUnitFields(Role $role = null)
+    {
+        return $role && !in_array($role->name, $this->globalRoles);
+    }
+    
+    /**
+     * Validate that the administrative_id exists in the correct table.
+     */
+    protected function validateAdministrativeUnitExistence($validator, $request): void
+    {
+        $type = $request->input('administrative_type');
+        $id = $request->input('administrative_id');
+        
+        if (!$type || !$id) {
+            return;
+        }
+
+        $modelClass = "App\\Models\\{$type}";
+        
+        if (!class_exists($modelClass)) {
+            $validator->errors()->add('administrative_type', 'Invalid administrative type selected.');
+            return;
+        }
+        
+        $exists = $modelClass::where('id', $id)->exists();
+        
+        if (!$exists) {
+            $validator->errors()->add('administrative_id', "The selected {$type} does not exist.");
+        }
+    }
+
+    /**
+     * Validate that the role is compatible with the selected administrative unit type.
+     */
+    protected function validateRoleUnitCompatibility($validator, $request, Role $role): void
+    {
+        $type = $request->input('administrative_type');
+
+        if (!$type) {
+            return;
+        }
+
+        // Check if the role is one that has specific unit restrictions
+        if (isset($this->unitRoleMap[$role->name])) {
+            $allowedTypes = $this->unitRoleMap[$role->name];
+            
+            if (!in_array($type, $allowedTypes)) {
+                $validator->errors()->add(
+                    'administrative_type',
+                    "The role '{$role->name}' can only be assigned to: " . 
+                    implode(' or ', $allowedTypes) . '.'
+                );
+            }
+        }
+    }
+
+
+    // --------------------------------------------------------------------------
+    // Department Management (Simplified without Request/Policy)
+    // --------------------------------------------------------------------------
+
+    public function departments()
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $departments = Department::withCount('users')->get();
+        return view('super_admin.management.departments.index', compact('departments'));
+    }
+
+    public function storeDepartment(Request $request)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|unique:departments,name|max:255',
+            'abbreviation' => 'nullable|string|max:50',
+        ]);
+
+        Department::create($data);
+
+        return response()->json(['success' => true, 'message' => 'Department created successfully.']);
+    }
+
+    public function updateDepartment(Request $request, Department $department)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('departments', 'name')->ignore($department->id)],
+            'abbreviation' => 'nullable|string|max:50',
+        ]);
+
+        $department->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Department updated successfully.']);
+    }
+
+    public function destroyDepartment(Department $department)
+    {
+        if (!Auth::user()->can('manage_departments')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($department->users()->count() > 0) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete department with assigned users.'], 422);
+        }
+
+        $department->delete();
+        return response()->json(['success' => true, 'message' => 'Department deleted successfully.']);
+    }
+
+    // --------------------------------------------------------------------------
+    // Agency Management
+    // --------------------------------------------------------------------------
+
+    public function agencies()
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $agencies = Agency::with('department')->withCount('users')->get();
+        $departments = Department::all();
+        return view('super_admin.management.agencies.index', compact('agencies', 'departments'));
+    }
+
+    public function storeAgency(Request $request)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|unique:agencies,name|max:255',
+            'department_id' => 'required|exists:departments,id',
+        ]);
+
+        Agency::create($data);
+
+        return response()->json(['success' => true, 'message' => 'Agency created successfully.']);
+    }
+
+    public function updateAgency(Request $request, Agency $agency)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('agencies', 'name')->ignore($agency->id)],
+            'department_id' => 'required|exists:departments,id',
+        ]);
+
+        $agency->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Agency updated successfully.']);
+    }
+
+    public function destroyAgency(Agency $agency)
+    {
+        if (!Auth::user()->can('manage_agencies')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($agency->users()->count() > 0) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete agency with assigned users.'], 422);
+        }
+
+        $agency->delete();
+        return response()->json(['success' => true, 'message' => 'Agency deleted successfully.']);
+    }
+
+    // --------------------------------------------------------------------------
+    // LGA Management
+    // --------------------------------------------------------------------------
+
+    public function lgas()
+    {
+        if (!Auth::user()->can('manage_lgas')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $lgas = LGA::withCount('users')->get();
+        return view('super_admin.management.lgas.index', compact('lgas'));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- migrations and models
+lass User extends Authenticatable implements MustVerifyEmail
+{
+    use HasApiTokens, HasFactory, Notifiable, HasRoles; //  Use Spatie Trait
+
+    protected $fillable = [
+        'name',
+        'email',
+        'phone_number',
+        'password',
+        'status',
+        'administrative_id',
+        'administrative_type',
+        // Add all other columns here
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * Get the owning administrative unit (LGA, Department, or Agency).
+     */
+    public function administrativeUnit()
+    {
+        // Define the polymorphic relationship for scoping the user
+        return $this->morphTo('administrative');
+    }
+    
+   public function scopeForAdministrativeUnit($query, $type, $id)
+    {
+        return $query->where('administrative_type', $type)
+                    ->where('administrative_id', $id);
+    }
+
+    public function scopeForLGA($query, $lgaId)
+    {
+        return $query->forAdministrativeUnit(LGA::class, $lgaId);
+    }
+
+    // ==================== Relationships ====================
+    // Add a reverse relationship to the Farmer profile.
+    public function farmerProfile()
+    {
+        // A User can only have one Farmer profile associated with it
+        return $this->hasOne(Farmer::class, 'user_id');
+    }
+}
+
+class Department extends Model
+{
+    protected $table = 'departments';
+
+    use HasFactory;
+    protected $fillable = ['name', 'abbreviation'];
+
+    /**
+     * Get all users scoped to this Department.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
+    }
+
+    public function agencies()
+    {
+        return $this->hasMany(Agency::class);
+    }
+}
+
+
+class LGA extends Model
+{
+    protected $table = 'lgas';
+
+    
+    use HasFactory;
+    protected $fillable = ['name', 'code'];
+
+    /**
+     * Get all users scoped to this LGA.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
+    }
+}
+
+class Agency extends Model
+{
+
+    protected $table = 'agencies';
+
+
+    use HasFactory;
+    protected $fillable = ['name', 'department_id'];
+
+    /**
+     * Get all users scoped to this Agency.
+     */
+    public function users()
+    {
+        return $this->morphMany(User::class, 'administrative');
+    }
+    
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+}
+
+
+ public function up(): void
+    {
+        Schema::create('lgas', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('code')->unique()->comment('Internal LGA code or abbreviation');
+            $table->timestamps();
+        });
+    }
+
+    Schema::create('departments', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('abbreviation')->nullable();
+            $table->timestamps();
+        });
+
+         Schema::create('agencies', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->foreignId('department_id')->nullable()->constrained()->onDelete('set null');
+            $table->timestamps();
+        });
+
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone_number')->nullable()->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+
+            // Administrative Scope (Polymorphic Relationship)
+            // Links a user to their LGA, Department, or Agency.
+            $table->nullableMorphs('administrative'); // Creates administrative_id and administrative_type
+
+            $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('onboarded')->comment('User onboarding workflow status');            
+            $table->rememberToken();
+            $table->timestamps();
+
+            // Index for faster lookups based on scope
+            $table->index(['administrative_id', 'administrative_type']);
+        });
+
+
+        -- seeders
+        class RolesAndPermissionsSeeder extends Seeder
+{
+    public function run(): void
+    {
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $lga = LGA::where('code', 'MDK')->first();
+        if (!$lga) {
+            $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
+            return;
+        }
+
+        $dept_agric = Department::where('abbreviation', 'MAFS')->first();
+        if (!$dept_agric) {
+            $this->command->error("Ministry of Agriculture (MAFS) not found. Run DepartmentAndAgencySeeder first.");
+            return;
+        }
+
+        // Define Permissions
+        $permissions = [
+            // Super Admin Permissions
+            'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
+            'manage_agencies', 'system_settings', 'view_audit_logs', 'export_all_data',
+
+            // Governor/State-level Permissions
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
+
+            // LGA Admin Permissions
+            'view_lga_dashboard', 'manage_lga_agents', // Added manage_lga_agents
+
+            // LGA-level Permissions
+            'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+
+            // Enrollment Agent Permissions
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles',
+
+            // Standard User Permissions
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
+
+        // Define Roles
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
+        $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
+        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
+        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']); // Added
+        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+
+        // Assign Permissions to Roles
+        $superAdminRole->syncPermissions($permissions);
+        
+        $governorRole->syncPermissions([
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
+        ]);
+        
+        $stateAdminRole->syncPermissions([
+            'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
+            'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
+        ]);
+        
+        $lgaAdminRole->syncPermissions([
+            'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
+            'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+        ]);
+
+        $enrollmentAgentRole->syncPermissions([
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
+        ]);
+        
+        $userRole->syncPermissions([
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ]);
+
+        // Create Initial Users
+        User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
+            'name' => 'System Super Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$superAdminRole]);
+
+        User::firstOrCreate(['email' => 'governor@benue.gov.ng'], [
+            'name' => 'Executive Governor',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$governorRole]);
+
+        User::firstOrCreate(['email' => 'stateadmin@benue.gov.ng'], [
+            'name' => 'State Administrator (Agric)',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $dept_agric->id,
+            'administrative_type' => Department::class,
+        ])->syncRoles([$stateAdminRole]);
+
+        User::firstOrCreate(['email' => 'lgaadmin@makurdi.gov.ng'], [
+            'name' => 'Makurdi LGA Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$lgaAdminRole]);
+
+        User::firstOrCreate(['email' => 'agent@makurdi.gov.ng'], [
+            'name' => 'Test Enrollment Agent',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$enrollmentAgentRole]);
+
+        User::firstOrCreate(['email' => 'farmer@test.com'], [
+            'name' => 'Test Farmer User',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$userRole]);
+
+        $this->command->info('✅ Roles, permissions, and initial test users seeded successfully!');
+    }
+}
+
+ public function run(): void
+    {
+        // 1. Seed Departments
+        $dept_agric = Department::firstOrCreate([
+            'name' => 'Ministry of Agriculture and Food Security',
+            'abbreviation' => 'MAFS',
+        ]);
+        
+        $dept_dev = Department::firstOrCreate([
+            'name' => 'Agricultural Development and Empowerment Programmes',
+            'abbreviation' => 'ADEP',
+        ]);
+
+        $dept_water = Department::firstOrCreate([
+            'name' => 'Ministry of Water Resources and Environment',
+            'abbreviation' => 'MWRE',
+        ]);
+        
+        $dept_land = Department::firstOrCreate([
+            'name' => 'Ministry of Lands and Survey',
+            'abbreviation' => 'MLS',
+        ]);
+
+
+        // 2. Seed Agencies linked to Departments
+        
+        // Agencies under MAFS
+        Agency::firstOrCreate([
+            'name' => 'Mechanised Farming Pilot Scheme',
+            'department_id' => $dept_agric->id
+        ]);
+
+        Agency::firstOrCreate([
+            'name' => 'Benue State Agricultural and Rural Development Authority (BNARDA)',
+            'department_id' => $dept_agric->id
+        ]);
+        
+        // Agencies under ADEP
+        Agency::firstOrCreate([
+            'name' => 'Benue State Agricultural Development Corporation (BSADC)',
+            'department_id' => $dept_dev->id
+        ]);
+
+        Agency::firstOrCreate([
+            'name' => 'Agricultural Resource Management Agency',
+            'department_id' => $dept_dev->id
+        ]);
+        
+        // Agencies under MWRE (Example)
+        Agency::firstOrCreate([
+            'name' => 'Water and Soil Conservation Unit',
+            'department_id' => $dept_water->id
+        ]);
+
+
+        $this->command->info('✅ Departments and Agencies seeded successfully!');
+    }
+}
+
+class LgaSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $lgas = [
+            // List of the 23 LGAs in Benue State (with illustrative codes)
+           
+            ['name' => 'Makurdi', 'code' => 'MDK'],
+            ['name' => 'Gboko', 'code' => 'GBK'],
+            ['name' => 'Gwer East', 'code' => 'GWE'],
+            ['name' => 'Gwer West', 'code' => 'GWW'],
+            ['name' => 'Vandeikya', 'code' => 'VND'],
+            ['name' => 'Konshisha', 'code' => 'KNS'],
+            ['name' => 'Buruku', 'code' => 'BRK'],
+            ['name' => 'Ushongo', 'code' => 'USG'],
+            ['name' => 'Logo', 'code' => 'LGO'],
+            ['name' => 'Ukum', 'code' => 'UKM'],
+            ['name' => 'Katsina-Ala', 'code' => 'KTA'],
+            ['name' => 'Kwande', 'code' => 'KWD'],
+            ['name' => 'Tarka', 'code' => 'TRK'],
+            ['name' => 'Guma', 'code' => 'GUM'],            
+            ['name' => 'Otukpo', 'code' => 'OTK'],
+            ['name' => 'Okpokwu', 'code' => 'OPK'],
+            ['name' => 'Ohimini', 'code' => 'OHM'],
+            ['name' => 'Ogbadibo', 'code' => 'OGB'],
+            ['name' => 'Agatu', 'code' => 'AGT'],
+            ['name' => 'Apa', 'code' => 'APA'],
+            ['name' => 'Oju', 'code' => 'OJU'],
+            ['name' => 'Obi', 'code' => 'OBI'],
+            ['name' => 'Ado', 'code' => 'ADO'],
+        ];
+
+        foreach ($lgas as $lga) {
+            LGA::firstOrCreate(['name' => $lga['name']], $lga);
+        }
+
+        $this->command->info('Benue State LGAs seeded successfully!');
+    }
+}

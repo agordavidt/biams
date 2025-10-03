@@ -21,7 +21,7 @@
                     @if($farmers->isEmpty())
                         <div class="alert alert-info">No farmer profiles have been submitted yet. Start by enrolling a new farmer!</div>
                     @else
-                        @include('enrollment.farmers._table', ['farmers' => $farmers])
+                        @include('enrollment_agent.farmers._table', ['farmers' => $farmers])
                         <div class="mt-3">
                             {{ $farmers->links() }}
                         </div>

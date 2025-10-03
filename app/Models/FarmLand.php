@@ -19,6 +19,7 @@ class FarmLand extends Model
         'total_size_hectares',
         'ownership_status',
         'geolocation_geojson',
+        'farm_photo', 
     ];
 
     protected $casts = [
@@ -48,4 +49,28 @@ class FarmLand extends Model
                 return $this->hasOne(Model::class); // Fallback
         }
     }
+  
+
+    // Individual practice detail relationships
+    public function cropPracticeDetails(): HasOne
+    {
+        return $this->hasOne(CropPracticeDetails::class);
+    }
+
+    public function livestockPracticeDetails(): HasOne
+    {
+        return $this->hasOne(LivestockPracticeDetails::class);
+    }
+
+    public function fisheriesPracticeDetails(): HasOne
+    {
+        return $this->hasOne(FisheriesPracticeDetails::class);
+    }
+
+    public function orchardPracticeDetails(): HasOne
+    {
+        return $this->hasOne(OrchardPracticeDetails::class);
+    }
+
+    
 }

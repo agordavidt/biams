@@ -183,15 +183,17 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="lga_id" class="form-label">LGA <span class="text-danger">*</span></label>
                                         <select class="form-select @error('lga_id') is-invalid @enderror" 
-                                                id="lga_id" name="lga_id" required readonly>
-                                            <option value="{{ auth()->user()->lga_id }}" selected>
-                                                {{ $lgas->firstWhere('id', auth()->user()->lga_id)->name ?? 'N/A' }}
-                                            </option>
+                                                id="lga_id" name="lga_id" required>
+                                            <option value="">Select LGA</option>
+                                            @foreach($lgas as $lga)
+                                                <option value="{{ $lga->id }}" {{ old('lga_id') == $lga->id ? 'selected' : '' }}>
+                                                    {{ $lga->name }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                         @error('lga_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <small class="text-muted">Automatically set to your LGA</small>
                                     </div>
 
                                     <div class="col-md-4 mb-3">
@@ -305,11 +307,11 @@
 
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="farm_name" class="form-label">Farm Name/Reference <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('farm_name') is-invalid @enderror" 
-                                               id="farm_name" name="farm_name" value="{{ old('farm_name') }}" 
+                                        <label for="name" class="form-label">Farm Name/Reference <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                               id="name" name="name" value="{{ old('name') }}" 
                                                required placeholder="e.g., Home Farm, River Plot">
-                                        @error('farm_name')
+                                        @error('name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -579,54 +581,6 @@
                                                 @enderror
                                             </div>
                                         </div>
-
-                                        <h6 class="mb-3 mt-4">Optional Crop Details (for intercropping)</h6>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="crop_type" class="form-label">Crop Type (Optional)</label>
-                                                <input type="text" class="form-control @error('crop_type') is-invalid @enderror" 
-                                                       id="crop_type" name="crop_type" value="{{ old('crop_type') }}" 
-                                                       placeholder="e.g., Maize, Beans">
-                                                @error('crop_type')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="variety" class="form-label">Variety</label>
-                                                <input type="text" class="form-control @error('variety') is-invalid @enderror" 
-                                                       id="variety" name="variety" value="{{ old('variety') }}" 
-                                                       placeholder="e.g., Yellow Maize">
-                                                @error('variety')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="expected_yield_kg" class="form-label">Expected Yield (kg)</label>
-                                                <input type="number" step="0.01" class="form-control @error('expected_yield_kg') is-invalid @enderror" 
-                                                       id="expected_yield_kg" name="expected_yield_kg" value="{{ old('expected_yield_kg') }}" 
-                                                       min="0" placeholder="e.g., 5000">
-                                                @error('expected_yield_kg')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label for="farming_method" class="form-label">Farming Method</label>
-                                                <select class="form-select @error('farming_method') is-invalid @enderror" 
-                                                        id="farming_method" name="farming_method">
-                                                    <option value="">Select Method</option>
-                                                    <option value="irrigation" {{ old('farming_method') == 'irrigation' ? 'selected' : '' }}>Irrigation</option>
-                                                    <option value="rain_fed" {{ old('farming_method') == 'rain_fed' ? 'selected' : '' }}>Rain-fed</option>
-                                                    <option value="organic" {{ old('farming_method') == 'organic' ? 'selected' : '' }}>Organic</option>
-                                                    <option value="mixed" {{ old('farming_method') == 'mixed' ? 'selected' : '' }}>Mixed</option>
-                                                </select>
-                                                @error('farming_method')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -679,53 +633,33 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab navigation elements
     const step1Tab = document.getElementById('step1-tab');
     const step2Tab = document.getElementById('step2-tab');
     const step3Tab = document.getElementById('step3-tab');
     const progressBar = document.getElementById('progress-bar');
 
-    // Navigation buttons
     const nextToStep2 = document.getElementById('next-to-step2');
     const nextToStep3 = document.getElementById('next-to-step3');
     const backToStep1 = document.getElementById('back-to-step1');
     const backToStep2 = document.getElementById('back-to-step2');
-    const submitBtn = document.getElementById('submit-btn');
 
-    // Form elements
     const farmTypeSelect = document.getElementById('farm_type');
     const primaryOccupationSelect = document.getElementById('primary_occupation');
     const otherOccupationWrapper = document.getElementById('other_occupation_wrapper');
-    const otherOccupationField = document.getElementById('other_occupation');
-    const practiceContainer = document.getElementById('practice-container');
-    const practiceDefault = document.getElementById('practice-default');
-    const practiceSections = {
-        crops: document.getElementById('practice-crops'),
-        livestock: document.getElementById('practice-livestock'),
-        fisheries: document.getElementById('practice-fisheries'),
-        orchards: document.getElementById('practice-orchards')
-    };
+    const enrollmentForm = document.getElementById('enrollment-form');
+    const submitBtn = document.getElementById('submit-btn');
 
-    // Photo preview elements
-    const farmerPhotoInput = document.getElementById('farmer_photo');
-    const farmPhotoInput = document.getElementById('farm_photo');
-    const farmerPhotoPreview = document.getElementById('farmer_photo_preview');
-    const farmPhotoPreview = document.getElementById('farm_photo_preview');
-
-    // Update progress bar
     function updateProgress(step) {
         const width = (step / 3) * 100;
-        progressBar.style.width = `${width}%`;
+        progressBar.style.width = width + '%';
     }
 
-    // Step 1 to Step 2
-    nextToStep2.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent default behavior
+    nextToStep2.addEventListener('click', function() {
         if (validateStep1()) {
-            step2Tab.removeAttribute('disabled'); // Enable the tab
+            step2Tab.disabled = false;
             const tab = new bootstrap.Tab(step2Tab);
             tab.show();
             updateProgress(2);
@@ -733,11 +667,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Step 2 to Step 3
-    nextToStep3.addEventListener('click', function(e) {
-        e.preventDefault();
+    function updatePracticeDetails() {
+        const farmType = farmTypeSelect.value;
+
+        // Hide default message
+        const defaultMsg = document.getElementById('practice-default');
+        if (defaultMsg) {
+            defaultMsg.style.display = farmType ? 'none' : 'block';
+        }
+
+        // Hide all practice sections and disable their required fields
+        document.querySelectorAll('.practice-section').forEach(function(section) {
+            section.style.display = 'none';
+            section.querySelectorAll('input, select, textarea').forEach(function(input) {
+                input.removeAttribute('required');
+                input.disabled = true; // Disable hidden fields
+            });
+        });
+
+        // If no farm type selected, stop here
+        if (!farmType) return;
+
+        // Show the relevant practice section
+        const practiceSection = document.getElementById('practice-' + farmType);
+        if (practiceSection) {
+            practiceSection.style.display = 'block';
+            
+            // Enable and set required for visible fields
+            practiceSection.querySelectorAll('input, select, textarea').forEach(function(input) {
+                input.disabled = false; // Enable field
+                const label = document.querySelector('label[for="' + input.id + '"]');
+                if (label && label.innerHTML.includes('text-danger')) {
+                    input.setAttribute('required', 'required');
+                }
+            });
+        }
+    }
+
+    nextToStep3.addEventListener('click', function() {
         if (validateStep2()) {
-            step3Tab.removeAttribute('disabled');
+            step3Tab.disabled = false;
             const tab = new bootstrap.Tab(step3Tab);
             tab.show();
             updateProgress(3);
@@ -746,25 +715,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Back to Step 1
-    backToStep1.addEventListener('click', function(e) {
-        e.preventDefault();
+    backToStep1.addEventListener('click', function() {
         const tab = new bootstrap.Tab(step1Tab);
         tab.show();
         updateProgress(1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Back to Step 2
-    backToStep2.addEventListener('click', function(e) {
-        e.preventDefault();
+    backToStep2.addEventListener('click', function() {
         const tab = new bootstrap.Tab(step2Tab);
         tab.show();
         updateProgress(2);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Validate Step 1
     function validateStep1() {
         const requiredFields = [
             'nin', 'full_name', 'email', 'phone_primary', 'date_of_birth',
@@ -786,71 +750,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Validate email format
-        const emailField = document.getElementById('email');
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (emailField.value && !emailRegex.test(emailField.value)) {
-            emailField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = emailField;
-        }
-
-        // Validate phone number format
-        const phonePrimaryField = document.getElementById('phone_primary');
-        const phoneRegex = /^0[7-9][0-1][0-9]{8}$/;
-        if (phonePrimaryField.value && !phoneRegex.test(phonePrimaryField.value)) {
-            phonePrimaryField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = phonePrimaryField;
-        }
-
-        // Validate date of birth
-        const dobField = document.getElementById('date_of_birth');
-        const today = new Date();
-        const dob = new Date(dobField.value);
-        if (dobField.value && (dob >= today || dob.getFullYear() < 1900)) {
-            dobField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = dobField;
-        }
-
-        // Validate latitude and longitude if provided
-        const latField = document.getElementById('residence_latitude');
-        const lonField = document.getElementById('residence_longitude');
-        if (latField.value && (latField.value < -90 || latField.value > 90)) {
-            latField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = latField;
-        }
-        if (lonField.value && (lonField.value < -180 || lonField.value > 180)) {
-            lonField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = lonField;
-        }
-
-        // Check other_occupation if primary_occupation is "other"
         if (primaryOccupationSelect.value === 'other') {
+            const otherOccupationField = document.getElementById('other_occupation');
             if (!otherOccupationField.value.trim()) {
                 otherOccupationField.classList.add('is-invalid');
                 isValid = false;
                 if (!firstInvalidField) firstInvalidField = otherOccupationField;
-            } else {
-                otherOccupationField.classList.remove('is-invalid');
             }
         }
 
         if (!isValid && firstInvalidField) {
             firstInvalidField.focus();
-            alert('Please fill in all required fields correctly in Personal Information');
+            alert('Please fill in all required fields in Step 1');
         }
 
         return isValid;
     }
 
-    // Validate Step 2
     function validateStep2() {
         const requiredFields = [
-            'farm_name', 'farm_type', 'total_size_hectares', 
+            'name', 'farm_type', 'total_size_hectares', 
             'ownership_status', 'geolocation_geojson'
         ];
 
@@ -868,227 +787,117 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Validate total_size_hectares
-        const sizeField = document.getElementById('total_size_hectares');
-        if (sizeField.value && (sizeField.value < 0.01 || sizeField.value > 99999.9999)) {
-            sizeField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = sizeField;
-        }
-
-        // Validate GeoJSON format
-        const geoJsonField = document.getElementById('geolocation_geojson');
-        try {
-            const geoJson = JSON.parse(geoJsonField.value);
-            if (!geoJson.type || !geoJson.coordinates) {
-                geoJsonField.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = geoJsonField;
-            }
-        } catch (e) {
-            geoJsonField.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = geoJsonField;
-        }
-
         if (!isValid && firstInvalidField) {
             firstInvalidField.focus();
-            alert('Please fill in all required fields correctly in Farm Details');
+            alert('Please fill in all required fields in Step 2');
         }
 
         return isValid;
     }
 
-    // Validate Step 3
     function validateStep3() {
         const farmType = farmTypeSelect.value;
         let isValid = true;
         let firstInvalidField = null;
 
-        // Clear previous validation states
-        document.querySelectorAll('#practice-container .form-control, #practice-container .form-select')
-            .forEach(field => field.classList.remove('is-invalid'));
+        // Validate file uploads
+        const farmerPhoto = document.getElementById('farmer_photo');
+        const farmPhoto = document.getElementById('farm_photo');
 
-        if (farmType === 'crops') {
-            const requiredFields = ['crop_type', 'farming_method'];
-            requiredFields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                    if (!firstInvalidField) firstInvalidField = field;
-                }
-            });
-        } else if (farmType === 'livestock') {
-            const requiredFields = ['animal_type', 'herd_flock_size', 'breeding_practice'];
-            requiredFields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                    if (!firstInvalidField) firstInvalidField = field;
-                }
-            });
-            const herdSize = document.getElementById('herd_flock_size');
-            if (herdSize.value && herdSize.value < 1) {
-                herdSize.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = herdSize;
-            }
-        } else if (farmType === 'fisheries') {
-            const requiredFields = ['fishing_type', 'species_raised'];
-            requiredFields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                    if (!firstInvalidField) firstInvalidField = field;
-                }
-            });
-        } else if (farmType === 'orchards') {
-            const requiredFields = ['tree_type', 'number_of_trees', 'maturity_stage'];
-            requiredFields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                    if (!firstInvalidField) firstInvalidField = field;
-                }
-            });
-            const treeCount = document.getElementById('number_of_trees');
-            if (treeCount.value && treeCount.value < 1) {
-                treeCount.classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = treeCount;
-            }
-            // Validate optional crop fields if filled
-            if (document.getElementById('crop_type').value.trim() && !document.getElementById('farming_method').value.trim()) {
-                document.getElementById('farming_method').classList.add('is-invalid');
-                isValid = false;
-                if (!firstInvalidField) firstInvalidField = document.getElementById('farming_method');
-            }
+        if (!farmerPhoto.files || farmerPhoto.files.length === 0) {
+            farmerPhoto.classList.add('is-invalid');
+            isValid = false;
+            if (!firstInvalidField) firstInvalidField = farmerPhoto;
+        } else {
+            farmerPhoto.classList.remove('is-invalid');
         }
 
-        // Validate photo uploads
-        if (!farmerPhotoInput.files.length) {
-            farmerPhotoInput.classList.add('is-invalid');
+        if (!farmPhoto.files || farmPhoto.files.length === 0) {
+            farmPhoto.classList.add('is-invalid');
             isValid = false;
-            if (!firstInvalidField) firstInvalidField = farmerPhotoInput;
+            if (!firstInvalidField) firstInvalidField = farmPhoto;
+        } else {
+            farmPhoto.classList.remove('is-invalid');
         }
-        if (!farmPhotoInput.files.length) {
-            farmPhotoInput.classList.add('is-invalid');
-            isValid = false;
-            if (!firstInvalidField) firstInvalidField = farmPhotoInput;
+
+        // Validate practice details based on farm type
+        if (farmType) {
+            const practiceSection = document.getElementById('practice-' + farmType);
+            if (practiceSection) {
+                practiceSection.querySelectorAll('input[required], select[required]').forEach(function(field) {
+                    if (!field.disabled && !field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                        if (!firstInvalidField) firstInvalidField = field;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+            }
         }
 
         if (!isValid && firstInvalidField) {
             firstInvalidField.focus();
-            alert('Please fill in all required fields correctly in Practice & Media');
+            alert('Please fill in all required fields and upload photos in Step 3');
         }
 
         return isValid;
     }
 
-    // Show/hide other occupation field
     primaryOccupationSelect.addEventListener('change', function() {
         if (this.value === 'other') {
             otherOccupationWrapper.style.display = 'block';
-            otherOccupationField.required = true;
+            document.getElementById('other_occupation').required = true;
         } else {
             otherOccupationWrapper.style.display = 'none';
-            otherOccupationField.required = false;
-            otherOccupationField.value = '';
-            otherOccupationField.classList.remove('is-invalid');
+            document.getElementById('other_occupation').required = false;
         }
     });
 
-    // Update practice details based on farm type
-    function updatePracticeDetails() {
-        const farmType = farmTypeSelect.value;
-
-        // Hide all practice sections and reset required attributes
-        Object.values(practiceSections).forEach(section => {
-            section.style.display = 'none';
-            section.querySelectorAll('input, select').forEach(field => {
-                field.required = false;
-                field.classList.remove('is-invalid');
-            });
-        });
-        practiceDefault.style.display = farmType ? 'none' : 'block';
-
-        // Show relevant practice section and set required attributes
-        if (farmType && practiceSections[farmType]) {
-            practiceSections[farmType].style.display = 'block';
-            if (farmType === 'crops') {
-                document.getElementById('crop_type').required = true;
-                document.getElementById('farming_method').required = true;
-            } else if (farmType === 'livestock') {
-                document.getElementById('animal_type').required = true;
-                document.getElementById('herd_flock_size').required = true;
-                document.getElementById('breeding_practice').required = true;
-            } else if (farmType === 'fisheries') {
-                document.getElementById('fishing_type').required = true;
-                document.getElementById('species_raised').required = true;
-            } else if (farmType === 'orchards') {
-                document.getElementById('tree_type').required = true;
-                document.getElementById('number_of_trees').required = true;
-                document.getElementById('maturity_stage').required = true;
-                // Crop fields are optional but require farming_method if crop_type is filled
-                const cropTypeField = document.getElementById('crop_type');
-                const farmingMethodField = document.getElementById('farming_method');
-                cropTypeField.addEventListener('input', function() {
-                    farmingMethodField.required = cropTypeField.value.trim() !== '';
-                });
-            }
-        }
-    }
-
-    // Update practice details when farm type changes
     farmTypeSelect.addEventListener('change', updatePracticeDetails);
 
-    // Photo preview functionality
-    function handlePhotoPreview(input, previewElement) {
-        input.addEventListener('change', function() {
-            previewElement.innerHTML = '';
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-                    this.classList.add('is-invalid');
-                    previewElement.innerHTML = '<div class="text-danger">Invalid file type. Please upload a JPEG or PNG image.</div>';
-                    return;
-                }
-                if (file.size > 2 * 1024 * 1024) {
-                    this.classList.add('is-invalid');
-                    previewElement.innerHTML = '<div class="text-danger">File size exceeds 2MB limit.</div>';
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '200px';
-                    img.style.maxHeight = '200px';
-                    img.classList.add('img-fluid', 'rounded');
-                    previewElement.appendChild(img);
-                    input.classList.remove('is-invalid');
-                };
-                reader.readAsDataURL(file);
+    // Initialize on page load if farm_type has old value
+    if (farmTypeSelect.value) {
+        updatePracticeDetails();
+    }
+
+    // Form submission validation
+    if (enrollmentForm) {
+        enrollmentForm.addEventListener('submit', function(e) {
+            // Validate all steps before submission
+            if (!validateStep1() || !validateStep2() || !validateStep3()) {
+                e.preventDefault();
+                alert('Please complete all required fields in all steps before submitting.');
+                return false;
             }
+            
+            // Disable submit button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ri-loader-4-line"></i> Submitting...';
         });
     }
 
-    handlePhotoPreview(farmerPhotoInput, farmerPhotoPreview);
-    handlePhotoPreview(farmPhotoInput, farmPhotoPreview);
-
-    // Form submission validation
-    submitBtn.addEventListener('click', function(e) {
-        if (!validateStep3()) {
-            e.preventDefault();
-        }
+    // Image preview handlers
+    document.getElementById('farmer_photo').addEventListener('change', function(e) {
+        previewImage(e.target, 'farmer_photo_preview');
     });
 
-    // Initialize practice details on page load
-    updatePracticeDetails();
+    document.getElementById('farm_photo').addEventListener('change', function(e) {
+        previewImage(e.target, 'farm_photo_preview');
+    });
+
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        preview.innerHTML = '';
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" class="img-thumbnail mt-2" style="max-width: 200px;">';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 });
 </script>
-@endsection
+@endpush

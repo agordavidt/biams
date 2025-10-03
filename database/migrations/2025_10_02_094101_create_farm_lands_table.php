@@ -26,10 +26,10 @@ return new class extends Migration
                   ->comment('The registered size of this specific plot (ha)');
             $table->enum('ownership_status', ['owned', 'leased', 'shared', 'communal']);
             
-            // Geospatial Data
-            // Storing GeoJSON as a TEXT/JSON field for simplicity across various database systems.
+            // Geospatial Data          
             $table->longText('geolocation_geojson')->nullable()
                   ->comment('Actual farm boundaries (polygon) or center point (point) as GeoJSON string');
+            $table->string('farm_photo')->nullable()->comment('Path to farm photo');
             
             $table->timestamps();
             $table->softDeletes();

@@ -13,41 +13,30 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class ManagementController extends Controller
 {
-    // Define Global and Unit-based roles for centralized logic
     protected $globalRoles = ['Super Admin', 'Governor'];
     protected $unitRoleMap = [
         'LGA Admin' => ['LGA'],
         'Enrollment Agent' => ['LGA'],
-        'State Admin' => ['Department', 'Agency'], // Keeping the original business logic from the error description
+        'State Admin' => ['Department', 'Agency'],
     ];
 
-    /**
-     * Helper to get Role IDs that require an administrative unit.
-     */
     protected function getUnitRoleIds()
     {
         $unitRoleNames = array_keys($this->unitRoleMap);
         return Role::whereIn('name', $unitRoleNames)->pluck('id')->map(fn($id) => (string)$id)->toArray();
     }
     
-    // --- General Management Index ---
-
     public function index()
     {
         return view('super_admin.management.index');
     }
 
-    // --------------------------------------------------------------------------
-    // User Management
-    // --------------------------------------------------------------------------
-
     public function users()
     {
-        // Policy Check: Assumes 'Super Admin' has permission via Spatie or Gates.
         if (!Auth::user()->can('manage_users')) {
             abort(403, 'Unauthorized action.');
         }
@@ -77,6 +66,13 @@ class ManagementController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Log incoming request for debugging
+        Log::info('Store User Request', [
+            'role_id' => $request->input('role_id'),
+            'administrative_type' => $request->input('administrative_type'),
+            'administrative_id' => $request->input('administrative_id'),
+        ]);
+
         // 1. Define Base Rules
         $rules = [
             'name' => 'required|string|max:255',
@@ -86,53 +82,71 @@ class ManagementController extends Controller
         ];
 
         $messages = [
-            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_type.required' => 'This role requires an administrative unit type to be selected.',
             'administrative_id.required' => 'Please select a specific administrative unit.',
             'role_id.required' => 'Please select a role for this user.',
         ];
 
-        // 2. Conditional Unit Rules (If role requires unit)
+        // 2. Get the role to check if it requires administrative unit
         $role = Role::find($request->input('role_id'));
+        
+        // 3. Add conditional rules if role requires unit
         if ($role && !in_array($role->name, $this->globalRoles)) {
             $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
-            $rules['administrative_id'] = 'required|integer';
+            $rules['administrative_id'] = ['required', 'integer', 'min:1'];
         }
 
-        // 3. Run Validation
+        // 4. Run Validation
         $validator = Validator::make($request->all(), $rules, $messages);
 
-        // 4. Custom Unit Existence and Compatibility Validation
-        // FIX: Add $request to the use clause to make it accessible inside the closure.
+        // 5. Custom validation in after callback
         $validator->after(function ($validator) use ($request, $role) { 
             if ($this->shouldValidateUnitFields($role)) {
-                // Check if administrative_id exists in the correct table (Department, Agency, or LGA)
                 $this->validateAdministrativeUnitExistence($validator, $request); 
-                
-                // Check Role-Unit Compatibility (The Fix)
                 $this->validateRoleUnitCompatibility($validator, $request, $role); 
             }
         });
 
+        // 6. Validate and get data
         $data = $validator->validate();
 
-
-        // 5. Data Manipulation for Storage
+        // 7. Prepare administrative unit data
         $administrativeType = null;
-        if (!empty($data['administrative_type'])) {
-            $administrativeType = "App\\Models\\{$data['administrative_type']}";
+        $administrativeId = null;
+        
+        // KEY FIX: Check if role requires unit and data is provided
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            // For unit-based roles, these fields are required by validation
+            $shortType = $data['administrative_type']; // e.g., "Department", "Agency", "LGA"
+            $administrativeType = "App\\Models\\{$shortType}";
+            $administrativeId = $data['administrative_id'];
+            
+            // Additional safety check
+            if (!$administrativeId || $administrativeId < 1) {
+                return back()->withErrors([
+                    'administrative_id' => 'A valid administrative unit must be selected for this role.'
+                ])->withInput();
+            }
         }
         
-        // 6. Create User
+        // 8. Create User with explicit field assignment
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'status' => 'onboarded',
             'administrative_type' => $administrativeType,
-            'administrative_id' => $data['administrative_id'] ?? null,
+            'administrative_id' => $administrativeId,
         ]);
 
-        // 7. Assign Role
+        // Log what was saved
+        Log::info('User Created', [
+            'user_id' => $user->id,
+            'administrative_type' => $user->administrative_type,
+            'administrative_id' => $user->administrative_id,
+        ]);
+
+        // 9. Assign Role
         $user->assignRole($role);
 
         return redirect()
@@ -142,11 +156,9 @@ class ManagementController extends Controller
 
     public function editUser(User $user)
     {
-        // Policy Check: Assumes 'Super Admin' can update any user.
         if (!Auth::user()->can('manage_users')) {
             abort(403, 'Unauthorized action.');
         }
-        // $this->authorize('update', $user); // Removed Policy
 
         $roles = Role::pluck('name', 'id');
         $unitRoles = Role::whereNotIn('name', $this->globalRoles)->pluck('name', 'id');
@@ -159,11 +171,17 @@ class ManagementController extends Controller
 
     public function updateUser(Request $request, User $user)
     {
-        // Policy Check: Assumes 'Super Admin' can update any user.
         if (!Auth::user()->can('manage_users')) {
             abort(403, 'Unauthorized action.');
         }
-        // $this->authorize('update', $user); // Removed Policy
+
+        // Log incoming request
+        Log::info('Update User Request', [
+            'user_id' => $user->id,
+            'role_id' => $request->input('role_id'),
+            'administrative_type' => $request->input('administrative_type'),
+            'administrative_id' => $request->input('administrative_id'),
+        ]);
         
         // 1. Define Base Rules
         $rules = [
@@ -175,40 +193,38 @@ class ManagementController extends Controller
         ];
         
         $messages = [
-            'administrative_type.required' => 'This role requires an administrative unit assignment.',
+            'administrative_type.required' => 'This role requires an administrative unit type to be selected.',
             'administrative_id.required' => 'Please select a specific administrative unit.',
             'role_id.required' => 'Please select a role for this user.',
         ];
 
-        // 2. Conditional Unit Rules (If role requires unit)
+        // 2. Get the role
         $role = Role::find($request->input('role_id'));
+        
+        // 3. Conditional Unit Rules
         if ($role && !in_array($role->name, $this->globalRoles)) {
-            $rules['administrative_type'] = ['nullable', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
-            $rules['administrative_id'] = 'nullable|integer';
+            $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+            $rules['administrative_id'] = ['required', 'integer', 'min:1'];
         } else {
-            // For global roles, ensure administrative fields are explicitly nullable
+            // For global roles, make fields nullable
             $rules['administrative_type'] = 'nullable';
             $rules['administrative_id'] = 'nullable';
         }
 
-        // 3. Run Validation
-            $validator = Validator::make($request->all(), $rules, $messages);
+        // 4. Run Validation
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-            // 4. Custom Unit Existence and Compatibility Validation
-            // FIX: Add $request to the use clause to make it accessible inside the closure.
-            $validator->after(function ($validator) use ($request, $role) {
-                if ($this->shouldValidateUnitFields($role) && $request->filled('administrative_type') && $request->filled('administrative_id')) {
-                    // Check if administrative_id exists in the correct table (Department, Agency, or LGA)
-                    $this->validateAdministrativeUnitExistence($validator, $request);
-                    
-                    // Check Role-Unit Compatibility (The Fix)
-                    $this->validateRoleUnitCompatibility($validator, $request, $role);
-                }
-            });
+        // 5. Custom validation
+        $validator->after(function ($validator) use ($request, $role) {
+            if ($this->shouldValidateUnitFields($role) && $request->filled('administrative_type') && $request->filled('administrative_id')) {
+                $this->validateAdministrativeUnitExistence($validator, $request);
+                $this->validateRoleUnitCompatibility($validator, $request, $role);
+            }
+        });
 
-            $data = $validator->validate();
+        $data = $validator->validate();
 
-        // 5. Data Manipulation
+        // 6. Update basic fields
         $user->name = $data['name'];
         $user->email = $data['email'];
         $user->status = $data['status'];
@@ -217,19 +233,26 @@ class ManagementController extends Controller
             $user->password = Hash::make($data['password']);
         }
 
-        // Handle Administrative Unit (Set to null if no unit is selected for a unit-based role, or if it's a global role)
-        $administrativeType = null;
-        $administrativeId = null;
-
-        if ($request->filled('administrative_type') && $request->filled('administrative_id')) {
-            $administrativeType = "App\\Models\\{$data['administrative_type']}";
-            $administrativeId = $data['administrative_id'];
+        // 7. Handle Administrative Unit
+        if ($role && !in_array($role->name, $this->globalRoles)) {
+            // Unit-based role - set administrative fields
+            $shortType = $data['administrative_type'];
+            $user->administrative_type = "App\\Models\\{$shortType}";
+            $user->administrative_id = $data['administrative_id'];
+        } else {
+            // Global role - clear administrative fields
+            $user->administrative_type = null;
+            $user->administrative_id = null;
         }
 
-        $user->administrative_type = $administrativeType;
-        $user->administrative_id = $administrativeId;
+        // Log what will be saved
+        Log::info('User Update', [
+            'user_id' => $user->id,
+            'administrative_type' => $user->administrative_type,
+            'administrative_id' => $user->administrative_id,
+        ]);
         
-        // 6. Sync Role
+        // 8. Sync Role and Save
         $user->syncRoles([$role]);
         $user->save();
 
@@ -240,7 +263,6 @@ class ManagementController extends Controller
 
     public function destroyUser(User $user)
     {
-        // Policy Check: Assumes 'Super Admin' can delete any user except themselves.
         if (!Auth::user()->can('manage_users') || Auth::id() === $user->id) {
             abort(403, 'Unauthorized action.');
         }
@@ -249,21 +271,11 @@ class ManagementController extends Controller
         return redirect()->route('super_admin.management.users.index')->with('success', 'User deleted successfully.');
     }
 
-    // --------------------------------------------------------------------------
-    // Custom Validation Helpers
-    // --------------------------------------------------------------------------
-
-    /**
-     * Determine if a role requires unit validation.
-     */
     protected function shouldValidateUnitFields(Role $role = null)
     {
         return $role && !in_array($role->name, $this->globalRoles);
     }
     
-    /**
-     * Validate that the administrative_id exists in the correct table.
-     */
     protected function validateAdministrativeUnitExistence($validator, $request): void
     {
         $type = $request->input('administrative_type');
@@ -287,9 +299,6 @@ class ManagementController extends Controller
         }
     }
 
-    /**
-     * Validate that the role is compatible with the selected administrative unit type.
-     */
     protected function validateRoleUnitCompatibility($validator, $request, Role $role): void
     {
         $type = $request->input('administrative_type');
@@ -298,7 +307,6 @@ class ManagementController extends Controller
             return;
         }
 
-        // Check if the role is one that has specific unit restrictions
         if (isset($this->unitRoleMap[$role->name])) {
             $allowedTypes = $this->unitRoleMap[$role->name];
             
@@ -312,11 +320,7 @@ class ManagementController extends Controller
         }
     }
 
-
-    // --------------------------------------------------------------------------
-    // Department Management (Simplified without Request/Policy)
-    // --------------------------------------------------------------------------
-
+    // Department, Agency, LGA management methods remain the same...
     public function departments()
     {
         if (!Auth::user()->can('manage_departments')) {
@@ -372,10 +376,6 @@ class ManagementController extends Controller
         $department->delete();
         return response()->json(['success' => true, 'message' => 'Department deleted successfully.']);
     }
-
-    // --------------------------------------------------------------------------
-    // Agency Management
-    // --------------------------------------------------------------------------
 
     public function agencies()
     {
@@ -433,10 +433,6 @@ class ManagementController extends Controller
         $agency->delete();
         return response()->json(['success' => true, 'message' => 'Agency deleted successfully.']);
     }
-
-    // --------------------------------------------------------------------------
-    // LGA Management
-    // --------------------------------------------------------------------------
 
     public function lgas()
     {

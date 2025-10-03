@@ -78,7 +78,7 @@ class FarmerController extends Controller
 
             // Step 3: Create Farm Land Entry
             $farmLandData = $request->only([
-                'farm_name', 'farm_type', 'total_size_hectares',
+                'name', 'farm_type', 'total_size_hectares',
                 'ownership_status', 'geolocation_geojson'
             ]);
 
@@ -271,7 +271,7 @@ class FarmerController extends Controller
             
             if ($farmLand) {
                 $farmLandData = $request->only([
-                    'farm_name', 'farm_type', 'total_size_hectares',
+                    'name', 'farm_type', 'total_size_hectares',
                     'ownership_status', 'geolocation_geojson'
                 ]);
                 
