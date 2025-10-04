@@ -170,35 +170,54 @@
                     <!--- Sidemenu -->
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
-                            <li>
-                                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i>
-                                    <span>Dashboard</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-user-settings-line"></i>
-                                    <span>Management</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">                                    
-                                    <li><a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">User Management</a></li>
-                                    <li><a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">Departments</a></li>
-                                    <li><a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">Agencies</a></li>
-                                    <li><a href="{{ route('super_admin.management.lgas.index') }}" class="submenu-item">LGAs</a></li>
-                                </ul>
-                            </li>
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                                @csrf
-                                <li>
-                                    <a class="text-danger" href="#" id="logout-link"> 
-                                        <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> 
-                                        <span>Logout</span> 
-                                    </a>
-                                </li>
-                            </form>
-                        </ul>
+            <li class="menu-title">Menu</li>
+
+            <li>
+                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
+                    <i class="ri-dashboard-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <i class="ri-user-settings-line"></i>
+                    <span>Management</span>
+                </a>
+                <ul class="sub-menu" aria-expanded="false">
+                    <li><a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">User Management</a></li>
+                    <li><a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">Departments</a></li>
+                    <li><a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">Agencies</a></li>
+                    <li><a href="{{ route('super_admin.management.lgas.index') }}" class="submenu-item">LGAs</a></li>
+                </ul>
+            </li>
+
+            @can('view_analytics')
+            <li>
+                <a href="{{ route('analytics.dashboard') }}" class="waves-effect">
+                    <i class="ri-line-chart-line"></i> <span>View Analytics</span>
+                </a>
+            </li>
+            @endcan
+
+            @can('export_analytics')
+            <li>
+                <a href="{{ route('analytics.export', ['type' => 'comprehensive']) }}" class="waves-effect">
+                    <i class="ri-download-line"></i> <span>Export Report</span>
+                </a>
+            </li>
+            @endcan
+
+            <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                @csrf
+            <li>
+                <a class="text-danger waves-effect" href="#" id="logout-link">
+                    <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </form>
+    </ul>
                     </div>
                     <!-- Sidebar -->
                 </div>

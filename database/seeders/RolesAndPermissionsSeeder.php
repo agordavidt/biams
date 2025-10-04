@@ -14,8 +14,10 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
+        // Clear cached permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Fetch required LGA and Department
         $lga = LGA::where('code', 'MDK')->first();
         if (!$lga) {
             $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
@@ -28,7 +30,7 @@ class RolesAndPermissionsSeeder extends Seeder
             return;
         }
 
-        // Define Permissions
+        // Standard Permissions
         $permissions = [
             // Super Admin Permissions
             'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
@@ -38,7 +40,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
 
             // LGA Admin Permissions
-            'view_lga_dashboard', 'manage_lga_agents', // Added manage_lga_agents
+            'view_lga_dashboard', 'manage_lga_agents',
 
             // LGA-level Permissions
             'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
@@ -50,7 +52,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
         ];
 
-        foreach ($permissions as $permission) {
+        // Analytics Permissions
+        $analyticsPermissions = [
+            'view_analytics',
+            'export_analytics',
+        ];
+
+        // Create all permissions first
+        foreach (array_merge($permissions, $analyticsPermissions) as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
@@ -59,35 +68,39 @@ class RolesAndPermissionsSeeder extends Seeder
         $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
         $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
         $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
-        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']); // Added
+        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
         $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
 
-        // Assign Permissions to Roles
-        $superAdminRole->syncPermissions($permissions);
-        
+        // Assign permissions to roles
+        $superAdminRole->syncPermissions(array_merge($permissions, $analyticsPermissions));
+
         $governorRole->syncPermissions([
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
+            'view_analytics', 'export_analytics',
         ]);
-        
+
         $stateAdminRole->syncPermissions([
             'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
             'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
+            'view_analytics', 'export_analytics',
         ]);
-        
+
         $lgaAdminRole->syncPermissions([
             'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
             'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+            'view_analytics', 'export_analytics',
         ]);
 
         $enrollmentAgentRole->syncPermissions([
             'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
+            'view_analytics',
         ]);
-        
+
         $userRole->syncPermissions([
             'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
         ]);
 
-        // Create Initial Users
+        // Create initial users
         User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
             'name' => 'System Super Administrator',
             'password' => Hash::make('password'),
@@ -138,6 +151,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'administrative_type' => LGA::class,
         ])->syncRoles([$userRole]);
 
-        $this->command->info('✅ Roles, permissions, and initial test users seeded successfully!');
+        $this->command->info('Roles, permissions, and initial test users seeded successfully!');
     }
 }

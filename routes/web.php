@@ -16,6 +16,7 @@ use App\Http\Controllers\EnrollmentAgent\DashboardController as EnrollmentDashbo
 use App\Http\Controllers\EnrollmentAgent\FarmerController as EnrollmentFarmerController;
 use App\Http\Controllers\LGAAdmin\FarmerReviewController;
 use App\Http\Controllers\Auth\PasswordController; // Assuming this handles forced change
+use App\Http\Controllers\Analytics\AnalyticsController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -198,4 +199,100 @@ Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->gro
     Route::get('/resources', function() {
         return view('user.resources');
     })->name('resources');
+});
+
+
+
+
+// Analytics Routes - Role-based access
+Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(function () {
+    
+    // Dashboard - All authenticated users with analytics permission
+    Route::get('/dashboard', [AnalyticsController::class, 'index'])
+        ->name('dashboard')
+        ->middleware('can:view_analytics');
+    
+    // Demographics
+    Route::get('/demographics', [AnalyticsController::class, 'demographics'])
+        ->name('demographics')
+        ->middleware('can:view_analytics');
+    
+    // Production Analytics
+    Route::get('/production', [AnalyticsController::class, 'production'])
+        ->name('production')
+        ->middleware('can:view_analytics');
+    
+    // Crop Analytics
+    Route::get('/crops', [AnalyticsController::class, 'crops'])
+        ->name('crops')
+        ->middleware('can:view_analytics');
+    
+    // Livestock Analytics
+    Route::get('/livestock', [AnalyticsController::class, 'livestock'])
+        ->name('livestock')
+        ->middleware('can:view_analytics');
+    
+    // Cooperative Analytics
+    Route::get('/cooperatives', [AnalyticsController::class, 'cooperatives'])
+        ->name('cooperatives')
+        ->middleware('can:view_analytics');
+    
+    // Enrollment Pipeline
+    Route::get('/enrollment', [AnalyticsController::class, 'enrollment'])
+        ->name('enrollment')
+        ->middleware('can:view_analytics');
+    
+    // Trends (for charts)
+    Route::get('/trends', [AnalyticsController::class, 'trends'])
+        ->name('trends')
+        ->middleware('can:view_analytics');
+    
+    // LGA Comparison (State-level only)
+    Route::get('/lga-comparison', [AnalyticsController::class, 'lgaComparison'])
+        ->name('lga_comparison')
+        ->middleware('role:Super Admin|Governor|State Admin');
+    
+    // Agent Performance (LGA Admin only)
+    Route::get('/agent-performance', [AnalyticsController::class, 'agentPerformance'])
+        ->name('agent_performance')
+        ->middleware('role:LGA Admin');
+    
+    // Export
+    Route::get('/export', [AnalyticsController::class, 'export'])
+        ->name('export')
+        ->middleware('can:export_analytics');
+    
+    // Manual regeneration (Admin only)
+    Route::post('/regenerate', [AnalyticsController::class, 'regenerate'])
+        ->name('regenerate')
+        ->middleware('role:Super Admin|State Admin');
+});
+
+
+
+
+
+Route::middleware(['auth', 'can:view_analytics'])->prefix('analytics')->name('analytics.')->group(function () {
+    
+    // Advanced Analytics Routes
+    Route::prefix('advanced')->name('advanced.')->group(function () {
+        // Main filter interface
+        Route::get('/', [AdvancedAnalyticsController::class, 'index'])->name('index');
+        
+        // Generate custom filtered report
+        Route::post('/generate', [AdvancedAnalyticsController::class, 'generate'])->name('generate');
+        Route::get('/generate', [AdvancedAnalyticsController::class, 'generate'])->name('generate.get');
+        
+        // Export filtered results
+        Route::get('/export', [AdvancedAnalyticsController::class, 'export'])
+            ->name('export')
+            ->middleware('can:export_analytics');
+        
+        // Predefined reports
+        Route::get('/predefined', [AdvancedAnalyticsController::class, 'predefinedReports'])->name('predefined');
+        Route::get('/predefined/{reportKey}', [AdvancedAnalyticsController::class, 'runPredefinedReport'])->name('predefined.run');
+        
+        // Comparative analysis
+        Route::post('/comparative', [AdvancedAnalyticsController::class, 'comparative'])->name('comparative');
+    });
 });
