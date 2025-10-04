@@ -188,7 +188,7 @@
                             </li>
 
                             <li>
-                                <a href="{{ route('admin.users.summary') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-account-circle-line me-2"></i>
                                     <span>Users</span>
                                 </a>                               
@@ -199,14 +199,14 @@
                                     <span>Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.practices.crop-farmers') }}">Crop Farmers</a></li>
-                                    <li><a href="{{ route('admin.practices.animal-farmers') }}">Animal Farmers</a></li>
-                                    <li><a href="{{ route('admin.practices.abattoir-operators') }}">Abattoir Operators</a></li>
-                                    <li><a href="{{ route('admin.practices.processors') }}">Processors</a></li>
+                                    <li><a href="#">Crop Farmers</a></li>
+                                    <li><a href="#">Animal Farmers</a></li>
+                                    <li><a href="#">Abattoir Operators</a></li>
+                                    <li><a href="#">Processors</a></li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
+                                <a href="#" class="waves-effect">
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
@@ -217,8 +217,8 @@
                                     <span>Resources</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">                         
-                                    <li><a href="{{ route('admin.resources.index') }}">Manage Resources</a></li>
-                                    <li><a href="{{ route('admin.applications.index') }}">Resource Applications</a></li>                                    
+                                    <li><a href="#">Manage Resources</a></li>
+                                    <li><a href="#">Resource Applications</a></li>                                    
                                 </ul>
                             </li>
 
@@ -228,28 +228,20 @@
                                     <span>Abattoirs</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.abattoirs.analytics') }}">Analytics</a></li>
-                                    <li><a href="{{ route('admin.abattoirs.index') }}">Manage Abattoirs</a></li>
-                                    <li><a href="{{ route('admin.livestock.index') }}">Manage Livestock</a></li>
-                                    <!-- <li>
-                                        <a href="javascript: void(0);" class="has-arrow">Analytics</a>
-                                        <ul class="sub-menu" aria-expanded="false">
-                                            <li><a href="{{ route('admin.abattoirs.analytics') }}">Dashboard</a></li>
-                                            <li><a href="{{ route('admin.abattoirs.analytics.livestock') }}">Livestock Reports</a></li>
-                                            <li><a href="{{ route('admin.abattoirs.analytics.slaughter') }}">Slaughter Reports</a></li>
-                                        </ul>
-                                    </li> -->
+                                    <li><a href="#">Analytics</a></li>
+                                    <li><a href="#">Manage Abattoirs</a></li>
+                                    <li><a href="#">Manage Livestock</a></li>                                    
                                 </ul>
                             </li>
 
-                            <!-- <li>
-                                <a href="{{ route('admin.livestock.index') }}" class="waves-effect">
-                                    <i class="ri-home-gear-line"></i>
-                                    <span>Livestock</span>
-                                </a>
-                            </li> -->
                             <li>
-                                <a href="{{ route('admin.marketplace.dashboard') }}" class="waves-effect">
+                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
+                                    <i class="ri-customer-service-2-line"></i>
+                                    <span>Support System</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="waves-effect">
                                 <i class="ri-exchange-dollar-line me-2"></i>
                                     <span>Marketplace</span>
                                 </a>
@@ -279,7 +271,7 @@
 
                 <!-- container-fluid -->   
                     </div> 
-                </div>
+                    </div>
                 <!-- End Page-content -->
 
                 <footer class="footer">

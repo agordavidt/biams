@@ -62,4 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
         // A User can only have one Farmer profile associated with it
         return $this->hasOne(Farmer::class, 'user_id');
     }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'assigned_admin_id');
+    }
 }

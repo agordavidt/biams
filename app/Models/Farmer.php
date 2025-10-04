@@ -306,4 +306,9 @@ class Farmer extends Model
 
         return static::whereIn('id', $farmerIds)->update($updates);
     }
+
+        public function chats()
+    {
+        return $this->hasMany(Chat::class);
+    }
 }

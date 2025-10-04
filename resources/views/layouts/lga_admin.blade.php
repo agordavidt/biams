@@ -197,6 +197,12 @@
                                 <li><a href="{{ route('lga_admin.agents.create') }}" class="submenu-item">Create New Agent</a></li>
                             </ul>
                         </li>
+                        <li>
+                            <a href="{{ route('lga_admin.support.index') }}" class="waves-effect">
+                                <i class="ri-customer-service-2-line"></i>
+                                <span>Support Queue</span>
+                            </a>
+                        </li>
 
                         {{-- Logout Functionality --}}
                         <li class="menu-title">System</li>

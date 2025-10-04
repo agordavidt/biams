@@ -58,44 +58,61 @@ class RolesAndPermissionsSeeder extends Seeder
             'export_analytics',
         ];
 
+        // NEW: Chat Support Permissions
+        $supportPermissions = [
+            'view_support_chats',
+            'manage_support_chats', // For Super/State Admin to manage system settings, status, assignment
+            'respond_to_support',   // For active responders: State Admin, LGA Admin, Agent
+        ];
+
         // Create all permissions first
-        foreach (array_merge($permissions, $analyticsPermissions) as $permission) {
+        foreach (array_merge($permissions, $analyticsPermissions, $supportPermissions) as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         // Define Roles
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
-        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
+        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']); // FIX APPLIED HERE
         $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
-        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
+        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']); // FIX APPLIED HERE
         $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
-        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']); // FIX APPLIED HERE
 
         // Assign permissions to roles
-        $superAdminRole->syncPermissions(array_merge($permissions, $analyticsPermissions));
+        // Super Admin gets EVERYTHING
+        $superAdminRole->syncPermissions(array_merge($permissions, $analyticsPermissions, $supportPermissions));
 
+        // Governor: Oversight (view only)
         $governorRole->syncPermissions([
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
             'view_analytics', 'export_analytics',
+            'view_support_chats', // Can view all chats for oversight
         ]);
 
+        // State Admin: Full access and management of all chats
         $stateAdminRole->syncPermissions([
             'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
             'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
             'view_analytics', 'export_analytics',
+            'view_support_chats', 'manage_support_chats', 'respond_to_support',
         ]);
 
+        // LGA Admin: View and respond to local chats
         $lgaAdminRole->syncPermissions([
             'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
             'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
             'view_analytics', 'export_analytics',
+            'view_support_chats', 'respond_to_support',
         ]);
 
+        // Enrollment Agent: View and respond to local chats
         $enrollmentAgentRole->syncPermissions([
             'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
             'view_analytics',
+            'view_support_chats', 'respond_to_support',
         ]);
 
+        // Standard User: No support permissions (chat access is handled by policy based on farmer_id)
         $userRole->syncPermissions([
             'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
         ]);

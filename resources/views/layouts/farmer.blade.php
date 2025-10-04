@@ -115,6 +115,11 @@
                                     <i class="ri-exchange-dollar-line me-2"></i> Marketplace
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('farmer.support.index') }}">
+                                    <i class="ri-customer-service-2-line me-2"></i> Support
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </nav>

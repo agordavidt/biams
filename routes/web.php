@@ -5,18 +5,21 @@ use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardCo
 use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\EnrollmentAgent;
 
-
-// NEW IMPORTS for Phase 3 Controllers
 use App\Http\Controllers\EnrollmentAgent\DashboardController as EnrollmentDashboardController;
 use App\Http\Controllers\EnrollmentAgent\FarmerController as EnrollmentFarmerController;
 use App\Http\Controllers\LGAAdmin\FarmerReviewController;
 use App\Http\Controllers\Auth\PasswordController; // Assuming this handles forced change
 use App\Http\Controllers\Analytics\AnalyticsController;
+
+use App\Http\Controllers\Support\ChatController;
+
 
 
 use Illuminate\Support\Facades\Route;
@@ -107,10 +110,44 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->group(function
     Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('governor.dashboard');
 });
 
+
 // State Admin Routes
 Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [StateAdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [ StateAdminDashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Users Module
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
+    
+    // Farmers Module
+    Route::get('/farmers', [FarmerController::class, 'index'])->name('admin.farmers.index');
+    Route::get('/farmers/{farmer}', [FarmerController::class, 'show'])->name('admin.farmers.show');
+
+        // Farm Practices Overview
+    Route::get('/farm-practices', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'index'])
+        ->name('admin.farm_practices.index');
+
+    // Crop Practice Analytics
+    Route::get('/farm-practices/crops', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'crops'])
+        ->name('admin.farm_practices.crops');
+
+    // Livestock Practice Analytics
+    Route::get('/farm-practices/livestock', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'livestock'])
+        ->name('admin.farm_practices.livestock');
+
+    // Fisheries Practice Analytics
+    Route::get('/farm-practices/fisheries', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'fisheries'])
+        ->name('admin.farm_practices.fisheries');
+
+    // Orchard Practice Analytics
+    Route::get('/farm-practices/orchards', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'orchards'])
+        ->name('admin.farm_practices.orchards');
+
 });
+
+
+
+
 
 // LGA Admin Routes
 Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
@@ -294,5 +331,55 @@ Route::middleware(['auth', 'can:view_analytics'])->prefix('analytics')->name('an
         
         // Comparative analysis
         Route::post('/comparative', [AdvancedAnalyticsController::class, 'comparative'])->name('comparative');
+    });
+});
+
+
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Farmer Support Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->group(function () {
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::post('/', [ChatController::class, 'store'])->name('store');
+        Route::get('/{chat}', [ChatController::class, 'show'])->name('show');
+        Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| LGA Admin Support Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{chat}', [ChatController::class, 'show'])->name('show');
+        Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
+        Route::post('/{chat}/assign', [ChatController::class, 'assign'])->name('assign');
+        Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| State Admin Support Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{chat}', [ChatController::class, 'show'])->name('show');
+        Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
+        Route::post('/{chat}/assign', [ChatController::class, 'assign'])->name('assign');
+        Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
     });
 });

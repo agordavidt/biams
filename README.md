@@ -15,3 +15,7 @@ This Benue State Integrated Agricultural Data Assest Management System is a comp
 - Facilitate agricultural marketplace transactions
 
 - Provide analytics and reporting for all operations
+
+Farmer can login with:
+Email: dooshima.agber@example.com
+Password: Zud6KD13gizt
