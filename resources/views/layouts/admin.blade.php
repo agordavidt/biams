@@ -182,35 +182,51 @@
 
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line me-2"></i><span class="badge rounded-pill bg-success float-end"></span>
+                                    <i class="ri-dashboard-line me-2"></i>
+                                    <span class="badge rounded-pill bg-success float-end"></span>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-account-circle-line me-2"></i>
-                                    <span>Users</span>
+                                <a href="{{ route('admin.users.index') }}" class="waves-effect">
+                                    <i class="ri-team-line me-2"></i>
+                                    <span>System Staff</span>
                                 </a>                               
                             </li>
+
+                            <!-- Farm Practices Menu -->
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-account-circle-line me-2"></i>
-                                    <span>Practices</span>
+                                    <i class="ri-plant-line me-2"></i>
+                                    <span>Farm Practices</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="#">Crop Farmers</a></li>
-                                    <li><a href="#">Animal Farmers</a></li>
-                                    <li><a href="#">Abattoir Operators</a></li>
-                                    <li><a href="#">Processors</a></li>
+                                    <li><a href="{{ route('admin.farm-practices.index') }}">
+                                        <i class="ri-dashboard-line me-1"></i> Overview
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.crops') }}">
+                                        <i class="ri-seedling-line me-1"></i> Crop Farming
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.livestock') }}">
+                                        <i class="ri-bear-smile-line me-1"></i> Livestock
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.fisheries') }}">
+                                        <i class="ri-ship-line me-1"></i> Fisheries
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.orchards') }}">
+                                        <i class="ri-plant-line me-1"></i> Orchards
+                                    </a></li>
                                 </ul>
                             </li>
+
                             <li>
                                 <a href="#" class="waves-effect">
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
                             </li>                                                    
+
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-database-2-line me-2"></i>
@@ -236,13 +252,14 @@
 
                             <li>
                                 <a href="{{ route('admin.support.index') }}" class="waves-effect">
-                                    <i class="ri-customer-service-2-line"></i>
+                                    <i class="ri-customer-service-2-line me-2"></i>
                                     <span>Support System</span>
                                 </a>
                             </li>
+
                             <li>
                                 <a href="#" class="waves-effect">
-                                <i class="ri-exchange-dollar-line me-2"></i>
+                                    <i class="ri-exchange-dollar-line me-2"></i>
                                     <span>Marketplace</span>
                                 </a>
                             </li>                
@@ -250,7 +267,10 @@
                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
                                 <li> 
-                                    <a class="text-danger" href="#" id="logout-link"> <i class="ri-shut-down-line align-middle me-1 text-danger"></i> <span>Logout</span> </a> 
+                                    <a class="text-danger" href="#" id="logout-link"> 
+                                        <i class="ri-shut-down-line align-middle me-1 text-danger"></i> 
+                                        <span>Logout</span> 
+                                    </a> 
                                 </li> 
                             </form>
                         </ul>

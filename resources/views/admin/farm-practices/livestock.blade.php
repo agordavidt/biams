@@ -23,6 +23,47 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Livestock Farms</p>
+                        <h4 class="mb-0">{{ number_format($livestockStats['totalLivestockFarms']) }}</h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-warning rounded-circle fs-3">
+                                <i class="ri-bear-smile-line text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Animals</p>
+                        <h4 class="mb-0">{{ number_format($livestockStats['totalAnimals']) }}</h4>
+                        <p class="text-muted mb-0 mt-1"><small>All species combined</small></p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-success rounded-circle fs-3">
+                                <i class="ri-stack-line text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
                         <p class="text-uppercase fw-medium text-muted mb-1">Avg Herd Size</p>
                         <h4 class="mb-0">{{ number_format($livestockStats['avgHerdSize'], 0) }}</h4>
                         <p class="text-muted mb-0 mt-1"><small>Animals per farm</small></p>
@@ -333,45 +374,4 @@ if (animalCtx) {
 }
 </script>
 @endpush
-@endsection class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Livestock Farms</p>
-                        <h4 class="mb-0">{{ number_format($livestockStats['totalLivestockFarms']) }}</h4>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="avatar-sm">
-                            <span class="avatar-title bg-soft-warning rounded-circle fs-3">
-                                <i class="ri-bear-smile-line text-warning"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Animals</p>
-                        <h4 class="mb-0">{{ number_format($livestockStats['totalAnimals']) }}</h4>
-                        <p class="text-muted mb-0 mt-1"><small>All species combined</small></p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="avatar-sm">
-                            <span class="avatar-title bg-soft-success rounded-circle fs-3">
-                                <i class="ri-stack-line text-success"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate">
-            <div
+@endsection

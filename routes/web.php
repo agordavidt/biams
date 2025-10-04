@@ -6,7 +6,7 @@ use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\FarmerController;
+use App\Http\Controllers\Admin\FarmPracticeController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
@@ -119,29 +119,25 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
     
-    // Farmers Module
-    Route::get('/farmers', [FarmerController::class, 'index'])->name('admin.farmers.index');
-    Route::get('/farmers/{farmer}', [FarmerController::class, 'show'])->name('admin.farmers.show');
-
-        // Farm Practices Overview
+    // Farm Practices Overview
     Route::get('/farm-practices', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'index'])
-        ->name('admin.farm_practices.index');
+        ->name('admin.farm-practices.index');
 
     // Crop Practice Analytics
     Route::get('/farm-practices/crops', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'crops'])
-        ->name('admin.farm_practices.crops');
+        ->name('admin.farm-practices.crops');
 
     // Livestock Practice Analytics
     Route::get('/farm-practices/livestock', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'livestock'])
-        ->name('admin.farm_practices.livestock');
+        ->name('admin.farm-practices.livestock');
 
     // Fisheries Practice Analytics
     Route::get('/farm-practices/fisheries', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'fisheries'])
-        ->name('admin.farm_practices.fisheries');
+        ->name('admin.farm-practices.fisheries');
 
     // Orchard Practice Analytics
     Route::get('/farm-practices/orchards', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'orchards'])
-        ->name('admin.farm_practices.orchards');
+        ->name('admin.farm-practices.orchards');
 
 });
 
