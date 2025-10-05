@@ -42,8 +42,7 @@ class ResourceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
+            'description' => 'required|string',           
             'requires_payment' => 'boolean',
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
             'form_fields' => 'required|json',
@@ -68,8 +67,7 @@ class ResourceController extends Controller
             // Create resource with updated fields
             $resource = Resource::create([
                 'name' => $request->name,
-                'description' => $request->description,
-                'target_practice' => $request->target_practice,
+                'description' => $request->description,               
                 'requires_payment' => (bool)$request->requires_payment, 
                 'price' => $request->requires_payment ? $request->price : 0,
                 'form_fields' => $formFields,
@@ -132,8 +130,7 @@ class ResourceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'target_practice' => 'required|in:all,crop-farmer,animal-farmer,abattoir-operator,processor',
+            'description' => 'required|string',          
             'requires_payment' => 'boolean',
             'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
             'form_fields' => 'required|json',

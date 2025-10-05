@@ -221,7 +221,7 @@
                             </li>
 
                             <li>
-                                <a href="#" class="waves-effect">
+                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
@@ -233,12 +233,12 @@
                                     <span>Resources</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">                         
-                                    <li><a href="#">Manage Resources</a></li>
+                                    <li><a href="{{route('admin.resources.index') }}">Manage Resources</a></li>
                                     <li><a href="#">Resource Applications</a></li>                                    
                                 </ul>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-building-line me-2"></i>
                                     <span>Abattoirs</span>
@@ -248,7 +248,7 @@
                                     <li><a href="#">Manage Abattoirs</a></li>
                                     <li><a href="#">Manage Livestock</a></li>                                    
                                 </ul>
-                            </li>
+                            </li> -->
 
                             <li>
                                 <a href="{{ route('admin.support.index') }}" class="waves-effect">

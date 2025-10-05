@@ -54,8 +54,7 @@
                                 <th>Name</th>
                                 <th>Partner Organization</th>
                                 <th>Description</th>
-                                <th>Price</th>
-                                <th>Target Practice</th>
+                                <th>Price</th>                                
                                 <th>Validity</th>
                                 <th>Actions</th>
                             </tr>
@@ -80,8 +79,7 @@
                                     @else
                                         <span >Free</span>
                                     @endif
-                                </td>
-                                <td>{{ Str::title(str_replace('-', ' ', $resource->target_practice)) }}</td>
+                                </td>                                
                                 <td>
                                     @if($resource->start_date && $resource->start_date->isFuture())
                                         <span >Not Started</span>

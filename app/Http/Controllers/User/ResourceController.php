@@ -1,4 +1,3 @@
-==== This is the new resources controller you started to create update accordingly to handle applicaiton, submission and payment as with the old flow ===
 <?php
 
 namespace App\Http\Controllers\User;

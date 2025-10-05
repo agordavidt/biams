@@ -104,11 +104,11 @@
                                             id="address" name="address" rows="2" required>{{ old('address') }}</textarea>
                                     </div>
 
-                                    <div class="mb-3">
+                                    <!-- <div class="mb-3">
                                         <label class="form-label" for="website">Website URL</label>
                                         <input type="url" class="form-control @error('website') is-invalid @enderror" 
                                             id="website" name="website" value="{{ old('website') }}">
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>

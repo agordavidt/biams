@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-
 use App\Http\Controllers\Controller;
 use App\Models\Partner;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PartnerController extends Controller
@@ -41,7 +40,7 @@ class PartnerController extends Controller
             'focus_areas' => 'required|array',
             'focus_areas.*' => 'string|in:' . implode(',', array_keys((new Partner)->getFocusAreaOptions())),
             'tax_identification_number' => 'nullable|string|max:50',
-            'registration_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+            'registration_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'bank_name' => 'nullable|string|max:100',
             'bank_account_name' => 'nullable|string|max:100',
             'bank_account_number' => 'nullable|string|max:20',
@@ -57,7 +56,6 @@ class PartnerController extends Controller
         try {
             $partnerData = $request->except(['registration_certificate', 'is_active']);
 
-            // Handle file upload
             if ($request->hasFile('registration_certificate')) {
                 $file = $request->file('registration_certificate');
                 $filename = 'certificate_' . time() . '_' . Str::slug($request->legal_name) . '.' . $file->getClientOriginalExtension();
@@ -65,7 +63,6 @@ class PartnerController extends Controller
                 $partnerData['registration_certificate'] = $path;
             }
 
-            // Handle checkbox for active status
             $partnerData['is_active'] = $request->has('is_active');
 
             Partner::create($partnerData);
@@ -108,7 +105,7 @@ class PartnerController extends Controller
             'focus_areas' => 'required|array',
             'focus_areas.*' => 'string|in:' . implode(',', array_keys($partner->getFocusAreaOptions())),
             'tax_identification_number' => 'nullable|string|max:50',
-            'registration_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+            'registration_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'bank_name' => 'nullable|string|max:100',
             'bank_account_name' => 'nullable|string|max:100',
             'bank_account_number' => 'nullable|string|max:20',
@@ -124,9 +121,7 @@ class PartnerController extends Controller
         try {
             $partnerData = $request->except(['registration_certificate', 'is_active']);
 
-            // Handle file upload
             if ($request->hasFile('registration_certificate')) {
-                // Delete old file if exists
                 if ($partner->registration_certificate) {
                     Storage::disk('public')->delete($partner->registration_certificate);
                 }
@@ -137,7 +132,6 @@ class PartnerController extends Controller
                 $partnerData['registration_certificate'] = $path;
             }
 
-            // Handle checkbox for active status
             $partnerData['is_active'] = $request->has('is_active');
 
             $partner->update($partnerData);
@@ -155,13 +149,11 @@ class PartnerController extends Controller
     public function destroy(Partner $partner)
     {
         try {
-            // Check if partner has resources
             if ($partner->resources()->exists()) {
                 return redirect()->back()
                     ->with('error', 'Cannot delete partner with associated resources. Please reassign or delete those resources first.');
             }
 
-            // Delete certificate file if exists
             if ($partner->registration_certificate) {
                 Storage::disk('public')->delete($partner->registration_certificate);
             }

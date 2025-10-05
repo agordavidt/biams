@@ -7,6 +7,8 @@ use App\Http\Controllers\Governor\DashboardController as GovernorDashboardContro
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FarmPracticeController;
+use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
@@ -111,34 +113,57 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->group(function
 });
 
 
+
 // State Admin Routes
 Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [ StateAdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [StateAdminDashboardController::class, 'index'])->name('admin.dashboard');
     
     // Users Module
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
     
     // Farm Practices Overview
-    Route::get('/farm-practices', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'index'])
+    Route::get('/farm-practices', [FarmPracticeController::class, 'index'])
         ->name('admin.farm-practices.index');
-
-    // Crop Practice Analytics
-    Route::get('/farm-practices/crops', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'crops'])
+    Route::get('/farm-practices/crops', [FarmPracticeController::class, 'crops'])
         ->name('admin.farm-practices.crops');
-
-    // Livestock Practice Analytics
-    Route::get('/farm-practices/livestock', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'livestock'])
+    Route::get('/farm-practices/livestock', [FarmPracticeController::class, 'livestock'])
         ->name('admin.farm-practices.livestock');
-
-    // Fisheries Practice Analytics
-    Route::get('/farm-practices/fisheries', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'fisheries'])
+    Route::get('/farm-practices/fisheries', [FarmPracticeController::class, 'fisheries'])
         ->name('admin.farm-practices.fisheries');
-
-    // Orchard Practice Analytics
-    Route::get('/farm-practices/orchards', [\App\Http\Controllers\Admin\FarmPracticeController::class, 'orchards'])
+    Route::get('/farm-practices/orchards', [FarmPracticeController::class, 'orchards'])
         ->name('admin.farm-practices.orchards');
 
+    // Partner Management Routes
+    // use App\Http\Controllers\Admin\PartnerController;
+
+    // Partner Management
+    Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
+    Route::get('/admin/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
+    Route::post('/admin/partners', [PartnerController::class, 'store'])->name('admin.partners.store');
+    Route::get('/admin/partners/{partner}', [PartnerController::class, 'show'])->name('admin.partners.show');
+    Route::get('/admin/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/admin/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
+    Route::delete('/admin/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
+
+    // Resource Routes
+    Route::get('admin/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'index'])->name('admin.resources.index');
+    Route::get('admin/resources/create', [\App\Http\Controllers\Admin\ResourceController::class, 'create'])->name('admin.resources.create');
+    Route::post('admin/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'store'])->name('admin.resources.store');
+    Route::get('admin/resources/{resource}/edit', [\App\Http\Controllers\Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
+    Route::put('admin/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'update'])->name('admin.resources.update');
+    Route::delete('admin/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+    
+    // Resource Application Management Routes
+    Route::get('resources/applications', [ResourceApplicationController::class, 'index'])->name('resources.applications.index');
+    Route::get('resources/applications/{application}', [ResourceApplicationController::class, 'show'])->name('resources.applications.show');
+    Route::post('resources/applications/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('resources.applications.grant');
+    Route::post('resources/applications/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('resources.applications.decline');
+    Route::post('resources/applications/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('resources.applications.bulk-update');
+    Route::get('resources/applications/export', [ResourceApplicationController::class, 'export'])->name('resources.applications.export');
+    
+
+    
 });
 
 
@@ -229,9 +254,19 @@ Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->gro
         return view('user.marketplace');
     })->name('marketplace');
     
-    Route::get('/resources', function() {
-        return view('user.resources');
-    })->name('resources');
+    // Resources routes - for viewing and applying
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Farmer\ResourceController::class, 'index'])
+            ->name('index');
+        Route::get('/{resource}', [\App\Http\Controllers\Farmer\ResourceController::class, 'show'])
+            ->name('show');
+        Route::post('/{resource}/apply', [\App\Http\Controllers\Farmer\ResourceController::class, 'apply'])
+            ->name('apply');
+        Route::get('/applications', [\App\Http\Controllers\Farmer\ResourceController::class, 'applications'])
+            ->name('applications');
+        Route::get('/applications/{application}', [\App\Http\Controllers\Farmer\ResourceController::class, 'showApplication'])
+            ->name('applications.show');
+    });
 });
 
 

@@ -32,17 +32,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Resource Name *</label>
                                     <input type="text" class="form-control" name="name" value="{{ $resource->name }}" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Target Practice *</label>
-                                    <select class="form-select" name="target_practice" required>
-                                        <option value="all" {{ $resource->target_practice == 'all' ? 'selected' : '' }}>All Practices</option>
-                                        <option value="crop-farmer" {{ $resource->target_practice == 'crop-farmer' ? 'selected' : '' }}>Crop Farming</option>
-                                        <option value="animal-farmer" {{ $resource->target_practice == 'animal-farmer' ? 'selected' : '' }}>Animal Farming</option>
-                                        <option value="abattoir-operator" {{ $resource->target_practice == 'abattoir-operator' ? 'selected' : '' }}>Abattoir Operation</option>
-                                        <option value="processor" {{ $resource->target_practice == 'processor' ? 'selected' : '' }}>Processing</option>
-                                    </select>
-                                </div>
+                                </div>                                
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description *</label>

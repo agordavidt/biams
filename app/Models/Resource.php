@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
 class Resource extends Model
@@ -14,8 +14,14 @@ class Resource extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'price', 'requires_payment',
-        'form_fields', 'target_practice', 'start_date', 'end_date', 'partner_id'
+        'name', 
+        'description', 
+        'price', 
+        'requires_payment',
+        'form_fields', 
+        'start_date', 
+        'end_date', 
+        'partner_id'
     ];
 
     protected $casts = [
@@ -46,14 +52,6 @@ class Resource extends Model
         $today = Carbon::today();
         return $query->whereNotNull('end_date')
                     ->where('end_date', '<', $today);
-    }
-
-    public function scopeForUserPractice(Builder $query, User $user): Builder
-    {
-        return $query->where(function($q) use ($user) {
-            $q->where('target_practice', 'all')
-              ->orWhereIn('target_practice', $this->getUserPractices($user));
-        });
     }
 
     // Relationships
@@ -93,20 +91,4 @@ class Resource extends Model
         return $this->end_date !== null && Carbon::today()->greaterThan($this->end_date);
     }
 
-    public function isAvailableFor(string $userPractice): bool
-    {
-        return $this->target_practice === 'all' || $this->target_practice === $userPractice;
-    }
-
-    protected function getUserPractices(User $user): array
-    {
-        $practices = [];
-        
-        if ($user->cropFarmers()->exists()) $practices[] = 'crop-farmer';
-        if ($user->animalFarmers()->exists()) $practices[] = 'animal-farmer';
-        if ($user->abattoirOperators()->exists()) $practices[] = 'abattoir-operator';
-        if ($user->processors()->exists()) $practices[] = 'processor';
-        
-        return $practices;
-    }
 }

@@ -18,20 +18,15 @@
                         @csrf
                         
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label">Resource Name *</label>
                                 <input type="text" class="form-control" name="name" required>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Target Practice *</label>
-                                <select class="form-select" name="target_practice" required>
-                                    <option value="all">All Practices</option>
-                                    <option value="crop-farmer">Crop Farming</option>
-                                    <option value="animal-farmer">Animal Farming</option>
-                                    <option value="abattoir-operator">Abattoir Operation</option>
-                                    <option value="processor">Processing</option>
-                                </select>
-                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-control" name="description" rows="3" required></textarea>
                         </div>
 
                         <div class="row mb-3 mt-4 border-top pt-3 align-items-start">
@@ -52,20 +47,17 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Start Date</label>
                                         <input type="date" class="form-control" name="start_date">
-                                        <small class="text-muted">Leave blank if the resource is available immediately</small>
+                                        <small class="text-muted">Leave blank if available immediately</small>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">End Date</label>
                                         <input type="date" class="form-control" name="end_date">
-                                        <small class="text-muted">Leave blank if there is no expiration date</small>
+                                        <small class="text-muted">Leave blank for no expiration</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description *</label>
-                            <textarea class="form-control" name="description" rows="3" required></textarea>
-                        </div>                        
+
                         <div class="form-check form-switch mb-3">
                             <input type="checkbox" class="form-check-input" id="requires_payment"
                                    name="requires_payment" x-model="requiresPayment">
@@ -84,7 +76,7 @@
                         </div>
 
                         <h5 class="mb-3 mt-4 border-top pt-3">Application Form Fields</h5>
-                        <p class="text-muted">Define the fields users will complete when applying for this resource</p>
+                        <p class="text-muted">Define the fields farmers will complete when applying for this resource. All active farmers can apply for this resource.</p>
 
                         <div class="form-fields-container">
                             <template x-for="(field, index) in fields" :key="index">
@@ -187,10 +179,8 @@
                     const form = e.target;
                     const formData = new FormData(form);
 
-                    // Remove the original fields data
                     formData.delete('form_fields');
 
-                    // Add the processed fields data
                     formData.append('form_fields', JSON.stringify(
                         this.fields.map(field => ({
                             label: field.label,
@@ -200,13 +190,10 @@
                         }))
                     ));
 
-                    // Handle payment fields based on requiresPayment toggle
                     if (!this.requiresPayment) {
-                        // If payment is not required, we'll still send the field but with empty value
                         formData.set('price', '');
                     }
 
-                    // Submit via fetch API
                     fetch(form.action, {
                         method: 'POST',
                         body: formData,
