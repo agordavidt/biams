@@ -149,36 +149,30 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
     Route::get('/farm-practices/orchards', [FarmPracticeController::class, 'orchards'])
         ->name('admin.farm-practices.orchards');
 
-    // Partner Management Routes
-    // use App\Http\Controllers\Admin\PartnerController;
+    // Partner Management Routes - FIXED: Removed double 'admin/' prefix
+    Route::get('/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
+    Route::get('/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
+    Route::post('/partners', [PartnerController::class, 'store'])->name('admin.partners.store');
+    Route::get('/partners/{partner}', [PartnerController::class, 'show'])->name('admin.partners.show');
+    Route::get('/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
+    Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
 
-    // Partner Management
-    Route::get('/admin/partners', [PartnerController::class, 'index'])->name('admin.partners.index');
-    Route::get('/admin/partners/create', [PartnerController::class, 'create'])->name('admin.partners.create');
-    Route::post('/admin/partners', [PartnerController::class, 'store'])->name('admin.partners.store');
-    Route::get('/admin/partners/{partner}', [PartnerController::class, 'show'])->name('admin.partners.show');
-    Route::get('/admin/partners/{partner}/edit', [PartnerController::class, 'edit'])->name('admin.partners.edit');
-    Route::put('/admin/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
-    Route::delete('/admin/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
-
-    // Resource Routes
-    Route::get('admin/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'index'])->name('admin.resources.index');
-    Route::get('admin/resources/create', [\App\Http\Controllers\Admin\ResourceController::class, 'create'])->name('admin.resources.create');
-    Route::post('admin/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'store'])->name('admin.resources.store');
-    Route::get('admin/resources/{resource}/edit', [\App\Http\Controllers\Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
-    Route::put('admin/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'update'])->name('admin.resources.update');
-    Route::delete('admin/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
+    // Resource Routes - FIXED: Removed double 'admin/' prefix
+    Route::get('/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'index'])->name('admin.resources.index');
+    Route::get('/resources/create', [\App\Http\Controllers\Admin\ResourceController::class, 'create'])->name('admin.resources.create');
+    Route::post('/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'store'])->name('admin.resources.store');
+    Route::get('/resources/{resource}/edit', [\App\Http\Controllers\Admin\ResourceController::class, 'edit'])->name('admin.resources.edit');
+    Route::put('/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'update'])->name('admin.resources.update');
+    Route::delete('/resources/{resource}', [\App\Http\Controllers\Admin\ResourceController::class, 'destroy'])->name('admin.resources.destroy');
     
-    // Resource Application Management Routes
-    Route::get('resources/applications', [ResourceApplicationController::class, 'index'])->name('resources.applications.index');
-    Route::get('resources/applications/{application}', [ResourceApplicationController::class, 'show'])->name('resources.applications.show');
-    Route::post('resources/applications/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('resources.applications.grant');
-    Route::post('resources/applications/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('resources.applications.decline');
-    Route::post('resources/applications/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('resources.applications.bulk-update');
-    Route::get('resources/applications/export', [ResourceApplicationController::class, 'export'])->name('resources.applications.export');
-    
-
-    
+    // Resource Application Management Routes - FIXED: Removed redundant 'resources/' prefix
+    Route::get('/applications', [ResourceApplicationController::class, 'index'])->name('resources.applications.index');
+    Route::get('/applications/{application}', [ResourceApplicationController::class, 'show'])->name('resources.applications.show');
+    Route::post('/applications/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('resources.applications.grant');
+    Route::post('/applications/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('resources.applications.decline');
+    Route::post('/applications/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('resources.applications.bulk-update');
+    Route::get('/applications/export', [ResourceApplicationController::class, 'export'])->name('resources.applications.export');
 });
 
 

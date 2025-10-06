@@ -21,8 +21,8 @@ class ResourceApplication extends Model
 
     // Status Constants
     const STATUS_PENDING = 'pending';
-    const STATUS_APPROVED = 'approved';
-    const STATUS_REJECTED = 'rejected';
+    const STATUS_APPROVED = 'granted';
+    const STATUS_REJECTED = 'declined';
     
 
     const PAYMENT_STATUS_PENDING = 'pending';
