@@ -1,14 +1,13 @@
-@php use App\Models\Setting; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Services - {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}</title>
+    <title>Our Services - Benue State Smart Agricultural System and Data Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="/dashboard/images/favicon.ico">
 
     <style>
         :root {
@@ -59,8 +58,7 @@
 
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/agro_bg1.jpg') }}');
-            /* background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('{{ asset('dashboard/images/background2.png') }}'); */
+            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)), url('/dashboard/images/agro_bg1.jpg');
             background-size: cover;
             background-position: center;
             color: white;
@@ -96,7 +94,7 @@
         .services-section h5 {
             font-size: 1.5rem; /* ~24px */
             font-weight: 600;
-            color: var(--black); /* var(--primary-green); */
+            color: var(--black);
             margin-bottom: 1rem;
         }
 
@@ -225,21 +223,21 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo">
+                <img src="/dashboard/images/bsiadams_logo_new.png" alt="Benue Agro Market Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"> <a class="nav-link" href="{{ url('/') }}">Home</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('about') }}">About</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('services') }}">Services</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('visitor.marketplace') }}">Market</a> </li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('contact') }}">Contact</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/">Home</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/about">About</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/services">Services</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/marketplace">Market</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/contact">Contact</a> </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('login') }}">PORTAL</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="/login">PORTAL</a> </li>
                 </ul>
             </div>
         </div>
@@ -258,7 +256,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 text-center">
-                    <img src="{{ asset('dashboard/images/farmer_harvest.jpg') }}" alt="Farmer harvesting" style="width: 300px;" height="300px">
+                    <img src="/dashboard/images/farmer_harvest.jpg" alt="Farmer harvesting" style="width: 300px;" height="300px">
                 </div>
                 <div class="col-lg-8">
                     <h5>We render services, collaborating with various Agencies of the Benue State</h5>
@@ -362,13 +360,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <img src="{{ Setting::imageUrl('site_logo') ?? asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" class="footer-logo">
+                    <img src="/dashboard/images/bsiadams_logo_new.png" alt="Benue Agro Market Logo" class="footer-logo">
                     <p>Empowering farmers, connecting markets</p>
                 </div>
                 <div class="col-md-4">
                     <h5 class="fw-bold">Contact</h5>
-                    <p>Email: {{ Setting::get('contact_email', 'info@bsiadams.gov.ng') }}<br>
-                       Phone: {{ Setting::get('contact_phone', '+234 000 0000 000') }}</p>
+                    <p>Email: info@bsiadams.gov.ng<br>
+                       Phone: +234 000 0000 000</p>
                 </div>
                 <div class="col-md-4 text-md-end">
                     <h5 class="fw-bold">Connect</h5>
@@ -379,9 +377,9 @@
             </div>
             <hr class="bg-light">
             <div class="text-center">
-                <p class="mb-0">© 2025 {{ Setting::get('site_title', 'Benue State Smart Agricultural System and Data Management') }}<br>
+                <p class="mb-0">© 2025 Benue State Smart Agricultural System and Data Management<br>
                 <a href="http://bdic.ng" target="_blank" class="powered_by_bdic">Powered by
-                    <img src="{{ asset('/dashboard/images/bdic_logo_small.png') }}" alt="BDIC">
+                    <img src="/dashboard/images/bdic_logo_small.png" alt="BDIC">
                 </a></p>
             </div>
         </div>

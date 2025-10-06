@@ -8,10 +8,12 @@ use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardControl
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FarmPracticeController;
 use App\Http\Controllers\Admin\ResourceController;
+use App\Http\Controllers\Admin\ResourceApplicationController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\LGAAdmin\DashboardController as LGAAdminDashboardController;
 use App\Http\Controllers\LGAAdmin\ManagementController as LGAAdminManagementController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+
 use App\Http\Controllers\EnrollmentAgent;
 
 use App\Http\Controllers\EnrollmentAgent\DashboardController as EnrollmentDashboardController;
@@ -35,6 +37,19 @@ use App\Providers\RouteServiceProvider;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/about', function () {
+    return view('about_us');
+})->name('about');
+
+Route::get('/services', function () {
+    return view('services');
+})->name('services');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
 
 require __DIR__.'/auth.php';
 
@@ -254,19 +269,23 @@ Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->gro
         return view('user.marketplace');
     })->name('marketplace');
     
-    // Resources routes - for viewing and applying
+     // Resources routes - for viewing and applying
     Route::prefix('resources')->name('resources.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Farmer\ResourceController::class, 'index'])
-            ->name('index');
-        Route::get('/{resource}', [\App\Http\Controllers\Farmer\ResourceController::class, 'show'])
-            ->name('show');
-        Route::post('/{resource}/apply', [\App\Http\Controllers\Farmer\ResourceController::class, 'apply'])
-            ->name('apply');
-        Route::get('/applications', [\App\Http\Controllers\Farmer\ResourceController::class, 'applications'])
-            ->name('applications');
-        Route::get('/applications/{application}', [\App\Http\Controllers\Farmer\ResourceController::class, 'showApplication'])
-            ->name('applications.show');
+        Route::get('/', [\App\Http\Controllers\User\ResourceController::class, 'index'])->name('index');
+        Route::get('/{resource}', [\App\Http\Controllers\User\ResourceController::class, 'show'])->name('show');
+        Route::get('/{resource}/apply', [\App\Http\Controllers\User\ResourceController::class, 'apply'])->name('apply');
+        Route::post('/{resource}/submit', [\App\Http\Controllers\User\ResourceController::class, 'submit'])->name('submit');
+        
+        // Payment handling
+        Route::post('/{resource}/payment/initiate', [\App\Http\Controllers\User\ResourceController::class, 'initiatePayment'])->name('payment.initiate');
+        
+        // Track applications - MUST come before /{application} to avoid route conflict
+        Route::get('/applications/track', [\App\Http\Controllers\User\ResourceController::class, 'track'])->name('track');
+        Route::get('/applications/{application}', [\App\Http\Controllers\User\ResourceController::class, 'showApplication'])->name('applications.show');
     });
+    
+    // Payment callback (outside resources prefix to match Credo callback URL)
+    Route::get('payment/callback', [\App\Http\Controllers\User\ResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
 });
 
 

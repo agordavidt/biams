@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h4>Application Details</h4>
-                <a href="{{ route('admin.applications.index') }}" class="btn btn-secondary">
+                <a href="{{ route('resources.applications.index') }}" class="btn btn-secondary">
                     <i class="ri-arrow-left-line me-1"></i> Back
                 </a>
             </div>
@@ -129,7 +129,7 @@
             <div class="border rounded p-3 bg-light">
             <h5 class="mb-3">Grant or Decline Resource</h5>            
 
-            <form action="{{ route('admin.applications.grant', $application) }}" method="POST" class="d-inline-block me-2">
+            <form action="{{ route('resources.applications.grant', $application) }}" method="POST" class="d-inline-block me-2">
             @csrf
             <div class="mb-3">
             <textarea name="notes" rows="2" class="form-control" style="min-width: 300px;"
@@ -140,7 +140,7 @@
             </button>
             </form>
 
-            <form action="{{ route('admin.applications.decline', $application) }}" method="POST" class="d-inline-block">
+            <form action="{{ route('resources.applications.decline', $application) }}" method="POST" class="d-inline-block">
             @csrf
             <div class="mb-3">
             <textarea name="notes" rows="2" class="form-control" style="min-width: 300px;"

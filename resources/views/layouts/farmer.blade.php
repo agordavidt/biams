@@ -106,7 +106,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="">
+                                <a class="nav-link" href="{{ route('farmer.resources.index') }}">
                                     <i class="ri-apps-2-line me-2"></i> Resources
                                 </a>
                             </li>

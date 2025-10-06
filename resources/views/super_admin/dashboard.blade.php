@@ -220,8 +220,104 @@
     </div>
 </div>
 
-<!-- User Status & Users by Role -->
+<!-- Analytics & Data Management -->
 <div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-box-line me-1"></i> Analytics & Data Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Reports & Analytics -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card module-card border h-100" style="cursor: pointer;">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                        <i class="ri-line-chart-line text-primary"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2 text-dark">Reports & Analytics</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    State-wide data insights
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge badge-soft-info">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Farm Practices -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card module-card border h-100" style="cursor: pointer;">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                        <i class="ri-plant-line text-success"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2 text-dark">Farm Practices</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Distribution & analytics
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge badge-soft-info">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources Management -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card module-card border h-100" style="cursor: pointer;">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-warning fs-3">
+                                        <i class="ri-database-2-line text-warning"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2 text-dark">Resources</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Resources & beneficiaries
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge badge-soft-info">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Partners Management -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card module-card border h-100" style="cursor: pointer;">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-danger fs-3">
+                                        <i class="ri-handshake-line text-danger"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2 text-dark">Partners</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Partner activities & impact
+                                </p>
+                                <div class="mt-2">
+                                    <span class="badge badge-soft-info">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Status & Users by Role -->
+<!-- <div class="row">
     <div class="col-xl-8">
         <div class="card">
             <div class="card-header">
@@ -323,7 +419,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- Distribution Tables -->
 <div class="row">

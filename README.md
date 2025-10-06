@@ -19,3 +19,19 @@ This Benue State Integrated Agricultural Data Assest Management System is a comp
 Farmer can login with:
 Email: dooshima.agber@example.com
 Password: Zud6KD13gizt
+
+
+
+Todo
+
+resource application submission
+resource application payment
+
+- admin resource application status updates
+- admin resource application status count
+- super admin application management, available resources, applications, status views
+- governor view.   
+    dashboard with quick link cards
+        easy dashaboard with pronouned logout button
+        report & analytics, farm practices, resources , partners. department & agencies
+        

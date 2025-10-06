@@ -26,7 +26,7 @@
             <div class="card">
                 <div class="card-body">
                     <!-- Search and Filter Form -->
-                    <form action="{{ route('admin.applications.index') }}" method="GET" class="row mb-4">
+                    <form action="{{ route('resources.applications.index') }}" method="GET" class="row mb-4">
                         <div class="col-md-4">
                             <input type="text" name="search" value="{{ request('search') }}" 
                                 class="form-control" 
@@ -79,7 +79,7 @@
                                         </td>
                                         <td>{{ $application->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            <a href="{{ route('admin.applications.show', $application) }}" 
+                                            <a href="{{ route('resources.applications.show', $application) }}" 
                                                 class="btn btn-sm btn-primary">
                                                 <i class="ri-eye-line align-middle"></i> View
                                             </a>

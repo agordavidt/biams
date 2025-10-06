@@ -1,164 +1,654 @@
-==== This is the new resources controller you started to create update accordingly to handle applicaiton, submission and payment as with the old flow ===
-<?php
-
-namespace App\Http\Controllers\User;
-
-use App\Http\Controllers\Controller;
-use App\Models\Resource;
-use App\Models\ResourceApplication;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-
-class ResourceController extends Controller
-{
-    /**
-     * Display all active resources available to farmers
-     */
-    public function index()
-    {
-        $resources = Resource::with('partner')
-            ->active()
-            ->latest()
-            ->paginate(12);
-
-        $userApplications = ResourceApplication::where('user_id', Auth::id())
-            ->pluck('resource_id')
-            ->toArray();
-
-        return view('farmer.resources.index', compact('resources', 'userApplications'));
-    }
-
-    /**
-     * Show a specific resource
-     */
-    public function show(Resource $resource)
-    {
-        // Check if resource is active
-        if (!$resource->isActive()) {
-            return redirect()->route('farmer.resources.index')
-                ->with('error', 'This resource is no longer available.');
-        }
-
-        $resource->load('partner');
+==== routes ====
+// Farmer Routes (Standard Users with Farmer Profile)
+Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+    
+    // Marketplace routes
+    Route::get('/marketplace', function() {
+        return view('user.marketplace');
+    })->name('marketplace');
+    
+     // Resources routes - for viewing and applying
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\User\ResourceController::class, 'index'])->name('index');
+        Route::get('/{resource}', [\App\Http\Controllers\User\ResourceController::class, 'show'])->name('show');
+        Route::get('/{resource}/apply', [\App\Http\Controllers\User\ResourceController::class, 'apply'])->name('apply');
+        Route::post('/{resource}/submit', [\App\Http\Controllers\User\ResourceController::class, 'submit'])->name('submit');
         
-        // Check if user has already applied
-        $existingApplication = ResourceApplication::where('user_id', Auth::id())
-            ->where('resource_id', $resource->id)
-            ->first();
+        // Payment handling
+        Route::post('/{resource}/payment/initiate', [\App\Http\Controllers\User\ResourceController::class, 'initiatePayment'])->name('payment.initiate');
+        
+        // Track applications - MUST come before /{application} to avoid route conflict
+        Route::get('/applications/track', [\App\Http\Controllers\User\ResourceController::class, 'track'])->name('track');
+        Route::get('/applications/{application}', [\App\Http\Controllers\User\ResourceController::class, 'showApplication'])->name('applications.show');
+    });
+    
+    // Payment callback (outside resources prefix to match Credo callback URL)
+    Route::get('payment/callback', [\App\Http\Controllers\User\ResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+});
 
-        return view('farmer.resources.show', compact('resource', 'existingApplication'));
+
+
+
+
+=== farmers resources application views ====
+
+---\resources\views\user\resources\apply.blade.php
+@extends('layouts.farmer')
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Apply for {{ $resource->name }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('farmer.resources.index') }}">Resources</a></li>
+                    <li class="breadcrumb-item active">Apply</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="mb-4">
+                    <h5 class="mb-3">Resource Details</h5>
+                    <div class="alert alert-light bg-light border border-light">
+                        <p class="mb-2">{{ $resource->description }}</p>
+                        @if($resource->requires_payment)
+                            <p class="mb-0 fw-bold">Fee: ₦{{ number_format($resource->price, 2) }}</p>
+                        @endif
+                    </div>
+                </div>
+
+                <form id="application-form" method="POST" 
+                      action="{{ route('farmer.resources.submit', $resource) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+
+                    @if($hasPaid)
+                        <div class="alert alert-success mb-4">
+                            <i class="ri-check-line me-2"></i>
+                            Payment completed successfully! Please complete the application form below.
+                        </div>
+                    @endif
+
+                    <h5 class="mb-3">Application Form</h5>
+                    
+                    @foreach($resource->form_fields as $field)
+                        @php $fieldName = Str::slug($field['label']); @endphp
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ $field['label'] }} 
+                                @if($field['required'])<span class="text-danger">*</span>@endif
+                            </label>
+                            
+                            @switch($field['type'])
+                                @case('text')
+                                    <input type="text" name="{{ $fieldName }}" class="form-control" 
+                                           @required($field['required'])>
+                                    @break
+                                    
+                                @case('textarea')
+                                    <textarea name="{{ $fieldName }}" class="form-control" 
+                                              @required($field['required']) rows="3"></textarea>
+                                    @break
+                                    
+                                @case('number')
+                                    <input type="number" name="{{ $fieldName }}" class="form-control"
+                                           @required($field['required'])>
+                                    @break
+                                    
+                                @case('file')
+                                    <input type="file" name="{{ $fieldName }}" class="form-control"
+                                           @required($field['required'])>
+                                    @break
+                                    
+                                @case('select')
+                                    <select name="{{ $fieldName }}" class="form-select"
+                                            @required($field['required'])>
+                                        <option value="">Select an option</option>
+                                        @foreach(explode(',', $field['options']) as $option)
+                                            <option value="{{ trim($option) }}">{{ trim($option) }}</option>
+                                        @endforeach
+                                    </select>
+                                    @break
+                            @endswitch
+                        </div>
+                    @endforeach
+
+                    <div class="form-footer mt-4 pt-3 border-top">
+                        <button type="submit" id="submit-button" class="btn btn-success btn-lg w-100">
+                            <i class="ri-send-plane-line me-1"></i> 
+                            @if($resource->requires_payment && $hasPaid)
+                                Submit Application
+                            @elseif($resource->requires_payment)
+                                Proceed to Payment and Submit
+                            @else
+                                Submit Application
+                            @endif
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+
+---\resources\views\user\resources\index.blade.php
+@extends('layouts.farmer')
+
+@section('content')
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4 class="m-0">Available Resources</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Resources</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<div class="row g-4">
+    @forelse($resources as $resource)
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="card-title">{{ $resource->name }}</h5>
+                        <!-- <span class="badge bg-{{ $resource->target_practice === 'all' ? 'primary' : 'info' }}">
+                            {{ ucfirst(str_replace('-', ' ', $resource->target_practice)) }}
+                        </span> -->
+                    </div>
+                    
+                    <!-- Description -->
+                    <p class="card-text text-muted mb-3 flex-grow-1">
+                        {{ Str::limit($resource->description, 120) }}
+                    </p>
+
+                    <!-- Price (if applicable) -->
+                    @if($resource->requires_payment)
+                        <div class="mb-3">
+                            <span class="fw-semibold">
+                                <i class="ri-money-naira-circle-line me-1"></i>
+                                ₦{{ number_format($resource->price, 2) }}
+                            </span>
+                        </div>
+                    @endif
+
+                    <!-- Application Status or Apply Button -->
+                    @php
+                        $application = $resource->applications->where('user_id', auth()->id())->first();
+                    @endphp
+
+                    <div class="mt-2">
+                        @if($application)
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge rounded-pill px-3 py-2
+                                    @if($application->status === 'approved') bg-success
+                                    @elseif($application->status === 'rejected') bg-danger
+                                    @else bg-warning @endif">
+                                    {{ ucfirst($application->status) }}
+                                </span>
+                                <a href="{{ route('farmers.resources.track') }}" 
+                                   class="btn btn-sm btn-outline-info">
+                                    Track Application
+                                </a>
+                            </div>
+                        @else
+                            <a href="{{ route('farmer.resources.apply', $resource) }}" 
+                               class="btn btn-primary w-100">
+                                Apply Now
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="avatar-md mx-auto mb-3 bg-light text-primary rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="ri-file-search-line fs-2"></i>
+                    </div>
+                    <h5>No Resources Available</h5>
+                    <p class="text-muted">Check back later for new resources</p>
+                </div>
+            </div>
+        </div>
+    @endforelse
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 0.5rem;
     }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.08) !important;
+    }
+</style>
+@endsection
 
-    /**
-     * Apply for a resource
-     */
-    public function apply(Request $request, Resource $resource)
+---\resources\views\user\resources\show.blade.php
+
+@extends('layouts.farmer')
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">{{ $resource->name }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('user.resources.index') }}">Resources</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5 class="card-title mb-3">Description</h5>
+                    <p class="text-muted">{{ $resource->description }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="card-title mb-3">Details</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <div class="avatar-title rounded-circle bg-light text-primary">
+                                            <i class="ri-file-list-3-line"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted mb-1">Type</p>
+                                    <h5 class="font-size-14">{{ ucfirst($resource->target_practice) }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="avatar-xs">
+                                        <div class="avatar-title rounded-circle bg-light text-primary">
+                                            <i class="ri-money-naira-circle-line"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted mb-1">Cost</p>
+                                    <h5 class="font-size-14">
+                                        @if($resource->requires_payment)
+                                            ₦{{ number_format($resource->price, 2) }}
+                                        @else
+                                            Free
+                                        @endif
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($existingApplication)
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="ri-alert-line me-3 align-middle"></i>
+                        You have already applied for this resource.
+                        <a href="{{ route('user.resources.track') }}" class="alert-link">Track your application</a>
+                    </div>
+                @else
+                    <div class="mt-4">
+                        <a href="{{ route('user.resources.apply', $resource) }}" 
+                           class="btn btn-primary waves-effect waves-light">
+                            Apply Now
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+---\resources\views\user\resources\track.blade.php
+
+@extends('layouts.farmer')
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Track Applications</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Applications</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        @if($applications->isEmpty())
+            <div class="card">
+                <div class="card-body text-center text-muted">
+                    You haven't submitted any applications yet.
+                </div>
+            </div>
+        @else
+            @foreach($applications as $application)
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title">{{ $application->resource->name }}</h5>
+                                <p class="text-muted mb-0">Submitted: {{ $application->created_at->format('M d, Y') }}</p>
+                            </div>
+                            <span class="badge 
+                                @switch($application->status)
+                                    @case('pending')
+                                        bg-warning
+                                        @break
+                                    @case('reviewing')
+                                        bg-info
+                                        @break
+                                    @case('approved')
+                                        bg-success
+                                        @break
+                                    @case('rejected')
+                                        bg-danger
+                                        @break
+                                    @case('processing')
+                                        bg-primary
+                                        @break
+                                    @case('delivered')
+                                        bg-secondary
+                                        @break
+                                @endswitch">
+                                {{ ucfirst($application->status) }}
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="mb-2">Application Details</h6>
+                            <div class="row">
+                                @foreach($application->form_data as $field => $value)
+                                    <div class="col-md-6 mb-2">
+                                        <span class="text-muted">{{ ucfirst($field) }}:</span>
+                                        <span class="ms-2">
+                                            @if(is_array($value))
+                                                @if(isset($value['original_name']))
+                                                    File: {{ $value['original_name'] }}
+                                                @else
+                                                    {{ json_encode($value) }}
+                                                @endif
+                                            @else
+                                                {{ $value }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endforeach
+                               
+                            </div>
+                        </div>
+
+                        @if($application->payment_status)
+                            <div class="alert alert-light mb-3">
+                                <h6 class="mb-2">Payment Information</h6>
+                                <div class="mb-1">
+                                    <span class="text-muted">Status:</span>
+                                    <span class="ms-2">{{ ucfirst($application->payment_status) }}</span>
+                                </div>
+                                @if($application->payment_reference)
+                                    <div>
+                                        <span class="text-muted">Reference:</span>
+                                        <span class="ms-2">{{ $application->payment_reference }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <div class="text-muted small">
+                            @switch($application->status)
+                                @case('pending')
+                                    Your application is pending review.
+                                    @break
+                                @case('reviewing')
+                                    Your application is currently being reviewed.
+                                    @break
+                                @case('approved')
+                                    Your application has been approved!
+                                    @if($application->resource->requires_payment && $application->payment_status !== 'paid')
+                                        Please complete the payment to proceed.
+                                    @endif
+                                    @break
+                                @case('rejected')
+                                    Unfortunately, your application was not approved.
+                                    @break
+                                @case('processing')
+                                    Your application is being processed.
+                                    @break
+                                @case('delivered')
+                                    Your resource has been delivered.
+                                    @break
+                            @endswitch
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+    </div>
+</div>
+@endsection
+
+
+
+
+=== seeders for users permissions ====
+class RolesAndPermissionsSeeder extends Seeder
+{
+    public function run(): void
     {
-        // Check if resource is active
-        if (!$resource->isActive()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This resource is no longer available.'
-            ], 403);
+        // Clear cached permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Fetch required LGA and Department
+        $lga = LGA::where('code', 'MDK')->first();
+        if (!$lga) {
+            $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
+            return;
         }
 
-        // Check if user has already applied
-        $existingApplication = ResourceApplication::where('user_id', Auth::id())
-            ->where('resource_id', $resource->id)
-            ->first();
-
-        if ($existingApplication) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already applied for this resource.'
-            ], 422);
+        $dept_agric = Department::where('abbreviation', 'MAFS')->first();
+        if (!$dept_agric) {
+            $this->command->error("Ministry of Agriculture (MAFS) not found. Run DepartmentAndAgencySeeder first.");
+            return;
         }
 
-        // Validate form data against resource's form_fields
-        $validator = Validator::make($request->all(), [
-            'form_data' => 'required|array',
-            'payment_reference' => 'nullable|string'
+        // Standard Permissions
+        $permissions = [
+            // Super Admin Permissions
+            'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
+            'manage_agencies', 'system_settings', 'view_audit_logs', 'export_all_data',
+
+            // Governor/State-level Permissions
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
+
+            // LGA Admin Permissions
+            'view_lga_dashboard', 'manage_lga_agents',
+
+            // LGA-level Permissions
+            'create_farmer_profile', 'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+
+            // Enrollment Agent Permissions
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles',
+
+            // Standard User Permissions
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ];
+
+        // Analytics Permissions
+        $analyticsPermissions = [
+            'view_analytics',
+            'export_analytics',
+        ];
+
+        // NEW: Chat Support Permissions
+        $supportPermissions = [
+            'view_support_chats',
+            'manage_support_chats', // For Super/State Admin to manage system settings, status, assignment
+            'respond_to_support',   // For active responders: State Admin, LGA Admin, Agent
+        ];
+
+        // Create all permissions first
+        foreach (array_merge($permissions, $analyticsPermissions, $supportPermissions) as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
+
+        // Define Roles
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']); // FIX APPLIED HERE
+        $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
+        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']); // FIX APPLIED HERE
+        $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
+        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']); // FIX APPLIED HERE
+
+        // Assign permissions to roles
+        // Super Admin gets EVERYTHING
+        $superAdminRole->syncPermissions(array_merge($permissions, $analyticsPermissions, $supportPermissions));
+
+        // Governor: Oversight (view only)
+        $governorRole->syncPermissions([
+            'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
+            'view_analytics', 'export_analytics',
+            'view_support_chats', // Can view all chats for oversight
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // State Admin: Full access and management of all chats
+        $stateAdminRole->syncPermissions([
+            'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
+            'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
+            'view_analytics', 'export_analytics',
+            'view_support_chats', 'manage_support_chats', 'respond_to_support',
+        ]);
 
-        try {
-            // If resource requires payment, validate payment reference
-            if ($resource->requires_payment) {
-                if (empty($request->payment_reference)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Payment is required for this resource.'
-                    ], 422);
-                }
+        // LGA Admin: View and respond to local chats
+        $lgaAdminRole->syncPermissions([
+            'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile', 
+            'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
+            'view_analytics', 'export_analytics',
+            'view_support_chats', 'respond_to_support',
+        ]);
 
-                
-                $paymentStatus = 'pending';
-            } else {
-                $paymentStatus = null;
-            }
+        // Enrollment Agent: View and respond to local chats
+        $enrollmentAgentRole->syncPermissions([
+            'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
+            'view_analytics',
+            'view_support_chats', 'respond_to_support',
+        ]);
 
-            // Create application
-            $application = ResourceApplication::create([
-                'user_id' => Auth::id(),
-                'resource_id' => $resource->id,
-                'form_data' => $request->form_data,
-                'payment_reference' => $request->payment_reference,
-                'status' => 'pending',
-                'payment_status' => $paymentStatus
-            ]);
+        // Standard User: No support permissions (chat access is handled by policy based on farmer_id)
+        $userRole->syncPermissions([
+            'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Your application has been submitted successfully.',
-                'redirect' => route('farmer.resources.applications.show', $application->id)
-            ]);
+        // Create initial users
+        User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
+            'name' => 'System Super Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$superAdminRole]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error submitting application: ' . $e->getMessage()
-            ], 500);
-        }
+        User::firstOrCreate(['email' => 'governor@benue.gov.ng'], [
+            'name' => 'Executive Governor',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+        ])->syncRoles([$governorRole]);
+
+        User::firstOrCreate(['email' => 'stateadmin@benue.gov.ng'], [
+            'name' => 'State Administrator (Agric)',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $dept_agric->id,
+            'administrative_type' => Department::class,
+        ])->syncRoles([$stateAdminRole]);
+
+        User::firstOrCreate(['email' => 'lgaadmin@makurdi.gov.ng'], [
+            'name' => 'Makurdi LGA Administrator',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$lgaAdminRole]);
+
+        User::firstOrCreate(['email' => 'agent@makurdi.gov.ng'], [
+            'name' => 'Test Enrollment Agent',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$enrollmentAgentRole]);
+
+        User::firstOrCreate(['email' => 'farmer@test.com'], [
+            'name' => 'Test Farmer User',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $lga->id,
+            'administrative_type' => LGA::class,
+        ])->syncRoles([$userRole]);
+
+        $this->command->info('Roles, permissions, and initial test users seeded successfully!');
     }
-
-    /**
-     * View user's applications
-     */
-    public function applications(Request $request)
-    {
-        $query = ResourceApplication::with(['resource', 'resource.partner'])
-            ->where('user_id', Auth::id());
-
-        // Filter by status if provided
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        $applications = $query->latest()->paginate(10);
-
-        return view('farmer.resources.applications', compact('applications'));
-    }
-
-    /**
-     * View a specific application
-     */
-    public function showApplication(ResourceApplication $application)
-    {
-        // Ensure user owns this application
-        if ($application->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this application.');
-        }
-
-        $application->load(['resource', 'resource.partner']);
-
-        return view('farmer.resources.application-show', compact('application'));
-    }
-
 }

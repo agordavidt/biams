@@ -234,7 +234,7 @@
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">                         
                                     <li><a href="{{route('admin.resources.index') }}">Manage Resources</a></li>
-                                    <li><a href="#">Resource Applications</a></li>                                    
+                                    <li><a href="{{ route('resources.applications.index') }}">Resource Applications</a></li>                                    
                                 </ul>
                             </li>
 
