@@ -4,6 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ManagementController;
 use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
+use App\Http\Controllers\Governor\PolicyInsightController;
+use App\Http\Controllers\Governor\InterventionTrackingController;
+use App\Http\Controllers\Governor\LgaComparisonController;
+use App\Http\Controllers\Governor\TrendAnalysisController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FarmPracticeController;
@@ -122,11 +126,48 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
     });
 });
 
-// Governor Routes
-Route::middleware(['auth', 'role:Governor'])->prefix('governor')->group(function () {
-    Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('governor.dashboard');
-});
+// Add to web.php after the existing Governor routes
 
+// Governor Routes - Extended Analytics
+Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor.')->group(function () {
+    // Main Dashboard (already exists)
+    Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('dashboard');
+    
+    // Policy Insights
+    Route::prefix('policy-insights')->name('policy_insights.')->group(function () {
+        Route::get('/', [PolicyInsightController::class, 'index'])->name('index');
+        Route::get('/demographic-analysis', [PolicyInsightController::class, 'getDemographicAnalysis'])->name('demographic_analysis');
+        Route::get('/youth-engagement', [PolicyInsightController::class, 'getYouthEngagement'])->name('youth_engagement');
+        Route::get('/yield-projections', [PolicyInsightController::class, 'getYieldProjections'])->name('yield_projections');
+        Route::get('/production-patterns', [PolicyInsightController::class, 'getProductionPatterns'])->name('production_patterns');
+    });
+    
+    // Intervention Tracking
+    Route::prefix('interventions')->name('interventions.')->group(function () {
+        Route::get('/', [InterventionTrackingController::class, 'index'])->name('index');
+        Route::get('/beneficiary-report', [InterventionTrackingController::class, 'getBeneficiaryReport'])->name('beneficiary_report');
+        Route::get('/partner-activities', [InterventionTrackingController::class, 'getPartnerActivities'])->name('partner_activities');
+        Route::get('/coverage-analysis', [InterventionTrackingController::class, 'getCoverageAnalysis'])->name('coverage_analysis');
+    });
+    
+    // LGA Comparison
+    Route::prefix('lga-comparison')->name('lga_comparison.')->group(function () {
+        Route::get('/', [LgaComparisonController::class, 'index'])->name('index');
+        Route::get('/performance-ranking', [LgaComparisonController::class, 'getPerformanceRanking'])->name('performance_ranking');
+        Route::get('/capacity-analysis', [LgaComparisonController::class, 'getCapacityAnalysis'])->name('capacity_analysis');
+        Route::post('/compare', [LgaComparisonController::class, 'compareLgas'])->name('compare');
+        Route::get('/geographic-analysis', [LgaComparisonController::class, 'getGeographicAnalysis'])->name('geographic_analysis');
+    });
+    
+    // Trend Analysis
+    Route::prefix('trends')->name('trends.')->group(function () {
+        Route::get('/', [TrendAnalysisController::class, 'index'])->name('index');
+        Route::get('/enrollment', [TrendAnalysisController::class, 'getEnrollmentTrends'])->name('enrollment');
+        Route::get('/production', [TrendAnalysisController::class, 'getProductionTrends'])->name('production');
+        Route::get('/resource-utilization', [TrendAnalysisController::class, 'getResourceUtilizationTrends'])->name('resource_utilization');
+        Route::get('/gender-parity', [TrendAnalysisController::class, 'getGenderParityTrends'])->name('gender_parity');
+    });
+});
 
 
 // State Admin Routes
