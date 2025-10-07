@@ -27,6 +27,8 @@ use App\Http\Controllers\Auth\PasswordController; // Assuming this handles force
 use App\Http\Controllers\Analytics\AnalyticsController;
 
 use App\Http\Controllers\Support\ChatController;
+use App\Http\Controllers\Marketplace\MarketplaceController;
+use App\Http\Controllers\Admin\MarketplaceAdminController;
 
 
 
@@ -468,3 +470,87 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')
         Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
     });
 });
+
+
+
+// Test custom error pages
+Route::get('/test-404', fn() => abort(404));
+Route::get('/test-500', fn() => abort(500));
+Route::get('/test-403', fn() => abort(403));
+Route::get('/test-503', fn() => abort(503));
+Route::get('/test-400', fn() => abort(400));
+Route::get('/test-429', fn() => abort(429));
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Marketplace Routes - Public & Authenticated Access
+|--------------------------------------------------------------------------
+*/
+
+
+
+// Public Marketplace Routes (No Authentication Required)
+Route::prefix('marketplace')->name('marketplace.')->group(function () {
+    // Browse listings (public)
+    Route::get('/', [MarketplaceController::class, 'index'])->name('index');
+    
+    // View single listing details (public)
+    Route::get('/listings/{listing}', [MarketplaceController::class, 'show'])->name('show');
+    
+    // Contact farmer (lead generation - no auth required)
+    Route::post('/listings/{listing}/contact', [MarketplaceController::class, 'contactFarmer'])->name('contact-farmer');
+});
+
+// Authenticated Farmer Marketplace Routes
+Route::middleware(['auth', 'role:User'])->prefix('farmer/marketplace')->name('farmer.marketplace.')->group(function () {
+    // My Listings Dashboard
+    Route::get('/my-listings', [MarketplaceController::class, 'myListings'])->name('my-listings');
+    
+    // Subscription & Payment
+    Route::post('/subscribe', [MarketplaceController::class, 'initiatePayment'])->name('subscribe');
+    Route::get('/payment/verify', [MarketplaceController::class, 'verifyPayment'])->name('payment.verify');
+    
+    // Listing Management (Requires Active Subscription)
+    Route::middleware('can:create,App\Models\Market\MarketplaceListing')->group(function () {
+        Route::get('/create', [MarketplaceController::class, 'create'])->name('create');
+        Route::post('/listings', [MarketplaceController::class, 'store'])->name('store');
+        Route::get('/listings/{listing}/edit', [MarketplaceController::class, 'edit'])->name('edit');
+        Route::put('/listings/{listing}', [MarketplaceController::class, 'update'])->name('update');
+        Route::delete('/listings/{listing}', [MarketplaceController::class, 'destroy'])->name('destroy');
+    });
+    
+    // View leads/inquiries received
+    Route::get('/leads', [MarketplaceController::class, 'myLeads'])->name('leads');
+});
+
+// State Admin Marketplace Management Routes
+Route::middleware(['auth', 'role:State Admin', 'permission:manage_supplier_catalog'])
+    ->prefix('admin/marketplace')
+    ->name('admin.marketplace.')
+    ->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [MarketplaceAdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Listings Management
+        Route::get('/listings', [MarketplaceAdminController::class, 'listings'])->name('listings');
+        Route::post('/listings/{listing}/approve', [MarketplaceAdminController::class, 'approveListing'])->name('approve');
+        Route::post('/listings/{listing}/reject', [MarketplaceAdminController::class, 'rejectListing'])->name('reject');
+        Route::delete('/listings/{listing}', [MarketplaceAdminController::class, 'removeListing'])->name('remove');
+        
+        // Category Management
+        Route::get('/categories', [MarketplaceAdminController::class, 'categories'])->name('categories');
+        Route::post('/categories', [MarketplaceAdminController::class, 'storeCategory'])->name('categories.store');
+        Route::put('/categories/{category}', [MarketplaceAdminController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])->name('categories.destroy');
+        
+        // Subscription Management
+        Route::get('/subscriptions', [MarketplaceAdminController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/subscriptions/export', [MarketplaceAdminController::class, 'exportSubscriptions'])->name('subscriptions.export');
+        
+        // Analytics & Reports
+        Route::get('/analytics', [MarketplaceAdminController::class, 'analytics'])->name('analytics');
+        Route::get('/reports/export', [MarketplaceAdminController::class, 'exportReport'])->name('reports.export');
+    });

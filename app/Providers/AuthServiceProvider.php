@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Policies\UserPolicy;
-use App\Policies\AnalyticsPolicy; // <-- Import AnalyticsPolicy
-use Illuminate\Support\Facades\Gate; // <-- Import Gate facade
+use App\Policies\AnalyticsPolicy;
+use Illuminate\Support\Facades\Gate; 
+use App\Models\Market\MarketplaceListing;
+use App\Policies\MarketplaceListingPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -14,6 +16,8 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         'analytics' => AnalyticsPolicy::class,
         Chat::class => ChatPolicy::class,
+        MarketplaceListing::class => MarketplaceListingPolicy::class,
+
     ];
 
     public function boot(): void

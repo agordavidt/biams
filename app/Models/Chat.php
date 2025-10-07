@@ -27,9 +27,17 @@ class Chat extends Model
     ];
 
     // Relationships
+    // public function farmer(): BelongsTo
+    // {
+    //     return $this->belongsTo(Farmer::class);
+    // }
+
+        /**
+     * CRITICAL: Relationship to Farmer model
+     */
     public function farmer(): BelongsTo
     {
-        return $this->belongsTo(Farmer::class);
+        return $this->belongsTo(Farmer::class, 'farmer_id');
     }
 
     public function assignedAdmin(): BelongsTo

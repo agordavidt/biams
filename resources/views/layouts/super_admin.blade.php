@@ -8,9 +8,11 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta content="BDIC Team" name="author" />
         <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+        
         <!-- Preload critical assets -->
         <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
         <link rel="preload" href="{{ asset('dashboard/js/app.js') }}" as="script">
+        
         <!-- Consolidated CSS bundles -->
         <link href="{{ asset('dashboard/css/vendor-bundle.css') }}" rel="stylesheet">
         <link href="{{ asset('dashboard/css/app-bundle.css') }}" rel="stylesheet">
@@ -25,6 +27,9 @@
         <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+        
+        @stack('styles')
+        
         <style>
             .status-badge {
                 padding: 0.25rem 0.5rem;
@@ -89,6 +94,14 @@
             h4 {
                 margin-bottom: 1rem;
             }
+            /* Active menu item styling */
+            #sidebar-menu .mm-active > a {
+                color: #556ee6 !important;
+                background-color: rgba(85, 110, 230, 0.1);
+            }
+            #sidebar-menu .mm-active > a i {
+                color: #556ee6 !important;
+            }
             /* Submenu Styles */
             .submenu-item {
                 padding-left: 2.5rem !important;
@@ -100,6 +113,7 @@
             }
         </style>
     </head>
+    
     <body data-topbar="dark">
         <div id="layout-wrapper">
             <header id="page-topbar">
@@ -107,7 +121,7 @@
                     <div class="d-flex">
                         <!-- LOGO -->
                         <div class="navbar-brand-box">
-                            <a href="#" class="logo logo-dark">
+                            <a href="{{ route('super_admin.dashboard') }}" class="logo logo-dark">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -115,7 +129,7 @@
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
                             </a>
-                            <a href="#" class="logo logo-light">
+                            <a href="{{ route('super_admin.dashboard') }}" class="logo logo-light">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -124,9 +138,11 @@
                                 </span>
                             </a>
                         </div>
+                        
                         <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
                             <i class="ri-menu-2-line align-middle"></i>
                         </button>
+                        
                         <!-- App Search-->
                         <form class="app-search d-none d-lg-block">
                             <div class="position-relative">
@@ -135,6 +151,7 @@
                             </div>
                         </form>
                     </div>
+                    
                     <div class="d-flex">
                         <div class="dropdown d-inline-block d-lg-none ms-2">
                             <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
@@ -155,74 +172,167 @@
                                 </form>
                             </div>
                         </div>
+                        
                         <div class="dropdown d-inline-block user-dropdown">
                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
+                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                             </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Profile</a>
+                                <a class="dropdown-item" href="#"><i class="ri-settings-3-line align-middle me-1"></i> Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#" id="logout-link-header">
+                                    <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> Logout
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
+            
             <!-- ========== Left Sidebar Start ========== -->
             <div class="vertical-menu">
                 <div data-simplebar class="h-100">
                     <!--- Sidemenu -->
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
-            <li class="menu-title">Menu</li>
+                            <li class="menu-title">Navigation</li>
 
-            <li>
-                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
-                    <i class="ri-dashboard-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+                            <!-- Dashboard -->
+                            <li class="{{ request()->routeIs('super_admin.dashboard') ? 'mm-active' : '' }}">
+                                <a href="{{ route('super_admin.dashboard') }}" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
 
-            <li>
-                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                    <i class="ri-user-settings-line"></i>
-                    <span>Management</span>
-                </a>
-                <ul class="sub-menu" aria-expanded="false">
-                    <li><a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">User Management</a></li>
-                    <li><a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">Departments</a></li>
-                    <li><a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">Agencies</a></li>
-                    <li><a href="{{ route('super_admin.management.lgas.index') }}" class="submenu-item">LGAs</a></li>
-                </ul>
-            </li>
+                            <!-- Management Module -->
+                            <li class="{{ request()->routeIs('super_admin.management.*') ? 'mm-active' : '' }}">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-user-settings-line"></i>
+                                    <span>Management</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li class="{{ request()->routeIs('super_admin.management.users.*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.management.users.index') }}" class="submenu-item">
+                                            <i class="ri-user-line me-1"></i> Users
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('super_admin.management.departments.*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.management.departments.index') }}" class="submenu-item">
+                                            <i class="ri-building-line me-1"></i> Departments
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('super_admin.management.agencies.*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.management.agencies.index') }}" class="submenu-item">
+                                            <i class="ri-community-line me-1"></i> Agencies
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('super_admin.management.lgas.*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.management.lgas.index') }}" class="submenu-item">
+                                            <i class="ri-map-pin-line me-1"></i> LGAs
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
 
-            @can('view_analytics')
-            <li>
-                <a href="{{ route('analytics.dashboard') }}" class="waves-effect">
-                    <i class="ri-line-chart-line"></i> <span>View Analytics</span>
-                </a>
-            </li>
-            @endcan
+                            <li class="menu-title">Analytics & Reports</li>
 
-            @can('export_analytics')
-            <li>
-                <a href="{{ route('analytics.export', ['type' => 'comprehensive']) }}" class="waves-effect">
-                    <i class="ri-download-line"></i> <span>Export Report</span>
-                </a>
-            </li>
-            @endcan
+                            <!-- Analytics -->
+                            @can('view_analytics')
+                            <li class="{{ request()->routeIs('analytics.*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('analytics.dashboard') }}" class="waves-effect">
+                                    <i class="ri-line-chart-line"></i>
+                                    <span>Analytics Dashboard</span>
+                                </a>
+                            </li>
+                            @endcan
 
-            <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                @csrf
-            <li>
-                <a class="text-danger waves-effect" href="#" id="logout-link">
-                    <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i>
-                    <span>Logout</span>
-                </a>
-            </li>
-        </form>
-    </ul>
+                            <!-- Reports -->
+                            @can('export_analytics')
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-file-list-line"></i>
+                                    <span>Reports</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li>
+                                        <a href="{{ route('analytics.export', ['type' => 'comprehensive']) }}" class="submenu-item">
+                                            <i class="ri-file-text-line me-1"></i> Comprehensive Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('analytics.export', ['type' => 'users']) }}" class="submenu-item">
+                                            <i class="ri-user-line me-1"></i> Users Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('analytics.export', ['type' => 'farmers']) }}" class="submenu-item">
+                                            <i class="ri-plant-line me-1"></i> Farmers Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('analytics.export', ['type' => 'resources']) }}" class="submenu-item">
+                                            <i class="ri-database-2-line me-1"></i> Resources Report
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endcan
+
+                            <li class="menu-title">System</li>
+
+                            <!-- Audit Logs -->
+                            @can('view_audit_logs')
+                            <li>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-history-line"></i>
+                                    <span>Audit Logs</span>
+                                </a>
+                            </li>
+                            @endcan
+
+                            <!-- System Settings -->
+                            @can('system_settings')
+                            <li>
+                                <a href="#" class="waves-effect">
+                                    <i class="ri-settings-3-line"></i>
+                                    <span>System Settings</span>
+                                </a>
+                            </li>
+                            @endcan
+
+                            <!-- Support -->
+                            @can('view_support_chats')
+                            <li>
+                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
+                                    <i class="ri-customer-service-2-line"></i>
+                                    <span>Support Chats</span>
+                                </a>
+                            </li>
+                            @endcan
+
+                            <li class="menu-title">Account</li>
+
+                            <!-- Logout -->
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                                @csrf
+                                <li>
+                                    <a class="text-danger waves-effect" href="#" id="logout-link">
+                                        <i class="ri-logout-box-r-line align-middle me-1 text-danger"></i>
+                                        <span>Logout</span>
+                                    </a>
+                                </li>
+                            </form>
+                        </ul>
                     </div>
                     <!-- Sidebar -->
                 </div>
             </div>
             <!-- Left Sidebar End -->
+            
             <!-- ============================================================== -->
             <!-- Start right Content here -->
             <!-- ============================================================== -->
@@ -233,6 +343,7 @@
                     </div>
                 </div>
                 <!-- End Page-content -->
+                
                 <footer class="footer">
                     <div class="container-fluid">
                         <div class="row">
@@ -251,6 +362,7 @@
             <!-- end main content-->
         </div>
         <!-- END layout-wrapper -->
+        
         <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
@@ -282,11 +394,32 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
+        
         @stack('scripts')
+        
         <script>
+            // Logout functionality
             document.getElementById('logout-link').addEventListener('click', function(event) { 
                 event.preventDefault();
                 document.getElementById('logout-form').submit(); 
+            });
+            
+            document.getElementById('logout-link-header').addEventListener('click', function(event) { 
+                event.preventDefault();
+                document.getElementById('logout-form').submit(); 
+            });
+
+            // Set active menu item based on current route
+            $(document).ready(function() {
+                var currentUrl = window.location.href;
+                $('#sidebar-menu a').each(function() {
+                    var href = $(this).attr('href');
+                    if (currentUrl.indexOf(href) !== -1 && href !== 'javascript: void(0);' && href !== '#') {
+                        $(this).closest('li').addClass('mm-active');
+                        $(this).closest('.sub-menu').addClass('mm-show');
+                        $(this).closest('.sub-menu').prev('a').addClass('mm-active');
+                    }
+                });
             });
         </script>
     </body>

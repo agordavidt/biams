@@ -1,5 +1,7 @@
 @extends('layouts.admin')
+
 @section('content')
+<!-- start page title -->
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -13,7 +15,9 @@
         </div>
     </div>
 </div>
-<!-- Stats Cards -->
+<!-- end page title -->
+
+<!-- Statistics Cards -->
 <div class="row">
     <div class="col-xl-3 col-md-6">
         <div class="card">
@@ -21,7 +25,13 @@
                 <div class="d-flex">
                     <div class="flex-grow-1">
                         <p class="text-truncate font-size-14 mb-2">Total Listings</p>
-                        <h4 class="mb-2">{{ $totalListings }}</h4>
+                        <h4 class="mb-2">{{ number_format($stats['total_listings']) }}</h4>
+                        <p class="text-muted mb-0">
+                            <span class="text-success fw-bold font-size-12 me-2">
+                                <i class="ri-arrow-right-up-line me-1 align-middle"></i>{{ $stats['active_listings'] }}
+                            </span>
+                            <span class="text-muted">Active</span>
+                        </p>
                     </div>
                     <div class="avatar-sm">
                         <span class="avatar-title bg-light text-primary rounded-3">
@@ -32,33 +42,71 @@
             </div>
         </div>
     </div>
+
     <div class="col-xl-3 col-md-6">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
-                        <p class="text-truncate font-size-14 mb-2">Active Listings</p>
-                        <h4 class="mb-2">{{ $activeListings }}</h4>
+                        <p class="text-truncate font-size-14 mb-2">Pending Review</p>
+                        <h4 class="mb-2">{{ number_format($stats['pending_review']) }}</h4>
+                        <p class="text-muted mb-0">
+                            <span class="text-warning fw-bold font-size-12 me-2">
+                                <i class="ri-time-line me-1 align-middle"></i>Awaiting
+                            </span>
+                            <span class="text-muted">Approval</span>
+                        </p>
                     </div>
                     <div class="avatar-sm">
-                        <span class="avatar-title bg-light text-success rounded-3">
-                            <i class="ri-check-line font-size-24"></i>
+                        <span class="avatar-title bg-light text-warning rounded-3">
+                            <i class="ri-file-list-line font-size-24"></i>
                         </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="col-xl-3 col-md-6">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
-                        <p class="text-truncate font-size-14 mb-2">Sold Listings</p>
-                        <h4 class="mb-2">{{ $soldListings }}</h4>
+                        <p class="text-truncate font-size-14 mb-2">Active Subscriptions</p>
+                        <h4 class="mb-2">{{ number_format($stats['active_subscriptions']) }}</h4>
+                        <p class="text-muted mb-0">
+                            <span class="text-danger fw-bold font-size-12 me-2">
+                                <i class="ri-arrow-right-down-line me-1 align-middle"></i>{{ $stats['expiring_soon'] }}
+                            </span>
+                            <span class="text-muted">Expiring Soon</span>
+                        </p>
                     </div>
                     <div class="avatar-sm">
-                        <span class="avatar-title bg-light text-warning rounded-3">
+                        <span class="avatar-title bg-light text-success rounded-3">
+                            <i class="ri-user-star-line font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-truncate font-size-14 mb-2">Total Revenue</p>
+                        <h4 class="mb-2">₦{{ number_format($stats['revenue_total'], 2) }}</h4>
+                        <p class="text-muted mb-0">
+                            <span class="text-success fw-bold font-size-12 me-2">
+                                ₦{{ number_format($stats['revenue_this_month'], 2) }}
+                            </span>
+                            <span class="text-muted">This Month</span>
+                        </p>
+                    </div>
+                    <div class="avatar-sm">
+                        <span class="avatar-title bg-light text-info rounded-3">
                             <i class="ri-money-dollar-circle-line font-size-24"></i>
                         </span>
                     </div>
@@ -66,188 +114,234 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6">
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <!-- Monthly Trends Chart -->
         <div class="card">
             <div class="card-body">
-                <div class="d-flex">
-                    <div class="flex-grow-1">
-                        <p class="text-truncate font-size-14 mb-2">Expired Listings</p>
-                        <h4 class="mb-2">{{ $expiredListings }}</h4>
-                    </div>
-                    <div class="avatar-sm">
-                        <span class="avatar-title bg-light text-danger rounded-3">
-                            <i class="ri-time-line font-size-24"></i>
-                        </span>
-                    </div>
+                <div class="d-sm-flex flex-wrap">
+                    <h4 class="card-title mb-4">Marketplace Trends</h4>
                 </div>
+                <div id="marketplace-trends-chart" class="apex-charts" style="min-height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <!-- Category Distribution -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Listings by Category</h4>
+                <div id="category-chart" class="apex-charts" style="min-height: 350px;"></div>
             </div>
         </div>
     </div>
 </div>
-<!-- Category Distribution -->
+
 <div class="row">
     <div class="col-xl-6">
+        <!-- Recent Listings -->
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title mb-4">Category Distribution</h4>
-                <a href="{{ route('admin.marketplace.categories') }}">Add Category</a>
-                <div id="category-chart" class="apex-charts" dir="ltr"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-4">Categories</h4>
+                <div class="d-sm-flex flex-wrap">
+                    <h4 class="card-title mb-4">Recent Listings</h4>
+                    <div class="ms-auto">
+                        <a href="{{ route('admin.marketplace.listings') }}" class="btn btn-primary btn-sm">View All</a>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover table-centered table-nowrap mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">Category</th>
-                                <th scope="col">Total Listings</th>
-                                <th scope="col">Actions</th>
+                                <th>Product</th>
+                                <th>Farmer</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($categoryCounts as $category)
+                            @forelse($recentListings as $listing)
                             <tr>
-                                <td>{{ $category->name }}</td>
-                                <td>{{ $category->listings_count }}</td>
                                 <td>
-                                    <a href="{{ route('admin.marketplace.listings', ['category_id' => $category->id]) }}" class="btn btn-sm btn-primary">View Listings</a>
+                                    <h5 class="font-size-14 mb-1">{{ Str::limit($listing->title, 30) }}</h5>
+                                    <p class="text-muted mb-0">{{ $listing->category->name }}</p>
                                 </td>
+                                <td>{{ $listing->user->name }}</td>
+                                <td>₦{{ number_format($listing->price, 2) }}</td>
+                                <td>
+                                    @if($listing->status === 'active')
+                                        <span class="badge bg-success">Active</span>
+                                    @elseif($listing->status === 'pending_review')
+                                        <span class="badge bg-warning">Pending</span>
+                                    @elseif($listing->status === 'rejected')
+                                        <span class="badge bg-danger">Rejected</span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ ucfirst($listing->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $listing->created_at->format('d M, Y') }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-4">No recent listings</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-    <!-- Recent Listings -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title">Recent Listings</h4>
-                        <a href="{{ route('admin.marketplace.listings') }}" class="btn btn-primary">View All Listings</a>
+
+    <div class="col-xl-6">
+        <!-- Recent Subscriptions -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-sm-flex flex-wrap">
+                    <h4 class="card-title mb-4">Recent Subscriptions</h4>
+                    <div class="ms-auto">
+                        <a href="{{ route('admin.marketplace.subscriptions') }}" class="btn btn-primary btn-sm">View All</a>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-centered table-nowrap mb-0">
-                            <thead>
-                                <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Title</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Category</th>
-                                    <th scope="col">Seller</th>
-                                    <th scope="col">Availability</th>
-                                    <th scope="col">Created</th>
-                                    <th scope="col">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($recentListings as $listing)
-                                <tr>
-                                    <td>{{ $listing->id }}</td>
-                                    <td>
-                                        <div class="text-truncate" style="max-width: 150px;">{{ $listing->title }}</div>
-                                    </td>
-                                    <td>{{ number_format($listing->price, 2) }}</td>
-                                    <td>{{ $listing->category->name }}</td>
-                                    <td>{{ $listing->user->name }}</td>
-                                    <td>
-                                        @if($listing->availability == 'available')
-                                            <span class="badge bg-success">Available</span>
-                                        @elseif($listing->availability == 'sold')
-                                            <span class="badge bg-warning">Sold</span>
-                                        @elseif($listing->availability == 'pending')
-                                            <span class="badge bg-info">Pending</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactive</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $listing->created_at->format('d M Y') }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('marketplace.show', $listing) }}" class="btn btn-sm btn-info" target="_blank">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                            <form action="{{ route('admin.marketplace.listings.remove', $listing) }}" method="POST" class="delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-centered table-nowrap mb-0">
+                        <thead>
+                            <tr>
+                                <th>Farmer</th>
+                                <th>Amount</th>
+                                <th>Valid Until</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentSubscriptions as $subscription)
+                            <tr>
+                                <td>
+                                    <h5 class="font-size-14 mb-1">{{ $subscription->user->name }}</h5>
+                                    <p class="text-muted mb-0">{{ $subscription->user->email }}</p>
+                                </td>
+                                <td>₦{{ number_format($subscription->amount, 2) }}</td>
+                                <td>{{ $subscription->end_date->format('d M, Y') }}</td>
+                                <td>
+                                    @if($subscription->is_active)
+                                        <span class="badge bg-success">Active</span>
+                                    @else
+                                        <span class="badge bg-secondary">Expired</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No recent subscriptions</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+</div>
+
+<!-- Top Locations -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Top Locations by Listings</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Location (LGA)</th>
+                                <th>Active Listings</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($lgaStats as $index => $lga)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $lga->location }}</strong></td>
+                                <td>{{ $lga->count }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                            style="width: {{ ($lga->count / $lgaStats->max('count')) * 100 }}%">
+                                            {{ $lga->count }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No location data available</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Category chart data
-        const categoryLabels = {!! json_encode($categoryCounts->pluck('name')) !!};
-        const categoryData = {!! json_encode($categoryCounts->pluck('listings_count')) !!};
-        
-        // Category chart
-        const categoryChart = new ApexCharts(document.querySelector("#category-chart"), {
-            series: categoryData,
-            chart: {
-                type: 'pie',
-                height: 350
-            },
-            labels: categoryLabels,
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
-                    },
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }],
-            colors: [
-                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
-                '#5a5c69', '#6f42c1', '#fd7e14', '#20c997', '#17a2b8'
-            ]
-        });
-        
-        categoryChart.render();
-        
-        // Delete confirmation
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This listing will be permanently removed!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
-                });
-            });
-        });
-    });
+// Monthly Trends Chart
+var trendsOptions = {
+    series: [{
+        name: 'Listings',
+        data: @json($monthlyTrends->pluck('listings'))
+    }, {
+        name: 'Subscriptions',
+        data: @json($monthlyTrends->pluck('subscriptions'))
+    }, {
+        name: 'Revenue (₦1000s)',
+        data: @json($monthlyTrends->pluck('revenue')->map(fn($val) => $val / 1000))
+    }],
+    chart: {
+        height: 350,
+        type: 'line',
+        toolbar: { show: false }
+    },
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: {
+        categories: @json($monthlyTrends->pluck('month'))
+    },
+    colors: ['#556ee6', '#34c38f', '#f46a6a'],
+    legend: { position: 'top' }
+};
+var trendsChart = new ApexCharts(document.querySelector("#marketplace-trends-chart"), trendsOptions);
+trendsChart.render();
+
+// Category Distribution Chart
+var categoryOptions = {
+    series: @json($categoryStats->pluck('listings_count')),
+    chart: {
+        type: 'donut',
+        height: 350
+    },
+    labels: @json($categoryStats->pluck('name')),
+    colors: ['#556ee6', '#34c38f', '#f46a6a', '#50a5f1', '#f1b44c', '#343a40'],
+    legend: { position: 'bottom' },
+    responsive: [{
+        breakpoint: 480,
+        options: {
+            chart: { width: 200 },
+            legend: { position: 'bottom' }
+        }
+    }]
+};
+var categoryChart = new ApexCharts(document.querySelector("#category-chart"), categoryOptions);
+categoryChart.render();
 </script>
 @endpush
+@endsection
