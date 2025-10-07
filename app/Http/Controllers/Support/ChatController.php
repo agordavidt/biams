@@ -234,6 +234,27 @@ class ChatController extends Controller
     }
 
     /**
+     * Poll for new messages (for real-time updates without WebSockets)
+     */
+    public function poll(Request $request, Chat $chat)
+    {
+        $this->authorize('view', $chat);
+        
+        $lastMessageId = $request->get('last_message_id', 0);
+        
+        $newMessages = $chat->messages()
+            ->where('id', '>', $lastMessageId)
+            ->with('sender')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        
+        return response()->json([
+            'new_messages' => $newMessages,
+            'chat_status' => $chat->status,
+        ]);
+    }
+
+    /**
      * Determine user's scope for chat access
      */
     private function getUserScope($user): array

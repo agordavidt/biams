@@ -438,6 +438,7 @@ Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->gro
         Route::post('/', [ChatController::class, 'store'])->name('store');
         Route::get('/{chat}', [ChatController::class, 'show'])->name('show');
         Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
+        Route::get('/{chat}/poll', [ChatController::class, 'poll'])->name('poll');
     });
 });
 
@@ -453,6 +454,7 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
         Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
         Route::post('/{chat}/assign', [ChatController::class, 'assign'])->name('assign');
         Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
+        Route::get('/{chat}/poll', [ChatController::class, 'poll'])->name('poll');
     });
 });
 
@@ -468,9 +470,9 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')
         Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
         Route::post('/{chat}/assign', [ChatController::class, 'assign'])->name('assign');
         Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
+        Route::get('/{chat}/poll', [ChatController::class, 'poll'])->name('poll');
     });
 });
-
 
 
 // Test custom error pages

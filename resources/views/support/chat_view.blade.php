@@ -90,11 +90,11 @@
     <div class="col-lg-9">
         <div class="card">
             <div class="card-body" style="height: 600px; display: flex; flex-direction: column;">
-                <!-- Messages Container -->
-                <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column-reverse;">
+                <!-- Messages Container - FIXED: Standard chat order (oldest to newest, scroll to bottom) -->
+                <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 1rem;">
                     <div id="messagesList">
-                        @foreach($chat->messages->reverse() as $message)
-                            <div class="message-item mb-3 {{ $message->sender_type === 'farmer' ? 'text-start' : 'text-end' }}">
+                        @forelse($chat->messages as $message)
+                            <div class="message-item mb-3 {{ $message->sender_type === 'farmer' ? 'text-start' : 'text-end' }}" data-message-id="{{ $message->id }}">
                                 <div class="d-inline-block" style="max-width: 70%;">
                                     <div class="card mb-1 {{ $message->sender_type === 'farmer' ? 'bg-light' : 'bg-primary text-white' }}">
                                         <div class="card-body p-2">
@@ -109,7 +109,12 @@
                                     </small>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="text-center text-muted py-5" id="noMessagesPlaceholder">
+                                <i class="ri-message-3-line display-4"></i>
+                                <p class="mt-3">No messages yet. Start the conversation!</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
                 
@@ -125,11 +130,13 @@
                                     rows="2" 
                                     placeholder="Type your message..."
                                     required
+                                    onkeydown="handleKeyDown(event)"
                                 ></textarea>
                                 <button type="submit" class="btn btn-primary" id="sendBtn">
                                     <i class="ri-send-plane-fill"></i> Send
                                 </button>
                             </div>
+                            <small class="text-muted">Press Enter to send, Shift+Enter for new line</small>
                         </form>
                     </div>
                 @else
@@ -149,10 +156,36 @@ const chatId = {{ $chat->id }};
 const routePrefix = '{{ $scope['type'] === 'farmer' ? 'farmer' : ($scope['type'] === 'lga' ? 'lga_admin' : 'admin') }}';
 const currentUserId = {{ auth()->id() }};
 const csrfToken = '{{ csrf_token() }}';
+let isCurrentUserFarmer = {{ $scope['type'] === 'farmer' ? 'true' : 'false' }};
+let isSending = false;
 
-// Send Message
+// Scroll to bottom on page load
+document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+});
+
+// Scroll to bottom function
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+}
+
+// Handle Enter key to send (Shift+Enter for new line)
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(event);
+    }
+}
+
+// Send Message - FIXED: Allow multiple messages without waiting for response
 async function sendMessage(event) {
     event.preventDefault();
+    
+    // Prevent duplicate sends while one is in progress
+    if (isSending) {
+        return;
+    }
     
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
@@ -160,7 +193,16 @@ async function sendMessage(event) {
     if (!message) return;
     
     const sendBtn = document.getElementById('sendBtn');
+    const originalBtnText = sendBtn.innerHTML;
+    
+    // Lock the send operation
+    isSending = true;
     sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Sending...';
+    
+    // Store message and clear input immediately for better UX
+    const messageToSend = message;
+    messageInput.value = '';
     
     try {
         const response = await fetch(`/${routePrefix}/support/${chatId}/messages`, {
@@ -170,52 +212,81 @@ async function sendMessage(event) {
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message: messageToSend })
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         const data = await response.json();
         
         if (data.success) {
-            messageInput.value = '';
+            // Remove "no messages" placeholder if exists
+            const placeholder = document.getElementById('noMessagesPlaceholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
             appendMessage(data.message);
+            scrollToBottom();
+        } else {
+            // If failed, restore the message to input
+            messageInput.value = messageToSend;
+            alert('Failed to send message. Please try again.');
         }
     } catch (error) {
         console.error('Error sending message:', error);
-        alert('Failed to send message. Please try again.');
+        // Restore the message to input
+        messageInput.value = messageToSend;
+        alert('Failed to send message. Please check your connection and try again.');
     } finally {
+        // Unlock send operation
+        isSending = false;
         sendBtn.disabled = false;
+        sendBtn.innerHTML = originalBtnText;
+        messageInput.focus();
     }
 }
 
-// Append new message to chat
+// Append new message to chat - FIXED: Append to bottom (standard chat behavior)
 function appendMessage(message) {
     const messagesList = document.getElementById('messagesList');
     const isFarmer = message.sender_type === 'farmer';
-    const isCurrentUser = message.sender.id === currentUserId;
+    const isCurrentUser = message.sender_id === currentUserId;
+    
+    // Check if message already exists
+    if (document.querySelector(`[data-message-id="${message.id}"]`)) {
+        return;
+    }
     
     const messageHtml = `
-        <div class="message-item mb-3 ${isFarmer ? 'text-start' : 'text-end'}">
+        <div class="message-item mb-3 ${isFarmer ? 'text-start' : 'text-end'}" data-message-id="${message.id}">
             <div class="d-inline-block" style="max-width: 70%;">
                 <div class="card mb-1 ${isFarmer ? 'bg-light' : 'bg-primary text-white'}">
                     <div class="card-body p-2">
-                        <p class="mb-1" style="white-space: pre-wrap;">${message.body}</p>
+                        <p class="mb-1" style="white-space: pre-wrap;">${escapeHtml(message.body)}</p>
                         <small class="${isFarmer ? 'text-muted' : 'text-white-50'}">
                             ${new Date(message.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                         </small>
                     </div>
                 </div>
                 <small class="${isFarmer ? 'text-muted' : 'text-end'}">
-                    ${message.sender.name}
+                    ${escapeHtml(message.sender.name)}
                 </small>
             </div>
         </div>
     `;
     
-    messagesList.insertAdjacentHTML('afterbegin', messageHtml);
-    
-    // Scroll to bottom
-    const container = document.getElementById('messagesContainer');
-    container.scrollTop = 0;
+    // Append to the END (bottom) of the messages list
+    messagesList.insertAdjacentHTML('beforeend', messageHtml);
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Assign Chat
@@ -235,6 +306,8 @@ async function assignChat(chatId) {
         
         if (data.success) {
             location.reload();
+        } else {
+            alert('Failed to assign chat. Please try again.');
         }
     } catch (error) {
         console.error('Error assigning chat:', error);
@@ -259,6 +332,8 @@ async function resolveChat(chatId) {
         
         if (data.success) {
             location.reload();
+        } else {
+            alert('Failed to resolve chat. Please try again.');
         }
     } catch (error) {
         console.error('Error resolving chat:', error);
@@ -266,22 +341,34 @@ async function resolveChat(chatId) {
     }
 }
 
-// Poll for new messages (fallback if not using WebSockets)
+// Poll for new messages every 5 seconds (simple fallback without WebSockets)
+let lastMessageId = {{ $chat->messages->last()->id ?? 0 }};
+
 setInterval(async () => {
-    if (document.hidden) return;
+    if (document.hidden || isSending) return;
     
     try {
-        const response = await fetch(`/${routePrefix}/support/${chatId}`, {
+        const response = await fetch(`/${routePrefix}/support/${chatId}/poll?last_message_id=${lastMessageId}`, {
             headers: {
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
             }
         });
         
-        // This would require an API endpoint that returns JSON
-        // For now, just reload if needed
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.new_messages && data.new_messages.length > 0) {
+                data.new_messages.forEach(message => {
+                    appendMessage(message);
+                    lastMessageId = Math.max(lastMessageId, message.id);
+                });
+                scrollToBottom();
+            }
+        }
     } catch (error) {
         console.error('Error polling messages:', error);
     }
-}, 5000); // Poll every 5 seconds
+}, 5000);
 </script>
 @endpush
