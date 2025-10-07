@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Support;
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\Message;
+use App\Models\Farmer;
 use App\Models\LGA;
 use App\Events\MessageSent;
 use App\Events\ChatCreated;
@@ -34,6 +35,17 @@ class ChatController extends Controller
                     ->selectRaw('COUNT(*)');
             }, 'unread_count');
 
+        // CRITICAL FIX: For farmers, filter by their farmer record
+        if ($scope['type'] === 'farmer') {
+            $farmer = Farmer::where('user_id', $user->id)->first();
+            
+            if (!$farmer) {
+                abort(403, 'No farmer profile found for this user');
+            }
+            
+            $chatsQuery->where('farmer_id', $farmer->id);
+        }
+        
         // Apply geographic filter for LGA-level users
         if ($scope['type'] === 'lga') {
             $chatsQuery->where('lga_id', $scope['lga_id']);
@@ -103,9 +115,11 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         
-        // Only farmers can create chats
-        if (!$user->hasRole('User') || !$user->farmerProfile) {
-            abort(403, 'Only farmers can create support chats');
+        // CRITICAL FIX: Find the farmer record by user_id
+        $farmer = Farmer::where('user_id', $user->id)->first();
+        
+        if (!$farmer) {
+            return back()->withErrors(['error' => 'No farmer profile found. Please contact support.']);
         }
 
         $validated = $request->validate([
@@ -113,8 +127,6 @@ class ChatController extends Controller
             'message' => 'required|string|max:5000',
             'priority' => 'sometimes|in:low,normal,high,urgent',
         ]);
-
-        $farmer = $user->farmerProfile;
 
         $chat = DB::transaction(function () use ($farmer, $validated, $user) {
             // Create chat
@@ -138,8 +150,8 @@ class ChatController extends Controller
             return $chat->load(['farmer.user', 'lga', 'latestMessage']);
         });
 
-        // Broadcast to LGA admins
-        broadcast(new ChatCreated($chat))->toOthers();
+        // Broadcast to LGA admins (optional - if you have broadcasting set up)
+        // broadcast(new ChatCreated($chat))->toOthers();
 
         return redirect()->route('farmer.support.show', $chat)
             ->with('success', 'Support chat created successfully');
@@ -181,8 +193,8 @@ class ChatController extends Controller
             return $message->load('sender');
         });
 
-        // Broadcast message
-        broadcast(new MessageSent($message))->toOthers();
+        // Broadcast message (optional)
+        // broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'success' => true,

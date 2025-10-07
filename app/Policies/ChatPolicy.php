@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Chat;
+use App\Models\Farmer;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ChatPolicy
@@ -28,13 +29,9 @@ class ChatPolicy
 
         // Farmers can only view their own chats
         if ($user->hasRole('User')) {
-            // Check if user has a farmer profile
-            if (!$user->farmerProfile) {
-                return false;
-            }
-            
-            // Check if this chat belongs to the farmer
-            return $chat->farmer_id === $user->farmerProfile->id;
+            // CRITICAL FIX: Check if the chat's farmer has this user_id
+            // This handles both activated and non-activated farmers
+            return $chat->farmer && $chat->farmer->user_id === $user->id;
         }
 
         return false;
@@ -97,7 +94,8 @@ class ChatPolicy
      */
     public function create(User $user): bool
     {
-        // Only farmers with profiles can create chats
-        return $user->hasRole('User') && $user->farmerProfile !== null;
+        // CRITICAL FIX: Only users with role 'User' who have a linked farmer profile can create chats
+        // Check if a Farmer record exists with this user_id
+        return $user->hasRole('User') && Farmer::where('user_id', $user->id)->exists();
     }
 }
