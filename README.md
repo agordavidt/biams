@@ -84,7 +84,7 @@ This document provides a concise summary of the major implemented features, thei
 
 
 ## Issues to address
-1 - support view accross roles, users should view charts, State Admin view chats as well
+1 - Super Admin Market Overview Controller, routes created but no views yet.
 2 - Super Admin Analytics for different features
 3 - Load LGAs on the governor dashboard policy analysis _ claude 7/10/2025
 4 - Factor in the isolated Data Analytics Features - 5/10/2025

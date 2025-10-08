@@ -313,7 +313,7 @@
                                 </a>
                             </li>
                             @endcan
-
+                            
                             <li class="menu-title">Account</li>
 
                             <!-- Logout -->
