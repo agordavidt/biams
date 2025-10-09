@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             LgaSeeder::class,
             DepartmentAndAgencySeeder::class,
             RolesAndPermissionsSeeder::class,
+           MarketplaceCategorySeeder::class,
+           
         ]);
       
     }

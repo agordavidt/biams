@@ -159,14 +159,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'administrative_type' => LGA::class,
         ])->syncRoles([$enrollmentAgentRole]);
 
-        User::firstOrCreate(['email' => 'farmer@test.com'], [
-            'name' => 'Test Farmer User',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'onboarded',
-            'administrative_id' => $lga->id,
-            'administrative_type' => LGA::class,
-        ])->syncRoles([$userRole]);
+        // User::firstOrCreate(['email' => 'farmer@test.com'], [
+        //     'name' => 'Test Farmer User',
+        //     'password' => Hash::make('password'),
+        //     'email_verified_at' => now(),
+        //     'status' => 'onboarded',
+        //     'administrative_id' => $lga->id,
+        //     'administrative_type' => LGA::class,
+        // ])->syncRoles([$userRole]);
 
         $this->command->info('Roles, permissions, and initial test users seeded successfully!');
     }

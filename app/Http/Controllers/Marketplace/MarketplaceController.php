@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Intervention\Image\Facades\Image;
+// REMOVED: use Intervention\Image\Facades\Image; // Removed Intervention Image Facade
 
 class MarketplaceController extends Controller
 {
@@ -507,42 +507,33 @@ class MarketplaceController extends Controller
     }
 
     /**
-     * Handle multiple image uploads with thumbnail generation.
+     * Handle multiple image uploads without thumbnail generation.
      */
     private function handleImageUploads(array $images, MarketplaceListing $listing)
     {
         $sortOrder = $listing->images()->count();
 
         foreach ($images as $index => $imageFile) {
+            // Store the original image directly using Laravel's Storage facade
             $path = $imageFile->store('marketplace/' . $listing->id, 'public');
             
-            // Generate thumbnail
-            $thumbnailPath = 'marketplace/' . $listing->id . '/thumb_' . basename($path);
-            $this->generateThumbnail($imageFile, $thumbnailPath);
+            // Thumbnail generation logic removed:
+            $thumbnailPath = null; 
 
             MarketplaceListingImage::create([
                 'listing_id' => $listing->id,
                 'image_path' => $path,
-                'thumbnail_path' => $thumbnailPath,
+                // Set thumbnail_path to null since we are not generating one
+                'thumbnail_path' => $thumbnailPath, 
                 'sort_order' => $sortOrder++,
                 'is_primary' => $index === 0 && $listing->images()->count() === 0,
             ]);
         }
     }
 
-    /**
-     * Generate thumbnail for image.
-     */
-    private function generateThumbnail($imageFile, $thumbnailPath)
-    {
-        try {
-            $img = Image::make($imageFile);
-            $img->fit(300, 300);
-            Storage::disk('public')->put($thumbnailPath, (string) $img->encode());
-        } catch (\Exception $e) {
-            Log::warning('Thumbnail generation failed: ' . $e->getMessage());
-        }
-    }
+    // REMOVED: private function generateThumbnail($imageFile, $thumbnailPath)
+    // The Intervention Image-dependent method is completely removed.
+    // The calling line in handleImageUploads has been updated.
 
     /**
      * Remove images from listing.
@@ -554,8 +545,10 @@ class MarketplaceController extends Controller
             ->get();
 
         foreach ($images as $image) {
-            Storage::disk('public')->delete($image->image_path);
-            if ($image->thumbnail_path) {
+            // Delete original image
+            Storage::disk('public')->delete($image->image_path); 
+            // Attempt to delete thumbnail if path exists
+            if ($image->thumbnail_path) { 
                 Storage::disk('public')->delete($image->thumbnail_path);
             }
             $image->delete();
