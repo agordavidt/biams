@@ -25,6 +25,7 @@ use App\Http\Controllers\EnrollmentAgent\FarmerController as EnrollmentFarmerCon
 use App\Http\Controllers\LGAAdmin\FarmerReviewController;
 use App\Http\Controllers\Auth\PasswordController; // Assuming this handles forced change
 use App\Http\Controllers\Analytics\AnalyticsController;
+use App\Http\Controllers\Analytics\AdvancedAnalyticsController;
 
 use App\Http\Controllers\Support\ChatController;
 use App\Http\Controllers\Marketplace\MarketplaceController;

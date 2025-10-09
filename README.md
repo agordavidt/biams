@@ -89,6 +89,9 @@ This document provides a concise summary of the major implemented features, thei
 3 - Load LGAs on the governor dashboard policy analysis _ claude 7/10/2025
 4 - Factor in the isolated Data Analytics Features - 5/10/2025
 5 - Plan and execute market listing, farmers pay a token before their goods are listed.
+6. - Super Admin analytics
+
+password for roles: 'password' => Hash::make('M4r!neT1g3r!')
 
 
 

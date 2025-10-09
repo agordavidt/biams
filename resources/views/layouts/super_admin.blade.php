@@ -236,23 +236,90 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
-
-                            <li class="menu-title">Analytics & Reports</li>
+                            </li>                           
 
                             <!-- Analytics -->
                             @can('view_analytics')
                             <li class="{{ request()->routeIs('analytics.*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('analytics.dashboard') }}" class="waves-effect">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-line-chart-line"></i>
-                                    <span>Analytics Dashboard</span>
+                                    <span>Analytics</span>
                                 </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li class="{{ request()->routeIs('analytics.dashboard') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.dashboard') }}" class="submenu-item">
+                                            <i class="ri-dashboard-3-line me-1"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <!-- <li class="{{ request()->routeIs('analytics.demographics') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.demographics') }}" class="submenu-item">
+                                            <i class="ri-group-line me-1"></i> Demographics
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.production') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.production') }}" class="submenu-item">
+                                            <i class="ri-plant-line me-1"></i> Production
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.crops') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.crops') }}" class="submenu-item">
+                                            <i class="ri-seedling-line me-1"></i> Crops
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.livestock') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.livestock') }}" class="submenu-item">
+                                            <i class="ri-bear-smile-line me-1"></i> Livestock
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.cooperatives') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.cooperatives') }}" class="submenu-item">
+                                            <i class="ri-team-line me-1"></i> Cooperatives
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.enrollment') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.enrollment') }}" class="submenu-item">
+                                            <i class="ri-user-add-line me-1"></i> Enrollment
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.trends') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.trends') }}" class="submenu-item">
+                                            <i class="ri-line-chart-line me-1"></i> Trends
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.lga_comparison') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.lga_comparison') }}" class="submenu-item">
+                                            <i class="ri-pie-chart-line me-1"></i> LGA Comparison
+                                        </a>
+                                    </li> -->
+                                </ul>
+                            </li>
+                            @endcan
+
+                            <!-- Advanced Analytics -->
+                            @can('view_analytics')
+                            <li class="{{ request()->routeIs('analytics.advanced.*') ? 'mm-active' : '' }}">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-bar-chart-box-line"></i>
+                                    <span>Advanced Analytics</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li class="{{ request()->routeIs('analytics.advanced.index') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.advanced.index') }}" class="submenu-item">
+                                            <i class="ri-filter-line me-1"></i> Custom Filters
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('analytics.advanced.predefined') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('analytics.advanced.predefined') }}" class="submenu-item">
+                                            <i class="ri-file-list-3-line me-1"></i> Predefined Reports
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             @endcan
 
                             <!-- Reports -->
                             @can('export_analytics')
-                            <li>
+                            <li class="{{ request()->routeIs('analytics.export') ? 'mm-active' : '' }}">
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-file-list-line"></i>
                                     <span>Reports</span>
@@ -282,7 +349,15 @@
                             </li>
                             @endcan
 
-                            <li class="menu-title">System</li>
+                            <!-- Support System -->
+                            @can('view_support_chats')
+                            <li class="{{ request()->routeIs('admin.support.*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
+                                    <i class="ri-customer-service-2-line"></i>
+                                    <span>Support System</span>
+                                </a>
+                            </li>
+                            @endcan
 
                             <!-- Audit Logs -->
                             @can('view_audit_logs')
@@ -303,19 +378,7 @@
                                 </a>
                             </li>
                             @endcan
-
-                            <!-- Support -->
-                            @can('view_support_chats')
-                            <li>
-                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
-                                    <i class="ri-customer-service-2-line"></i>
-                                    <span>Support Chats</span>
-                                </a>
-                            </li>
-                            @endcan
-                            
-                            <li class="menu-title">Account</li>
-
+                                                      
                             <!-- Logout -->
                             <form action="{{ route('logout') }}" method="POST" id="logout-form">
                                 @csrf
