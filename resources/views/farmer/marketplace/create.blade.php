@@ -132,8 +132,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Location (LGA) <span class="text-danger">*</span></label>
-                                <input type="text" name="location" class="form-control @error('location') is-invalid @enderror" 
-                                       value="{{ old('location') }}" required placeholder="e.g., Makurdi">
+                                <select name="location" class="form-select @error('location') is-invalid @enderror" required>
+                                    <option value="">Select LGA</option>
+                                    @foreach($lgas as $lga)
+                                        <option value="{{ $lga->name }}" {{ old('location') == $lga->name ? 'selected' : '' }}>
+                                            {{ $lga->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 <small class="text-muted">Specify the LGA where the product is located</small>
                                 @error('location')
                                     <div class="invalid-feedback">{{ $message }}</div>

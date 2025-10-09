@@ -1,4 +1,3 @@
-<!-- admin/marketplace/listings.blade.php -->
 @extends('layouts.admin')
 @section('content')
 <div class="row">
@@ -147,7 +146,7 @@ Copy            <div class="table-responsive">
                                             title="View Details">
                                         <i class="ri-file-list-line"></i>
                                     </button>
-                                    <form action="{{ route('admin.marketplace.listings.remove', $listing) }}" method="POST" class="delete-form">
+                                    <form action="{{ route('admin.marketplace.remove', $listing) }}" method="POST" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" title="Delete Listing">

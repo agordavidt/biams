@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
+use App\Models\LGA;
 use App\Models\Market\MarketplaceCategory;
 use App\Models\Market\MarketplaceListing;
 use App\Models\Market\MarketplaceListingImage;
@@ -197,8 +198,9 @@ class MarketplaceController extends Controller
         $this->authorize('create', MarketplaceListing::class);
 
         $categories = MarketplaceCategory::active()->get();
+         $lgas = LGA::orderBy('name')->get(['id', 'name']);
         
-        return view('farmer.marketplace.create', compact('categories'));
+       return view('farmer.marketplace.create', compact('categories', 'lgas'));
     }
 
     /**
