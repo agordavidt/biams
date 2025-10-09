@@ -31,7 +31,7 @@
                     <div class="flex-grow-1">
                         <h4 class="mb-1">{{ $lgaName }} Local Government</h4>
                         <p class="text-muted mb-0">
-                            <i class="ri-user-line me-1"></i>LGA Administrator: <strong>{{ Auth::user()->name }}</strong>
+                            <i class="ri-user-line me-1"></i>Divisional Agricultural Officer: <strong>{{ Auth::user()->name }}</strong>
                         </p>
                     </div>
                     <div class="flex-shrink-0 d-none d-md-block">
@@ -365,7 +365,7 @@
                             <i class="ri-lightbulb-line me-1"></i> Getting Started
                         </h5>
                         <p class="card-text mb-0">
-                            As an LGA Administrator for <strong>{{ $lgaName }}</strong>, you have oversight of farmer registrations and resource distribution within your local government area. Your primary responsibility is to review and approve farmer enrollments submitted by your enrollment agents, ensuring data accuracy and completeness before activation.
+                            As a Divisional Administrative Officer for <strong>{{ $lgaName }}</strong>, you have oversight of farmer registrations and resource distribution within your local government area. Your primary responsibility is to review and approve farmer enrollments submitted by your enrollment agents, ensuring data accuracy and completeness before activation.
                         </p>
                     </div>
                 </div>
