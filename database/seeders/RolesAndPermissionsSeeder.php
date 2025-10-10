@@ -74,7 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']); // FIX APPLIED HERE
         $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
-        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']); // FIX APPLIED HERE
+        $lgaAdminRole   = Role::firstOrCreate(['name' => 'Divisional Agriculture Officer', 'guard_name' => 'web']); // FIX APPLIED HERE
         $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
         $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']); // FIX APPLIED HERE
 

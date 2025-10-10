@@ -1,89 +1,93 @@
 @extends('layouts.super_admin')
+
 @section('content')
 <div class="page-content">
     <div class="container-fluid">
+        <!-- Page Title -->
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">User Management</h4>
-                    <div class="page-title-right">
-                        <a href="{{ route('super_admin.management.users.create') }}" class="btn btn-primary">
-                            <i class="ri-add-line align-middle me-1"></i> Create New User
-                        </a>
-                    </div>
+                    <a href="{{ route('super_admin.management.users.create') }}" class="btn btn-primary">
+                        <i class="ri-user-add-line"></i> Create User
+                    </a>
                 </div>
             </div>
         </div>
+        <!-- End Page Title -->
 
+        <!-- Success Message -->
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
+        </div>
         @endif
 
+        <!-- User Table -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <h4 class="card-title mb-4">All Users</h4>
                         <div class="table-responsive">
-                            <table id="usersTable" class="table table-bordered dt-responsive nowrap w-100">
+                            <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
                                 <thead class="table-light">
                                     <tr>
+                                        <th>S/N</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
                                         <th>Administrative Type</th>
                                         <th>Administrative Unit</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users as $user)
+                                    @forelse ($users as $index => $user)
                                         <tr>
+                                            <td>{{ $index + 1 }}</td>
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
+                                            <td>{{ $user->roles->first()?->name ?? 'No Role' }}</td>
                                             <td>
-                                                <span class="badge bg-info">
-                                                    {{ $user->roles->pluck('name')->implode(', ') }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if ($user->administrative_type)
-                                                    <span class="badge bg-secondary">
-                                                        {{ class_basename($user->administrative_type) }}
-                                                    </span>
+                                                @if($user->administrative_type)
+                                                    {{ class_basename($user->administrative_type) }}
                                                 @else
-                                                    <span class="text-muted">N/A</span>
+                                                    <span class="text-muted">Global</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                @if ($user->administrativeUnit)
+                                                @if($user->administrativeUnit)
                                                     {{ $user->administrativeUnit->name }}
                                                 @else
                                                     <span class="text-muted">N/A</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="status-badge status-{{ $user->status }}">
-                                                    {{ ucfirst($user->status) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ route('super_admin.management.users.edit', $user) }}" 
-                                                       class="btn btn-sm btn-primary" title="Edit">
-                                                        <i class="ri-edit-line"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-sm btn-danger" 
-                                                            onclick="deleteUser({{ $user->id }})" title="Delete">
+                                                <a href="{{ route('super_admin.management.users.edit', $user->id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="ri-edit-line"></i>
+                                                </a>
+                                                @if(Auth::id() !== $user->id)
+                                                <form action="{{ route('super_admin.management.users.destroy', $user->id) }}" method="POST" style="display: inline-block;" id="delete-form-{{ $user->id }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $user->id }})">
                                                         <i class="ri-delete-bin-line"></i>
                                                     </button>
-                                                </div>
+                                                </form>
+                                                @endif
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">No users found.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -91,27 +95,15 @@
                 </div>
             </div>
         </div>
+        <!-- End User Table -->
     </div>
 </div>
 
-<!-- Delete Form (Hidden) -->
-<form id="delete-user-form" method="POST" style="display: none;">
-    @csrf
-    @method('DELETE')
-</form>
-@endsection
-
+<!-- Delete Confirmation Script -->
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function() {
-        $('#usersTable').DataTable({
-            responsive: true,
-            order: [[0, 'asc']],
-            pageLength: 25
-        });
-    });
-
-    function deleteUser(userId) {
+    function confirmDelete(userId) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -122,11 +114,10 @@
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                const form = document.getElementById('delete-user-form');
-                form.action = `/super-admin/management/users/${userId}`;
-                form.submit();
+                document.getElementById('delete-form-' + userId).submit();
             }
         });
     }
 </script>
 @endpush
+@endsection
