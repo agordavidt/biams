@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>LGA Admin | Benue State Smart Agricultural System and Data Management</title>
+        <title>Enrollment Agent | Benue State Smart Agricultural System and Data Management</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -34,6 +34,14 @@
                 background-color: #fee2e2;
                 color: #991b1b;
             }
+            .status-approved {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+            .status-rejected {
+                background-color: #ffe4e6;
+                color: #be123c;
+            }
         </style>
     </head>
     <body data-topbar="dark">
@@ -42,7 +50,7 @@
                 <div class="navbar-header">
                     <div class="d-flex">
                         <div class="navbar-brand-box">
-                            <a href="{{ route('lga_admin.dashboard') }}" class="logo logo-dark">
+                            <a href="{{ route('enrollment.dashboard') }}" class="logo logo-dark">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -50,7 +58,7 @@
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
                             </a>
-                            <a href="{{ route('lga_admin.dashboard') }}" class="logo logo-light">
+                            <a href="{{ route('enrollment.dashboard') }}" class="logo logo-light">
                                 <span class="logo-sm">
                                     <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Site Logo" height="40">
                                 </span>
@@ -98,34 +106,31 @@
                         <ul class="metismenu list-unstyled" id="side-menu">
                             
                             <li>
-                                <a href="{{ route('lga_admin.dashboard') }}" class="waves-effect">
+                                <a href="{{ route('enrollment.dashboard') }}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
                             
                             <li>
-                                <a href="{{ route('lga_admin.farmers.index') }}" class="waves-effect">
-                                    <i class="ri-file-user-line"></i>
-                                    <span>Farmer Review</span>
+                                <a href="{{ route('enrollment.farmers.index') }}" class="waves-effect">
+                                    <i class="ri-file-list-3-line"></i>
+                                    <span>My Enrollments</span>
                                 </a>
                             </li>
 
-                            {{-- Conditional link based on provided routes for agent management --}}
-                            @can('manage_lga_agents')
                             <li>
-                                <a href="{{ route('lga_admin.agents.index') }}" class="waves-effect">
-                                    <i class="ri-group-line"></i>
-                                    <span>Manage Agents</span>
+                                <a href="{{ route('enrollment.farmers.create') }}" class="waves-effect">
+                                    <i class="ri-user-add-line"></i>
+                                    <span>New Enrollment</span>
                                 </a>
                             </li>
-                            @endcan
-                            
 
                         </ul>
                     </div>
-                    </div>
+                </div>
             </div>
+            
             <div class="main-content">
                 <div class="page-content">
                     <div class="container-fluid">
@@ -177,7 +182,6 @@
         <script>
             document.getElementById('logout-link').addEventListener('click', function(event) { 
                 event.preventDefault();
-                // Assumes a route named 'logout' exists for the logout form action
                 document.getElementById('logout-form').submit(); 
             });
         </script>

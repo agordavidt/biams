@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>LGA Admin | {{ 'Benue State Smart Agricultural System and Data Management' }}</title>
+        <title>Divisioanl Agriculture Officers | {{ 'Benue State Smart Agricultural System and Data Management' }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
