@@ -62,8 +62,12 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($user->administrativeUnit)
-                                                    {{ $user->administrativeUnit->name }}
+                                                @if($user->administrative_type && $user->administrative_id)
+                                                    @php
+                                                        $unitModel = $user->administrative_type;
+                                                        $unit = $unitModel::find($user->administrative_id);
+                                                    @endphp
+                                                    {{ $unit?->name ?? 'Unit Not Found' }}
                                                 @else
                                                     <span class="text-muted">N/A</span>
                                                 @endif

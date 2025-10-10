@@ -19,7 +19,7 @@ class ManagementController extends Controller
 {
     protected $globalRoles = ['Super Admin', 'Governor'];
     protected $unitRoleMap = [
-        'LGA Admin' => ['LGA'],
+        'Divisional Agriculture Officer' => ['LGA'], // Changed from 'LGA Admin'
         'Enrollment Agent' => ['LGA'],
         'State Admin' => ['Department', 'Agency'],
     ];
@@ -41,8 +41,18 @@ class ManagementController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // CORRECT: Use the actual relationship method name
-        $users = User::with(['roles', 'administrativeUnit'])->get();
+        // Eager load roles and administrative units
+        $users = User::with(['roles'])->get()->map(function($user) {
+            // Manually load the administrative unit if exists
+            if ($user->administrative_type && $user->administrative_id) {
+                $unitClass = $user->administrative_type;
+                if (class_exists($unitClass)) {
+                    $user->loadedAdministrativeUnit = $unitClass::find($user->administrative_id);
+                }
+            }
+            return $user;
+        });
+        
         return view('super_admin.management.users.index', compact('users'));
     }
 
