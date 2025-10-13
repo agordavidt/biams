@@ -33,8 +33,8 @@ class FarmLand extends Model
         return $this->belongsTo(Farmer::class);
     }
 
-    // Dynamic Relationship to Practice Details
-    public function practiceDetails(): HasOne
+    // Dynamic Relationship to Practice Details  
+    public function practiceDetails()
     {
         switch ($this->farm_type) {
             case 'crops':
@@ -46,10 +46,10 @@ class FarmLand extends Model
             case 'orchards':
                 return $this->hasOne(OrchardPracticeDetails::class);
             default:
-                return $this->hasOne(Model::class); // Fallback
+                // Return null or handle the case appropriately
+                return null;
         }
     }
-  
 
     // Individual practice detail relationships
     public function cropPracticeDetails(): HasOne

@@ -21,6 +21,14 @@ class LGA extends Model
     {
         return $this->morphMany(User::class, 'administrative');
     }
+
+     /**
+     * Get all farmers in this LGA.
+     */
+    public function farmers()
+    {
+        return $this->hasMany(Farmer::class, 'lga_id');
+    }
 }
 
 

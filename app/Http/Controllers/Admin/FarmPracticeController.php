@@ -20,20 +20,22 @@ class FarmPracticeController extends Controller
         // Get comprehensive statistics
         $stats = $this->getComprehensiveStats();
         
-        // Get farm type distribution
-        $farmTypeDistribution = $this->getFarmTypeDistribution();
-        
-        // Get LGA-wise farm distribution
+     
+        $farmTypeDistribution = $this->getFarmTypeDistribution(); 
         $lgaDistribution = $this->getLGADistribution($request);
-        
-        // Get practice-specific analytics
         $practiceAnalytics = $this->getPracticeAnalytics();
-        
         // Get recent farms for overview
-        $recentFarms = FarmLand::with(['farmer.lga', 'practiceDetails'])
+        $recentFarms = FarmLand::with([
+            'farmer.lga',
+            'cropPracticeDetails',
+            'livestockPracticeDetails',
+            'fisheriesPracticeDetails',
+            'orchardPracticeDetails'
+        ])
             ->latest()
             ->limit(10)
-            ->get();
+            ->get();       
+       
         
         $lgas = LGA::orderBy('name')->get();
         
@@ -212,14 +214,21 @@ class FarmPracticeController extends Controller
         return view('admin.farm-practices.orchards', compact('orchards', 'orchardStats', 'lgas'));
     }
 
-    private function getComprehensiveStats()
+   private function getComprehensiveStats()
     {
+        
+        $farmersWithFarms = Farmer::whereHas('farmLands')
+            ->withCount('farmLands')
+            ->get();
+        
+        $farmsPerFarmer = $farmersWithFarms->avg('farm_lands_count') ?? 0;
+
         return [
             'totalFarms' => FarmLand::count(),
             'totalFarmers' => Farmer::whereHas('farmLands')->count(),
             'totalLandSize' => FarmLand::sum('total_size_hectares'),
             'avgFarmSize' => FarmLand::avg('total_size_hectares'),
-            'farmsPerFarmer' => Farmer::whereHas('farmLands')->withCount('farmLands')->avg('farm_lands_count'),
+            'farmsPerFarmer' => $farmsPerFarmer,
             'cropFarms' => FarmLand::where('farm_type', 'crops')->count(),
             'livestockFarms' => FarmLand::where('farm_type', 'livestock')->count(),
             'fisheriesFarms' => FarmLand::where('farm_type', 'fisheries')->count(),
