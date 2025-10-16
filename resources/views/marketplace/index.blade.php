@@ -149,7 +149,8 @@
                                         </h3>
                                         <div class="product-meta-info">
                                             <span class="price">₦{{ number_format($listing->price, 2) }} / {{ $listing->unit }}</span>
-                                        </div>                                        
+                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -191,6 +192,7 @@
         padding: 20px;
         border-radius: 8px;
         border: 1px solid #e0e0e0;
+        height: 100vh;
     }
     
     .widget-title {
@@ -301,9 +303,9 @@
         font-size: 0.95rem;
     }
     
-    .side-search button {
+    .side-search button i {       
         position: absolute;
-        right: 10px;
+        right: 0;
         top: 50%;
         transform: translateY(-50%);
         background: none;
@@ -327,8 +329,10 @@
     }
     
     @media (max-width: 991px) {
+        
         .shop-sidebar {
             order: -1;
+            height: none;
         }
     }
     
