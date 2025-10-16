@@ -73,6 +73,14 @@
                 color: #dc2626;
                 background-color: #fef2f2;
             }
+            /* Badge soft colors */
+            .badge-soft-primary { background-color: #e0e7ff; color: #4f46e5; }
+            .badge-soft-success { background-color: #dcfce7; color: #166534; }
+            .badge-soft-warning { background-color: #fef3c7; color: #92400e; }
+            .badge-soft-danger { background-color: #fee2e2; color: #991b1b; }
+            .badge-soft-info { background-color: #dbeafe; color: #1e40af; }
+            .badge-soft-secondary { background-color: #f3f4f6; color: #4b5563; }
+            .badge-soft-dark { background-color: #e5e7eb; color: #1f2937; }
         </style>
         </head>
 
@@ -257,12 +265,51 @@
                                 </a>
                             </li>
 
+                            <!-- Marketplace Menu -->
+                            @can('manage_supplier_catalog')
                             <li>
-                                <a href="#" class="waves-effect">
-                                    <i class="ri-exchange-dollar-line me-2"></i>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-store-2-line me-2"></i>
                                     <span>Marketplace</span>
+                                    @php
+                                        $pendingCount = \App\Models\Market\MarketplaceListing::where('status', 'pending_review')->count();
+                                    @endphp
+                                    @if($pendingCount > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
+                                    @endif
                                 </a>
-                            </li>                
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.dashboard') }}">
+                                            <i class="ri-dashboard-line me-1"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.listings') }}">
+                                            <i class="ri-shopping-bag-line me-1"></i> Listings
+                                            @if($pendingCount > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.categories') }}">
+                                            <i class="ri-list-check me-1"></i> Categories
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.subscriptions') }}">
+                                            <i class="ri-vip-crown-line me-1"></i> Subscriptions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.analytics') }}">
+                                            <i class="ri-line-chart-line me-1"></i> Analytics
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endcan
                             
                             <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
                                 @csrf 
@@ -286,6 +333,52 @@
 
                 <div class="page-content">
                     <div class="container-fluid">
+
+                    <!-- Flash Messages -->
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="ri-checkbox-circle-line me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="ri-alert-line me-2"></i>
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="ri-information-line me-2"></i>
+                            {{ session('info') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            <strong>Validation Errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
                     @yield('content')
 
@@ -364,15 +457,28 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-        @stack('scripts')
 
         <script> 
-        document.getElementById('logout-link').addEventListener('click', function(event) { event.preventDefault(); 
-            document.getElementById('logout-form').submit(); }); 
+        document.getElementById('logout-link').addEventListener('click', function(event) { 
+            event.preventDefault(); 
+            document.getElementById('logout-form').submit(); 
+        }); 
         </script>
 
+        <!-- Auto-hide alerts after 5 seconds -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+        </script>
 
-    @stack('scripts')
+        @stack('scripts')
     </body>
 
 </html>

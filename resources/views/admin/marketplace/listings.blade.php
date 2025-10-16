@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -14,6 +15,87 @@
         </div>
     </div>
 </div>
+
+<!-- Status Overview Cards -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="fw-medium text-muted mb-0">All Listings</p>
+                        <h2 class="mt-4 ff-secondary fw-semibold">{{ $statusCounts['all'] }}</h2>
+                    </div>
+                    <div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-soft-info rounded-circle fs-2">
+                                <i class="ri-shopping-bag-line text-info"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="fw-medium text-muted mb-0">Pending Review</p>
+                        <h2 class="mt-4 ff-secondary fw-semibold text-warning">{{ $statusCounts['pending_review'] }}</h2>
+                    </div>
+                    <div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-soft-warning rounded-circle fs-2">
+                                <i class="ri-time-line text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="fw-medium text-muted mb-0">Active</p>
+                        <h2 class="mt-4 ff-secondary fw-semibold text-success">{{ $statusCounts['active'] }}</h2>
+                    </div>
+                    <div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-soft-success rounded-circle fs-2">
+                                <i class="ri-checkbox-circle-line text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="fw-medium text-muted mb-0">Expired</p>
+                        <h2 class="mt-4 ff-secondary fw-semibold text-danger">{{ $statusCounts['expired'] }}</h2>
+                    </div>
+                    <div>
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-soft-danger rounded-circle fs-2">
+                                <i class="ri-close-circle-line text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Filter Card -->
 <div class="row">
     <div class="col-12">
@@ -25,18 +107,19 @@
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">All Statuses</option>
+                            <option value="pending_review" {{ request('status') == 'pending_review' ? 'selected' : '' }}>Pending Review</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Sold</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="sold_out" {{ request('status') == 'sold_out' ? 'selected' : '' }}>Sold Out</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label for="category_id" class="form-label">Category</label>
-                        <select class="form-select" id="category_id" name="category_id">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
                             <option value="">All Categories</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -44,133 +127,242 @@
                     </div>
                     <div class="col-md-4">
                         <label for="search" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="search" name="search" placeholder="Search title, description or seller" value="{{ request('search') }}">
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search title, description or farmer name" 
+                               value="{{ request('search') }}">
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ri-search-line me-1"></i> Apply
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Listings Table -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title">All Listings</h5>
-                    @if(request()->has('search') || request()->has('status') || request()->has('category_id'))
-                        <a href="{{ route('admin.marketplace.listings') }}" class="btn btn-outline-secondary">
+                    <h5 class="card-title mb-0">All Listings ({{ $listings->total() }})</h5>
+                    @if(request()->hasAny(['search', 'status', 'category']))
+                        <a href="{{ route('admin.marketplace.listings') }}" class="btn btn-outline-secondary btn-sm">
                             <i class="ri-restart-line me-1"></i> Clear Filters
                         </a>
                     @endif
                 </div>
-Copy            <div class="table-responsive">
-                <table id="listings-table" class="table table-striped table-bordered dt-responsive nowrap">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Title</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>Seller</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Expires</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($listings as $listing)
-                        <tr>
-                            <td>{{ $listing->id }}</td>
-                            <td>
-                                @if($listing->image)
-                                    <a href="{{ Storage::url($listing->image) }}" class="image-popup-no-margins">
-                                        <img src="{{ Storage::url($listing->image) }}" alt="{{ $listing->title }}" class="img-fluid" style="max-height: 50px; max-width: 50px;">
-                                    </a>
-                                @else
-                                    <span class="text-muted"><i class="ri-image-line"></i> No Image</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="text-truncate" style="max-width: 200px;">{{ $listing->title }}</div>
-                            </td>
-                            <td>{{ number_format($listing->price, 2) }}</td>
-                            <td>{{ $listing->category->name }}</td>
-                            <td>{{ $listing->user->name }}</td>
-                            <td>
-                                @if($listing->status == 'active')
-                                    <span class="badge bg-success">Active</span>
-                                @elseif($listing->status == 'sold')
-                                    <span class="badge bg-warning">Sold</span>
-                                @elseif($listing->status == 'pending')
-                                    <span class="badge bg-info">Pending</span>
-                                @else
-                                    <span class="badge bg-danger">Inactive</span>
-                                @endif
-                            </td>
-                            <td>{{ $listing->created_at->format('d M Y') }}</td>
-                            <td>
-                                @if($listing->expires_at)
-                                    @if($listing->expires_at < now())
-                                        <span class="text-danger">{{ $listing->expires_at->format('d M Y') }}</span>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Farmer</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($listings as $listing)
+                            <tr>
+                                <td><strong>#{{ $listing->id }}</strong></td>
+                                <td>
+                                    @if($listing->primaryImage)
+                                        <img src="{{ Storage::url($listing->primaryImage->thumbnail_path ?? $listing->primaryImage->image_path) }}" 
+                                             alt="{{ $listing->title }}" 
+                                             class="avatar-sm rounded"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
                                     @else
-                                        {{ $listing->expires_at->format('d M Y') }}
+                                        <div class="avatar-sm">
+                                            <div class="avatar-title bg-light text-muted rounded">
+                                                <i class="ri-image-line"></i>
+                                            </div>
+                                        </div>
                                     @endif
-                                @else
-                                    <span class="text-muted">N/A</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <!-- <a href="{{ route('marketplace.show', $listing) }}" class="btn btn-sm btn-info" target="_blank" title="View Listing">
-                                        <i class="ri-eye-line"></i>
-                                    </a> -->
-                                    <button type="button" class="btn btn-sm btn-primary view-details-btn" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#listingDetailsModal" 
-                                            data-id="{{ $listing->id }}"
-                                            data-title="{{ $listing->title }}"
-                                            data-description="{{ $listing->description }}"
-                                            data-price="{{ $listing->price }}"
-                                            data-category="{{ $listing->category->name }}"
-                                            data-seller="{{ $listing->user->name }}"
-                                            data-status="{{ $listing->status }}"
-                                            data-created="{{ $listing->created_at->format('d M Y') }}"
-                                            data-expires="{{ $listing->expires_at ? $listing->expires_at->format('d M Y') : 'N/A' }}"
-                                            data-image="{{ $listing->image ? Storage::url($listing->image) : '' }}"
-                                            title="View Details">
-                                        <i class="ri-file-list-line"></i>
-                                    </button>
-                                    <form action="{{ route('admin.marketplace.remove', $listing) }}" method="POST" class="delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Listing">
-                                            <i class="ri-delete-bin-line"></i>
+                                </td>
+                                <td>
+                                    <h6 class="mb-1">{{ Str::limit($listing->title, 40) }}</h6>
+                                    <p class="text-muted mb-0 small">
+                                        <i class="ri-eye-line me-1"></i>{{ $listing->view_count }} views
+                                        <span class="mx-1">•</span>
+                                        <i class="ri-question-line me-1"></i>{{ $listing->inquiries_count }} inquiries
+                                    </p>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 avatar-xs me-2">
+                                            <div class="avatar-title bg-soft-primary text-primary rounded-circle">
+                                                {{ substr($listing->user->name, 0, 1) }}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">{{ $listing->user->name }}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-soft-info">{{ $listing->category->name }}</span>
+                                </td>
+                                <td>
+                                    <strong>₦{{ number_format($listing->price, 2) }}</strong>
+                                    @if($listing->unit)
+                                        <small class="text-muted d-block">per {{ $listing->unit }}</small>
+                                    @endif
+                                </td>
+                                <td>{{ $listing->location }}</td>
+                                <td>
+                                    @switch($listing->status)
+                                        @case('active')
+                                            <span class="badge badge-soft-success">
+                                                <i class="ri-checkbox-circle-line me-1"></i>Active
+                                            </span>
+                                            @break
+                                        @case('pending_review')
+                                            <span class="badge badge-soft-warning">
+                                                <i class="ri-time-line me-1"></i>Pending Review
+                                            </span>
+                                            @break
+                                        @case('rejected')
+                                            <span class="badge badge-soft-danger">
+                                                <i class="ri-close-circle-line me-1"></i>Rejected
+                                            </span>
+                                            @break
+                                        @case('expired')
+                                            <span class="badge badge-soft-secondary">
+                                                <i class="ri-calendar-close-line me-1"></i>Expired
+                                            </span>
+                                            @break
+                                        @case('sold_out')
+                                            <span class="badge badge-soft-dark">
+                                                <i class="ri-shopping-cart-line me-1"></i>Sold Out
+                                            </span>
+                                            @break
+                                        @default
+                                            <span class="badge badge-soft-secondary">{{ ucfirst($listing->status) }}</span>
+                                    @endswitch
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ $listing->created_at->format('d M, Y') }}</small>
+                                    @if($listing->expires_at)
+                                        <small class="d-block {{ $listing->is_expired ? 'text-danger' : 'text-muted' }}">
+                                            <i class="ri-calendar-line me-1"></i>
+                                            {{ $listing->is_expired ? 'Expired' : 'Expires' }}: {{ $listing->expires_at->format('d M, Y') }}
+                                        </small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <!-- View Details -->
+                                        <button type="button" 
+                                                class="btn btn-sm btn-soft-info view-details-btn" 
+                                                data-listing="{{ json_encode([
+                                                    'id' => $listing->id,
+                                                    'title' => $listing->title,
+                                                    'description' => $listing->description,
+                                                    'price' => $listing->price,
+                                                    'unit' => $listing->unit,
+                                                    'quantity' => $listing->quantity,
+                                                    'location' => $listing->location,
+                                                    'contact' => $listing->contact,
+                                                    'category' => $listing->category->name,
+                                                    'farmer' => $listing->user->name,
+                                                    'farmer_email' => $listing->user->email,
+                                                    'status' => $listing->status,
+                                                    'created_at' => $listing->created_at->format('d M, Y h:i A'),
+                                                    'expires_at' => $listing->expires_at ? $listing->expires_at->format('d M, Y') : null,
+                                                    'approved_at' => $listing->approved_at ? $listing->approved_at->format('d M, Y h:i A') : null,
+                                                    'approved_by' => $listing->approvedBy ? $listing->approvedBy->name : null,
+                                                    'rejection_reason' => $listing->rejection_reason,
+                                                    'view_count' => $listing->view_count,
+                                                    'inquiry_count' => $listing->inquiry_count,
+                                                    'image' => $listing->primaryImage ? Storage::url($listing->primaryImage->image_path) : null,
+                                                    'images' => $listing->images->map(fn($img) => Storage::url($img->image_path))
+                                                ]) }}"
+                                                title="View Details">
+                                            <i class="ri-eye-line"></i>
                                         </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="d-flex justify-content-end mt-3">
-                {{ $listings->appends(request()->query())->links() }}
+
+                                        <!-- Approve (Only for pending_review) -->
+                                        @if($listing->status === 'pending_review')
+                                            <form action="{{ route('admin.marketplace.approve', $listing) }}" 
+                                                  method="POST" 
+                                                  class="approve-form">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-soft-success" 
+                                                        title="Approve Listing">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </button>
+                                            </form>
+
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-soft-danger reject-btn" 
+                                                    data-listing-id="{{ $listing->id }}"
+                                                    data-listing-title="{{ $listing->title }}"
+                                                    title="Reject Listing">
+                                                <i class="ri-close-circle-line"></i>
+                                            </button>
+                                        @endif
+
+                                        <!-- Delete -->
+                                        <form action="{{ route('admin.marketplace.remove', $listing) }}" 
+                                              method="POST" 
+                                              class="delete-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-soft-danger" 
+                                                    title="Delete Listing">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="10" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="ri-inbox-line display-4 text-muted mb-3"></i>
+                                        <h5 class="text-muted">No listings found</h5>
+                                        <p class="text-muted">Try adjusting your filters</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if($listings->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Showing {{ $listings->firstItem() }} to {{ $listings->lastItem() }} of {{ $listings->total() }} entries
+                    </div>
+                    <div>
+                        {{ $listings->appends(request()->query())->links() }}
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
-</div>
+
 <!-- Listing Details Modal -->
 <div class="modal fade" id="listingDetailsModal" tabindex="-1" aria-labelledby="listingDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="listingDetailsModalLabel">Listing Details</h5>
@@ -178,132 +370,318 @@ Copy            <div class="table-responsive">
             </div>
             <div class="modal-body">
                 <div class="row">
+                    <!-- Image Section -->
                     <div class="col-md-5 mb-3 mb-md-0">
-                        <div id="listing-image-container" class="text-center">
-                            <img id="listing-image" src="" alt="Listing Image" class="img-fluid rounded" style="max-height: 300px;">
-                            <p id="no-image-text" class="text-muted mt-3 d-none">
-                                <i class="ri-image-line me-1"></i> No image available
+                        <div id="listing-image-container">
+                            <div id="listingImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner" id="carousel-images">
+                                    <!-- Images will be populated here -->
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#listingImagesCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#listingImagesCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <p id="no-image-text" class="text-center text-muted mt-3 d-none">
+                                <i class="ri-image-line fs-1 d-block mb-2"></i>
+                                No image available
                             </p>
                         </div>
                     </div>
+
+                    <!-- Details Section -->
                     <div class="col-md-7">
                         <h4 id="listing-title" class="mb-3"></h4>
+                        
                         <div class="mb-3">
-                            <span class="badge bg-primary me-2" id="listing-category"></span>
-                            <span class="badge" id="listing-status"></span>
+                            <span class="badge badge-soft-primary me-2" id="listing-category"></span>
+                            <span class="badge" id="listing-status-badge"></span>
                         </div>
-                        <p class="mb-2"><strong>Price:</strong> <span id="listing-price"></span></p>
-                        <p class="mb-2"><strong>Seller:</strong> <span id="listing-seller"></span></p>
-                        <p class="mb-2"><strong>Created:</strong> <span id="listing-created"></span></p>
-                        <p class="mb-2"><strong>Expires:</strong> <span id="listing-expires"></span></p>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-semibold" style="width: 140px;">Price:</td>
+                                        <td>
+                                            <span id="listing-price" class="text-success fw-bold"></span>
+                                            <span id="listing-unit"></span>
+                                        </td>
+                                    </tr>
+                                    <tr id="quantity-row">
+                                        <td class="fw-semibold">Quantity:</td>
+                                        <td id="listing-quantity"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Farmer:</td>
+                                        <td>
+                                            <div id="listing-farmer"></div>
+                                            <small class="text-muted" id="listing-farmer-email"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Location:</td>
+                                        <td id="listing-location"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Contact:</td>
+                                        <td id="listing-contact"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Posted:</td>
+                                        <td id="listing-created"></td>
+                                    </tr>
+                                    <tr id="expires-row">
+                                        <td class="fw-semibold">Expires:</td>
+                                        <td id="listing-expires"></td>
+                                    </tr>
+                                    <tr id="approved-row">
+                                        <td class="fw-semibold">Approved:</td>
+                                        <td>
+                                            <div id="listing-approved"></div>
+                                            <small class="text-muted" id="listing-approved-by"></small>
+                                        </td>
+                                    </tr>
+                                    <tr id="rejection-row" class="d-none">
+                                        <td class="fw-semibold text-danger">Rejection Reason:</td>
+                                        <td>
+                                            <div class="alert alert-danger mb-0 py-2" id="listing-rejection-reason"></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-semibold">Engagement:</td>
+                                        <td>
+                                            <span id="listing-views"></span> views • 
+                                            <span id="listing-inquiries"></span> inquiries
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                         <hr>
-                        <h5>Description</h5>
+                        <h6 class="mb-2">Description</h6>
                         <p id="listing-description" class="text-muted"></p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a id="view-on-site-btn" href="#" target="_blank" class="btn btn-primary">View on Site</a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="rejection-form" method="POST">
+                @csrf
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="rejectionModalLabel">Reject Listing</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to reject: <strong id="reject-listing-title"></strong></p>
+                    <div class="mb-3">
+                        <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span></label>
+                        <textarea class="form-control" 
+                                  id="rejection_reason" 
+                                  name="rejection_reason" 
+                                  rows="4" 
+                                  required 
+                                  placeholder="Please provide a clear reason for rejection so the farmer can make necessary corrections..."></textarea>
+                        <div class="form-text">This will be sent to the farmer</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="ri-close-circle-line me-1"></i> Reject Listing
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
+
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize DataTable with custom settings
-        $('#listings-table').DataTable({
-            paging: false,
-            info: false,
-            responsive: true,
-            columnDefs: [
-                { orderable: false, targets: [1, 9] }
-            ]
-        });
-        
-        // Delete confirmation
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This listing will be permanently removed!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
+document.addEventListener('DOMContentLoaded', function() {
+    // View Details Modal
+    document.querySelectorAll('.view-details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const listing = JSON.parse(this.getAttribute('data-listing'));
+            
+            // Set basic details
+            document.getElementById('listing-title').textContent = listing.title;
+            document.getElementById('listing-description').textContent = listing.description;
+            document.getElementById('listing-price').textContent = '₦' + parseFloat(listing.price).toLocaleString('en-NG', {minimumFractionDigits: 2});
+            document.getElementById('listing-unit').textContent = listing.unit ? ' / ' + listing.unit : '';
+            document.getElementById('listing-category').textContent = listing.category;
+            document.getElementById('listing-farmer').textContent = listing.farmer;
+            document.getElementById('listing-farmer-email').textContent = listing.farmer_email;
+            document.getElementById('listing-location').textContent = listing.location;
+            document.getElementById('listing-contact').textContent = listing.contact;
+            document.getElementById('listing-created').textContent = listing.created_at;
+            document.getElementById('listing-views').textContent = listing.view_count;
+            document.getElementById('listing-inquiries').textContent = listing.inquiry_count;
+            
+            // Quantity
+            if (listing.quantity) {
+                document.getElementById('listing-quantity').textContent = listing.quantity;
+                document.getElementById('quantity-row').classList.remove('d-none');
+            } else {
+                document.getElementById('quantity-row').classList.add('d-none');
+            }
+            
+            // Expiry
+            if (listing.expires_at) {
+                document.getElementById('listing-expires').textContent = listing.expires_at;
+                document.getElementById('expires-row').classList.remove('d-none');
+            } else {
+                document.getElementById('expires-row').classList.add('d-none');
+            }
+            
+            // Approval info
+            if (listing.approved_at) {
+                document.getElementById('listing-approved').textContent = listing.approved_at;
+                document.getElementById('listing-approved-by').textContent = 'by ' + listing.approved_by;
+                document.getElementById('approved-row').classList.remove('d-none');
+            } else {
+                document.getElementById('approved-row').classList.add('d-none');
+            }
+            
+            // Rejection reason
+            if (listing.rejection_reason) {
+                document.getElementById('listing-rejection-reason').textContent = listing.rejection_reason;
+                document.getElementById('rejection-row').classList.remove('d-none');
+            } else {
+                document.getElementById('rejection-row').classList.add('d-none');
+            }
+            
+            // Status badge
+            const statusBadge = document.getElementById('listing-status-badge');
+            statusBadge.textContent = listing.status.replace('_', ' ').toUpperCase();
+            statusBadge.className = 'badge ';
+            
+            switch(listing.status) {
+                case 'active':
+                    statusBadge.className += 'badge-soft-success';
+                    break;
+                case 'pending_review':
+                    statusBadge.className += 'badge-soft-warning';
+                    break;
+                case 'rejected':
+                    statusBadge.className += 'badge-soft-danger';
+                    break;
+                case 'expired':
+                    statusBadge.className += 'badge-soft-secondary';
+                    break;
+                case 'sold_out':
+                    statusBadge.className += 'badge-soft-dark';
+                    break;
+            }
+            
+            // Handle images
+            const carouselImages = document.getElementById('carousel-images');
+            const noImageText = document.getElementById('no-image-text');
+            const carousel = document.getElementById('listingImagesCarousel');
+            
+            if (listing.images && listing.images.length > 0) {
+                carouselImages.innerHTML = '';
+                listing.images.forEach((image, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'carousel-item' + (index === 0 ? ' active' : '');
+                    div.innerHTML = `<img src="${image}" class="d-block w-100 rounded" alt="Listing image ${index + 1}" style="max-height: 400px; object-fit: cover;">`;
+                    carouselImages.appendChild(div);
                 });
-            });
+                carousel.classList.remove('d-none');
+                noImageText.classList.add('d-none');
+            } else {
+                carousel.classList.add('d-none');
+                noImageText.classList.remove('d-none');
+            }
+            
+            // Show modal
+            new bootstrap.Modal(document.getElementById('listingDetailsModal')).show();
         });
-        
-        // Modal details population
-        const detailButtons = document.querySelectorAll('.view-details-btn');
-        detailButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const title = this.getAttribute('data-title');
-                const description = this.getAttribute('data-description');
-                const price = this.getAttribute('data-price');
-                const category = this.getAttribute('data-category');
-                const seller = this.getAttribute('data-seller');
-                const status = this.getAttribute('data-status');
-                const created = this.getAttribute('data-created');
-                const expires = this.getAttribute('data-expires');
-                const image = this.getAttribute('data-image');
-                
-                document.getElementById('listing-title').textContent = title;
-                document.getElementById('listing-description').textContent = description;
-                document.getElementById('listing-price').textContent = new Intl.NumberFormat('en-NG', { 
-                    style: 'currency', 
-                    currency: 'NGN' 
-                }).format(price);
-                document.getElementById('listing-category').textContent = category;
-                document.getElementById('listing-seller').textContent = seller;
-                document.getElementById('listing-created').textContent = created;
-                document.getElementById('listing-expires').textContent = expires;
-                document.getElementById('view-on-site-btn').href = `{{ url('/marketplace/listings') }}/${id}`;
-                
-                // Set status with appropriate color
-                const statusElement = document.getElementById('listing-status');
-                statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-                
-                switch(status) {
-                    case 'active':
-                        statusElement.className = 'badge bg-success';
-                        break;
-                    case 'sold':
-                        statusElement.className = 'badge bg-warning';
-                        break;
-                    case 'pending':
-                        statusElement.className = 'badge bg-info';
-                        break;
-                    default:
-                        statusElement.className = 'badge bg-danger';
-                }
-                
-                // Handle image
-                const imageContainer = document.getElementById('listing-image-container');
-                const imageElement = document.getElementById('listing-image');
-                const noImageText = document.getElementById('no-image-text');
-                
-                if (image) {
-                    imageElement.src = image;
-                    imageElement.classList.remove('d-none');
-                    noImageText.classList.add('d-none');
-                } else {
-                    imageElement.classList.add('d-none');
-                    noImageText.classList.remove('d-none');
+    });
+    
+    // Approve Listing
+    document.querySelectorAll('.approve-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Approve Listing?',
+                text: "This listing will be published to the marketplace and visible to all users.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0ab39c',
+                cancelButtonColor: '#f06548',
+                confirmButtonText: 'Yes, Approve',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
                 }
             });
         });
     });
+    
+    // Reject Listing
+    document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const listingId = this.getAttribute('data-listing-id');
+            const listingTitle = this.getAttribute('data-listing-title');
+            
+            document.getElementById('reject-listing-title').textContent = listingTitle;
+            document.getElementById('rejection-form').action = `/admin/marketplace/listings/${listingId}/reject`;
+            document.getElementById('rejection_reason').value = '';
+            
+            new bootstrap.Modal(document.getElementById('rejectionModal')).show();
+        });
+    });
+    
+    // Rejection Form Submit
+    document.getElementById('rejection-form').addEventListener('submit', function(e) {
+        const reason = document.getElementById('rejection_reason').value.trim();
+        if (reason.length < 10) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Reason',
+                text: 'Please provide a detailed reason (at least 10 characters)',
+            });
+        }
+    });
+    
+    // Delete Listing
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Delete Listing?',
+                text: "This action cannot be undone. The listing and all associated data will be permanently removed.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f06548',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+    });
+});
 </script>
 @endpush
