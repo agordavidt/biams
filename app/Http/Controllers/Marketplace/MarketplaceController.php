@@ -24,127 +24,135 @@ class MarketplaceController extends Controller
     private const MAX_IMAGES = 5;
     private const MAX_IMAGE_SIZE = 2048; // 2MB in KB
 
-    /**
-     * Display the public marketplace homepage.
-     */
-    public function index(Request $request)
-    {
-        $categories = MarketplaceCategory::active()->withCount('activeListings')->get();
+ /**
+ * Display the public marketplace homepage.
+ */
+public function index(Request $request)
+{
+    $categories = MarketplaceCategory::active()->withCount('activeListings')->get();
 
-        $query = MarketplaceListing::with(['category', 'user', 'images'])
-            ->active();
+    $query = MarketplaceListing::with(['category', 'user', 'images'])
+        ->active();
 
-        // Apply filters
-        if ($request->filled('category')) {
-            $query->byCategory($request->category);
-        }
-
-        if ($request->filled('location')) {
-            $query->byLocation($request->location);
-        }
-
-        if ($request->filled('search')) {
-            $query->search($request->search);
-        }
-
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        // Sorting
-        $sortBy = $request->get('sort', 'latest');
-        switch ($sortBy) {
-            case 'price_low':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_high':
-                $query->orderBy('price', 'desc');
-                break;
-            case 'popular':
-                $query->orderBy('view_count', 'desc');
-                break;
-            default:
-                $query->latest();
-        }
-
-        $listings = $query->paginate(12)->withQueryString();
-
-        return view('marketplace.index', compact('listings', 'categories'));
+    // Apply filters
+    if ($request->filled('category')) {
+        $query->byCategory($request->category);
     }
 
-    /**
-     * Display a single listing with details.
-     */
-    public function show(MarketplaceListing $listing)
-    {
-        // Check if listing is accessible
-        if (!$listing->is_active && (!Auth::check() || Auth::id() !== $listing->user_id)) {
-            abort(404, 'This listing is not available.');
-        }
-
-        // Increment view count
-        $listing->incrementViewCount();
-
-        $listing->load(['category', 'user.farmerProfile', 'images']);
-        $relatedListings = MarketplaceListing::active()
-            ->where('category_id', $listing->category_id)
-            ->where('id', '!=', $listing->id)
-            ->limit(4)
-            ->get();
-
-        return view('marketplace.show', compact('listing', 'relatedListings'));
+    if ($request->filled('location')) {
+        $query->byLocation($request->location);
     }
 
-    /**
-     * Handle contact farmer inquiry (Lead Generation).
-     */
-    public function contactFarmer(Request $request, MarketplaceListing $listing)
-    {
-        $validated = $request->validate([
-            'buyer_name' => 'required|string|max:255',
-            'buyer_phone' => 'required|string|max:20',
-            'buyer_email' => 'nullable|email|max:255',
-            'message' => 'required|string|max:1000',
+    if ($request->filled('search')) {
+        $query->search($request->search);
+    }
+
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
+    }
+
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Sorting
+    $sortBy = $request->get('sort', 'latest');
+    switch ($sortBy) {
+        case 'price_low':
+            $query->orderBy('price', 'asc');
+            break;
+        case 'price_high':
+            $query->orderBy('price', 'desc');
+            break;
+        case 'popular':
+            $query->orderBy('view_count', 'desc');
+            break;
+        default:
+            $query->latest();
+    }
+
+    $listings = $query->paginate(12)->withQueryString();
+
+    return view('marketplace.index', compact('listings', 'categories'));
+}
+
+/**
+ * Display a single listing with details.
+ */
+public function show(MarketplaceListing $listing)
+{
+    // Check if listing is accessible
+    if (!$listing->is_active && (!Auth::check() || Auth::id() !== $listing->user_id)) {
+        abort(404, 'This listing is not available.');
+    }
+
+    // Increment view count
+    $listing->incrementViewCount();
+
+    // Load relationships
+    $listing->load(['category', 'user.farmerProfile', 'images']);
+    
+    // Extract images collection
+    $images = $listing->images;
+    
+    // Extract seller
+    $seller = $listing->user;
+    
+    // Get related listings
+    $relatedListings = MarketplaceListing::active()
+        ->where('category_id', $listing->category_id)
+        ->where('id', '!=', $listing->id)
+        ->limit(6)
+        ->get();
+
+    return view('marketplace.show', compact('listing', 'images', 'seller', 'relatedListings'));
+}
+
+/**
+ * Handle contact farmer inquiry (Lead Generation).
+ */
+public function contactFarmer(Request $request, MarketplaceListing $listing)
+{
+    $validated = $request->validate([
+        'buyer_name' => 'required|string|max:255',
+        'buyer_phone' => 'required|string|max:20',
+        'buyer_email' => 'nullable|email|max:255',
+        'inquiry_message' => 'required|string|max:1000',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        // Create inquiry record
+        $inquiry = MarketplaceInquiry::create([
+            'listing_id' => $listing->id,
+            'buyer_name' => $validated['buyer_name'],
+            'buyer_phone' => $validated['buyer_phone'],
+            'buyer_email' => $validated['buyer_email'] ?? null,
+            'message' => $validated['inquiry_message'],
+            'buyer_ip' => $request->ip(),
+            'status' => 'new',
         ]);
 
-        DB::beginTransaction();
+        // Increment inquiry count
+        $listing->incrementInquiryCount();
+
+        // Send notification to farmer (email/SMS)
         try {
-            // Create inquiry record
-            $inquiry = MarketplaceInquiry::create([
-                'listing_id' => $listing->id,
-                'buyer_name' => $validated['buyer_name'],
-                'buyer_phone' => $validated['buyer_phone'],
-                'buyer_email' => $validated['buyer_email'] ?? null,
-                'message' => $validated['message'],
-                'buyer_ip' => $request->ip(),
-                'status' => 'new',
-            ]);
-
-            // Increment inquiry count
-            $listing->incrementInquiryCount();
-
-            // Send notification to farmer (email/SMS)
-            try {
-                // Mail::to($listing->user->email)->send(new NewMarketplaceInquiry($listing, $inquiry));
-                // TODO: Implement SMS notification via your SMS gateway
-            } catch (\Exception $e) {
-                Log::error('Failed to send inquiry notification: ' . $e->getMessage());
-            }
-
-            DB::commit();
-
-            return back()->with('success', 'Your inquiry has been sent to the farmer. They will contact you shortly.');
+            // Mail::to($listing->user->email)->send(new NewMarketplaceInquiry($listing, $inquiry));
+            // TODO: Implement SMS notification via your SMS gateway
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Marketplace inquiry error: ' . $e->getMessage());
-            return back()->with('error', 'Failed to send inquiry. Please try again.');
+            Log::error('Failed to send inquiry notification: ' . $e->getMessage());
         }
-    }
 
+        DB::commit();
+
+        return back()->with('success', 'Your inquiry has been sent to the farmer. They will contact you shortly.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Marketplace inquiry error: ' . $e->getMessage());
+        return back()->with('error', 'Failed to send inquiry. Please try again.');
+    }
+}
     /**
      * Display farmer's listings dashboard.
      */
