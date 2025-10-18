@@ -1,179 +1,253 @@
 @extends('layouts.loginregister')
+
+@section('title', 'Login - Benue State Smart Agricultural System and Data Management')
+
 @section('content')
-    <!-- Login Page -->
-    <div class="auth-wrapper d-flex align-items-center py-5">
-        <div class="container">
-
-
-
-            <div class="row d-flex justify-content-center align-items-center ">
-                <div class="col-xl-10">
-                    <div class="card rounded-3 text-black">
-                        <div class="row g-0">
-                            <div class="col-lg-6">
-                                <div class="card-body p-md-5 mx-md-4">
-
-                                    <div class="text-center">
-                                        {{-- <img src="{{ asset('/dashboard/images/maize_icon.png') }}" style="width: 185px;"
-                                    alt="logo"> --}}
-                                        <h4 class="mt-1 mb-5 pb-1">Benue State Smart Agricultural System and Data Management</h4>
-
-                                    </div>
-
-                                    <div class="auth-card">
-                                        <p class="text-center mt-3" style="color: rgb(3, 73, 3)">Welcome, please login.</p>
-                                        <div class="card-body">
-
-                                            <form method="POST" action="{{ route('login') }}">
-                                                @csrf
-                                                <div class="form-floating mb-3">
-                                                    <input style="border: thin solid darkgreen;" type="email"
-                                                        class="form-control" id="emailInput" placeholder="name@example.com"
-                                                        name="email" value="{{ old('email') }}" required autofocus
-                                                        autocomplete="email">
-                                                    <label for="emailInput">{{ __('Email address') }}</label>
-                                                    @error('email')
-                                                        <div class="text-danger mt-2">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="form-floating mb-4 position-relative">
-                                                    <input style="border: thin solid darkgreen;" type="password"
-                                                        class="form-control" id="passwordInput1" placeholder="Password"
-                                                        name="password" required autocomplete="current-password">
-                                                    <label for="passwordInput">{{ __('Password') }}</label>
-                                                    <span class="password-toggle" id="togglePassword1">
-                                                        <i class="bi bi-eye" id="eyeIcon1"></i>
-                                                    </span>
-                                                    @error('password')
-                                                        <div class="text-danger mt-2">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                               
-
-
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="rememberMe"
-                                                        style="border: thin solid darkgreen;" name="remember">
-                                                    <label class="form-check-label"
-                                                        for="rememberMe">{{ __('Remember me') }}</label>
-                                                </div>
-                                                <div class="form-group mt-2 mb-4">
-                                                    @if (Route::has('password.request'))
-                                                    <a class="text-primary text-decoration-none"
-                                                        href="{{ route('password.request') }}">
-                                                        {{ __('Forgot your password?') }}
-                                                    </a>
-                                                @endif
-                                                </div>
-
-                                               
-
-                                                <button type="submit"
-                                                    class="btn btn-primary w-100">{{ __('Log in') }}</button>
-                                            </form>
-
-
-
-                                            <div class="auth-footer">
-                                                Don't have an account? <a href="{{ route('register') }}"
-                                                    class="text-primary text-decoration-none">Register</a>.
-                                            </div>
-                                            {{-- <div class="text-center">
-                                                <a href="{{ route('landing_page') }}"
-                                                    class="text-primary text-decoration-none"><i class="fas fa-home icon-large"></i></a>
-                                            </div> --}}
-                                        </div>
-                                    </div>
-
-
-
-                                </div>
-                            </div>
-                            <div class="col-lg-6 d-flex align-items-center gradient-custom-2"
-                                style="border: thin solid rgb(203, 214, 203)">
-                                <div class="text-white px-3 py-0 p-md-5 mx-md-4">
-                                    <img src="{{ asset('/dashboard/images/produce_home_350.jpg') }}"
-                                        alt="agric_produce_home">
-                                    <h4 class="mb-4">&nbsp;</h4>
-                                    <p class="small mb-0" style="color: black">Now that you have your account registered
-                                        with us, you can log in to gain access to our wide range of services.</p>
-                                </div>
-                            </div>
-                        </div>
+<!-- page__title -start -->
+<div class="page__title align-items-center theme-bg-primary-h1 pt-15 pb-15">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="page__title-content text-center">
+                    <div class="page_title__bread-crumb">
+                        <nav aria-label="breadcrumb">
+                            <nav aria-label="Breadcrumbs" class="breadcrumb-trail breadcrumbs">
+                                <ul>
+                                    <li>
+                                        <a href="{{ url('/') }}"><span>Home</span></a>
+                                    </li>
+                                    <li class="trail-item trail-end">
+                                        <span>Login</span>
+                                    </li>
+                                </ul>
+                            </nav> 
+                        </nav>
                     </div>
                 </div>
             </div>
-
-            {{-- <div class="row col-md-12">
-                <div class="row justify-content-center">
-                    <!-- Session Status -->
-                    <!-- <div class="alert alert-info mb-4" role="alert" >
-                            {{ session('status') }}
-                        </div> -->
-                    <div class="col-lg-5 col-md-8">
-                        <div class="auth-card">
-                            <div class="card-body">
-                                <div class="text-center mb-4">
-                                    <i class="fas fa-seedling fa-3x text-primary mb-3"></i>
-                                    <h4 class="auth-title">Welcome</h4>
-                                    <p>Enter your details to login</p>
-                                </div>
-
-                                <form method="POST" action="{{ route('login') }}">
-                                    @csrf
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="emailInput"
-                                            placeholder="name@example.com" name="email" value="{{ old('email') }}"
-                                            required autofocus autocomplete="email">
-                                        <label for="emailInput">{{ __('Email address') }}</label>
-                                        @error('email')
-                                            <div class="text-danger mt-2">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-floating mb-4 position-relative">
-                                        <input type="password" class="form-control" id="passwordInput"
-                                            placeholder="Password" name="password" required autocomplete="current-password">
-                                        <label for="passwordInput">{{ __('Password') }}</label>
-                                        <span class="password-toggle">
-                                            <i class="far fa-eye"></i>
-                                        </span>
-                                        @error('password')
-                                            <div class="text-danger mt-2">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="d-flex justify-content-between mb-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
-                                            <label class="form-check-label" for="rememberMe">
-                                                {{ __('Remember me') }}
-                                            </label>
-                                        </div>
-                                        @if (Route::has('password.request'))
-                                            <a class="text-primary text-decoration-none"
-                                                href="{{ route('password.request') }}">
-                                                {{ __('Forgot your password?') }}
-                                            </a>
-                                        @endif
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary w-100">{{ __('Log in') }}</button>
-                                </form>
-
-
-
-                                <div class="auth-footer">
-                                    Don't have an account? <a href="{{ route('register') }}"
-                                        class="text-primary text-decoration-none">Register</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
         </div>
     </div>
+</div>
+<!-- page__title -end -->
+
+<!-- login-area start -->
+<section class="login-area pt-100 pb-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="login-form">
+                    <div class="text-center mb-4">
+                        <h3>Login to Your Account</h3>
+                        <p class="mt-3" style="color: rgb(3, 73, 3)">Welcome, please login to access the system.</p>
+                    </div>
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if (session('status'))
+                        <div class="alert alert-success">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('login') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" class="form-control" name="email" 
+                                   value="{{ old('email') }}" placeholder="Enter your email address" 
+                                   required autofocus autocomplete="email">
+                            @error('email')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group position-relative">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" class="form-control" name="password" 
+                                   placeholder="Enter your password" required autocomplete="current-password">
+                            <span class="password-toggle" id="togglePassword" style="
+                                position: absolute;
+                                right: 15px;
+                                top: 40px;
+                                cursor: pointer;
+                                color: #666;
+                            ">
+                                <i class="far fa-eye" id="eyeIcon"></i>
+                            </span>
+                            @error('password')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="remember-forgot">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                                <label for="remember">Remember me</label>
+                            </div>
+                            @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}" class="forgot-password">
+                                    Forgot Password?
+                                </a>
+                            @endif
+                        </div>
+
+                        <button type="submit" class="login-btn">Login</button>
+
+                        <div class="register-link">
+                            <p>Don't have an account? <a href="{{ route('register') }}">Register here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- login-area end -->
+
+<style>
+.login-area {
+    padding: 100px 0;
+}
+.login-form {
+    background: #f8f8f8;
+    padding: 40px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.login-form h3 {
+    margin-bottom: 30px;
+    color: #2a7d2e;
+}
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+.form-control:focus {
+    border-color: #2a7d2e;
+    box-shadow: 0 0 0 2px rgba(42, 125, 46, 0.2);
+    outline: none;
+}
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+.remember-me input {
+    margin-right: 8px;
+}
+.remember-me label {
+    margin-bottom: 0;
+    font-weight: normal;
+}
+.forgot-password {
+    color: #2a7d2e;
+    text-decoration: none;
+    font-size: 14px;
+}
+.forgot-password:hover {
+    text-decoration: underline;
+}
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #2a7d2e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.login-btn:hover {
+    background: #1f5e22;
+}
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
+.register-link a {
+    color: #2a7d2e;
+    text-decoration: none;
+    font-weight: 500;
+}
+.register-link a:hover {
+    text-decoration: underline;
+}
+.alert {
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 40px;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (togglePassword && passwordInput && eyeIcon) {
+        togglePassword.addEventListener('click', function() {
+            // Toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            if (type === 'password') {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        });
+    }
+});
+</script>
 @endsection
