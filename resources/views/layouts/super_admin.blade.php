@@ -116,7 +116,7 @@
     
     <body data-topbar="dark">
         <div id="layout-wrapper">
-            <header id="page-topbar">
+            <header id="page-topbar" style="background: #38761D;">
                 <div class="navbar-header">
                     <div class="d-flex">
                         <!-- LOGO -->
