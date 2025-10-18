@@ -424,10 +424,6 @@ Route::middleware(['auth', 'can:view_analytics'])->prefix('analytics')->name('an
 
 
 
-
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Farmer Support Routes

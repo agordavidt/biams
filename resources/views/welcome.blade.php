@@ -230,77 +230,77 @@
                     <div class="blog-slider blog-slider_active owl-carousel">
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/insights.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
+                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/news_2.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
                                 <div class="top-catagory">
                                     <a href="shop-details.html" class="postbox__meta">data</a>
                                 </div>
                             </div>
                             <div class="latest-blog-content">
                                 <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">november 21, 2023</a></span>
+                                    <span class="blog-date"><a href="news-details.html">July 17, 2025</a></span>
                                 </div>
                                 <h3 class="latest-blog-title">
                                     <a href="news-details.html">Guide: Submitting Your Farm GPS Coordinates</a>
                                 </h3>
                                 <div class="blog-btn mt-20">
-                                    <a href="news-details.html">Read More</a>
+                                    <a href="">Read More</a>
                                 </div>
                             </div>
                         </div>
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/insights.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
+                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/poultry.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
                                 <div class="top-catagory">
                                     <a href="shop-details.html" class="postbox__meta">verification</a>
                                 </div>
                             </div>
                             <div class="latest-blog-content">
                                 <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">november 21, 2021</a></span>
+                                    <span class="blog-date"><a href="news-details.html">november 21, 2025</a></span>
                                 </div>
                                 <h3 class="latest-blog-title">
                                     <a href="news-details.html">How LGA Admins Verify Farmer Data for Approval</a>
                                 </h3>
                                 <div class="blog-btn mt-20">
-                                    <a href="news-details.html">Read More</a>
+                                    <a href="">Read More</a>
                                 </div>
                             </div>
                         </div>
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/insights.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
+                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/news_1.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
                                 <div class="top-catagory">
                                     <a href="shop-details.html" class="postbox__meta">enrollment</a>
                                 </div>
                             </div>
                             <div class="latest-blog-content">
                                 <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">november 21, 2021</a></span>
+                                    <span class="blog-date"><a href="">October 7, 2025</a></span>
                                 </div>
                                 <h3 class="latest-blog-title">
                                     <a href="news-details.html">Understanding the Role of the Enrollment Officer (EO)</a>
                                 </h3>
                                 <div class="blog-btn mt-20">
-                                    <a href="news-details.html">Read More</a>
+                                    <a href="">Read More</a>
                                 </div>
                             </div>
                         </div>
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/insights.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
+                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/pigs_photo.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
                                 <div class="top-catagory">
                                     <a href="shop-details.html" class="postbox__meta">data</a>
                                 </div>
                             </div>
                             <div class="latest-blog-content">
                                 <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">november 21, 2021</a></span>
+                                    <span class="blog-date"><a href="news-details.html">August 28, 2025</a></span>
                                 </div>
                                 <h3 class="latest-blog-title">
                                     <a href="news-details.html">Guide: Submitting Your Farm GPS Coordinates</a>
                                 </h3>
                                 <div class="blog-btn mt-20">
-                                    <a href="news-details.html">Read More</a>
+                                    <a href="">Read More</a>
                                 </div>
                             </div>
                         </div>

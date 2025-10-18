@@ -62,7 +62,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/features/database-icon.png') }}" alt="Icon of verified farmer database" loading="lazy">
+                                <img src="{{ asset('frontend/assets/img/verified_database.jpg') }}" alt="Icon of verified farmer database" loading="lazy">
                                 <h4 class="features-item-title">Verified Database</h4>
                                 <p>NIN-linked farmer profiles and **geo-tagged farm boundaries** for accurate planning and precise program targeting.</p>
                             </div>
@@ -74,9 +74,9 @@
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/features/transparency-icon.png') }}" alt="Icon of transparent input distribution" loading="lazy">
+                                <img src="{{ asset('frontend/assets/img/transparent_dist.jpg') }}" alt="Icon of transparent input distribution" loading="lazy">
                                 <h4 class="features-item-title">Transparent Distribution</h4>
-                                <p>Track subsidies, fertilizer, and logistics in **real-time**, completely eliminating fraudulent claims and ghost beneficiaries.</p>
+                                <p>Track subsidies, fertilizer, and logistics in real-time, completely eliminating fraudulent claims and ghost beneficiaries.</p>
                             </div>
                             <div class="features-item-btton">
                                 <a href="how-it-works.html" class="features-btn">See Programs <i class="fal fa-arrow-right"></i></a>
@@ -86,9 +86,9 @@
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/features/growth-icon.png') }}" alt="Icon of cooperative growth and investment" loading="lazy">
+                                <img src="{{ asset('frontend/assets/img/investment_growth.jpg') }}" alt="Icon of cooperative growth and investment" loading="lazy">
                                 <h4 class="features-item-title">Investment & Growth</h4>
-                                <p>Provide investors with **verified performance metrics** and forecasts to facilitate Public-Private Partnerships (PPP) and market growth.</p>
+                                <p>Provide investors with verified performance metrics** and forecasts to facilitate Public-Private Partnerships (PPP) and market growth.</p>
                             </div>
                             <div class="features-item-btton">
                                 <a href="investor-hub.html" class="features-btn">Invest Now <i class="fal fa-arrow-right"></i></a>
