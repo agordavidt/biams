@@ -222,7 +222,7 @@
                             <li class="nav-item d-none d-lg-block">
                                 <a class="nav-link text-danger" href="#" 
                                    onclick="event.preventDefault(); document.getElementById('logout-form-nav').submit();">
-                                    <i class="ri-shut-down-line me-2"></i> Logout
+                                    <!-- <i class="ri-shut-down-line me-2"></i> Logout -->
                                 </a>
                                 <form id="logout-form-nav" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf

@@ -31,7 +31,7 @@
                     <div class="flex-grow-1">
                         <h4 class="mb-1">{{ $lgaName }} Local Government</h4>
                         <p class="text-muted mb-0">
-                            <i class="ri-user-line me-1"></i>Divisional Agricultural Officer: <strong>{{ Auth::user()->name }}</strong>
+                            <i class="ri-user-line me-1"></i>LGA Admin: <strong>{{ Auth::user()->name }}</strong>
                         </p>
                     </div>
                     <div class="flex-shrink-0 d-none d-md-block">
