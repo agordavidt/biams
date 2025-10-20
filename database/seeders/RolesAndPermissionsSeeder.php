@@ -42,6 +42,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // Governor/State-level Permissions
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
 
+            // Commissioner Permissions (NEW)
+            'view_commissioner_dashboard', 'view_commissioner_analytics', 'export_commissioner_reports',
+
             // LGA Admin Permissions
             'view_lga_dashboard', 'manage_lga_agents',
 
@@ -60,22 +63,15 @@ class RolesAndPermissionsSeeder extends Seeder
             // Chat Support Permissions
             'view_support_chats', 'manage_support_chats', 'respond_to_support',
 
-            // Cooperative Management Permissions (Integrated from CooperativeSeeder)
-            // LGA Admin - Full CRUD within their LGA
+            // Cooperative Management Permissions
             'manage_lga_cooperatives', 'create_cooperatives', 'edit_cooperatives',
             'delete_cooperatives', 'manage_cooperative_members',
-
-            // State Admin - View/Export statewide
             'view_all_cooperatives', 'view_cooperative_details', 'export_cooperatives',
-
-            // Governor - Overview and statistics
             'view_cooperative_overview',
-
-            // Super Admin - Everything (already covered by syncRoles for Super Admin, but explicitly included here)
             'manage_all_cooperatives',
         ];
 
-        // Create all permissions (FIXED: Removed 'description' column to resolve QueryException)
+        // Create all permissions
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
@@ -86,13 +82,14 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
+        $commissionerRole = Role::firstOrCreate(['name' => 'Commissioner', 'guard_name' => 'web']); // NEW
         $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
         $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
         $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
         $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
 
         // ====================================================================
-        // 3. Assign Permissions to Roles (Syncing for clarity)
+        // 3. Assign Permissions to Roles
         // ====================================================================
 
         // Super Admin gets EVERYTHING
@@ -103,10 +100,19 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
             'view_analytics', 'export_analytics',
             'view_support_chats',
-            // Cooperative Permissions
             'view_cooperative_overview', 'view_all_cooperatives',
         ];
         $governorRole->syncPermissions($governorPermissions);
+
+        // Commissioner: Similar to Governor with specific dashboard (NEW)
+        $commissionerPermissions = [
+            'view_commissioner_dashboard', 'view_commissioner_analytics', 'export_commissioner_reports',
+            'view_state_analytics', 'manage_state_reports', 'export_all_data',
+            'view_analytics', 'export_analytics',
+            'view_support_chats',
+            'view_cooperative_overview', 'view_all_cooperatives',
+        ];
+        $commissionerRole->syncPermissions($commissionerPermissions);
 
         // State Admin: Management, Support, State-level Analytics/Reports
         $stateAdminPermissions = [
@@ -114,7 +120,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
             'view_analytics', 'export_analytics',
             'view_support_chats', 'manage_support_chats', 'respond_to_support',
-            // Cooperative Permissions
             'view_all_cooperatives', 'view_cooperative_details', 'export_cooperatives',
         ];
         $stateAdminRole->syncPermissions($stateAdminPermissions);
@@ -125,7 +130,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
             'view_analytics', 'export_analytics',
             'view_support_chats', 'respond_to_support',
-            // Cooperative Permissions
             'manage_lga_cooperatives', 'create_cooperatives', 'edit_cooperatives',
             'delete_cooperatives', 'manage_cooperative_members', 'view_cooperative_details',
             'export_cooperatives',
@@ -163,6 +167,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'status' => 'onboarded',
         ])->syncRoles([$governorRole]);
 
+        // NEW: Commissioner User
+        User::firstOrCreate(['email' => 'commissioner@benue.gov.ng'], [
+            'name' => 'Commissioner for Agriculture',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+            'status' => 'onboarded',
+            'administrative_id' => $dept_agric->id,
+            'administrative_type' => Department::class,
+        ])->syncRoles([$commissionerRole]);
+
         User::firstOrCreate(['email' => 'stateadmin@benue.gov.ng'], [
             'name' => 'State Administrator (Agric)',
             'password' => Hash::make('password'),
@@ -190,8 +204,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'administrative_type' => LGA::class,
         ])->syncRoles([$enrollmentAgentRole]);
 
-        // Note: The 'farmer@test.com' user is commented out, maintaining original functionality.
-
-        $this->command->info('Roles, permissions (including cooperative), and initial test users seeded successfully!');
+        $this->command->info('Roles, permissions (including Commissioner), and initial test users seeded successfully!');
     }
 }

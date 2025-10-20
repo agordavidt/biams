@@ -62,6 +62,11 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('governor.dashboard');
             }
 
+            // Redirect for Commissioner 
+            if ($user->hasRole('Commissioner')) {
+                return redirect()->route('commissioner.dashboard');
+            }
+
             // Redirect for State Admin
             if ($user->hasRole('State Admin')) { 
                 return redirect()->route('admin.dashboard');
@@ -82,7 +87,7 @@ class AuthenticatedSessionController extends Controller
             // =======================================================
             // Farmer-Specific Login Flow (Standard Users)
             // =======================================================
-           // In the store method, update the farmer redirect section:
+            // In the store method, update the farmer redirect section:
             if ($user->hasRole('User')) { 
                 $farmer = $user->farmerProfile;
 

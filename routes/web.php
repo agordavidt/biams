@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\MarketplaceAdminController;
 use App\Http\Controllers\LGAAdmin\CooperativeController;
 use App\Http\Controllers\Governor\CooperativeOverviewController;
 use App\Http\Controllers\Admin\CooperativeViewController;
+use App\Http\Controllers\Commissioner\DashboardController;
 
 
 
@@ -626,4 +627,21 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
         // Export
         Route::get('/export/excel', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'export'])->name('export');
     });
+});
+
+
+
+
+
+
+// =====================================================
+// Commissioner Routes (Add to routes/web.php)
+// =====================================================
+
+Route::middleware(['auth', 'role:Commissioner'])->prefix('commissioner')->name('commissioner.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\Commissioner\DashboardController::class, 'index'])
+        ->name('dashboard');
+    
+   
 });
