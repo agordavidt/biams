@@ -163,6 +163,32 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->marketplaceListings()->sum('view_count');
     }
 
+// ==================== Cooperative Relationships ====================
 
+/**
+ * Get all cooperatives registered by this user (LGA Admin).
+ */
+public function registeredCooperatives()
+{
+    return $this->hasMany(Cooperative::class, 'registered_by');
+}
+
+/**
+ * Get cooperatives registered by this user that are active.
+ */
+public function activeRegisteredCooperatives()
+{
+    return $this->registeredCooperatives()
+        ->withCount('members')
+        ->orderBy('created_at', 'desc');
+}
+
+/**
+ * Get total number of cooperatives registered by this user.
+ */
+public function getTotalCooperativesRegisteredAttribute(): int
+{
+    return $this->registeredCooperatives()->count();
+}
     
 }

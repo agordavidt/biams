@@ -311,4 +311,79 @@ class Farmer extends Model
     {
         return $this->hasMany(Chat::class);
     }
+
+
+    
+/**
+ * Get only active cooperative memberships
+ */
+public function activeCooperatives(): BelongsToMany
+{
+    return $this->cooperatives()
+        ->wherePivot('membership_status', 'active');
+}
+
+/**
+ * Get inactive cooperative memberships
+ */
+public function inactiveCooperatives(): BelongsToMany
+{
+    return $this->cooperatives()
+        ->wherePivot('membership_status', 'inactive');
+}
+
+/**
+ * Check if farmer is a member of any cooperative
+ */
+public function getIsCooperativeMemberAttribute(): bool
+{
+    return $this->cooperatives()->exists();
+}
+
+/**
+ * Get count of active cooperative memberships
+ */
+public function getActiveCooperativeCountAttribute(): int
+{
+    return $this->activeCooperatives()->count();
+}
+
+/**
+ * Check if farmer is a member of a specific cooperative
+ */
+public function isMemberOf(Cooperative $cooperative): bool
+{
+    return $this->cooperatives()
+        ->where('cooperative_id', $cooperative->id)
+        ->wherePivot('membership_status', 'active')
+        ->exists();
+}
+
+/**
+ * Get all leadership positions in cooperatives
+ */
+public function getCooperativePositionsAttribute(): array
+{
+    return $this->activeCooperatives()
+        ->whereNotNull('cooperative_farmer.position')
+        ->get()
+        ->pluck('pivot.position', 'name')
+        ->toArray();
+}
+
+/**
+ * Check if farmer has a primary cooperative set
+ */
+public function hasPrimaryCooperative(): bool
+{
+    return !is_null($this->cooperative_id);
+}
+
+/**
+ * Get primary cooperative name
+ */
+public function getPrimaryCooperativeNameAttribute(): ?string
+{
+    return $this->cooperative?->name;
+}
 }

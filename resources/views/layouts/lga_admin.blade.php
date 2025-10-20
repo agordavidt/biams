@@ -184,7 +184,12 @@
                                 <li><a href="#" class="submenu-item">View All Farmers</a></li> 
                             </ul>
                         </li>
-                        
+                         <li>
+                            <a href="{{ route('lga_admin.cooperatives.index') }}" class="waves-effect">
+                                <i class="ri-customer-service-2-line"></i>
+                                <span>Corporatives</span>
+                            </a>
+                        </li>
                         <li class="menu-title">Administration</li>
 
                         <li>

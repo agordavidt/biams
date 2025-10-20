@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Cooperative extends Model
@@ -41,6 +42,14 @@ class Cooperative extends Model
     }
 
     /**
+     * The user (LGA Admin) who registered this cooperative.
+     */
+    public function registeredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registered_by');
+    }
+
+    /**
      * The farmers who have this cooperative set as their primary cooperative (one-to-many).
      */
     public function primaryFarmers(): HasMany
@@ -63,5 +72,47 @@ class Cooperative extends Model
                 'notes'
             ])
             ->withTimestamps();
+    }
+
+    // ==================== Scopes ====================
+
+    /**
+     * Scope to filter cooperatives by LGA
+     */
+    public function scopeForLGA($query, $lgaId)
+    {
+        return $query->where('lga_id', $lgaId);
+    }
+
+    /**
+     * Scope to filter cooperatives with active members
+     */
+    public function scopeWithActiveMembers($query)
+    {
+        return $query->whereHas('members', function($q) {
+            $q->wherePivot('membership_status', 'active');
+        });
+    }
+
+    // ==================== Accessors ====================
+
+    /**
+     * Get the count of active members
+     */
+    public function getActiveMembersCountAttribute(): int
+    {
+        return $this->members()
+            ->wherePivot('membership_status', 'active')
+            ->count();
+    }
+
+    /**
+     * Get the count of inactive members
+     */
+    public function getInactiveMembersCountAttribute(): int
+    {
+        return $this->members()
+            ->wherePivot('membership_status', 'inactive')
+            ->count();
     }
 }

@@ -31,6 +31,10 @@ use App\Http\Controllers\Support\ChatController;
 use App\Http\Controllers\Marketplace\MarketplaceController;
 use App\Http\Controllers\Admin\MarketplaceAdminController;
 
+use App\Http\Controllers\LGAAdmin\CooperativeController;
+use App\Http\Controllers\Governor\CooperativeOverviewController;
+use App\Http\Controllers\Admin\CooperativeViewController;
+
 
 
 use Illuminate\Support\Facades\Route;
@@ -254,6 +258,9 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
        
         Route::get('/export', [FarmerReviewController::class, 'export'])->name('export');
     });
+
+
+    
 });
 
 
@@ -472,15 +479,6 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')
 });
 
 
-// Test custom error pages
-Route::get('/test-404', fn() => abort(404));
-Route::get('/test-500', fn() => abort(500));
-Route::get('/test-403', fn() => abort(403));
-Route::get('/test-503', fn() => abort(503));
-Route::get('/test-400', fn() => abort(400));
-Route::get('/test-429', fn() => abort(429));
-
-
 
 
 /*
@@ -553,3 +551,79 @@ Route::middleware(['auth', 'role:State Admin', 'permission:manage_supplier_catal
         Route::get('/analytics', [MarketplaceAdminController::class, 'analytics'])->name('analytics');
         Route::get('/reports/export', [MarketplaceAdminController::class, 'exportReport'])->name('reports.export');
     });
+
+
+
+
+
+
+
+// ============================================================================
+// STATE ADMIN COOPERATIVE ROUTES - View Only (No CRUD)
+// ============================================================================
+Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Cooperative viewing routes
+    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\CooperativeViewController::class, 'index'])
+            ->name('index')
+            ->middleware('permission:view_all_cooperatives');
+        
+        Route::get('/{cooperative}', [App\Http\Controllers\Admin\CooperativeViewController::class, 'show'])
+            ->name('show')
+            ->middleware('permission:view_cooperative_details');
+        
+        Route::get('/export', [App\Http\Controllers\Admin\CooperativeViewController::class, 'export'])
+            ->name('export')
+            ->middleware('permission:export_cooperatives');
+    });
+});
+
+// ============================================================================
+// GOVERNOR COOPERATIVE ROUTES - Overview & Statistics Only
+// ============================================================================
+Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor.')->group(function () {
+    
+    // Cooperative overview and analytics
+    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
+        Route::get('/overview', [App\Http\Controllers\Governor\CooperativeOverviewController::class, 'index'])
+            ->name('overview')
+            ->middleware('permission:view_cooperative_overview');
+        
+        Route::get('/lga-comparison', [App\Http\Controllers\Governor\CooperativeOverviewController::class, 'lgaComparison'])
+            ->name('lga_comparison')
+            ->middleware('permission:view_cooperative_overview');
+        
+        Route::get('/export-overview', [App\Http\Controllers\Governor\CooperativeOverviewController::class, 'exportOverview'])
+            ->name('export_overview')
+            ->middleware('permission:view_cooperative_overview');
+    });
+});
+
+// ============================================================================
+// LGA ADMIN COOPERATIVE ROUTES - Full CRUD within LGA
+// ============================================================================
+Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
+    
+    // COOPERATIVE MANAGEMENT ROUTES
+    Route::middleware('permission:manage_lga_cooperatives')->prefix('cooperatives')->name('cooperatives.')->group(function () {
+        // List and create
+        Route::get('/', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'store'])->name('store');
+        
+        // View, edit, delete
+        Route::get('/{cooperative}', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'show'])->name('show');
+        Route::get('/{cooperative}/edit', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'edit'])->name('edit');
+        Route::put('/{cooperative}', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'update'])->name('update');
+        Route::delete('/{cooperative}', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'destroy'])->name('destroy');
+        
+        // Member management
+        Route::get('/{cooperative}/members', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'members'])->name('members');
+        Route::post('/{cooperative}/members/add', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'addMember'])->name('members.add');
+        Route::delete('/{cooperative}/members/{farmer}', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'removeMember'])->name('members.remove');
+        
+        // Export
+        Route::get('/export/excel', [App\Http\Controllers\LGAAdmin\CooperativeController::class, 'export'])->name('export');
+    });
+});
