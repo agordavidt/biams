@@ -38,6 +38,7 @@ use App\Http\Controllers\Commissioner\DashboardController;
 
 
 
+
 use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 
@@ -643,5 +644,57 @@ Route::middleware(['auth', 'role:Commissioner'])->prefix('commissioner')->name('
     Route::get('/dashboard', [App\Http\Controllers\Commissioner\DashboardController::class, 'index'])
         ->name('dashboard');
     
-   
+    // Policy Insights
+    Route::prefix('policy-insights')->name('policy_insights.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Commissioner\PolicyInsightController::class, 'index'])
+            ->name('index');
+        Route::get('/demographic-analysis', [App\Http\Controllers\Commissioner\PolicyInsightController::class, 'getDemographicAnalysis'])
+            ->name('demographic_analysis');
+        Route::get('/youth-engagement', [App\Http\Controllers\Commissioner\PolicyInsightController::class, 'getYouthEngagement'])
+            ->name('youth_engagement');
+        Route::get('/yield-projections', [App\Http\Controllers\Commissioner\PolicyInsightController::class, 'getYieldProjections'])
+            ->name('yield_projections');
+        Route::get('/production-patterns', [App\Http\Controllers\Commissioner\PolicyInsightController::class, 'getProductionPatterns'])
+            ->name('production_patterns');
+    });
+
+    // Trend Analysis
+    Route::prefix('trends')->name('trends.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Commissioner\TrendAnalysisController::class, 'index'])
+            ->name('index');
+        Route::get('/enrollment-trends', [App\Http\Controllers\Commissioner\TrendAnalysisController::class, 'getEnrollmentTrends'])
+            ->name('enrollment_trends');
+        Route::get('/production-trends', [App\Http\Controllers\Commissioner\TrendAnalysisController::class, 'getProductionTrends'])
+            ->name('production_trends');
+        Route::get('/resource-utilization-trends', [App\Http\Controllers\Commissioner\TrendAnalysisController::class, 'getResourceUtilizationTrends'])
+            ->name('resource_utilization_trends');
+        Route::get('/gender-parity-trends', [App\Http\Controllers\Commissioner\TrendAnalysisController::class, 'getGenderParityTrends'])
+            ->name('gender_parity_trends');
+    });
+
+    // LGA Comparison
+    Route::prefix('lga-comparison')->name('lga_comparison.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Commissioner\LgaComparisonController::class, 'index'])
+            ->name('index');
+        Route::get('/performance-ranking', [App\Http\Controllers\Commissioner\LgaComparisonController::class, 'getPerformanceRanking'])
+            ->name('performance_ranking');
+        Route::get('/capacity-analysis', [App\Http\Controllers\Commissioner\LgaComparisonController::class, 'getCapacityAnalysis'])
+            ->name('capacity_analysis');
+        Route::get('/compare-lgas', [App\Http\Controllers\Commissioner\LgaComparisonController::class, 'compareLgas'])
+            ->name('compare_lgas');
+        Route::get('/geographic-analysis', [App\Http\Controllers\Commissioner\LgaComparisonController::class, 'getGeographicAnalysis'])
+            ->name('geographic_analysis');
+    });
+
+    // Intervention Tracking
+    Route::prefix('interventions')->name('interventions.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Commissioner\InterventionTrackingController::class, 'index'])
+            ->name('index');
+        Route::get('/beneficiary-report', [App\Http\Controllers\Commissioner\InterventionTrackingController::class, 'getBeneficiaryReport'])
+            ->name('beneficiary_report');
+        Route::get('/partner-activities', [App\Http\Controllers\Commissioner\InterventionTrackingController::class, 'getPartnerActivities'])
+            ->name('partner_activities');
+        Route::get('/coverage-analysis', [App\Http\Controllers\Commissioner\InterventionTrackingController::class, 'getCoverageAnalysis'])
+            ->name('coverage_analysis');
+    });
 });

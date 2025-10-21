@@ -7,7 +7,7 @@
             <h4 class="mb-sm-0">Commissioner's Dashboard</h4>
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('commissioner.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Dashboard</li>
                 </ol>
             </div>
@@ -144,20 +144,20 @@
 </div>
 @endif
 
-<!-- Analytical Modules -->
+<!-- Comprehensive Analytics Hub -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="ri-bar-chart-box-line me-1"></i> Policy & Analytics Hub
+                    <i class="ri-bar-chart-box-line me-1"></i> Comprehensive Analytics Hub
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <!-- Policy Insights -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="" class="text-decoration-none">
+                        <a href="{{ route('commissioner.policy_insights.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
@@ -176,7 +176,7 @@
 
                     <!-- Intervention Tracking -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="" class="text-decoration-none">
+                        <a href="{{ route('commissioner.interventions.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
@@ -195,7 +195,7 @@
 
                     <!-- LGA Comparison -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="" class="text-decoration-none">
+                        <a href="{{ route('commissioner.lga_comparison.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
@@ -214,7 +214,7 @@
 
                     <!-- Trend Analysis -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="" class="text-decoration-none">
+                        <a href="{{ route('commissioner.trends.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
@@ -230,99 +230,187 @@
                             </div>
                         </a>
                     </div>
+
+                    <!-- Advanced Analytics -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-danger fs-3">
+                                            <i class="ri-bar-chart-2-line text-danger"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Advanced Analytics</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Custom reports & deep insights
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Cooperative Overview -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-purple fs-3">
+                                            <i class="ri-community-line text-purple"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Cooperatives</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Group performance & impact
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Production Analytics -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-orange fs-3">
+                                            <i class="ri-seedling-line text-orange"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Production</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Crop & livestock output
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Enrollment Pipeline -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-teal fs-3">
+                                            <i class="ri-user-add-line text-teal"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Enrollment</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Farmer registration trends
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Top Performing LGAs Snapshot -->
+<!-- Additional Feature Cards -->
 <div class="row">
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="card-title mb-0">
-                    <i class="ri-trophy-line me-1"></i> Top Performing LGAs
-                </h5>
-                <a href="" class="btn btn-sm btn-soft-primary">
-                    View Full Comparison
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Rank</th>
-                                <th>LGA</th>
-                                <th class="text-end">Farmers</th>
-                                <th class="text-end">Hectares</th>
-                                <th class="text-end">Avg. Farm Size</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($lgaSnapshot as $index => $lga)
-                            <tr>
-                                <td>
-                                    <span class="badge badge-soft-{{ $index === 0 ? 'success' : ($index === 1 ? 'info' : 'secondary') }}">
-                                        #{{ $index + 1 }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <h6 class="mb-0">{{ $lga['lga_name'] }}</h6>
-                                </td>
-                                <td class="text-end">
-                                    <span class="fw-semibold">{{ number_format($lga['farmer_count']) }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="text-muted">-</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="text-muted">-</span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-4">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="ri-flashlight-line me-1"></i> Quick Insights
+                    <i class="ri-dashboard-line me-1"></i> Strategic Oversight Modules
                 </h5>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="" class="btn btn-soft-primary text-start">
-                        <i class="ri-women-line align-middle me-2"></i>
-                        <span class="fw-medium">Female Farmers Analysis</span>
-                    </a>
-                    <a href="" class="btn btn-soft-success text-start">
-                        <i class="ri-user-heart-line align-middle me-2"></i>
-                        <span class="fw-medium">Youth Engagement</span>
-                    </a>
-                    <a href="" class="btn btn-soft-info text-start">
-                        <i class="ri-seedling-line align-middle me-2"></i>
-                        <span class="fw-medium">Yield Projections</span>
-                    </a>
-                    <a href="" class="btn btn-soft-warning text-start">
-                        <i class="ri-radar-line align-middle me-2"></i>
-                        <span class="fw-medium">Coverage Gaps</span>
-                    </a>
-                    <a href="" class="btn btn-soft-secondary text-start">
-                        <i class="ri-download-2-line align-middle me-2"></i>
-                        <span class="fw-medium">Export State Data</span>
-                    </a>
+                <div class="row g-3">
+                    <!-- Resource Management -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card feature-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-indigo fs-3">
+                                        <i class="ri-resource-line text-indigo"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2">Resource Management</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Track agricultural inputs & subsidies
+                                </p>
+                                <div class="mt-3">
+                                    <span class="badge badge-soft-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Intelligence -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card feature-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-pink fs-3">
+                                        <i class="ri-store-2-line text-pink"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2">Market Intelligence</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Price trends & market analysis
+                                </p>
+                                <div class="mt-3">
+                                    <span class="badge badge-soft-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Climate & Weather -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card feature-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-cyan fs-3">
+                                        <i class="ri-cloud-line text-cyan"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2">Climate Analytics</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Weather patterns & climate impact
+                                </p>
+                                <div class="mt-3">
+                                    <span class="badge badge-soft-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Impact -->
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card feature-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-amber fs-3">
+                                        <i class="ri-money-dollar-circle-line text-amber"></i>
+                                    </span>
+                                </div>
+                                <h6 class="mb-2">Financial Impact</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Economic analysis & ROI tracking
+                                </p>
+                                <div class="mt-3">
+                                    <span class="badge badge-soft-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
+
 
 @endsection
 
@@ -341,6 +429,19 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = '';
             this.style.borderColor = '#e5e7eb';
+        });
+    });
+
+    // Feature Card Hover Effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
         });
     });
 
@@ -373,6 +474,11 @@ document.addEventListener('DOMContentLoaded', function() {
     cursor: pointer;
 }
 
+.feature-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
 .card-animate {
     transition: all 0.3s ease;
 }
@@ -380,6 +486,50 @@ document.addEventListener('DOMContentLoaded', function() {
 .card-animate:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Additional color classes */
+.bg-soft-purple {
+    background-color: rgba(108, 117, 245, 0.1) !important;
+}
+.text-purple {
+    color: #6c75f5 !important;
+}
+.bg-soft-orange {
+    background-color: rgba(253, 126, 20, 0.1) !important;
+}
+.text-orange {
+    color: #fd7e14 !important;
+}
+.bg-soft-teal {
+    background-color: rgba(32, 201, 151, 0.1) !important;
+}
+.text-teal {
+    color: #20c997 !important;
+}
+.bg-soft-indigo {
+    background-color: rgba(102, 16, 242, 0.1) !important;
+}
+.text-indigo {
+    color: #6610f2 !important;
+}
+.bg-soft-pink {
+    background-color: rgba(232, 62, 140, 0.1) !important;
+}
+.text-pink {
+    color: #e83e8c !important;
+}
+.bg-soft-cyan {
+    background-color: rgba(23, 162, 184, 0.1) !important;
+}
+.text-cyan {
+    color: #17a2b8 !important;
+}
+.bg-soft-amber {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+.text-amber {
+    color: #ffc107 !important;
 }
 </style>
 @endpush
