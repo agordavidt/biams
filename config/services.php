@@ -32,11 +32,9 @@ return [
     ],
         
     'credo' => [
-        'key' => env('CREDO_PUBLIC_KEY'),
-        'secret' => env('CREDO_SECRET_KEY'),
-        'base_url' => env('CREDO_BASE_URL'), 
-        'test_mode' => env('APP_ENV') !== 'production',
-        'test_merchant_id' => 'TEST_MERCHANT_123'
+        'public_key' => env('CREDO_PUBLIC_KEY'),
+        'secret_key' => env('CREDO_SECRET_KEY'),
+        'base_url' => env('CREDO_BASE_URL', 'https://api.credocentral.com'),
     ],
 
 ];

@@ -1,0 +1,657 @@
+=== routes ====
+// Farmer Routes (Standard Users with Farmer Profile)
+Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+    
+    // Marketplace routes
+    Route::get('/marketplace', function() {
+        return view('user.marketplace');
+    })->name('marketplace');
+    
+     // Resources routes - for viewing and applying
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\User\ResourceController::class, 'index'])->name('index');
+        Route::get('/{resource}', [\App\Http\Controllers\User\ResourceController::class, 'show'])->name('show');
+        Route::get('/{resource}/apply', [\App\Http\Controllers\User\ResourceController::class, 'apply'])->name('apply');
+        Route::post('/{resource}/submit', [\App\Http\Controllers\User\ResourceController::class, 'submit'])->name('submit');
+        
+        // Payment handling
+        Route::post('/{resource}/payment/initiate', [\App\Http\Controllers\User\ResourceController::class, 'initiatePayment'])->name('payment.initiate');
+        
+        // Track applications - MUST come before /{application} to avoid route conflict
+        Route::get('/applications/track', [\App\Http\Controllers\User\ResourceController::class, 'track'])->name('track');
+        Route::get('/applications/{application}', [\App\Http\Controllers\User\ResourceController::class, 'showApplication'])->name('applications.show');
+    });
+    
+    // Payment callback (outside resources prefix to match Credo callback URL)
+    Route::get('payment/callback', [\App\Http\Controllers\User\ResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+});
+
+
+
+=== apply view ====
+@extends('layouts.farmer')
+
+@section('content')
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Apply for {{ $resource->name }}</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('farmer.resources.index') }}">Resources</a></li>
+                    <li class="breadcrumb-item active">Apply</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <h6 class="alert-heading">Please correct the following errors:</h6>
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="alert alert-info alert-dismissible fade show">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        {{ session('info') }}
+                    </div>
+                @endif
+
+                <!-- Resource Details -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Resource Details</h5>
+                    <div class="alert alert-light bg-light border border-light">
+                        <p class="mb-2">{{ $resource->description }}</p>
+                        @if($resource->requires_payment)
+                            <p class="mb-0 fw-bold text-success">Application Fee: ₦{{ number_format($resource->price, 2) }}</p>
+                        @else
+                            <p class="mb-0 fw-bold text-success">Free Application</p>
+                        @endif
+                    </div>
+                </div>
+
+                @if($resource->requires_payment && !$hasPaid)
+                    {{-- Payment Required: Show payment button ONLY --}}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <div class="avatar-lg mx-auto mb-4">
+                                <div class="avatar-title bg-soft-primary text-primary display-4 rounded-circle">
+                                    <i class="ri-secure-payment-line"></i>
+                                </div>
+                            </div>
+                            <h4 class="mb-3">Payment Required</h4>
+                            <p class="text-muted mb-4">
+                                You need to complete payment before you can access the application form.
+                                <br>
+                                <strong class="text-dark">Amount: ₦{{ number_format($resource->price, 2) }}</strong>
+                            </p>
+                        </div>
+
+                        <form method="POST" action="{{ route('farmer.resources.payment.initiate', $resource) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="ri-secure-payment-line me-2"></i> 
+                                Proceed to Payment
+                            </button>
+                            <p class="text-center text-muted mt-3 mb-0">
+                                <small><i class="ri-shield-check-line me-1"></i> Secure payment via Credo</small>
+                            </p>
+                        </form>
+                    </div>
+
+                @else
+                    {{-- No Payment Required OR Already Paid: Show application form --}}
+                    @if($hasPaid)
+                        <div class="alert alert-success mb-4">
+                            <i class="ri-checkbox-circle-line me-2"></i>
+                            <strong>Payment Verified!</strong> Please complete the application form below.
+                        </div>
+                    @endif
+
+                    <form id="application-form" method="POST" 
+                          action="{{ route('farmer.resources.submit', $resource) }}"
+                          enctype="multipart/form-data">
+                        @csrf
+
+                        <h5 class="mb-3">Application Form</h5>
+                        
+                        @foreach($resource->form_fields as $field)
+                            @php $fieldName = Str::slug($field['label']); @endphp
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    {{ $field['label'] }} 
+                                    @if($field['required'])<span class="text-danger">*</span>@endif
+                                </label>
+                                
+                                @switch($field['type'])
+                                    @case('text')
+                                        <input type="text" name="{{ $fieldName }}" 
+                                               class="form-control @error($fieldName) is-invalid @enderror" 
+                                               value="{{ old($fieldName) }}"
+                                               @if($field['required']) required @endif>
+                                        @error($fieldName)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        @break
+                                        
+                                    @case('textarea')
+                                        <textarea name="{{ $fieldName }}" 
+                                                  class="form-control @error($fieldName) is-invalid @enderror" 
+                                                  @if($field['required']) required @endif 
+                                                  rows="3">{{ old($fieldName) }}</textarea>
+                                        @error($fieldName)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        @break
+                                        
+                                    @case('number')
+                                        <input type="number" name="{{ $fieldName }}" 
+                                               class="form-control @error($fieldName) is-invalid @enderror"
+                                               value="{{ old($fieldName) }}"
+                                               @if($field['required']) required @endif>
+                                        @error($fieldName)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        @break
+                                        
+                                    @case('file')
+                                        <input type="file" name="{{ $fieldName }}" 
+                                               class="form-control @error($fieldName) is-invalid @enderror"
+                                               @if($field['required']) required @endif>
+                                        <small class="text-muted">Maximum file size: 2MB</small>
+                                        @error($fieldName)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        @break
+                                        
+                                    @case('select')
+                                        <select name="{{ $fieldName }}" 
+                                                class="form-select @error($fieldName) is-invalid @enderror"
+                                                @if($field['required']) required @endif>
+                                            <option value="">Select an option</option>
+                                            @foreach(explode(',', $field['options']) as $option)
+                                                <option value="{{ trim($option) }}" 
+                                                        {{ old($fieldName) == trim($option) ? 'selected' : '' }}>
+                                                    {{ trim($option) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error($fieldName)
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        @break
+                                @endswitch
+                            </div>
+                        @endforeach
+
+                        <div class="form-footer mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-success btn-lg w-100" id="submitBtn">
+                                <i class="ri-send-plane-line me-1"></i> 
+                                Submit Application
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    submitBtn.disabled = true;
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                    
+                    // Re-enable after 5 seconds as fallback
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }, 5000);
+                }
+            });
+        });
+    });
+</script>
+@endpush
+@endsection
+
+
+
+=== controller ====
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\Resource;
+use App\Models\ResourceApplication;
+use App\Models\Payment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class ResourceController extends Controller
+{
+    /**
+     * Display all active resources available to farmers
+     */
+    public function index()
+    {
+        $resources = Resource::with('partner')
+            ->active()
+            ->latest()
+            ->paginate(12);
+
+        $userApplications = ResourceApplication::where('user_id', Auth::id())
+            ->pluck('resource_id')
+            ->toArray();
+
+        return view('user.resources.index', compact('resources', 'userApplications'));
+    }
+
+    /**
+     * Show a specific resource
+     */
+    public function show(Resource $resource)
+    {
+        if (!$resource->isActive()) {
+            return redirect()->route('farmer.resources.index')
+                ->with('error', 'This resource is no longer available.');
+        }
+
+        $user = Auth::user();
+        $resource->load('partner');
+        
+        $existingApplication = ResourceApplication::where('user_id', $user->id)
+            ->where('resource_id', $resource->id)
+            ->first();
+
+        $hasPaid = $this->hasUserPaidForResource($user->id, $resource->id);
+
+        return view('user.resources.show', compact('resource', 'existingApplication', 'hasPaid'));
+    }
+
+    /**
+     * Show application form for a resource (or payment page if payment required)
+     */
+    public function apply(Resource $resource)
+    {
+        $user = Auth::user();
+        
+        // Check if user has already applied
+        if ($resource->applications()->where('user_id', $user->id)->exists()) {
+            return redirect()->route('farmer.resources.track')
+                ->with('error', 'You have already applied for this resource.');
+        }
+
+        // Check payment status
+        $hasPaid = $this->hasUserPaidForResource($user->id, $resource->id);
+        
+        return view('user.resources.apply', compact('resource', 'hasPaid'));
+    }
+
+    /**
+     * Initiate payment for a resource
+     */
+    public function initiatePayment(Request $request, Resource $resource)
+    {
+        $user = Auth::user();
+        
+        // Check if already applied
+        if ($resource->applications()->where('user_id', $user->id)->exists()) {
+            return redirect()->route('farmer.resources.track')
+                ->with('error', 'You have already applied for this resource.');
+        }
+
+        // Check if already paid
+        if ($this->hasUserPaidForResource($user->id, $resource->id)) {
+            return redirect()->route('farmer.resources.apply', $resource)
+                ->with('info', 'Payment already completed. Please submit your application.');
+        }
+
+        $reference = 'RES-' . $user->id . '-' . $resource->id . '-' . time();
+
+        try {
+            $response = Http::timeout(30)
+                ->retry(3, 1000)
+                ->acceptJson()
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.credo.key'),
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(config('services.credo.base_url') . '/transaction/initialize', [
+                    'email' => $user->email,
+                    'amount' => ($resource->price * 100), // Amount in kobo
+                    'currency' => 'NGN',
+                    'reference' => $reference,
+                    'callback_url' => route('farmer.payment.callback'),
+                    'metadata' => [
+                        'resource_id' => $resource->id,
+                        'user_id' => $user->id,
+                        'resource_name' => $resource->name,
+                    ],
+                ]);
+            
+            if (!$response->successful()) {
+                Log::error('Credo payment initialization failed', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'reference' => $reference,
+                ]);
+                
+                return redirect()->back()
+                    ->with('error', 'Payment gateway error. Please try again later.');
+            }
+            
+            $responseData = $response->json();
+            
+            if (isset($responseData['data']['authorizationUrl'])) {
+                return redirect($responseData['data']['authorizationUrl']);
+            }
+            
+            return redirect()->back()
+                ->with('error', 'Unable to initialize payment. Please try again.');
+            
+        } catch (\Exception $e) {
+            Log::error('Error initializing payment: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'resource_id' => $resource->id,
+                'reference' => $reference,
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Unable to process payment at this time. Please try again later.');
+        }
+    }
+
+    /**
+     * Handle payment callback from Credo
+     */
+    public function handlePaymentCallback(Request $request)
+    {
+        try {
+            $reference = $request->reference;
+            
+            if (!$reference) {
+                return redirect()->route('farmer.resources.index')
+                    ->with('error', 'Invalid payment reference.');
+            }
+
+            $response = Http::timeout(30)
+                ->retry(3, 1000)
+                ->acceptJson()
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.credo.secret'),
+                    'Content-Type' => 'application/json',
+                ])
+                ->get(config('services.credo.base_url') . "/transaction/verify/{$reference}");
+            
+            if (!$response->successful()) {
+                Log::error('Payment verification failed', [
+                    'reference' => $reference,
+                    'status' => $response->status(),
+                ]);
+                
+                return redirect()->route('farmer.resources.index')
+                    ->with('error', 'Payment verification failed. Please contact support.');
+            }
+            
+            $paymentData = $response->json('data');
+            $status = $paymentData['status'] ?? 'failed';
+            $message = $paymentData['message'] ?? 'Payment failed';
+            
+            // Credo uses 'success' or 'successful' status
+            if (in_array(strtolower($status), ['success', 'successful'])) {
+                $metadata = $paymentData['metadata'] ?? [];
+                $resourceId = $metadata['resource_id'] ?? null;
+                
+                if (!$resourceId) {
+                    return redirect()->route('farmer.resources.index')
+                        ->with('error', 'Invalid payment data.');
+                }
+                
+                $resource = Resource::find($resourceId);
+                
+                if (!$resource) {
+                    return redirect()->route('farmer.resources.index')
+                        ->with('error', 'Resource not found.');
+                }
+                
+                $user = Auth::user();
+                
+                // Check if payment already exists
+                $existingPayment = Payment::where('reference', $reference)->first();
+                
+                if (!$existingPayment) {
+                    // Log payment to payments table
+                    Payment::create([
+                        'businessName' => 'BIAMS',
+                        'reference' => $reference,
+                        'transAmount' => $resource->price,
+                        'transFee' => $paymentData['fee'] ?? 0,
+                        'transTotal' => $paymentData['amount'] / 100, // Convert from kobo
+                        'transDate' => now(),
+                        'settlementAmount' => $resource->price,
+                        'status' => 'success',
+                        'statusMessage' => $message,
+                        'customerId' => $user->id,
+                        'resourceId' => $resource->id,
+                        'resourceOwnerId' => $resource->partner_id ?? 1,
+                        'channelId' => $paymentData['channel'] ?? 'WEB',
+                        'currencyCode' => 'NGN'
+                    ]);
+                }
+                
+                return redirect()->route('farmer.resources.apply', $resource)
+                    ->with('success', 'Payment successful! Please complete your application form below.');
+                    
+            } else {
+                return redirect()->route('farmer.resources.index')
+                    ->with('error', 'Payment was not successful. Please try again.');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Payment callback error: ' . $e->getMessage(), [
+                'reference' => $request->reference,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return redirect()->route('farmer.resources.index')
+                ->with('error', 'Error processing payment callback. Please contact support with reference: ' . $request->reference);
+        }
+    }
+
+    /**
+     * Submit resource application (for free resources or after payment)
+     */
+    public function submit(Request $request, Resource $resource)
+    {
+        $user = Auth::user();
+        
+        // Check if already applied
+        if ($resource->applications()->where('user_id', $user->id)->exists()) {
+            return redirect()->route('farmer.resources.track')
+                ->with('error', 'You have already applied for this resource.');
+        }
+        
+        // If requires payment, verify payment exists
+        if ($resource->requires_payment) {
+            $payment = Payment::where('customerId', $user->id)
+                ->where('resourceId', $resource->id)
+                ->where('status', 'success')
+                ->first();
+                
+            if (!$payment) {
+                return redirect()->back()
+                    ->with('error', 'Payment required. Please complete payment first.');
+            }
+            
+            // Check if this payment was already used
+            $existingApp = ResourceApplication::where('payment_reference', $payment->reference)->first();
+            if ($existingApp) {
+                return redirect()->route('farmer.resources.track')
+                    ->with('info', 'Application already submitted with this payment.');
+            }
+        }
+        
+        // Validate the application data
+        $this->validateApplication($request, $resource);
+
+        try {
+            // Process form data
+            $formData = $this->processFormData($request, $resource);
+            
+            // Create the application
+            $application = ResourceApplication::create([
+                'user_id' => $user->id,
+                'resource_id' => $resource->id,
+                'form_data' => $formData,
+                'payment_reference' => $resource->requires_payment ? $payment->reference : null,
+                'payment_status' => $resource->requires_payment ? ResourceApplication::PAYMENT_STATUS_VERIFIED : null,
+                'status' => ResourceApplication::STATUS_PENDING
+            ]);
+
+            return redirect()->route('farmer.resources.track')
+                ->with('success', 'Application submitted successfully!');
+
+        } catch (\Exception $e) {
+            Log::error('Application submission failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to submit application. Please try again.');
+        }
+    }
+
+    /**
+     * Track user's applications
+     */
+    public function track(Request $request)
+    {
+        $query = ResourceApplication::with(['resource', 'resource.partner'])
+            ->where('user_id', Auth::id());
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $applications = $query->latest()->paginate(10);
+
+        return view('user.resources.track', compact('applications'));
+    }
+
+    /**
+     * View a specific application
+     */
+    public function showApplication(ResourceApplication $application)
+    {
+        if ($application->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this application.');
+        }
+
+        $application->load(['resource', 'resource.partner']);
+
+        return view('user.resources.application-show', compact('application'));
+    }
+
+    /**
+     * Validate application form data
+     */
+    protected function validateApplication(Request $request, Resource $resource)
+    {
+        $rules = [];
+        foreach ($resource->form_fields as $field) {
+            $fieldName = Str::slug($field['label']);
+            $rules[$fieldName] = $field['required'] ? 'required' : 'nullable';
+            
+            if ($field['type'] === 'file') $rules[$fieldName] .= '|file|max:2048';
+            if ($field['type'] === 'number') $rules[$fieldName] .= '|numeric';
+            if ($field['type'] === 'select') {
+                $options = is_array($field['options']) ? $field['options'] : explode(',', $field['options']);
+                $rules[$fieldName] .= '|in:' . implode(',', array_map('trim', $options));
+            }
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Process form data including file uploads
+     */
+    protected function processFormData($request, Resource $resource)
+    {
+        $formData = [];
+        foreach ($resource->form_fields as $field) {
+            $fieldName = Str::slug($field['label']);
+            
+            if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
+                $file = $request->file($fieldName);
+                $path = $file->store('resource-applications', 'public');
+                $formData[$field['label']] = [
+                    'path' => $path,
+                    'original_name' => $file->getClientOriginalName()
+                ];
+            } else {
+                $formData[$field['label']] = $request->input($fieldName);
+            }
+        }
+        return $formData;
+    }
+
+    /**
+     * Check if user has successfully paid for a resource
+     */
+    protected function hasUserPaidForResource($userId, $resourceId)
+    {
+        return Payment::where('customerId', $userId)
+            ->where('resourceId', $resourceId)
+            ->where('status', 'success')
+            ->exists();
+    }
+}
+
+
+
+=== services ====
+'credo' => [
+        'public_key' => env('CREDO_PUBLIC_KEY'),
+        'secret_key' => env('CREDO_SECRET_KEY'),
+        'base_url' => env('CREDO_BASE_URL', 'https://api.credocentral.com'),
+    ],

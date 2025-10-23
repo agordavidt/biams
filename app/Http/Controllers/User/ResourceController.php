@@ -74,7 +74,7 @@ class ResourceController extends Controller
     }
 
     /**
-     * Initiate payment for a resource
+     * Initiate payment for a resource (UPDATED to match mentee system)
      */
     public function initiatePayment(Request $request, Resource $resource)
     {
@@ -92,54 +92,76 @@ class ResourceController extends Controller
                 ->with('info', 'Payment already completed. Please submit your application.');
         }
 
-        $reference = 'RES-' . $user->id . '-' . $resource->id . '-' . time();
-
         try {
-            $response = Http::timeout(30)
-                ->retry(3, 1000)
-                ->acceptJson()
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.credo.key'),
-                    'Content-Type' => 'application/json',
-                ])
-                ->post(config('services.credo.base_url') . '/transaction/initialize', [
-                    'email' => $user->email,
-                    'amount' => ($resource->price * 100), // Amount in kobo
-                    'currency' => 'NGN',
-                    'reference' => $reference,
-                    'callback_url' => route('farmer.payment.callback'),
-                    'metadata' => [
-                        'resource_id' => $resource->id,
-                        'user_id' => $user->id,
-                        'resource_name' => $resource->name,
-                    ],
-                ]);
+            $credoPublicKey = config('services.credo.public_key');
+            $credoBaseUrl = config('services.credo.base_url');
             
-            if (!$response->successful()) {
-                Log::error('Credo payment initialization failed', [
+            // Log credentials for debugging (mask sensitive data)
+            Log::info('Farmer Credo API Configuration:', [
+                'base_url' => $credoBaseUrl,
+                'public_key' => $credoPublicKey ? substr($credoPublicKey, 0, 10) . '...' : 'NOT_SET'
+            ]);
+
+            $reference = 'RES-' . $user->id . '-' . $resource->id . '-' . time();
+            
+            $requestData = [
+                'amount' => (int) round($resource->price * 100), // Convert to kobo
+                'email' => $user->email,
+                'customerFirstName' => $user->first_name ?? 'Customer',
+                'customerLastName' => $user->last_name ?? 'User',
+                'customerPhoneNumber' => $user->phone ?? '2348000000000',
+                'currency' => 'NGN',
+                'channels' => ['card', 'bank'],
+                'reference' => $reference,
+                'bearer' => 0,
+                'callbackUrl' => route('farmer.payment.callback'),
+                'metadata' => [
+                    'payment_id' => 'resource_' . $resource->id, // Custom identifier
+                    'user_id' => $user->id,
+                    'resource_id' => $resource->id,
+                    'resource_name' => $resource->name,
+                ]
+            ];
+            
+            Log::info('Farmer Credo API Request:', $requestData);
+            
+            $response = Http::asJson()->withHeaders([
+                'Authorization' => $credoPublicKey, 
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->post($credoBaseUrl . '/transaction/initialize', $requestData);
+            
+            Log::info('Farmer Credo API Response Status: ' . $response->status());
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Farmer Credo API Success Response:', $data);
+                
+                if (isset($data['data']['authorizationUrl'])) {
+                    // Store payment reference in session temporarily for verification
+                    session(['current_payment_reference' => $reference]);
+                    
+                    return redirect($data['data']['authorizationUrl']);
+                }
+                
+                return redirect()->back()
+                    ->with('error', 'Unable to initialize payment. Please try again.');
+                
+            } else {
+                Log::error('Farmer Credo initialization failed:', [
                     'status' => $response->status(),
-                    'response' => $response->body(),
-                    'reference' => $reference,
+                    'headers' => $response->headers(),
+                    'body' => $response->body()
                 ]);
                 
                 return redirect()->back()
                     ->with('error', 'Payment gateway error. Please try again later.');
             }
             
-            $responseData = $response->json();
-            
-            if (isset($responseData['data']['authorizationUrl'])) {
-                return redirect($responseData['data']['authorizationUrl']);
-            }
-            
-            return redirect()->back()
-                ->with('error', 'Unable to initialize payment. Please try again.');
-            
         } catch (\Exception $e) {
-            Log::error('Error initializing payment: ' . $e->getMessage(), [
+            Log::error('Farmer Credo API error: ' . $e->getMessage(), [
                 'user_id' => $user->id,
                 'resource_id' => $resource->id,
-                'reference' => $reference,
             ]);
             
             return redirect()->back()
@@ -148,99 +170,193 @@ class ResourceController extends Controller
     }
 
     /**
-     * Handle payment callback from Credo
+     * Handle payment callback from Credo 
      */
     public function handlePaymentCallback(Request $request)
     {
-        try {
-            $reference = $request->reference;
-            
-            if (!$reference) {
-                return redirect()->route('farmer.resources.index')
-                    ->with('error', 'Invalid payment reference.');
-            }
+        // Log incoming callback query for diagnostics
+        Log::info('Farmer Credo callback received', [
+            'query' => $request->query(),
+        ]);
+        
+        $reference = $request->query('reference')
+            ?? $request->query('ref')
+            ?? $request->query('payment_reference');
+        
+        $transRef = $request->query('transRef')
+            ?? $request->query('transactionReference')
+            ?? $request->query('credoReference');
+        
+        if (!$transRef && $reference) {
+            // Try to get transaction reference from our stored data
+            $transRef = session('current_payment_reference');
+        }
 
-            $response = Http::timeout(30)
-                ->retry(3, 1000)
-                ->acceptJson()
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.credo.secret'),
-                    'Content-Type' => 'application/json',
-                ])
-                ->get(config('services.credo.base_url') . "/transaction/verify/{$reference}");
-            
-            if (!$response->successful()) {
-                Log::error('Payment verification failed', [
-                    'reference' => $reference,
-                    'status' => $response->status(),
-                ]);
+        if (!$transRef) {
+            return redirect()->route('farmer.resources.index')
+                ->with('error', 'Invalid payment reference.');
+        }
+
+        try {
+            $verificationResponse = $this->verifyCredoPayment($transRef);
+
+            if ($verificationResponse['success']) {
+                $data = $verificationResponse['data'];
+                $paymentData = data_get($data, 'data') ?? $data;
                 
-                return redirect()->route('farmer.resources.index')
-                    ->with('error', 'Payment verification failed. Please contact support.');
-            }
-            
-            $paymentData = $response->json('data');
-            $status = $paymentData['status'] ?? 'failed';
-            $message = $paymentData['message'] ?? 'Payment failed';
-            
-            // Credo uses 'success' or 'successful' status
-            if (in_array(strtolower($status), ['success', 'successful'])) {
-                $metadata = $paymentData['metadata'] ?? [];
-                $resourceId = $metadata['resource_id'] ?? null;
+                // Extract metadata from verification response
+                $metadataArray = data_get($data, 'data.data.metadata') 
+                    ?? data_get($data, 'data.metadata') 
+                    ?? data_get($data, 'metadata');
                 
-                if (!$resourceId) {
+                $resourceId = null;
+                $userId = null;
+                
+                // Handle different metadata formats
+                if (is_array($metadataArray)) {
+                    foreach ($metadataArray as $item) {
+                        if (is_array($item) && data_get($item, 'insightTag') === 'resource_id') {
+                            $resourceId = data_get($item, 'insightTagValue');
+                        }
+                        if (is_array($item) && data_get($item, 'insightTag') === 'user_id') {
+                            $userId = data_get($item, 'insightTagValue');
+                        }
+                    }
+                    // Handle associative metadata
+                    if (!$resourceId) $resourceId = data_get($metadataArray, 'resource_id');
+                    if (!$userId) $userId = data_get($metadataArray, 'user_id');
+                }
+                
+                if (!$resourceId || !$userId) {
                     return redirect()->route('farmer.resources.index')
                         ->with('error', 'Invalid payment data.');
                 }
                 
                 $resource = Resource::find($resourceId);
+                $user = Auth::user();
                 
                 if (!$resource) {
                     return redirect()->route('farmer.resources.index')
                         ->with('error', 'Resource not found.');
                 }
                 
-                $user = Auth::user();
-                
                 // Check if payment already exists
-                $existingPayment = Payment::where('reference', $reference)->first();
+                $existingPayment = Payment::where('reference', $transRef)->first();
                 
                 if (!$existingPayment) {
                     // Log payment to payments table
                     Payment::create([
                         'businessName' => 'BIAMS',
-                        'reference' => $reference,
+                        'reference' => $transRef,
                         'transAmount' => $resource->price,
-                        'transFee' => $paymentData['fee'] ?? 0,
-                        'transTotal' => $paymentData['amount'] / 100, // Convert from kobo
+                        'transFee' => data_get($paymentData, 'fee') ?? 0,
+                        'transTotal' => data_get($paymentData, 'amount', 0) / 100, // Convert from kobo
                         'transDate' => now(),
                         'settlementAmount' => $resource->price,
                         'status' => 'success',
-                        'statusMessage' => $message,
-                        'customerId' => $user->id,
+                        'statusMessage' => data_get($paymentData, 'message') ?? 'Payment successful',
+                        'customerId' => $userId,
                         'resourceId' => $resource->id,
                         'resourceOwnerId' => $resource->partner_id ?? 1,
-                        'channelId' => $paymentData['channel'] ?? 'WEB',
-                        'currencyCode' => 'NGN'
+                        'channelId' => data_get($paymentData, 'channel') ?? 'WEB',
+                        'currencyCode' => 'NGN',
+                        'credo_reference' => $transRef,
+                        'payment_data' => $paymentData
                     ]);
                 }
+                
+                // Clear session reference
+                session()->forget('current_payment_reference');
                 
                 return redirect()->route('farmer.resources.apply', $resource)
                     ->with('success', 'Payment successful! Please complete your application form below.');
                     
             } else {
+                Log::error('Farmer payment verification failed', [
+                    'transRef' => $transRef,
+                    'reference' => $reference,
+                ]);
+                
                 return redirect()->route('farmer.resources.index')
-                    ->with('error', 'Payment was not successful. Please try again.');
+                    ->with('error', 'Payment verification failed. Please contact support.');
             }
             
         } catch (\Exception $e) {
-            Log::error('Payment callback error: ' . $e->getMessage(), [
-                'reference' => $request->reference,
+            Log::error('Farmer payment callback error: ' . $e->getMessage(), [
+                'reference' => $reference,
+                'transRef' => $transRef,
                 'trace' => $e->getTraceAsString(),
             ]);
             
             return redirect()->route('farmer.resources.index')
-                ->with('error', 'Error processing payment callback. Please contact support with reference: ' . $request->reference);
+                ->with('error', 'Error processing payment. Please contact support.');
+        }
+    }
+
+    /**
+ * Verify payment with Credo API (Same as mentee system)
+    */
+    private function verifyCredoPayment($transRef)
+    {
+        try {
+            $credoSecretKey = config('services.credo.secret_key');
+            $credoBaseUrl = config('services.credo.base_url');
+            
+            $response = Http::withHeaders([
+                'Authorization' => $credoSecretKey,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->get($credoBaseUrl . '/transaction/' . $transRef . '/verify');
+            
+            Log::info('Farmer Credo Verify Response Status: ' . $response->status());
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Farmer Credo Verify Response Body:', $data);
+                
+                $statusRaw = data_get($data, 'data.status');
+                $statusLower = is_string($statusRaw) ? strtolower($statusRaw) : null;
+                $statusIsZero = ((string) $statusRaw) === '0';
+                $statusMessageRaw = (string) (data_get($data, 'data.statusMessage') ?? data_get($data, 'data.message') ?? '');
+                $statusMessage = strtolower($statusMessageRaw);
+                $statusCode = data_get($data, 'data.statusCode')
+                    ?? data_get($data, 'data.code')
+                    ?? data_get($data, 'data.responseCode');
+                
+                $approvedByMessage = str_contains($statusMessage, 'success')
+                    || str_contains($statusMessage, 'approved');
+                
+                $isApproved = $statusIsZero
+                    || in_array($statusLower, ['success', 'successful', 'approved', 'completed', 'paid'], true)
+                    || in_array((string) $statusCode, ['0', '00'], true)
+                    || $approvedByMessage;
+                
+                if ($isApproved) {
+                    return [
+                        'success' => true,
+                        'transaction_id' => data_get($data, 'data.id') ?? data_get($data, 'data.transRef'),
+                        'data' => $data
+                    ];
+                }
+            }
+            
+            Log::error('Farmer Credo Verify failed', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Payment verification failed'
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('Farmer Credo verification error: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'message' => 'Verification service unavailable'
+            ];
         }
     }
 
