@@ -55,7 +55,7 @@ class ResourceController extends Controller
     }
 
     /**
-     * Show application form for a resource
+     * Show application form for a resource (or payment page if payment required)
      */
     public function apply(Resource $resource)
     {
@@ -70,12 +70,6 @@ class ResourceController extends Controller
         // Check payment status
         $hasPaid = $this->hasUserPaidForResource($user->id, $resource->id);
         
-        // If requires payment and hasn't paid, show payment required message
-        if ($resource->requires_payment && !$hasPaid) {
-            return view('user.resources.apply', compact('resource', 'hasPaid'))
-                ->with('info', 'Please complete payment before submitting your application.');
-        }
-
         return view('user.resources.apply', compact('resource', 'hasPaid'));
     }
 
@@ -99,77 +93,49 @@ class ResourceController extends Controller
         }
 
         $reference = 'RES-' . $user->id . '-' . $resource->id . '-' . time();
-        
-        // Process form data, handling file uploads
-        $formData = [];
-        $filePaths = [];
-
-        foreach ($resource->form_fields as $field) {
-            $fieldName = Str::slug($field['label']);
-            
-            if ($field['type'] === 'file' && $request->hasFile($fieldName)) {
-                $file = $request->file($fieldName);
-                $path = $file->store('temp/resource-applications', 'public');
-                $filePaths[$fieldName] = [
-                    'path' => $path,
-                    'original_name' => $file->getClientOriginalName()
-                ];
-                $formData[$fieldName] = $path;
-            } else {
-                $formData[$fieldName] = $request->input($fieldName);
-            }
-        }
 
         try {
-            $apiKey = env('CREDO_PUBLIC_KEY');
-            
             $response = Http::timeout(30)
                 ->retry(3, 1000)
-                ->accept('application/json')
+                ->acceptJson()
                 ->withHeaders([
-                    'authorization' => $apiKey,
-                    'content_type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('services.credo.key'),
+                    'Content-Type' => 'application/json',
                 ])
-                ->post(env('CREDO_URL') . '/transaction/initialize', [
+                ->post(config('services.credo.base_url') . '/transaction/initialize', [
                     'email' => $user->email,
+                    'amount' => ($resource->price * 100), // Amount in kobo
+                    'currency' => 'NGN',
+                    'reference' => $reference,
+                    'callback_url' => route('farmer.payment.callback'),
                     'metadata' => [
                         'resource_id' => $resource->id,
                         'user_id' => $user->id,
+                        'resource_name' => $resource->name,
                     ],
-                    'amount' => ($resource->price * 100),
-                    'reference' => $reference,
-                    'callbackUrl' => route('farmer.payment.callback'),
-                    'bearer' => 0,
                 ]);
             
-            $responseData = $response->collect('data');
-            
-            if (isset($responseData['authorizationUrl'])) {
-                // Store form data in session
-                session()->put('resource_application.' . $reference, [
-                    'resource_id' => $resource->id,
-                    'form_data' => $formData,
-                    'file_paths' => $filePaths,
+            if (!$response->successful()) {
+                Log::error('Credo payment initialization failed', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'reference' => $reference,
                 ]);
                 
-                return redirect($responseData['authorizationUrl']);
+                return redirect()->back()
+                    ->with('error', 'Payment gateway error. Please try again later.');
             }
             
-            // Clean up temporary files if payment initialization fails
-            foreach ($filePaths as $fileData) {
-                Storage::disk('public')->delete($fileData['path']);
+            $responseData = $response->json();
+            
+            if (isset($responseData['data']['authorizationUrl'])) {
+                return redirect($responseData['data']['authorizationUrl']);
             }
             
             return redirect()->back()
-                ->withInput()
-                ->with('error', 'Payment gateway took too long to respond. Please try again.');
+                ->with('error', 'Unable to initialize payment. Please try again.');
             
         } catch (\Exception $e) {
-            // Clean up temporary files on error
-            foreach ($filePaths as $fileData) {
-                Storage::disk('public')->delete($fileData['path']);
-            }
-            
             Log::error('Error initializing payment: ' . $e->getMessage(), [
                 'user_id' => $user->id,
                 'resource_id' => $resource->id,
@@ -177,7 +143,6 @@ class ResourceController extends Controller
             ]);
             
             return redirect()->back()
-                ->withInput()
                 ->with('error', 'Unable to process payment at this time. Please try again later.');
         }
     }
@@ -188,80 +153,94 @@ class ResourceController extends Controller
     public function handlePaymentCallback(Request $request)
     {
         try {
+            $reference = $request->reference;
+            
+            if (!$reference) {
+                return redirect()->route('farmer.resources.index')
+                    ->with('error', 'Invalid payment reference.');
+            }
+
             $response = Http::timeout(30)
                 ->retry(3, 1000)
-                ->accept('application/json')
+                ->acceptJson()
                 ->withHeaders([
-                    'authorization' => env('CREDO_SECRET_KEY'),
-                    'content-type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('services.credo.secret'),
+                    'Content-Type' => 'application/json',
                 ])
-                ->get(env('CREDO_URL') . "/transaction/{$request->reference}/verify");
+                ->get(config('services.credo.base_url') . "/transaction/verify/{$reference}");
             
             if (!$response->successful()) {
+                Log::error('Payment verification failed', [
+                    'reference' => $reference,
+                    'status' => $response->status(),
+                ]);
+                
                 return redirect()->route('farmer.resources.index')
                     ->with('error', 'Payment verification failed. Please contact support.');
             }
             
             $paymentData = $response->json('data');
             $status = $paymentData['status'] ?? 'failed';
-            $message = $paymentData['statusMessage'] ?? 'Payment failed';
+            $message = $paymentData['message'] ?? 'Payment failed';
             
-            if ($status === 'success' || $message === 'Successfully processed') {
-                // Get the form data from session
-                $sessionData = session()->get('resource_application.' . $request->reference);
+            // Credo uses 'success' or 'successful' status
+            if (in_array(strtolower($status), ['success', 'successful'])) {
+                $metadata = $paymentData['metadata'] ?? [];
+                $resourceId = $metadata['resource_id'] ?? null;
                 
-                if (!$sessionData) {
+                if (!$resourceId) {
                     return redirect()->route('farmer.resources.index')
-                        ->with('error', 'Application data not found. Please try again.');
+                        ->with('error', 'Invalid payment data.');
                 }
                 
-                $resource = Resource::findOrFail($sessionData['resource_id']);
+                $resource = Resource::find($resourceId);
+                
+                if (!$resource) {
+                    return redirect()->route('farmer.resources.index')
+                        ->with('error', 'Resource not found.');
+                }
+                
                 $user = Auth::user();
                 
-                // Log payment to payments table
-                Payment::create([
-                    'businessName' => 'BIAMS',
-                    'reference' => $request->reference,
-                    'transAmount' => $resource->price,
-                    'transFee' => 0,
-                    'transTotal' => $resource->price,
-                    'transDate' => now(),
-                    'settlementAmount' => $resource->price,
-                    'status' => 'success',
-                    'statusMessage' => $message,
-                    'customerId' => $user->id,
-                    'resourceId' => $resource->id,
-                    'resourceOwnerId' => $resource->partner_id ?? 1,
-                    'channelId' => 'WEB',
-                    'currencyCode' => 'NGN'
-                ]);
+                // Check if payment already exists
+                $existingPayment = Payment::where('reference', $reference)->first();
                 
-                // Create the application immediately after successful payment
-                $this->createApplicationFromPayment($sessionData, $user->id, $request->reference);
-                
-                // Clean up session data
-                session()->forget('resource_application.' . $request->reference);
-                
-                return redirect()->route('farmer.resources.track')
-                    ->with('success', 'Payment successful! Your application has been submitted.');
-            } else {
-                // Clean up temporary files on failed payment
-                $sessionData = session()->get('resource_application.' . $request->reference);
-                if ($sessionData && isset($sessionData['file_paths'])) {
-                    foreach ($sessionData['file_paths'] as $fileData) {
-                        Storage::disk('public')->delete($fileData['path']);
-                    }
+                if (!$existingPayment) {
+                    // Log payment to payments table
+                    Payment::create([
+                        'businessName' => 'BIAMS',
+                        'reference' => $reference,
+                        'transAmount' => $resource->price,
+                        'transFee' => $paymentData['fee'] ?? 0,
+                        'transTotal' => $paymentData['amount'] / 100, // Convert from kobo
+                        'transDate' => now(),
+                        'settlementAmount' => $resource->price,
+                        'status' => 'success',
+                        'statusMessage' => $message,
+                        'customerId' => $user->id,
+                        'resourceId' => $resource->id,
+                        'resourceOwnerId' => $resource->partner_id ?? 1,
+                        'channelId' => $paymentData['channel'] ?? 'WEB',
+                        'currencyCode' => 'NGN'
+                    ]);
                 }
-                session()->forget('resource_application.' . $request->reference);
                 
+                return redirect()->route('farmer.resources.apply', $resource)
+                    ->with('success', 'Payment successful! Please complete your application form below.');
+                    
+            } else {
                 return redirect()->route('farmer.resources.index')
-                    ->with('error', 'Payment failed. Please try again.');
+                    ->with('error', 'Payment was not successful. Please try again.');
             }
             
         } catch (\Exception $e) {
-            Log::error('Payment callback error: ' . $e->getMessage());
+            Log::error('Payment callback error: ' . $e->getMessage(), [
+                'reference' => $request->reference,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
             return redirect()->route('farmer.resources.index')
-                ->with('error', 'Error processing payment callback. Please contact support.');
+                ->with('error', 'Error processing payment callback. Please contact support with reference: ' . $request->reference);
         }
     }
 
@@ -286,7 +265,8 @@ class ResourceController extends Controller
                 ->first();
                 
             if (!$payment) {
-                return redirect()->back()->with('error', 'Payment required. Please complete payment first.');
+                return redirect()->back()
+                    ->with('error', 'Payment required. Please complete payment first.');
             }
             
             // Check if this payment was already used
@@ -352,42 +332,6 @@ class ResourceController extends Controller
         $application->load(['resource', 'resource.partner']);
 
         return view('user.resources.application-show', compact('application'));
-    }
-
-    /**
-     * Create application from payment session data
-     */
-    protected function createApplicationFromPayment($sessionData, $userId, $paymentReference)
-    {
-        $resource = Resource::findOrFail($sessionData['resource_id']);
-        
-        // Move temporary files to permanent location
-        $finalFormData = [];
-        foreach ($sessionData['form_data'] as $key => $value) {
-            if (isset($sessionData['file_paths'][$key])) {
-                // Move from temp to permanent location
-                $tempPath = $sessionData['file_paths'][$key]['path'];
-                $newPath = str_replace('temp/', '', $tempPath);
-                
-                Storage::disk('public')->move($tempPath, $newPath);
-                
-                $finalFormData[$key] = [
-                    'path' => $newPath,
-                    'original_name' => $sessionData['file_paths'][$key]['original_name']
-                ];
-            } else {
-                $finalFormData[$key] = $value;
-            }
-        }
-        
-        return ResourceApplication::create([
-            'user_id' => $userId,
-            'resource_id' => $resource->id,
-            'form_data' => $finalFormData,
-            'payment_reference' => $paymentReference,
-            'payment_status' => ResourceApplication::PAYMENT_STATUS_VERIFIED,
-            'status' => ResourceApplication::STATUS_PENDING
-        ]);
     }
 
     /**

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-// REMOVED: use Intervention\Image\Facades\Image; // Removed Intervention Image Facade
+
 
 class MarketplaceController extends Controller
 {
