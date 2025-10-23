@@ -503,14 +503,16 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::post('/listings/{listing}/contact', [MarketplaceController::class, 'contactFarmer'])->name('contact-farmer');
 });
 
-// Authenticated Farmer Marketplace Routes
+
+
+// Farmer Marketplace Routes
 Route::middleware(['auth', 'role:User'])->prefix('farmer/marketplace')->name('farmer.marketplace.')->group(function () {
     // My Listings Dashboard
     Route::get('/my-listings', [MarketplaceController::class, 'myListings'])->name('my-listings');
     
     // Subscription & Payment
     Route::post('/subscribe', [MarketplaceController::class, 'initiatePayment'])->name('subscribe');
-    Route::get('/payment/verify', [MarketplaceController::class, 'verifyPayment'])->name('payment.verify');
+    Route::get('/payment/callback', [MarketplaceController::class, 'handlePaymentCallback'])->name('payment.callback');
     
     // Listing Management (Requires Active Subscription)
     Route::middleware('can:create,App\Models\Market\MarketplaceListing')->group(function () {

@@ -191,4 +191,18 @@ public function getTotalCooperativesRegisteredAttribute(): int
     return $this->registeredCooperatives()->count();
 }
     
+
+
+public function getActiveMarketplaceSubscriptionAttribute()
+{
+    return $this->marketplaceSubscriptions()
+        ->active()
+        ->first();
+}
+
+public function canListOnMarketplace()
+{
+    return $this->activeMarketplaceSubscription !== null;
+}
+
 }

@@ -8,3 +8,80 @@ CVV: 111
 PIN: 1111
 
 OTP: 123456
+
+
+
+phInRglVu8ek
+
+
+
+==== I removed the verifypayment and replaced with verifycredopayment
+/**
+ * Verify payment with Credo API (Same pattern as resource payment)
+ */
+private function verifyCredoPayment($transRef)
+{
+    try {
+        $credoSecretKey = config('services.credo.secret_key');
+        $credoBaseUrl = config('services.credo.base_url');
+        
+        $response = Http::withHeaders([
+            'Authorization' => $credoSecretKey,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get($credoBaseUrl . '/transaction/' . $transRef . '/verify');
+        
+        Log::info('Marketplace Credo Verify Response Status: ' . $response->status());
+        
+        if ($response->successful()) {
+            $data = $response->json();
+            Log::info('Marketplace Credo Verify Response Body:', $data);
+            
+            $statusRaw = data_get($data, 'data.status');
+            $statusLower = is_string($statusRaw) ? strtolower($statusRaw) : null;
+            $statusIsZero = ((string) $statusRaw) === '0';
+            $statusMessageRaw = (string) (data_get($data, 'data.statusMessage') ?? data_get($data, 'data.message') ?? '');
+            $statusMessage = strtolower($statusMessageRaw);
+            $statusCode = data_get($data, 'data.statusCode')
+                ?? data_get($data, 'data.code')
+                ?? data_get($data, 'data.responseCode');
+            
+            $approvedByMessage = str_contains($statusMessage, 'success')
+                || str_contains($statusMessage, 'approved');
+            
+            $isApproved = $statusIsZero
+                || in_array($statusLower, ['success', 'successful', 'approved', 'completed', 'paid'], true)
+                || in_array((string) $statusCode, ['0', '00'], true)
+                || $approvedByMessage;
+            
+            if ($isApproved) {
+                return [
+                    'success' => true,
+                    'transaction_id' => data_get($data, 'data.id') ?? data_get($data, 'data.transRef'),
+                    'data' => $data
+                ];
+            }
+        }
+        
+        Log::error('Marketplace Credo Verify failed', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+        
+        return [
+            'success' => false,
+            'message' => 'Payment verification failed'
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error('Marketplace Credo verification error: ' . $e->getMessage());
+        
+        return [
+            'success' => false,
+            'message' => 'Verification service unavailable'
+        ];
+    }
+}
+
+
+Failed to create subscription record. Please try again.

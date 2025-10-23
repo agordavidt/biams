@@ -4,10 +4,6 @@ namespace App\Models\Market;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
-use Carbon\Carbon;
-
 
 class MarketplaceSubscription extends Model
 {
@@ -30,12 +26,13 @@ class MarketplaceSubscription extends Model
         'end_date' => 'datetime',
         'paid_at' => 'datetime',
         'amount' => 'decimal:2',
+        'payment_details' => 'array', // ADD THIS CAST
     ];
 
     // Relationships
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Models\User::class);
     }
 
     // Scopes
@@ -56,10 +53,15 @@ class MarketplaceSubscription extends Model
             ->where('end_date', '<', now());
     }
 
+    public function scopeFailed($query)
+    {
+        return $query->where('status', 'failed');
+    }
+
     // Accessors
     public function getIsActiveAttribute()
     {
-        return $this->status === 'paid' && $this->end_date > now();
+        return $this->status === 'paid' && $this->end_date && $this->end_date->isFuture();
     }
 
     public function getDaysRemainingAttribute()
@@ -78,7 +80,7 @@ class MarketplaceSubscription extends Model
             'status' => 'paid',
             'paid_at' => now(),
             'start_date' => now(),
-            'end_date' => now()->addYear(),
+            'end_date' => now()->addDays(365),
         ]);
     }
 
@@ -90,5 +92,15 @@ class MarketplaceSubscription extends Model
     public function isExpiring($days = 30)
     {
         return $this->is_active && $this->days_remaining <= $days;
+    }
+
+    /**
+     * Check if user can create listings (has active subscription)
+     */
+    public static function userCanList($userId)
+    {
+        return static::where('user_id', $userId)
+            ->active()
+            ->exists();
     }
 }

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
 
@@ -413,14 +414,14 @@ public function contactFarmer(Request $request, MarketplaceListing $listing)
         return view('farmer.marketplace.leads', compact('inquiries', 'stats'));
     }
 
-    /**
-     * Initiate marketplace subscription payment.
+        /**
+     * Initiate marketplace subscription payment with Credo
      */
     public function initiatePayment(Request $request)
     {
         $user = Auth::user();
 
-        // Check if already subscribed
+        // Check if already subscribed using the model method
         $activeSubscription = MarketplaceSubscription::where('user_id', $user->id)
             ->active()
             ->first();
@@ -430,92 +431,346 @@ public function contactFarmer(Request $request, MarketplaceListing $listing)
                 $activeSubscription->end_date->format('d M, Y'));
         }
 
-        DB::beginTransaction();
         try {
+            $credoPublicKey = config('services.credo.public_key');
+            $credoBaseUrl = config('services.credo.base_url');
+            
+            // Validate Credo configuration
+            if (!$credoPublicKey || !$credoBaseUrl) {
+                Log::error('Credo configuration missing');
+                return back()->with('error', 'Payment gateway configuration error. Please contact support.');
+            }
+
             $reference = 'MARKET-' . $user->id . '-' . time();
+            
+            $requestData = [
+                'amount' => (int) round(self::ANNUAL_FEE * 100), // Convert to kobo
+                'email' => $user->email,
+                'customerFirstName' => $user->first_name ?? 'Farmer',
+                'customerLastName' => $user->last_name ?? 'User',
+                'customerPhoneNumber' => $user->phone ?? '2348000000000',
+                'currency' => 'NGN',
+                'channels' => ['card', 'bank'],
+                'reference' => $reference,
+                'bearer' => 0,
+                'callbackUrl' => route('farmer.marketplace.payment.callback'),
+                'metadata' => [
+                    'subscription_type' => 'marketplace_annual',
+                    'user_id' => $user->id,
+                    'amount' => self::ANNUAL_FEE,
+                    'duration_days' => 365,
+                ]
+            ];
+            
+            Log::info('Marketplace Credo API Request:', $requestData);
+            
+            $response = Http::asJson()->withHeaders([
+                'Authorization' => $credoPublicKey,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->post($credoBaseUrl . '/transaction/initialize', $requestData);
+            
+            Log::info('Marketplace Credo API Response Status: ' . $response->status());
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Marketplace Credo API Success Response:', $data);
+                
+                if (isset($data['data']['authorizationUrl'])) {
+                    // Create pending subscription record
+                    DB::beginTransaction();
+                    try {
+                        $subscriptionData = [
+                            'user_id' => $user->id,
+                            'transaction_reference' => $reference,
+                            'amount' => self::ANNUAL_FEE,
+                            'status' => 'pending',
+                            'payment_method' => 'credo',
+                            'payment_details' => $data
+                        ];
 
-            $subscription = MarketplaceSubscription::create([
-                'user_id' => $user->id,
-                'transaction_reference' => $reference,
-                'amount' => self::ANNUAL_FEE,
-                'status' => 'pending',
-                'payment_method' => 'credo',
-            ]);
+                        Log::info('Creating subscription with data:', $subscriptionData);
+                        
+                        $subscription = MarketplaceSubscription::create($subscriptionData);
 
-            DB::commit();
-
-            // TODO: Integrate with Credo Payment Gateway
-            // $credoPayload = [
-            //     'amount' => self::ANNUAL_FEE * 100,
-            //     'email' => $user->email,
-            //     'reference' => $reference,
-            //     'callback_url' => route('farmer.marketplace.payment.verify'),
-            // ];
-            // return redirect()->away(CredoService::initiate($credoPayload));
-
-            // Mock redirect for now
-            return redirect()->route('farmer.marketplace.payment.verify', ['reference' => $reference])
-                ->with('info', 'Payment initiated (Mock). Reference: ' . $reference);
+                        DB::commit();
+                        
+                        Log::info('Subscription created successfully:', ['subscription_id' => $subscription->id]);
+                        
+                        // Store reference in session for callback handling
+                        session(['current_marketplace_payment_reference' => $reference]);
+                        
+                        // Redirect to Credo payment page
+                        return redirect($data['data']['authorizationUrl']);
+                        
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        Log::error('Marketplace subscription creation error: ' . $e->getMessage());
+                        Log::error('Error trace: ' . $e->getTraceAsString());
+                        
+                        // Check for specific database errors
+                        if (str_contains($e->getMessage(), 'SQLSTATE')) {
+                            Log::error('Database error details:', [
+                                'error_code' => $e->getCode(),
+                                'user_id' => $user->id
+                            ]);
+                        }
+                        
+                        return back()->with('error', 'Failed to create subscription record. Please try again.');
+                    }
+                } else {
+                    Log::error('Credo response missing authorization URL:', $data);
+                    return back()->with('error', 'Payment gateway response error. Please try again.');
+                }
+                
+            } else {
+                $errorBody = $response->body();
+                Log::error('Marketplace Credo initialization failed:', [
+                    'status' => $response->status(),
+                    'headers' => $response->headers(),
+                    'body' => $errorBody
+                ]);
+                
+                return back()->with('error', 'Payment gateway error. Please try again later.');
+            }
+            
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment initiation error: ' . $e->getMessage());
-            return back()->with('error', 'Failed to initiate payment. Please try again.');
+            Log::error('Marketplace Credo API error: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()->with('error', 'Unable to process payment at this time. Please try again later.');
         }
     }
 
-    /**
-     * Verify marketplace subscription payment.
-     */
-    public function verifyPayment(Request $request)
-    {
-        $reference = $request->query('reference');
 
-        if (!$reference) {
+
+    /**
+     * Handle marketplace subscription payment callback from Credo
+     */
+    public function handlePaymentCallback(Request $request)
+    {
+        // Log incoming callback query for diagnostics
+        Log::info('Marketplace Credo callback received', [
+            'query' => $request->query(),
+        ]);
+        
+        $reference = $request->query('reference')
+            ?? $request->query('ref')
+            ?? $request->query('payment_reference');
+        
+        $transRef = $request->query('transRef')
+            ?? $request->query('transactionReference')
+            ?? $request->query('credoReference');
+        
+        if (!$transRef && $reference) {
+            // Try to get transaction reference from our stored data
+            $transRef = session('current_marketplace_payment_reference');
+        }
+
+        if (!$transRef) {
             return redirect()->route('farmer.marketplace.my-listings')
                 ->with('error', 'Invalid payment reference.');
         }
 
-        $subscription = MarketplaceSubscription::where('transaction_reference', $reference)->first();
-
-        if (!$subscription) {
-            return redirect()->route('farmer.marketplace.my-listings')
-                ->with('error', 'Subscription not found.');
-        }
-
-        // TODO: Verify with Credo Payment Gateway
-        // $verificationResult = CredoService::verify($reference);
-
-        // Mock verification (simulate success)
-        $verificationResult = (object)[
-            'status' => 'success',
-            'amount' => self::ANNUAL_FEE,
-        ];
-
-        DB::beginTransaction();
         try {
-            if ($verificationResult->status === 'success' && $verificationResult->amount == self::ANNUAL_FEE) {
-                $subscription->markAsPaid();
+            $verificationResponse = $this->verifyCredoPayment($transRef);
 
-                DB::commit();
+            if ($verificationResponse['success']) {
+                $data = $verificationResponse['data'];
+                $paymentData = data_get($data, 'data') ?? $data;
+                
+                // Extract metadata from verification response
+                $metadataArray = data_get($data, 'data.data.metadata') 
+                    ?? data_get($data, 'data.metadata') 
+                    ?? data_get($data, 'metadata');
+                
+                $userId = null;
+                
+                // Handle different metadata formats
+                if (is_array($metadataArray)) {
+                    foreach ($metadataArray as $item) {
+                        if (is_array($item) && data_get($item, 'insightTag') === 'user_id') {
+                            $userId = data_get($item, 'insightTagValue');
+                        }
+                    }
+                    // Handle associative metadata
+                    if (!$userId) $userId = data_get($metadataArray, 'user_id');
+                }
 
-                return redirect()->route('farmer.marketplace.my-listings')
-                    ->with('success', 'Payment successful! Your marketplace subscription is now active until ' . 
-                        $subscription->end_date->format('d M, Y'));
+                if (!$userId) {
+                    return redirect()->route('farmer.marketplace.my-listings')
+                        ->with('error', 'Invalid payment data.');
+                }
+
+                $user = Auth::user();
+                
+                // Verify user matches
+                if ($user->id != $userId) {
+                    Log::error('Marketplace payment user mismatch', [
+                        'payment_user_id' => $userId,
+                        'current_user_id' => $user->id
+                    ]);
+                    return redirect()->route('farmer.marketplace.my-listings')
+                        ->with('error', 'Payment verification failed.');
+                }
+
+                // Find the subscription record
+                $subscription = MarketplaceSubscription::where('transaction_reference', $transRef)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                if (!$subscription) {
+                    // Try to find by reference pattern
+                    $subscription = MarketplaceSubscription::where('transaction_reference', 'like', 'MARKET-' . $user->id . '%')
+                        ->where('user_id', $user->id)
+                        ->where('status', 'pending')
+                        ->first();
+                }
+
+                if (!$subscription) {
+                    return redirect()->route('farmer.marketplace.my-listings')
+                        ->with('error', 'Subscription record not found.');
+                }
+
+                DB::beginTransaction();
+                try {
+                    // Update subscription with payment details
+                    $subscription->update([
+                        'status' => 'paid',
+                        'payment_method' => 'credo',
+                        'payment_details' => array_merge(
+                            $subscription->payment_details ?? [],
+                            $paymentData,
+                            ['verification_response' => $data]
+                        ),
+                        'paid_at' => now(),
+                        'start_date' => now(),
+                        'end_date' => now()->addDays(365), // 1 year subscription
+                    ]);
+
+                    // Clear session reference
+                    session()->forget('current_marketplace_payment_reference');
+
+                    DB::commit();
+
+                    return redirect()->route('farmer.marketplace.my-listings')
+                        ->with('success', 'Payment successful! Your marketplace subscription is now active until ' . 
+                            $subscription->end_date->format('d M, Y'));
+                        
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('Marketplace subscription update error: ' . $e->getMessage());
+                    return redirect()->route('farmer.marketplace.my-listings')
+                        ->with('error', 'Failed to activate subscription. Please contact support.');
+                }
+                    
             } else {
-                $subscription->markAsFailed();
-                DB::commit();
-
+                Log::error('Marketplace payment verification failed', [
+                    'transRef' => $transRef,
+                    'reference' => $reference,
+                ]);
+                
+                // Update subscription as failed
+                if ($transRef) {
+                    $subscription = MarketplaceSubscription::where('transaction_reference', $transRef)->first();
+                    if ($subscription) {
+                        $subscription->update([
+                            'status' => 'failed',
+                            'payment_details' => array_merge(
+                                $subscription->payment_details ?? [],
+                                ['verification_failed' => true, 'error' => $verificationResponse['message']]
+                            )
+                        ]);
+                    }
+                }
+                
                 return redirect()->route('farmer.marketplace.my-listings')
                     ->with('error', 'Payment verification failed. Please try again or contact support.');
             }
+            
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment verification error: ' . $e->getMessage());
+            Log::error('Marketplace payment callback error: ' . $e->getMessage(), [
+                'reference' => $reference,
+                'transRef' => $transRef,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
             return redirect()->route('farmer.marketplace.my-listings')
-                ->with('error', 'An error occurred during payment verification.');
+                ->with('error', 'Error processing payment. Please contact support with reference: ' . ($transRef ?? $reference));
         }
     }
 
+
+    /**
+ * Verify payment with Credo API (Same pattern as resource payment)
+ */
+private function verifyCredoPayment($transRef)
+{
+    try {
+        $credoSecretKey = config('services.credo.secret_key');
+        $credoBaseUrl = config('services.credo.base_url');
+        
+        $response = Http::withHeaders([
+            'Authorization' => $credoSecretKey,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get($credoBaseUrl . '/transaction/' . $transRef . '/verify');
+        
+        Log::info('Marketplace Credo Verify Response Status: ' . $response->status());
+        
+        if ($response->successful()) {
+            $data = $response->json();
+            Log::info('Marketplace Credo Verify Response Body:', $data);
+            
+            $statusRaw = data_get($data, 'data.status');
+            $statusLower = is_string($statusRaw) ? strtolower($statusRaw) : null;
+            $statusIsZero = ((string) $statusRaw) === '0';
+            $statusMessageRaw = (string) (data_get($data, 'data.statusMessage') ?? data_get($data, 'data.message') ?? '');
+            $statusMessage = strtolower($statusMessageRaw);
+            $statusCode = data_get($data, 'data.statusCode')
+                ?? data_get($data, 'data.code')
+                ?? data_get($data, 'data.responseCode');
+            
+            $approvedByMessage = str_contains($statusMessage, 'success')
+                || str_contains($statusMessage, 'approved');
+            
+            $isApproved = $statusIsZero
+                || in_array($statusLower, ['success', 'successful', 'approved', 'completed', 'paid'], true)
+                || in_array((string) $statusCode, ['0', '00'], true)
+                || $approvedByMessage;
+            
+            if ($isApproved) {
+                return [
+                    'success' => true,
+                    'transaction_id' => data_get($data, 'data.id') ?? data_get($data, 'data.transRef'),
+                    'data' => $data
+                ];
+            }
+        }
+        
+        Log::error('Marketplace Credo Verify failed', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+        
+        return [
+            'success' => false,
+            'message' => 'Payment verification failed'
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error('Marketplace Credo verification error: ' . $e->getMessage());
+        
+        return [
+            'success' => false,
+            'message' => 'Verification service unavailable'
+        ];
+    }
+}
+    
+   
     /**
      * Handle multiple image uploads without thumbnail generation.
      */

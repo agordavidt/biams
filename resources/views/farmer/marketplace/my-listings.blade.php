@@ -65,11 +65,14 @@
                     </div>
                     <div class="flex-shrink-0">
                         @if(!$isSubscribed)
-                            <form method="POST" action="{{ route('farmer.marketplace.subscribe') }}">
+                            <form method="POST" action="{{ route('farmer.marketplace.subscribe') }}" id="subscribeForm">
                                 @csrf
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="subscribeBtn">
                                     <i class="ri-shopping-cart-line me-1"></i>Subscribe Now - ₦5,000/Year
                                 </button>
+                                <p class="text-muted mt-2 mb-0">
+                                    <small><i class="ri-shield-check-line me-1"></i> Secure payment via Credo</small>
+                                </p>
                             </form>
                         @else
                             <a href="{{ route('farmer.marketplace.create') }}" class="btn btn-success">
@@ -335,6 +338,27 @@ $(document).ready(function() {
     });
 });
 
+// Subscribe form loading state
+document.addEventListener('DOMContentLoaded', function() {
+    const subscribeForm = document.getElementById('subscribeForm');
+    if (subscribeForm) {
+        subscribeForm.addEventListener('submit', function(e) {
+            const btn = document.getElementById('subscribeBtn');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                
+                // Re-enable after 10 seconds as fallback
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }, 10000);
+            }
+        });
+    }
+});
+
 function showRejectionReason(reason) {
     Swal.fire({
         title: 'Rejection Reason',
@@ -364,6 +388,82 @@ function deleteListing(listingId) {
         }
     });
 }
+
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
 </script>
 @endpush
+
+<style>
+.subscription-card {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: none;
+    border-left: 4px solid #f59e0b;
+}
+
+.subscription-card.active {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-left: 4px solid #10b981;
+}
+
+.avatar-sm {
+    width: 3rem;
+    height: 3rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #10b981 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.card {
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.badge {
+    font-size: 0.75em;
+    font-weight: 500;
+}
+
+.avatar-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
 @endsection
