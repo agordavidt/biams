@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             DepartmentAndAgencySeeder::class,
             RolesAndPermissionsSeeder::class,
             MarketplaceCategorySeeder::class,
+            VendorSeeder::class,
            
         ]);
       

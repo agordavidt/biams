@@ -210,6 +210,16 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
     Route::put('/partners/{partner}', [PartnerController::class, 'update'])->name('admin.partners.update');
     Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('admin.partners.destroy');
 
+    // Vendor Management Routes - UPDATED WITH ALL ROUTES
+    Route::get('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('admin.vendors.index');
+    Route::get('/vendors/create', [\App\Http\Controllers\Admin\VendorController::class, 'create'])->name('admin.vendors.create');
+    Route::post('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'store'])->name('admin.vendors.store');
+    Route::get('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'show'])->name('admin.vendors.show');
+    Route::get('/vendors/{vendor}/edit', [\App\Http\Controllers\Admin\VendorController::class, 'edit'])->name('admin.vendors.edit');
+    Route::put('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'update'])->name('admin.vendors.update');
+    Route::delete('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'destroy'])->name('admin.vendors.destroy');
+    Route::patch('/vendors/{vendor}/toggle-status', [\App\Http\Controllers\Admin\VendorController::class, 'toggleStatus'])->name('admin.vendors.toggle-status');
+
     // Resource Routes - FIXED: Removed double 'admin/' prefix
     Route::get('/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'index'])->name('admin.resources.index');
     Route::get('/resources/create', [\App\Http\Controllers\Admin\ResourceController::class, 'create'])->name('admin.resources.create');
@@ -226,7 +236,6 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
     Route::post('/applications/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('resources.applications.bulk-update');
     Route::get('/applications/export', [ResourceApplicationController::class, 'export'])->name('resources.applications.export');
 });
-
 
 
 

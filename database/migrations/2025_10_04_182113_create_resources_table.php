@@ -13,8 +13,8 @@ return new class extends Migration
     {
          Schema::create('resources', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('partner_id')->nullable()
-                ->constrained('partners')->nullOnDelete();
+            $table->foreignId('vendor_id')->nullable()
+                ->constrained('vendors')->nullOnDelete();
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 10, 2)->default(0.00);

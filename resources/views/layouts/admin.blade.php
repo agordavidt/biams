@@ -233,7 +233,13 @@
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
-                            </li>                                                    
+                            </li>  
+                            <li>
+                                <a href="{{ route('admin.vendors.index') }}" class="waves-effect">
+                                    <i class="ri-store-3-line me-2"></i>
+                                    <span>Vendors</span>
+                                </a>
+                            </li>                                                  
 
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">

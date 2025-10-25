@@ -19,7 +19,7 @@ return new class extends Migration
             // Administrative Scope (Polymorphic Relationship)
             // Links a user to their LGA, Department, or Agency.
             $table->nullableMorphs('administrative'); // Creates administrative_id and administrative_type
-
+            $table->foreignId('vendor_id')->nullable();
             $table->enum('status', ['pending', 'onboarded', 'rejected'])->default('onboarded')->comment('User onboarding workflow status');            
             $table->rememberToken();
             $table->timestamps();
