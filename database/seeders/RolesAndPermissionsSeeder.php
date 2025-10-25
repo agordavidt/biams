@@ -14,10 +14,8 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Clear cached permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Fetch required LGA and Department
         $lga = LGA::where('code', 'MDK')->first();
         if (!$lga) {
             $this->command->error("Makurdi LGA not found. Run LgaSeeder first.");
@@ -30,10 +28,7 @@ class RolesAndPermissionsSeeder extends Seeder
             return;
         }
 
-        // ====================================================================
-        // 1. Define All Permissions (Standard, Analytics, Support, Cooperative)
-        // ====================================================================
-
+        // Define All Permissions
         $permissions = [
             // Super Admin Permissions
             'manage_users', 'manage_roles', 'manage_lgas', 'manage_departments',
@@ -42,7 +37,7 @@ class RolesAndPermissionsSeeder extends Seeder
             // Governor/State-level Permissions
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'manage_supplier_catalog',
 
-            // Commissioner Permissions (NEW)
+            // Commissioner Permissions
             'view_commissioner_dashboard', 'view_commissioner_analytics', 'export_commissioner_reports',
 
             // LGA Admin Permissions
@@ -67,64 +62,64 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_lga_cooperatives', 'create_cooperatives', 'edit_cooperatives',
             'delete_cooperatives', 'manage_cooperative_members',
             'view_all_cooperatives', 'view_cooperative_details', 'export_cooperatives',
-            'view_cooperative_overview',
-            'manage_all_cooperatives',
+            'view_cooperative_overview', 'manage_all_cooperatives',
+
+            // Vendor Management Permissions (NEW)
+            'manage_vendors', 'create_vendors', 'edit_vendors', 'delete_vendors', 'view_all_vendors',
+            
+            // Vendor Manager Permissions (NEW)
+            'view_vendor_dashboard', 'manage_vendor_team', 'propose_resources', 
+            'view_vendor_analytics', 'manage_vendor_proposals', 'request_payouts',
+            
+            // Distribution Agent Permissions (NEW)
+            'view_distribution_dashboard', 'search_farmers', 'mark_fulfilled', 'view_assigned_resources',
         ];
 
-        // Create all permissions
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // ====================================================================
-        // 2. Define Roles
-        // ====================================================================
-
+        // Define Roles
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
-        $governorRole   = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
-        $commissionerRole = Role::firstOrCreate(['name' => 'Commissioner', 'guard_name' => 'web']); // NEW
+        $governorRole = Role::firstOrCreate(['name' => 'Governor', 'guard_name' => 'web']);
+        $commissionerRole = Role::firstOrCreate(['name' => 'Commissioner', 'guard_name' => 'web']);
         $stateAdminRole = Role::firstOrCreate(['name' => 'State Admin', 'guard_name' => 'web']);
-        $lgaAdminRole   = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
+        $lgaAdminRole = Role::firstOrCreate(['name' => 'LGA Admin', 'guard_name' => 'web']);
         $enrollmentAgentRole = Role::firstOrCreate(['name' => 'Enrollment Agent', 'guard_name' => 'web']);
-        $userRole       = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+        $userRole = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'web']);
+        
+        // NEW VENDOR ROLES
+        $vendorManagerRole = Role::firstOrCreate(['name' => 'Vendor Manager', 'guard_name' => 'web']);
+        $distributionAgentRole = Role::firstOrCreate(['name' => 'Distribution Agent', 'guard_name' => 'web']);
 
-        // ====================================================================
-        // 3. Assign Permissions to Roles
-        // ====================================================================
-
-        // Super Admin gets EVERYTHING
+        // Assign Permissions to Roles
         $superAdminRole->syncPermissions($permissions);
 
-        // Governor: Oversight (view only)
         $governorPermissions = [
             'view_governor_dashboard', 'view_state_analytics', 'manage_state_reports', 'export_all_data',
-            'view_analytics', 'export_analytics',
-            'view_support_chats',
-            'view_cooperative_overview', 'view_all_cooperatives',
+            'view_analytics', 'export_analytics', 'view_support_chats',
+            'view_cooperative_overview', 'view_all_cooperatives', 'view_all_vendors',
         ];
         $governorRole->syncPermissions($governorPermissions);
 
-        // Commissioner: Similar to Governor with specific dashboard (NEW)
         $commissionerPermissions = [
             'view_commissioner_dashboard', 'view_commissioner_analytics', 'export_commissioner_reports',
             'view_state_analytics', 'manage_state_reports', 'export_all_data',
-            'view_analytics', 'export_analytics',
-            'view_support_chats',
-            'view_cooperative_overview', 'view_all_cooperatives',
+            'view_analytics', 'export_analytics', 'view_support_chats',
+            'view_cooperative_overview', 'view_all_cooperatives', 'view_all_vendors',
         ];
         $commissionerRole->syncPermissions($commissionerPermissions);
 
-        // State Admin: Management, Support, State-level Analytics/Reports
         $stateAdminPermissions = [
             'manage_users', 'manage_roles', 'manage_departments', 'manage_agencies',
             'manage_state_reports', 'manage_supplier_catalog', 'view_state_analytics',
             'view_analytics', 'export_analytics',
             'view_support_chats', 'manage_support_chats', 'respond_to_support',
             'view_all_cooperatives', 'view_cooperative_details', 'export_cooperatives',
+            'manage_vendors', 'create_vendors', 'edit_vendors', 'delete_vendors', 'view_all_vendors',
         ];
         $stateAdminRole->syncPermissions($stateAdminPermissions);
 
-        // LGA Admin: LGA-level management, Farmer Review, Support, LGA Cooperatives (Full CRUD)
         $lgaAdminPermissions = [
             'view_lga_dashboard', 'manage_lga_agents', 'create_farmer_profile',
             'edit_farmer_profile_own_lga', 'view_farmer_data_own_lga', 'manage_lga_manifests',
@@ -136,23 +131,30 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
         $lgaAdminRole->syncPermissions($lgaAdminPermissions);
 
-        // Enrollment Agent: Enrollment tasks, local data view, basic support
         $enrollmentAgentPermissions = [
             'enroll_farmers', 'verify_farmer_data', 'update_farmer_profiles', 'view_farmer_data_own_lga',
-            'view_analytics',
-            'view_support_chats', 'respond_to_support',
+            'view_analytics', 'view_support_chats', 'respond_to_support',
         ];
         $enrollmentAgentRole->syncPermissions($enrollmentAgentPermissions);
 
-        // Standard User: Farmer-level access
         $userRole->syncPermissions([
             'access_marketplace', 'apply_for_resource', 'view_own_submissions', 'manage_own_marketplace_listings',
         ]);
 
-        // ====================================================================
-        // 4. Create Initial Users
-        // ====================================================================
+        // NEW: Vendor Manager Permissions
+        $vendorManagerPermissions = [
+            'view_vendor_dashboard', 'manage_vendor_team', 'propose_resources',
+            'view_vendor_analytics', 'manage_vendor_proposals', 'request_payouts',
+        ];
+        $vendorManagerRole->syncPermissions($vendorManagerPermissions);
 
+        // NEW: Distribution Agent Permissions
+        $distributionAgentPermissions = [
+            'view_distribution_dashboard', 'search_farmers', 'mark_fulfilled', 'view_assigned_resources',
+        ];
+        $distributionAgentRole->syncPermissions($distributionAgentPermissions);
+
+        // Create Initial Users
         User::firstOrCreate(['email' => 'superadmin@benue.gov.ng'], [
             'name' => 'System Super Administrator',
             'password' => Hash::make('password'),
@@ -167,7 +169,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'status' => 'onboarded',
         ])->syncRoles([$governorRole]);
 
-        // NEW: Commissioner User
         User::firstOrCreate(['email' => 'commissioner@benue.gov.ng'], [
             'name' => 'Commissioner for Agriculture',
             'password' => Hash::make('password'),
@@ -204,6 +205,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'administrative_type' => LGA::class,
         ])->syncRoles([$enrollmentAgentRole]);
 
-        $this->command->info('Roles, permissions (including Commissioner), and initial test users seeded successfully!');
+        $this->command->info('Roles, permissions (including Vendor roles), and initial test users seeded successfully!');
     }
 }

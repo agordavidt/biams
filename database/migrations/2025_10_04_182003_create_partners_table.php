@@ -6,50 +6,49 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-       Schema::create('partners', function (Blueprint $table) {
+        Schema::create('vendors', function (Blueprint $table) {
             $table->id();
+            
+            // Company Information
             $table->string('legal_name');
             $table->string('registration_number')->nullable();
             $table->string('organization_type');
             $table->date('establishment_date')->nullable();
             
-            // Contact person details
+            // Contact Information
             $table->string('contact_person_name');
             $table->string('contact_person_title')->nullable();
             $table->string('contact_person_phone');
             $table->string('contact_person_email');
-            
-            // Organization details
             $table->text('address');
             $table->string('website')->nullable();
             $table->text('description');
+            
+            // Business Details
             $table->json('focus_areas');
-            
-            // Compliance and due diligence
             $table->string('tax_identification_number')->nullable();
-            $table->string('registration_certificate')->nullable(); 
+            $table->string('registration_certificate')->nullable();
             
-            // Bank details
+            // Banking Information
             $table->string('bank_name')->nullable();
             $table->string('bank_account_name')->nullable();
             $table->string('bank_account_number')->nullable();
             
+            // Status
             $table->boolean('is_active')->default(true);
+            
+            // Audit Fields
+            $table->foreignId('registered_by')->nullable()->constrained('users')->nullOnDelete();
+            
             $table->timestamps();
+            $table->softDeletes();
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('partners');
+        Schema::dropIfExists('vendors');
     }
 };

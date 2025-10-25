@@ -24,8 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'status',
         'administrative_id',
-        'administrative_type',
-        // Add all other columns here
+        'administrative_type',       
+        'vendor_id',
     ];
 
     protected $hidden = [
@@ -203,6 +203,39 @@ public function getActiveMarketplaceSubscriptionAttribute()
 public function canListOnMarketplace()
 {
     return $this->activeMarketplaceSubscription !== null;
+}
+
+
+/**
+ * Get the vendor this user belongs to.
+ */
+public function vendor()
+{
+    return $this->belongsTo(Vendor::class, 'vendor_id');
+}
+
+/**
+ * Check if user is a vendor manager.
+ */
+public function isVendorManager(): bool
+{
+    return $this->hasRole('Vendor Manager') && $this->vendor_id !== null;
+}
+
+/**
+ * Check if user is a distribution agent.
+ */
+public function isDistributionAgent(): bool
+{
+    return $this->hasRole('Distribution Agent') && $this->vendor_id !== null;
+}
+
+/**
+ * Scope users by vendor.
+ */
+public function scopeForVendor($query, $vendorId)
+{
+    return $query->where('vendor_id', $vendorId);
 }
 
 }

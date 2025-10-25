@@ -35,6 +35,8 @@ use App\Http\Controllers\LGAAdmin\CooperativeController;
 use App\Http\Controllers\Governor\CooperativeOverviewController;
 use App\Http\Controllers\Admin\CooperativeViewController;
 use App\Http\Controllers\Commissioner\DashboardController;
+use App\Http\Controllers\Vendor\DashboardController as VendorDashboardController;
+use App\Http\Controllers\Vendor\DistributionDashboardController;
 
 
 
@@ -699,4 +701,16 @@ Route::middleware(['auth', 'role:Commissioner'])->prefix('commissioner')->name('
         Route::get('/coverage-analysis', [App\Http\Controllers\Commissioner\InterventionTrackingController::class, 'getCoverageAnalysis'])
             ->name('coverage_analysis');
     });
+});
+
+
+
+// NEW: Vendor Manager Dashboard
+Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vendor.')->group(function () {
+    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+});
+
+// NEW: Distribution Agent Dashboard
+Route::middleware(['auth', 'role:Distribution Agent'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
+    Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
 });

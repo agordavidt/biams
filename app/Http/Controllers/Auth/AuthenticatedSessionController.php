@@ -15,17 +15,11 @@ use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $email = $request->email;
@@ -33,87 +27,74 @@ class AuthenticatedSessionController extends Controller
         $userAgent = $request->userAgent();
         
         try {
-            // The 'status:onboarded' check has been removed from LoginRequest::authenticate()
             $request->authenticate(); 
             $request->session()->regenerate();
             
             $user = auth()->user();
             
-            // Log successful login
             $this->logLoginAttempt($email, $user, $ipAddress, $userAgent, 'success');
             
-            // Fetch user's role from Spatie for logging/context
             Log::info('User login attempt:', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                // Get the name of the first role for logging/context
                 'role' => $user->roles->first()->name ?? 'N/A' 
             ]);
             
-            // Role-based redirects using Spatie's hasRole() method
+            // Role-based redirects
             
-            // Redirect for Super Admin
             if ($user->hasRole('Super Admin')) {
                 return redirect()->route('super_admin.dashboard');
             }
 
-            // Redirect for Governor
             if ($user->hasRole('Governor')) {
                 return redirect()->route('governor.dashboard');
             }
 
-            // Redirect for Commissioner 
             if ($user->hasRole('Commissioner')) {
                 return redirect()->route('commissioner.dashboard');
             }
 
-            // Redirect for State Admin
             if ($user->hasRole('State Admin')) { 
                 return redirect()->route('admin.dashboard');
             }
             
-            // Redirect for LGA Admin
             if ($user->hasRole('LGA Admin')) { 
-                // Redirecting to a dedicated LGA dashboard route
                 return redirect()->route('lga_admin.dashboard'); 
             }
 
-            // Redirect for Enrollment Agent
             if ($user->hasRole('Enrollment Agent')) {
                 return redirect()->route('enrollment.dashboard');
             }
 
+            // NEW: Vendor Manager Route
+            if ($user->hasRole('Vendor Manager')) {
+                return redirect()->route('vendor.dashboard');
+            }
+
+            // NEW: Distribution Agent Route
+            if ($user->hasRole('Distribution Agent')) {
+                return redirect()->route('vendor.distribution.dashboard');
+            }
             
-            // =======================================================
-            // Farmer-Specific Login Flow (Standard Users)
-            // =======================================================
-            // In the store method, update the farmer redirect section:
+            // Farmer-Specific Login Flow
             if ($user->hasRole('User')) { 
                 $farmer = $user->farmerProfile;
 
-                // Check if this is the first login using the 'password_changed' flag
                 if ($farmer && $farmer->password_changed === false) {
                     return redirect()->route('password.force_change');
                 }
                 
-                // If password has been changed, redirect to farmer dashboard
                 return redirect()->route('farmer.dashboard'); 
             }
             
-            // Default redirect (e.g., if a user has a role not explicitly mapped here)
             return redirect()->intended(RouteServiceProvider::HOME);            
             
         } catch (ValidationException $e) {
-            // Log failed login attempt
             $this->logLoginAttempt($email, null, $ipAddress, $userAgent, 'failed', 'Invalid credentials');
-            
             throw $e;
         }
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $user = auth()->user();
@@ -122,7 +103,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Log logout if user was authenticated
         if ($user) {
             $this->logLoginAttempt($user->email, $user, $request->ip(), $request->userAgent(), 'logout');
         }
@@ -130,9 +110,6 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
     
-    /**
-     * Log login attempt
-     */
     private function logLoginAttempt($email, $user = null, $ipAddress = null, $userAgent = null, $status = 'failed', $failureReason = null)
     {
         try {
@@ -156,7 +133,6 @@ class AuthenticatedSessionController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            // Log the error but don't break the authentication flow
             \Log::error('Failed to log login attempt: ' . $e->getMessage());
         }
     }
