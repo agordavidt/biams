@@ -220,6 +220,22 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->group(function
     Route::delete('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'destroy'])->name('admin.vendors.destroy');
     Route::patch('/vendors/{vendor}/toggle-status', [\App\Http\Controllers\Admin\VendorController::class, 'toggleStatus'])->name('admin.vendors.toggle-status');
 
+
+
+
+    // Resource Review Routes
+    Route::prefix('resources/review')->name('resources.review.')->group(function() {
+        Route::get('/', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'index'])->name('index');
+        Route::get('/{resource}', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'show'])->name('show');
+        Route::get('/{resource}/edit', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'edit'])->name('edit');
+        Route::put('/{resource}', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'update'])->name('update');
+        Route::patch('/{resource}/approve', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'approve'])->name('approve');
+        Route::patch('/{resource}/reject', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'reject'])->name('reject');
+        Route::patch('/{resource}/publish', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'publish'])->name('publish');
+        Route::patch('/{resource}/unpublish', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'unpublish'])->name('unpublish');
+        Route::patch('/{resource}/mark-under-review', [\App\Http\Controllers\Admin\ResourceReviewController::class, 'markUnderReview'])->name('mark-under-review');
+    });
+
     // Resource Routes - FIXED: Removed double 'admin/' prefix
     Route::get('/resources', [\App\Http\Controllers\Admin\ResourceController::class, 'index'])->name('admin.resources.index');
     Route::get('/resources/create', [\App\Http\Controllers\Admin\ResourceController::class, 'create'])->name('admin.resources.create');
@@ -344,6 +360,14 @@ Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->gro
     
     // Payment callback (outside resources prefix to match Credo callback URL)
     Route::get('payment/callback', [\App\Http\Controllers\User\ResourceController::class, 'handlePaymentCallback'])->name('payment.callback');
+
+    // Resource Applications
+    Route::get('/resources', [\App\Http\Controllers\User\FarmerResourceController::class, 'index'])->name('resources.index');
+    Route::get('/resources/{resource}', [\App\Http\Controllers\User\FarmerResourceController::class, 'show'])->name('resources.show');
+    Route::post('/resources/{resource}/apply', [\App\Http\Controllers\User\FarmerResourceController::class, 'apply'])->name('resources.apply');
+    Route::get('/my-applications', [\App\Http\Controllers\User\FarmerResourceController::class, 'myApplications'])->name('resources.my-applications');
+    Route::get('/applications/{application}', [\App\Http\Controllers\User\FarmerResourceController::class, 'applicationDetails'])->name('resources.application-details');
+    Route::post('/applications/{application}/cancel', [\App\Http\Controllers\User\FarmerResourceController::class, 'cancelApplication'])->name('resources.cancel-application');
 });
 
 
