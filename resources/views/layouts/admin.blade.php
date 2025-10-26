@@ -239,7 +239,32 @@
                                     <i class="ri-store-3-line me-2"></i>
                                     <span>Vendors</span>
                                 </a>
-                            </li>                                                  
+                            </li> 
+                            <li>
+                                <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
+                                    <i class="ri-file-list-3-line me-2"></i>
+                                    <span>Resource Review</span>
+                                    @php
+                                        $pendingResources = \App\Models\Resource::where('status', 'proposed')->count();
+                                    @endphp
+                                    @if($pendingResources > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingResources }}</span>
+                                    @endif
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('admin.applications.index') }}" class="waves-effect">
+                                    <i class="ri-file-check-line me-2"></i>
+                                    <span>Applications</span>
+                                    @php
+                                        $pendingApplications = \App\Models\ResourceApplication::where('status', 'pending')->count();
+                                    @endphp
+                                    @if($pendingApplications > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingApplications }}</span>
+                                    @endif
+                                </a>
+                            </li>                                                 
 
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
