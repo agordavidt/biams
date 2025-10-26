@@ -11,17 +11,48 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('resources', function (Blueprint $table) {
+        Schema::create('resources', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_id')->nullable()
-                ->constrained('vendors')->nullOnDelete();
+
+            // Relationships
+            $table->foreignId('vendor_id')
+                ->nullable()
+                ->constrained('vendors')
+                ->nullOnDelete();
+
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 10, 2)->default(0.00);
-            $table->boolean('requires_payment')->default(false);           
-            $table->json('form_fields')->nullable();          
+            $table->boolean('requires_payment')->default(false);
+
+            // Vendor-specific fields
+            $table->decimal('vendor_reimbursement_price', 10, 2)->nullable();
+
+            // Type and status management
+            $table->enum('status', [
+                'proposed',
+                'under_review',
+                'approved',
+                'active',
+                'rejected',
+                'inactive'
+            ])->default('proposed');
+
+            $table->text('rejection_reason')->nullable();
+
+            // Reviewed by
+            $table->foreignId('reviewed_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamp('reviewed_at')->nullable();
+
+            // Additional data
+            $table->json('form_fields')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+
             $table->timestamps();
         });
     }

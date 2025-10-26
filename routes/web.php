@@ -723,3 +723,30 @@ Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vend
 Route::middleware(['auth', 'role:Distribution Agent'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
 });
+
+
+// NEW: Vendor Manager Dashboard
+Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vendor.')->group(function () {
+    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+    
+    // Team Management
+    Route::resource('team', \App\Http\Controllers\Vendor\TeamController::class)->except(['show']);
+    Route::patch('/team/{teamMember}/reset-password', [\App\Http\Controllers\Vendor\TeamController::class, 'resetPassword'])->name('team.reset-password');
+    
+    // Resource Proposals
+    Route::resource('resources', \App\Http\Controllers\Vendor\ResourceController::class);
+    
+    // Analytics & Payouts (placeholders for next batch)
+    Route::get('/analytics', function() { 
+        return view('vendor.analytics'); 
+    })->name('analytics');
+    
+    Route::get('/payouts', function() { 
+        return view('vendor.payouts'); 
+    })->name('payouts');
+});
+
+// NEW: Distribution Agent Dashboard
+Route::middleware(['auth', 'role:Distribution Agent'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
+    Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
+});

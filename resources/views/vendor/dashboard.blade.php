@@ -138,8 +138,8 @@
                         </a>
                     </div>
                     <div class="col-md-4">
-                        <a href="{{ route('vendor.analytics') }}" class="btn btn-info btn-block w-100 mb-2">
-                            <i class="ri-bar-chart-line me-1"></i> View Analytics
+                        <a href="{{ route('vendor.resources.index') }}" class="btn btn-info btn-block w-100 mb-2">
+                            <i class="ri-list-check me-1"></i> View Resources
                         </a>
                     </div>
                 </div>
