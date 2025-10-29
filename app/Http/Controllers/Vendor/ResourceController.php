@@ -586,68 +586,7 @@ class ResourceController extends Controller
         }
     }
 
-    /**
-     * Mark application as fulfilled after resource delivery
-     */
-    public function fulfillApplication(Request $request, ResourceApplication $application)
-    {
-        $user = Auth::user();
-        $vendor = $user->vendor;
-
-        // Ensure application is for vendor's resource
-        if ($application->resource->vendor_id !== $vendor->id) {
-            return back()->with('error', 'Unauthorized access.');
-        }
-
-        // Can only fulfill paid/approved applications
-        if (!in_array($application->status, ['paid', 'approved'])) {
-            return back()->with('error', 'Application cannot be fulfilled. Current status: ' . $application->status);
-        }
-
-        $validated = $request->validate([
-            'quantity_fulfilled' => $application->resource->requires_quantity 
-                ? 'required|integer|min:1|max:' . ($application->quantity_paid ?? $application->quantity_approved)
-                : 'nullable',
-            'fulfillment_notes' => 'nullable|string|max:500',
-        ]);
-
-        try {
-            $quantityFulfilled = $application->resource->requires_quantity
-                ? $validated['quantity_fulfilled']
-                : null;
-
-            $application->update([
-                'status' => 'fulfilled',
-                'quantity_fulfilled' => $quantityFulfilled,
-                'fulfilled_by' => $user->id,
-                'fulfilled_at' => now(),
-                'fulfillment_notes' => $validated['fulfillment_notes'] ?? null,
-            ]);
-
-            // Notify farmer
-            try {
-                $application->user->notify(
-                    new ResourceStatusUpdated($application, 'Your resource has been delivered.')
-                );
-            } catch (\Exception $e) {
-                Log::error('Notification failed: ' . $e->getMessage());
-            }
-
-            Log::info('Vendor fulfilled application', [
-                'application_id' => $application->id,
-                'vendor_id' => $vendor->id,
-                'quantity_fulfilled' => $quantityFulfilled,
-            ]);
-
-            return redirect()->route('vendor.resources.application.show', $application)
-                ->with('success', 'Application marked as fulfilled! Farmer has been notified.');
-
-        } catch (\Exception $e) {
-            Log::error('Fulfillment failed: ' . $e->getMessage());
-            
-            return back()->with('error', 'Failed to mark as fulfilled: ' . $e->getMessage());
-        }
-    }
+  
 
     /**
      * Search farmer by details (for quick lookup at distribution point)
@@ -823,4 +762,126 @@ class ResourceController extends Controller
 
         return Validator::make($request->all(), $rules);
     }
+
+    /**
+ * FIXED: Distribution search page for specific resource
+ */
+public function distributionSearch(Resource $resource)
+{
+    $user = Auth::user();
+    $vendor = $user->vendor;
+
+    // Ensure resource belongs to this vendor
+    if ($resource->vendor_id !== $vendor->id) {
+        return redirect()->route('vendor.resources.index')
+            ->with('error', 'Unauthorized access.');
+    }
+
+    // Get applications for this resource
+    $applications = $resource->applications()
+        ->with(['user', 'farmer', 'payment'])
+        ->whereIn('status', ['paid', 'approved'])
+        ->latest()
+        ->paginate(20);
+
+    // Get statistics
+    $stats = [
+        'total' => $resource->applications()->count(),
+        'pending' => $resource->applications()->where('status', 'pending')->count(),
+        'paid' => $resource->applications()->where('status', 'paid')->count(),
+        'fulfilled' => $resource->applications()->where('status', 'fulfilled')->count(),
+    ];
+
+    return view('vendor.distribution.search', compact('resource', 'vendor', 'applications', 'stats'));
+}
+
+/**
+ * FIXED: Mark application as fulfilled - now returns JSON for AJAX
+ */
+public function fulfillApplication(Request $request, ResourceApplication $application)
+{
+    $user = Auth::user();
+    $vendor = $user->vendor;
+
+    // Ensure application is for vendor's resource
+    if ($application->resource->vendor_id !== $vendor->id) {
+        if ($request->expectsJson()) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized access.'], 403);
+        }
+        return back()->with('error', 'Unauthorized access.');
+    }
+
+    // Can only fulfill paid/approved applications
+    if (!in_array($application->status, ['paid', 'approved'])) {
+        $message = 'Application cannot be fulfilled. Current status: ' . $application->status;
+        if ($request->expectsJson()) {
+            return response()->json(['success' => false, 'error' => $message], 400);
+        }
+        return back()->with('error', $message);
+    }
+
+    $validated = $request->validate([
+        'quantity_fulfilled' => $application->resource->requires_quantity 
+            ? 'required|integer|min:1|max:' . ($application->quantity_paid ?? $application->quantity_approved)
+            : 'nullable',
+        'fulfillment_notes' => 'nullable|string|max:500',
+    ]);
+
+    try {
+        $quantityFulfilled = $application->resource->requires_quantity
+            ? $validated['quantity_fulfilled']
+            : null;
+
+        $application->update([
+            'status' => 'fulfilled',
+            'quantity_fulfilled' => $quantityFulfilled,
+            'fulfilled_by' => $user->id,
+            'fulfilled_at' => now(),
+            'fulfillment_notes' => $validated['fulfillment_notes'] ?? null,
+        ]);
+
+        // Notify farmer
+        try {
+            $application->user->notify(
+                new ResourceStatusUpdated($application, 'Your resource has been delivered.')
+            );
+        } catch (\Exception $e) {
+            Log::error('Notification failed: ' . $e->getMessage());
+        }
+
+        Log::info('Vendor fulfilled application', [
+            'application_id' => $application->id,
+            'vendor_id' => $vendor->id,
+            'quantity_fulfilled' => $quantityFulfilled,
+        ]);
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application marked as fulfilled! Farmer has been notified.',
+                'application' => [
+                    'id' => $application->id,
+                    'status' => $application->status,
+                    'fulfilled_at' => $application->fulfilled_at->format('Y-m-d H:i:s'),
+                ]
+            ]);
+        }
+
+        return redirect()->route('vendor.resources.application.show', $application)
+            ->with('success', 'Application marked as fulfilled! Farmer has been notified.');
+
+    } catch (\Exception $e) {
+        Log::error('Fulfillment failed: ' . $e->getMessage());
+        
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to mark as fulfilled: ' . $e->getMessage()
+            ], 500);
+        }
+        
+        return back()->with('error', 'Failed to mark as fulfilled: ' . $e->getMessage());
+    }
+}
 }
