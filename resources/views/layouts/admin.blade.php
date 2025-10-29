@@ -240,55 +240,60 @@
                                     <span>Vendors</span>
                                 </a>
                             </li> 
-                            <li>
-                                <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
-                                    <i class="ri-file-list-3-line me-2"></i>
-                                    <span>Resource Review</span>
-                                    @php
-                                        $pendingResources = \App\Models\Resource::where('status', 'proposed')->count();
-                                    @endphp
-                                    @if($pendingResources > 0)
-                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingResources }}</span>
-                                    @endif
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="{{ route('admin.applications.index') }}" class="waves-effect">
-                                    <i class="ri-file-check-line me-2"></i>
-                                    <span>Applications</span>
-                                    @php
-                                        $pendingApplications = \App\Models\ResourceApplication::where('status', 'pending')->count();
-                                    @endphp
-                                    @if($pendingApplications > 0)
-                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingApplications }}</span>
-                                    @endif
-                                </a>
-                            </li>                                                 
-
+                            <!-- Resources Menu - Unified -->
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-database-2-line me-2"></i>
                                     <span>Resources</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">                         
-                                    <li><a href="{{route('admin.resources.index') }}">Manage Resources</a></li>
-                                    <li><a href="{{ route('resources.applications.index') }}">Resource Applications</a></li>                                    
-                                </ul>
-                            </li>
-
-                            <!-- <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-building-line me-2"></i>
-                                    <span>Abattoirs</span>
+                                    @php
+                                        $pendingReviewCount = \App\Models\Resource::vendorResources()->where('status', 'proposed')->count();
+                                        $pendingApplications = \App\Models\ResourceApplication::where('status', 'pending')->count();
+                                    @endphp
+                                    @if($pendingReviewCount > 0 || $pendingApplications > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">
+                                            {{ $pendingReviewCount + $pendingApplications }}
+                                        </span>
+                                    @endif
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="#">Analytics</a></li>
-                                    <li><a href="#">Manage Abattoirs</a></li>
-                                    <li><a href="#">Manage Livestock</a></li>                                    
+                                    <li>
+                                        <a href="{{ route('admin.resources.index') }}" class="waves-effect">
+                                            <i class="ri-list-check me-2"></i>
+                                            <span>All Resources</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
+                                            <i class="ri-file-list-3-line me-2"></i>
+                                            <span>Vendor Review</span>
+                                            @if($pendingReviewCount > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingReviewCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.applications.index') }}" class="waves-effect">
+                                            <i class="ri-file-check-line me-2"></i>
+                                            <span>Applications</span>
+                                            @if($pendingApplications > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingApplications }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.resources.create') }}" class="waves-effect">
+                                            <i class="ri-add-line me-2"></i>
+                                            <span>Create Resource</span>
+                                        </a>
+                                    </li>
                                 </ul>
-                            </li> -->
-
+                            </li>
+                         
+                            <li class="nav-item">
+                                <a href="{{ route('admin.resources.applications.index') }}" class="nav-link">
+                                    <i class="ri-file-list-line"></i> Applications
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('admin.support.index') }}" class="waves-effect">
                                     <i class="ri-customer-service-2-line me-2"></i>

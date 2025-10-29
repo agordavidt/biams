@@ -156,19 +156,19 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p class="text-muted mb-1">Name</p>
-                        <p class="mb-3"><strong>{{ $application->farmer->first_name }} {{ $application->farmer->middle_name }} {{ $application->farmer->surname }}</strong></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="text-muted mb-1">Farmer ID</p>
-                        <p class="mb-3"><code>{{ $application->farmer->farmer_id }}</code></p>
+                        <p class="mb-3"><strong>{{ $application->farmer->full_name }}</strong></p>
                     </div>
                     <div class="col-md-6">
                         <p class="text-muted mb-1">NIN</p>
-                        <p class="mb-3">{{ $application->farmer->nin }}</p>
+                        <p class="mb-3"><code>{{ $application->farmer->nin }}</code></p>
                     </div>
                     <div class="col-md-6">
                         <p class="text-muted mb-1">Phone</p>
-                        <p class="mb-3">{{ $application->farmer->phone_number }}</p>
+                        <p class="mb-3">{{ $application->farmer->phone_primary }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted mb-1">LGA</p>
+                        <p class="mb-3">{{ $application->farmer->lga->name ?? 'N/A' }}</p>
                     </div>
                 </div>
             </div>

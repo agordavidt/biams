@@ -40,24 +40,6 @@
                             </div>
                         </div>
 
-                        <!-- Partner Organization Section -->
-                        <div class="mb-4 border-top pt-3">
-                            <h5 class="mb-3 text-primary">Partner Organization</h5>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Partner Organization</label>
-                                    <select class="form-select" name="partner_id">
-                                        <option value="">Ministry of Agriculture</option>
-                                        @foreach($partners as $partner)
-                                            <option value="{{ $partner->id }}" {{ $resource->partner_id == $partner->id ? 'selected' : '' }}>
-                                                {{ $partner->legal_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">Select the organization that provides this resource</small>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Resource Timeline Section -->
                         <div class="mb-4 border-top pt-3">

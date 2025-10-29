@@ -224,124 +224,125 @@
 
     <div class="col-xl-8">
         <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="ri-flashlight-line me-1"></i> Quick Actions
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <a href="{{ route('farmer.profile') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
-                                            <i class="ri-user-settings-line text-primary"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">My Profile</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Manage personal info
-                                    </p>
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-flashlight-line me-1"></i> Quick Actions
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.profile') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                        <i class="ri-user-settings-line text-primary"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">My Profile</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Manage personal info
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
+                </div>
 
-                    <div class="col-md-4">
-                        <a href="{{ route('farmer.marketplace') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
-                                            <i class="ri-store-line text-success"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Marketplace</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Buy & sell products
-                                    </p>
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.marketplace.index') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                        <i class="ri-store-line text-success"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">Marketplace</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Buy & sell products
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
+                </div>
 
-                    <div class="col-md-4">
-                        <a href="{{ route('farmer.resources.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
-                                            <i class="ri-plant-line text-info"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Resources</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Agric resources
-                                    </p>
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.resources.index') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-info fs-3">
+                                        <i class="ri-plant-line text-info"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">Resources</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Agric resources
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
+                </div>
 
-                    <div class="col-md-4">
-                        <a href="{{ route('farmer.support.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
-                                            <i class="ri-customer-service-2-line text-warning"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Support</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Get help & support
-                                    </p>
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.support.index') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-warning fs-3">
+                                        <i class="ri-customer-service-2-line text-warning"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">Support</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Get help & support
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
+                </div>
 
-                    <div class="col-md-4">
-                        <a href="#" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
-                                            <i class="ri-landscape-line text-primary"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">My Farms</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        View farm lands
-                                    </p>
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.marketplace.my-listings') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                        <i class="ri-list-check text-primary"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">My Listings</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    Manage products
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
+                </div>
 
-                    <div class="col-md-4">
-                        <a href="#" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
-                                            <i class="ri-group-line text-success"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Cooperative</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Join cooperative
-                                    </p>
+                <div class="col-md-4">
+                    <a href="{{ route('farmer.resources.track') }}" class="text-decoration-none">
+                        <div class="card module-card border h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                        <i class="ri-file-check-line text-success"></i>
+                                    </span>
                                 </div>
+                                <h6 class="mb-2 text-dark">Track Applications</h6>
+                                <p class="text-muted mb-0 font-size-13">
+                                    View resource status
+                                </p>
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 

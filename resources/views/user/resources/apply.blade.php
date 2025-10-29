@@ -3,217 +3,151 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Apply for {{ $resource->name }}</h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('farmer.resources.index') }}">Resources</a></li>
-                    <li class="breadcrumb-item active">Apply</li>
-                </ol>
+        <div class="page-title-box">
+            <h4 class="page-title">Apply for Resource: {{ $resource->name }}</h4>
+        </div>
+    </div>
+</div>
+
+@if($resource->requires_payment && !$hasPaid)
+<!-- Payment Form -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Payment Required</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="ri-information-line me-2"></i>
+                    This resource requires payment before application.
+                </div>
+
+                <form action="{{ route('farmer.resources.payment.initiate', $resource) }}" method="POST">
+                    @csrf
+                    
+                    @if($resource->requires_quantity)
+                    <div class="mb-3">
+                        <label class="form-label">Quantity *</label>
+                        <input type="number" class="form-control" name="quantity" 
+                               value="1" min="1" max="{{ $resource->max_per_farmer }}" required>
+                        <small class="text-muted">Maximum: {{ $resource->max_per_farmer }} {{ $resource->unit }}</small>
+                    </div>
+                    @endif
+
+                    <div class="alert alert-warning">
+                        <strong>Amount to Pay:</strong> 
+                        ₦{{ number_format($resource->price * ($resource->requires_quantity ? 1 : 1), 2) }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-money-naira-circle-line me-1"></i> Proceed to Payment
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+@else
+<!-- Application Form -->
 <div class="row">
-    <div class="col-lg-8 mx-auto">
+    <div class="col-12">
         <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Application Form</h5>
+            </div>
             <div class="card-body">
-                @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        <h6 class="alert-heading">Please correct the following errors:</h6>
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @if(session('info'))
-                    <div class="alert alert-info alert-dismissible fade show">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        {{ session('info') }}
-                    </div>
-                @endif
-
-                <!-- Resource Details -->
-                <div class="mb-4">
-                    <h5 class="mb-3">Resource Details</h5>
-                    <div class="alert alert-light bg-light border border-light">
-                        <p class="mb-2">{{ $resource->description }}</p>
-                        @if($resource->requires_payment)
-                            <p class="mb-0 fw-bold text-success">Application Fee: ₦{{ number_format($resource->price, 2) }}</p>
-                        @else
-                            <p class="mb-0 fw-bold text-success">Free Application</p>
-                        @endif
-                    </div>
+                @if($resource->requires_payment && $hasPaid)
+                <div class="alert alert-success">
+                    <i class="ri-checkbox-circle-line me-2"></i>
+                    Payment verified! Please complete your application.
                 </div>
+                @endif
 
-                @if($resource->requires_payment && !$hasPaid)
-                    {{-- Payment Required: Show payment button ONLY --}}
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            <div class="avatar-lg mx-auto mb-4">
-                                <div class="avatar-title bg-soft-primary text-primary display-4 rounded-circle">
-                                    <i class="ri-secure-payment-line"></i>
-                                </div>
-                            </div>
-                            <h4 class="mb-3">Payment Required</h4>
-                            <p class="text-muted mb-4">
-                                You need to complete payment before you can access the application form.
-                                <br>
-                                <strong class="text-dark">Amount: ₦{{ number_format($resource->price, 2) }}</strong>
-                            </p>
-                        </div>
-
-                        <form method="POST" action="{{ route('farmer.resources.payment.initiate', $resource) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <i class="ri-secure-payment-line me-2"></i> 
-                                Proceed to Payment
-                            </button>
-                            <p class="text-center text-muted mt-3 mb-0">
-                                <small><i class="ri-shield-check-line me-1"></i> Secure payment via Credo</small>
-                            </p>
-                        </form>
+                <form action="{{ route('farmer.resources.submit', $resource) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    
+                    @if($resource->requires_quantity)
+                    <div class="mb-3">
+                        <label class="form-label">Quantity Requested *</label>
+                        <input type="number" class="form-control" name="quantity_requested" 
+                               value="1" min="1" max="{{ $resource->max_per_farmer }}" required>
+                        <small class="text-muted">Maximum: {{ $resource->max_per_farmer }} {{ $resource->unit }}</small>
                     </div>
+                    @endif
 
-                @else
-                    {{-- No Payment Required OR Already Paid: Show application form --}}
-                    @if($hasPaid)
-                        <div class="alert alert-success mb-4">
-                            <i class="ri-checkbox-circle-line me-2"></i>
-                            <strong>Payment Verified!</strong> Please complete the application form below.
+                    <!-- Dynamic Form Fields -->
+                    @if($resource->form_fields)
+                        @foreach($resource->form_fields as $field)
+                        <div class="mb-3">
+                            <label class="form-label">
+                                {{ $field['label'] }}
+                                @if($field['required'])<span class="text-danger">*</span>@endif
+                            </label>
+                            
+                            @if($field['type'] === 'text')
+                                <input type="text" class="form-control" 
+                                       name="{{ Str::slug($field['label']) }}"
+                                       @if($field['required']) required @endif>
+                            
+                            @elseif($field['type'] === 'number')
+                                <input type="number" class="form-control" 
+                                       name="{{ Str::slug($field['label']) }}"
+                                       @if($field['required']) required @endif>
+                            
+                            @elseif($field['type'] === 'email')
+                                <input type="email" class="form-control" 
+                                       name="{{ Str::slug($field['label']) }}"
+                                       @if($field['required']) required @endif>
+                            
+                            @elseif($field['type'] === 'textarea')
+                                <textarea class="form-control" rows="3"
+                                          name="{{ Str::slug($field['label']) }}"
+                                          @if($field['required']) required @endif></textarea>
+                            
+                            @elseif($field['type'] === 'select' && isset($field['options']))
+                                <select class="form-select" 
+                                        name="{{ Str::slug($field['label']) }}"
+                                        @if($field['required']) required @endif>
+                                    <option value="">Select {{ $field['label'] }}</option>
+                                    @php
+                                        $options = is_array($field['options']) ? $field['options'] : explode(',', $field['options']);
+                                    @endphp
+                                    @foreach($options as $option)
+                                        <option value="{{ trim($option) }}">{{ trim($option) }}</option>
+                                    @endforeach
+                                </select>
+                            
+                            @elseif($field['type'] === 'file')
+                                <input type="file" class="form-control" 
+                                       name="{{ Str::slug($field['label']) }}"
+                                       @if($field['required']) required @endif
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <small class="text-muted">Accepted formats: PDF, DOC, JPG, PNG (Max: 2MB)</small>
+                            @endif
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            No additional information required for this resource.
                         </div>
                     @endif
 
-                    <form id="application-form" method="POST" 
-                          action="{{ route('farmer.resources.submit', $resource) }}"
-                          enctype="multipart/form-data">
-                        @csrf
-
-                        <h5 class="mb-3">Application Form</h5>
-                        
-                        @foreach($resource->form_fields as $field)
-                            @php $fieldName = Str::slug($field['label']); @endphp
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    {{ $field['label'] }} 
-                                    @if($field['required'])<span class="text-danger">*</span>@endif
-                                </label>
-                                
-                                @switch($field['type'])
-                                    @case('text')
-                                        <input type="text" name="{{ $fieldName }}" 
-                                               class="form-control @error($fieldName) is-invalid @enderror" 
-                                               value="{{ old($fieldName) }}"
-                                               @if($field['required']) required @endif>
-                                        @error($fieldName)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        @break
-                                        
-                                    @case('textarea')
-                                        <textarea name="{{ $fieldName }}" 
-                                                  class="form-control @error($fieldName) is-invalid @enderror" 
-                                                  @if($field['required']) required @endif 
-                                                  rows="3">{{ old($fieldName) }}</textarea>
-                                        @error($fieldName)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        @break
-                                        
-                                    @case('number')
-                                        <input type="number" name="{{ $fieldName }}" 
-                                               class="form-control @error($fieldName) is-invalid @enderror"
-                                               value="{{ old($fieldName) }}"
-                                               @if($field['required']) required @endif>
-                                        @error($fieldName)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        @break
-                                        
-                                    @case('file')
-                                        <input type="file" name="{{ $fieldName }}" 
-                                               class="form-control @error($fieldName) is-invalid @enderror"
-                                               @if($field['required']) required @endif>
-                                        <small class="text-muted">Maximum file size: 2MB</small>
-                                        @error($fieldName)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        @break
-                                        
-                                    @case('select')
-                                        <select name="{{ $fieldName }}" 
-                                                class="form-select @error($fieldName) is-invalid @enderror"
-                                                @if($field['required']) required @endif>
-                                            <option value="">Select an option</option>
-                                            @foreach(explode(',', $field['options']) as $option)
-                                                <option value="{{ trim($option) }}" 
-                                                        {{ old($fieldName) == trim($option) ? 'selected' : '' }}>
-                                                    {{ trim($option) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error($fieldName)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        @break
-                                @endswitch
-                            </div>
-                        @endforeach
-
-                        <div class="form-footer mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-success btn-lg w-100" id="submitBtn">
-                                <i class="ri-send-plane-line me-1"></i> 
-                                Submit Application
-                            </button>
-                        </div>
-                    </form>
-                @endif
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-send-plane-line me-1"></i> Submit Application
+                        </button>
+                        <a href="{{ route('farmer.resources.show', $resource) }}" class="btn btn-light">
+                            <i class="ri-arrow-left-line me-1"></i> Back
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+@endif
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    submitBtn.disabled = true;
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                    
-                    // Re-enable after 5 seconds as fallback
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    }, 5000);
-                }
-            });
-        });
-    });
-</script>
-@endpush
 @endsection

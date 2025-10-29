@@ -25,13 +25,12 @@
                     <div class="flex-shrink-0 me-3">
                         <div class="avatar-lg">
                             <span class="avatar-title bg-primary rounded-circle font-size-24">
-                                {{ strtoupper(substr($farmer->first_name, 0, 1)) }}{{ strtoupper(substr($farmer->surname, 0, 1)) }}
+                                {{ strtoupper(substr($farmer->full_name ?? 'F', 0, 2)) }}
                             </span>
                         </div>
                     </div>
                     <div class="flex-grow-1">
-                        <h4 class="mb-1">{{ $farmer->first_name }} {{ $farmer->middle_name }} {{ $farmer->surname }}</h4>
-                        <p class="text-muted mb-0">Farmer ID: <code>{{ $farmer->farmer_id }}</code></p>
+                        <h4 class="mb-1">{{ $farmer->full_name }}</h4>
                         <p class="text-muted mb-0">NIN: {{ $farmer->nin }}</p>
                     </div>
                     <div>
@@ -42,7 +41,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <p class="text-muted mb-1">Phone Number</p>
-                        <p class="mb-3"><strong>{{ $farmer->phone_number }}</strong></p>
+                        <p class="mb-3"><strong>{{ $farmer->phone_primary }}</strong></p>
                     </div>
                     <div class="col-md-4">
                         <p class="text-muted mb-1">LGA</p>
@@ -128,7 +127,7 @@
                                                             <ul>
                                                                 <li><strong>Resource:</strong> {{ $application->resource->name }}</li>
                                                                 <li><strong>Quantity:</strong> {{ $application->quantity_paid }} {{ $application->resource->unit }}</li>
-                                                                <li><strong>Farmer:</strong> {{ $farmer->first_name }} {{ $farmer->surname }}</li>
+                                                                <li><strong>Farmer:</strong> {{ $farmer->full_name }}</li>
                                                             </ul>
                                                         </div>
 

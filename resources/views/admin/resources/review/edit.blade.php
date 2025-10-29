@@ -24,8 +24,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="ri-information-line me-2"></i>
+                    <div class="alert alert-info">                       
                         <strong>Vendor:</strong> {{ $resource->vendor->legal_name }} | 
                         <strong>Status:</strong> {{ ucwords(str_replace('_', ' ', $resource->status)) }}
                     </div>
@@ -129,8 +128,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Admin Notes</h5>
-                    <div class="alert alert-warning">
-                        <i class="ri-lightbulb-line me-2"></i>
+                    <div class="alert alert-warning">                       
                         As State Admin, you can adjust pricing, stock levels, and allocation limits to align with state subsidy policies.
                     </div>
                 </div>
@@ -140,10 +138,10 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-line me-1"></i> Save Changes
+                             Save Changes
                         </button>
                         <a href="{{ route('admin.resources.review.show', $resource) }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
+                            Cancel
                         </a>
                     </div>
                 </div>

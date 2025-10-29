@@ -191,8 +191,8 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <strong>{{ $application->farmer->first_name }} {{ $application->farmer->surname }}</strong>
-                                    <br><small class="text-muted">{{ $application->farmer->farmer_id }}</small>
+                                    <strong>{{ $application->farmer->full_name }}</strong>
+                                    <br><small class="text-muted">{{ $application->farmer->nin }}</small>
                                 </td>
                                 <td>{{ $application->resource->name }}</td>
                                 <td>{{ $application->resource->vendor->legal_name }}</td>

@@ -67,19 +67,19 @@
                         <li>
                             <a href="{{ route('vendor.team.index') }}" class="waves-effect">
                                 <i class="ri-team-line me-2"></i>
-                                <span>Team Management</span>
+                                <span>Team</span>
+                            </a>
+                        </li>                                          
+                        <li class="nav-item">
+                            <a href="{{ route('vendor.resources.index') }}" class="nav-link">
+                                  <i class="ri-file-list-3-line me-2"></i>Resources
                             </a>
                         </li>
-
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                <i class="ri-file-list-3-line me-2"></i>
-                                <span>Resources</span>
+                        <li class="nav-item">
+                            <a href="{{ route('vendor.resources.all-applications') }}" class="nav-link">
+                                <i class="ri-file-list-3-line"></i> Applications
+                                
                             </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li><a href="{{ route('vendor.resources.index') }}">View Resources</a></li>
-                                <li><a href="{{ route('vendor.resources.create') }}">Propose New Resource</a></li>
-                            </ul>
                         </li>
 
                         <li>

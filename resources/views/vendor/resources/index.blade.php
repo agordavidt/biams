@@ -37,6 +37,7 @@
                                 <th>Stock</th>
                                 <th>Max/Farmer</th>
                                 <th>Status</th>
+                                <th>Applications</th>
                                 <th>Submitted</th>
                                 <th>Actions</th>
                             </tr>
@@ -67,6 +68,20 @@
                                         {{ ucwords(str_replace('_', ' ', $resource->status)) }}
                                     </span>
                                 </td>
+                                <td>
+                                        @if($resource->total_applications > 0)
+                                            <a href="{{ route('vendor.resources.applications', $resource) }}" class="text-primary">
+                                                <strong>{{ $resource->total_applications }}</strong>
+                                            </a>
+                                            <div class="text-muted small">
+                                                <span class="badge badge-soft-warning">{{ $resource->pending_applications }}</span>
+                                                <span class="badge badge-soft-success">{{ $resource->paid_applications }}</span>
+                                                <span class="badge badge-soft-dark">{{ $resource->fulfilled_applications }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">0</span>
+                                        @endif
+                                    </td>
                                 <td>{{ $resource->created_at->format('M d, Y') }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -166,3 +181,7 @@
     }
 </script>
 @endpush
+
+
+
+----C:\laragon\www\biams\resources\views\admin\resources\applications\show.blade.php

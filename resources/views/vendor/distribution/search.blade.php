@@ -1,88 +1,571 @@
 @extends('layouts.vendor')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Search Farmer</h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('vendor.distribution.dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Search</li>
-                </ol>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="page-title mb-1">Resource Distribution</h4>
+                    <p class="text-muted mb-0">{{ $resource->name }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('vendor.resources.applications', $resource) }}" class="btn btn-info">
+                        <i class="ri-list-check me-1"></i> View All Applications
+                    </a>
+                    <a href="{{ route('vendor.resources.index') }}" class="btn btn-light">
+                        <i class="ri-arrow-left-line me-1"></i> Back to Resources
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <div class="avatar-lg mx-auto mb-3">
-                        <span class="avatar-title bg-primary rounded-circle font-size-24">
-                            <i class="ri-search-line"></i>
-                        </span>
-                    </div>
-                    <h4 class="card-title">Search Farmer by NIN or Farmer ID</h4>
-                    <p class="text-muted">Enter the farmer's National Identification Number (NIN) or Farmer ID to view their payment status and mark fulfillment</p>
-                </div>
-
-                <form action="{{ route('vendor.distribution.search-results') }}" method="POST">
-                    @csrf
-
-                    <div class="mb-4">
-                        <label for="search_term" class="form-label">NIN or Farmer ID <span class="text-danger">*</span></label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text"><i class="ri-user-search-line"></i></span>
-                            <input type="text" 
-                                   class="form-control @error('search_term') is-invalid @enderror" 
-                                   id="search_term" 
-                                   name="search_term" 
-                                   value="{{ old('search_term') }}"
-                                   placeholder="Enter NIN or Farmer ID" 
-                                   required 
-                                   autofocus>
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Total Apps</p>
+                            <h4 class="mb-0">{{ $stats['total'] ?? 0 }}</h4>
                         </div>
-                        @error('search_term')
-                            <div class="text-danger mt-1">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">Example: 12345678901 (NIN) or FRM-2024-0001 (Farmer ID)</small>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-primary text-primary rounded">
+                                <i class="ri-file-list-line font-size-20"></i>
+                            </span>
+                        </div>
                     </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="ri-search-line me-1"></i> Search Farmer
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-
-        <!-- Instructions Card -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Instructions</h5>
-                
-                <div class="alert alert-info">
-                    <h6 class="alert-heading">How to Mark Fulfillment:</h6>
-                    <ol class="mb-0 ps-3">
-                        <li>Search for the farmer using their NIN or Farmer ID</li>
-                        <li>Verify the farmer's identity and payment status</li>
-                        <li>Only applications with status "PAID" can be fulfilled</li>
-                        <li>Deliver the exact quantity shown in the paid application</li>
-                        <li>Click the "MARK AS FULFILLED" button</li>
-                        <li><strong class="text-danger">IMPORTANT:</strong> Fulfillment is one-time only and cannot be undone</li>
-                    </ol>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Paid</p>
+                            <h4 class="mb-0 text-success">{{ $stats['paid'] ?? 0 }}</h4>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-success text-success rounded">
+                                <i class="ri-money-dollar-circle-line font-size-20"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Fulfilled</p>
+                            <h4 class="mb-0 text-info">{{ $stats['fulfilled'] ?? 0 }}</h4>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-info text-info rounded">
+                                <i class="ri-checkbox-circle-line font-size-20"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Pending</p>
+                            <h4 class="mb-0 text-warning">{{ $stats['pending'] ?? 0 }}</h4>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-warning text-warning rounded">
+                                <i class="ri-time-line font-size-20"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="alert alert-warning">
-                    <i class="ri-error-warning-line me-2"></i>
-                    <strong>Critical Rule:</strong> Once you mark an application as fulfilled, the farmer's entitlement is completely consumed, even if they didn't collect the maximum allocation. This action is final.
+    <!-- Search Section -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-search-line me-2"></i>Quick Farmer Lookup
+                    </h5>
+                    <p class="mb-0 mt-1 opacity-75"><small>Search for farmers who have paid for this resource</small></p>
+                </div>
+                <div class="card-body" x-data="farmerSearch()">
+                    <div class="row mb-3">
+                        <div class="col-md-9">
+                            <label class="form-label">Search by Farmer Details</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">
+                                    <i class="ri-search-line"></i>
+                                </span>
+                                <input type="text" class="form-control" x-model="searchQuery"
+                                       placeholder="Name, Phone, Email, or NIN"
+                                       @keyup.enter="searchFarmer()"
+                                       @input="searched = false">
+                                <button class="btn btn-primary px-4" type="button" @click="searchFarmer()"
+                                        :disabled="searching || searchQuery.length < 3">
+                                    <span x-show="!searching">
+                                        <i class="ri-search-line me-1"></i> Search
+                                    </span>
+                                    <span x-show="searching">
+                                        <span class="spinner-border spinner-border-sm me-1"></span> Searching...
+                                    </span>
+                                </button>
+                            </div>
+                            <small class="text-muted">Enter at least 3 characters to search</small>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-secondary w-100" 
+                                    @click="resetSearch()">
+                                <i class="ri-refresh-line me-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div x-show="searched && results.length === 0" class="alert alert-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="ri-information-line me-2 fs-4"></i>
+                            <div>
+                                <strong>No applications found</strong>
+                                <p class="mb-0">No paid applications found for this farmer with this resource.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="results.length > 0" class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                                Search Results (<span x-text="results.length"></span> found)
+                            </h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" @click="resetSearch()">
+                                <i class="ri-close-line me-1"></i> Clear Results
+                            </button>
+                        </div>
+                        
+                        <template x-for="app in results" :key="app.id">
+                            <div class="card border border-success mb-3 shadow-sm">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-5">
+                                            <h5 class="mb-2" x-text="app.farmer_name"></h5>
+                                            <div class="d-flex flex-column gap-1">
+                                                <p class="mb-0">
+                                                    <i class="ri-phone-line text-primary me-1"></i>
+                                                    <strong x-text="app.phone"></strong>
+                                                </p>
+                                                <p class="mb-0 text-muted">
+                                                    <i class="ri-mail-line me-1"></i>
+                                                    <small x-text="app.email"></small>
+                                                </p>
+                                                <p class="mb-0 text-muted" x-show="app.nin && app.nin !== 'N/A'">
+                                                    <i class="ri-id-card-line me-1"></i>
+                                                    <small>NIN: <span x-text="app.nin"></span></small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="border-start ps-3">
+                                                <p class="mb-1 text-muted"><small>Quantity Approved</small></p>
+                                                <h4 class="mb-2 text-success">
+                                                    <span x-text="app.quantity_approved"></span> 
+                                                    <small class="fs-6 text-muted">{{ $resource->unit }}</small>
+                                                </h4>
+                                                <p class="mb-1 text-muted"><small>Amount Paid</small></p>
+                                                <p class="mb-0">
+                                                    <strong>₦<span x-text="formatNumber(app.amount_paid)"></span></strong>
+                                                </p>
+                                                <p class="mb-0 mt-2">
+                                                    <small class="text-muted">
+                                                        Ref: <code x-text="app.payment_reference.substring(0, 20) + '...'"></code>
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <template x-if="app.is_fulfilled">
+                                                <div>
+                                                    <span class="badge bg-success fs-6 mb-2">
+                                                        <i class="ri-checkbox-circle-line me-1"></i> Fulfilled
+                                                    </span>
+                                                    <p class="mb-0 text-muted">
+                                                        <small x-text="'On ' + app.fulfilled_at"></small>
+                                                    </p>
+                                                </div>
+                                            </template>
+                                            <template x-if="!app.is_fulfilled">
+                                                <div>
+                                                    <button type="button" class="btn btn-success w-100 mb-2"
+                                                            @click="fulfillApplication(app.id, app.quantity_approved)">
+                                                        <i class="ri-check-line me-1"></i> Mark as Fulfilled
+                                                    </button>
+                                                    <p class="mb-0 text-muted">
+                                                        <small>Paid: <span x-text="app.paid_at"></span></small>
+                                                    </p>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div x-show="error" class="alert alert-danger mt-3">
+                        <i class="ri-error-warning-line me-2"></i>
+                        <span x-text="error"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Paid Applications List -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-1">Paid Applications Ready for Fulfillment</h5>
+                            <p class="text-muted mb-0"><small>Applications that have been paid and approved</small></p>
+                        </div>
+                        <a href="{{ route('vendor.resources.applications', $resource) }}" class="btn btn-sm btn-primary">
+                            <i class="ri-file-list-line me-1"></i> View All Applications
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Farmer Details</th>
+                                    <th>Contact</th>
+                                    <th>Quantity</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Payment Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($applications as $app)
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ $app->farmer ? $app->farmer->full_name : $app->user->name }}</strong>
+                                                @if($app->farmer && $app->farmer->nin)
+                                                    <br><small class="text-muted">NIN: {{ $app->farmer->nin }}</small>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <i class="ri-phone-line text-primary"></i> {{ $app->farmer ? $app->farmer->phone_number : $app->user->phone }}<br>
+                                                <i class="ri-mail-line text-muted"></i> {{ $app->user->email }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if($resource->requires_quantity)
+                                                <strong>{{ $app->quantity_approved ?? $app->quantity_paid ?? '-' }}</strong> {{ $resource->unit }}
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">₦{{ number_format($app->amount_paid ?? 0, 2) }}</strong>
+                                            @if($app->payment_reference)
+                                                <br><small class="text-muted">{{ substr($app->payment_reference, 0, 15) }}...</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusConfig = [
+                                                    'paid' => ['color' => 'success', 'icon' => 'checkbox-circle-line'],
+                                                    'approved' => ['color' => 'primary', 'icon' => 'check-line'],
+                                                    'fulfilled' => ['color' => 'info', 'icon' => 'check-double-line'],
+                                                    'pending' => ['color' => 'warning', 'icon' => 'time-line'],
+                                                ];
+                                                $config = $statusConfig[$app->status] ?? ['color' => 'secondary', 'icon' => 'information-line'];
+                                            @endphp
+                                            <span class="badge bg-{{ $config['color'] }}">
+                                                <i class="ri-{{ $config['icon'] }} me-1"></i>{{ ucfirst($app->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($app->paid_at)
+                                                <small>{{ $app->paid_at->format('M d, Y') }}<br>{{ $app->paid_at->format('h:i A') }}</small>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(in_array($app->status, ['paid', 'approved']))
+                                                <button type="button" class="btn btn-success btn-sm"
+                                                        onclick="fulfillFromTable({{ $app->id }}, {{ $app->quantity_approved ?? $app->quantity_paid ?? 0 }})">
+                                                    <i class="ri-check-line me-1"></i> Fulfill
+                                                </button>
+                                            @elseif($app->status === 'fulfilled')
+                                                <span class="text-success">
+                                                    <i class="ri-check-circle-line me-1"></i> <small>Done</small>
+                                                </span>
+                                                @if($app->fulfilled_at)
+                                                    <br><small class="text-muted">{{ $app->fulfilled_at->diffForHumans() }}</small>
+                                                @endif
+                                            @else
+                                                <a href="{{ route('vendor.resources.application.show', $app) }}" class="btn btn-info btn-sm">
+                                                    <i class="ri-eye-line"></i> View
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-5">
+                                            <i class="ri-inbox-line display-4 d-block mb-2 text-muted"></i>
+                                            <p class="mb-0">No paid applications found for this resource</p>
+                                            <small>Applications will appear here once farmers complete payment</small>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if($applications->hasPages())
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    Showing {{ $applications->firstItem() }} to {{ $applications->lastItem() }} of {{ $applications->total() }} applications
+                                </small>
+                            </div>
+                            <div>
+                                {{ $applications->links() }}
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Fulfill Modal -->
+<div class="modal fade" id="fulfillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="ri-checkbox-circle-line me-2"></i>Confirm Resource Distribution
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="ri-information-line me-2"></i>
+                    Please confirm that you have physically handed over this resource to the farmer.
+                </div>
+                
+                @if($resource->requires_quantity)
+                    <div class="mb-3">
+                        <label class="form-label">Quantity Being Fulfilled</label>
+                        <input type="number" class="form-control" id="fulfillQuantity" readonly>
+                        <small class="text-muted">Quantity that was approved and paid for</small>
+                    </div>
+                @endif
+                
+                <div class="mb-3">
+                    <label class="form-label">Distribution Notes (Optional)</label>
+                    <textarea class="form-control" id="fulfillmentNotes" rows="3"
+                              placeholder="e.g., Collected by farmer at warehouse, ID verified..."></textarea>
+                    <small class="text-muted">Add any relevant notes about the distribution</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirmFulfillBtn">
+                    <i class="ri-check-line me-1"></i> Confirm Distribution
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+<script>
+    function farmerSearch() {
+        return {
+            searchQuery: '',
+            results: [],
+            searching: false,
+            searched: false,
+            error: '',
+
+            async searchFarmer() {
+                if (this.searchQuery.length < 3) {
+                    this.error = 'Please enter at least 3 characters';
+                    return;
+                }
+
+                this.searching = true;
+                this.error = '';
+                this.searched = false;
+
+                try {
+                    const response = await fetch('{{ route("vendor.resources.search-farmer") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            search: this.searchQuery,
+                            resource_id: {{ $resource->id }}
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.results = data.applications;
+                        this.searched = true;
+                    } else {
+                        this.error = data.error || 'Search failed';
+                    }
+                } catch (error) {
+                    this.error = 'An error occurred during search';
+                    console.error(error);
+                } finally {
+                    this.searching = false;
+                }
+            },
+
+            fulfillApplication(applicationId, quantity) {
+                window.currentFulfillApplicationId = applicationId;
+                if (quantity) {
+                    document.getElementById('fulfillQuantity').value = quantity + ' {{ $resource->unit }}';
+                }
+                const modal = new bootstrap.Modal(document.getElementById('fulfillModal'));
+                modal.show();
+            },
+
+            resetSearch() {
+                this.searchQuery = '';
+                this.results = [];
+                this.searched = false;
+                this.error = '';
+            },
+
+            formatNumber(num) {
+                return new Intl.NumberFormat('en-NG', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(num);
+            }
+        };
+    }
+
+    // Handle fulfill from table
+    function fulfillFromTable(applicationId, quantity) {
+        window.currentFulfillApplicationId = applicationId;
+        if (quantity) {
+            document.getElementById('fulfillQuantity').value = quantity + ' {{ $resource->unit }}';
+        }
+        const modal = new bootstrap.Modal(document.getElementById('fulfillModal'));
+        modal.show();
+    }
+
+    // Confirm fulfillment
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmBtn = document.getElementById('confirmFulfillBtn');
+        const notesInput = document.getElementById('fulfillmentNotes');
+        const modal = document.getElementById('fulfillModal');
+
+        confirmBtn.addEventListener('click', async function() {
+            const applicationId = window.currentFulfillApplicationId;
+            const notes = notesInput.value;
+            const quantity = document.getElementById('fulfillQuantity')?.value;
+
+            if (!applicationId) return;
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+            try {
+                const response = await fetch(`/vendor/resources/applications/${applicationId}/fulfill`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        fulfillment_notes: notes,
+                        @if($resource->requires_quantity)
+                        quantity_fulfilled: parseInt(quantity)
+                        @endif
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    toastr.success(data.message || 'Application marked as fulfilled');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    toastr.error(data.error || 'Failed to fulfill application');
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i> Confirm Distribution';
+                }
+            } catch (error) {
+                toastr.error('An error occurred');
+                console.error(error);
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i> Confirm Distribution';
+            }
+        });
+
+        // Reset modal on close
+        modal.addEventListener('hidden.bs.modal', function() {
+            notesInput.value = '';
+            if (document.getElementById('fulfillQuantity')) {
+                document.getElementById('fulfillQuantity').value = '';
+            }
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="ri-check-line me-1"></i> Confirm Distribution';
+            window.currentFulfillApplicationId = null;
+        });
+    });
+
+    // Toast configuration
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "3000"
+    };
+</script>
+@endpush
 @endsection

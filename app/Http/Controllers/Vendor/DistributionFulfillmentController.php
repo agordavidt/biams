@@ -39,14 +39,13 @@ class DistributionFulfillmentController extends Controller
 
         $searchTerm = $request->search_term;
 
-        // Search by NIN or Farmer ID
-        $farmer = Farmer::where('nin', $searchTerm)
-            ->orWhere('farmer_id', $searchTerm)
-            ->first();
+        // Search by NIN only (based on your Farmer model structure)
+        // The farmer table doesn't have a farmer_id column
+        $farmer = Farmer::where('nin', $searchTerm)->first();
 
         if (!$farmer) {
             return redirect()->back()
-                ->with('error', 'Farmer not found. Please check the NIN or Farmer ID.')
+                ->with('error', 'Farmer not found. Please check the NIN.')
                 ->withInput();
         }
 

@@ -4,52 +4,73 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Resource;
-use App\Models\Partner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ResourceController extends Controller
 {
-    public function index()
+    /**
+     * Display all resources (Ministry + Vendor resources)
+     */
+    public function index(Request $request)
     {
-        // Only fetch active resources
-        $resources = Resource::with('partner')->active()->get();
-        return view('admin.resources.index', compact('resources'));
+        $query = Resource::with(['vendor', 'createdBy', 'reviewedBy'])
+            ->withCount('applications');
+
+        // Filter by source
+        $source = $request->get('source', 'all');
+        if ($source === 'ministry') {
+            $query->ministryResources();
+        } elseif ($source === 'vendor') {
+            $query->vendorResources();
+        }
+
+        // Filter by status
+        $status = $request->get('status');
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        // Filter by payment type
+        if ($request->payment_type === 'paid') {
+            $query->paid();
+        } elseif ($request->payment_type === 'free') {
+            $query->free();
+        }
+
+        $resources = $query->latest()->paginate(20);
+
+        $stats = [
+            'total' => Resource::count(),
+            'ministry' => Resource::ministryResources()->count(),
+            'vendor' => Resource::vendorResources()->count(),
+            'active' => Resource::active()->count(),
+            'pending_review' => Resource::vendorResources()->where('status', 'proposed')->count(),
+            'paid' => Resource::paid()->count(),
+            'free' => Resource::free()->count(),
+        ];
+
+        return view('admin.resources.index', compact('resources', 'stats', 'source', 'status'));
     }
 
+    /**
+     * Show form to create Ministry resource
+     */
     public function create()
     {
-        $partners = Partner::get();
-        return view('admin.resources.create', compact('partners'));
+        return view('admin.resources.create');
     }
+
+    /**
+     * Store a new Ministry resource
+     */
 
     public function store(Request $request)
     {
-        // Convert checkbox values to proper boolean
-        $request->merge([
-            'requires_payment' => $request->has('requires_payment')
-        ]);
-
-        // Parse dates if provided
-        if ($request->start_date) {
-            $request->merge(['start_date' => Carbon::parse($request->start_date)]);
-        }
-        
-        if ($request->end_date) {
-            $request->merge(['end_date' => Carbon::parse($request->end_date)]);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',           
-            'requires_payment' => 'boolean',
-            'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
-            'form_fields' => 'required|json',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'partner_id' => 'nullable|exists:partners,id'
-        ]);
+        $validator = $this->validateResourceData($request);
 
         if ($validator->fails()) {
             return response()->json([
@@ -59,30 +80,57 @@ class ResourceController extends Controller
         }
 
         try {
-            $formFields = json_decode($request->form_fields, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception('Invalid form fields format');
+            $formFields = null;
+            if ($request->form_fields) {
+                $formFields = json_decode($request->form_fields, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Invalid form fields format');
+                }
             }
 
-            // Create resource with updated fields
+            // Parse dates
+            $startDate = $request->start_date ? Carbon::parse($request->start_date) : null;
+            $endDate = $request->end_date ? Carbon::parse($request->end_date) : null;
+
+            // Determine if resource requires quantity
+            $requiresQuantity = !in_array($request->type, ['service', 'training']);
+
+            // Set prices - for ministry resources, original_price = price
+            $price = $request->requires_payment ? $request->price : 0;
+            $originalPrice = $price; // For ministry resources, they're the same
+
+            // Create Ministry resource
             $resource = Resource::create([
+                'vendor_id' => null, // Ministry resource
                 'name' => $request->name,
-                'description' => $request->description,               
-                'requires_payment' => (bool)$request->requires_payment, 
-                'price' => $request->requires_payment ? $request->price : 0,
+                'type' => $request->type,
+                'description' => $request->description,
+                'unit' => $requiresQuantity ? $request->unit : null,
+                'requires_quantity' => $requiresQuantity,
+                'max_per_farmer' => $requiresQuantity ? $request->max_per_farmer : null,
+                'total_stock' => $requiresQuantity ? $request->total_stock : null,
+                'available_stock' => $requiresQuantity ? $request->total_stock : null,
+                'requires_payment' => (bool)$request->requires_payment,
+                'original_price' => $originalPrice,
+                'price' => $price,
                 'form_fields' => $formFields,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-                'partner_id' => $request->partner_id
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => 'active', // Ministry resources are immediately active
+                'created_by' => Auth::id(),
+                'reviewed_by' => Auth::id(),
+                'reviewed_at' => now(),
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Resource created successfully',
+                'message' => 'Ministry resource created successfully',
                 'redirect' => route('admin.resources.index')
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Resource creation failed: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error creating resource: ' . $e->getMessage(),
@@ -91,103 +139,150 @@ class ResourceController extends Controller
         }
     }
 
-    public function edit(Resource $resource)
-    {
-        // Prevent editing if resource is expired
-        if ($resource->isExpired()) {
-            return redirect()->route('admin.resources.index')
-                ->with('error', 'Cannot edit an expired resource.');
-        }
-
-        $partners = Partner::active()->get();
-        return view('admin.resources.edit', compact('resource', 'partners'));
-    }
-
-    public function update(Request $request, Resource $resource)
-    {
-        // Prevent updating if resource is expired
-        if ($resource->isExpired()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot update an expired resource.',
-                'errors' => ['general' => 'Resource is expired']
-            ], 403);
-        }
-
-        // Convert checkbox values to proper boolean
-        $request->merge([
-            'requires_payment' => $request->has('requires_payment')
-        ]);
-
-        // Parse dates if provided
-        if ($request->start_date) {
-            $request->merge(['start_date' => Carbon::parse($request->start_date)]);
-        }
-        
-        if ($request->end_date) {
-            $request->merge(['end_date' => Carbon::parse($request->end_date)]);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',          
-            'requires_payment' => 'boolean',
-            'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
-            'form_fields' => 'required|json',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'partner_id' => 'nullable|exists:partners,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $formFields = json_decode($request->form_fields, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception('Invalid form fields format');
+       
+        /**
+         * Edit resource
+         */
+        public function edit(Resource $resource)
+        {
+            // Only allow editing ministry resources
+            if ($resource->is_vendor_resource) {
+                return redirect()->route('admin.resources.review.edit', $resource)
+                    ->with('error', 'Vendor resources must be edited through the review process.');
             }
 
-            $resource->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'target_practice' => $request->target_practice,
-                'requires_payment' => (bool)$request->requires_payment,
-                'price' => $request->requires_payment ? $request->price : 0,
-                'form_fields' => $formFields,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-                'partner_id' => $request->partner_id
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Resource updated successfully',
-                'redirect' => route('admin.resources.index')
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating resource: ' . $e->getMessage(),
-                'errors' => ['general' => $e->getMessage()]
-            ], 500);
+            return view('admin.resources.edit', compact('resource'));
         }
-    }
 
+        /**
+         * Update resource
+         */
+        public function update(Request $request, Resource $resource)
+        {
+            // Prevent updating vendor resources
+            if ($resource->is_vendor_resource) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vendor resources must be updated through the review process.',
+                ], 403);
+            }
+
+            $validator = $this->validateResourceData($request);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            try {
+                $formFields = null;
+                if ($request->form_fields) {
+                    $formFields = json_decode($request->form_fields, true);
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        throw new \Exception('Invalid form fields format');
+                    }
+                }
+
+                $startDate = $request->start_date ? Carbon::parse($request->start_date) : null;
+                $endDate = $request->end_date ? Carbon::parse($request->end_date) : null;
+
+                $requiresQuantity = !in_array($request->type, ['service', 'training']);
+
+                // Set prices - for ministry resources, original_price = price
+                $price = $request->requires_payment ? $request->price : 0;
+                $originalPrice = $price; // For ministry resources, they're the same
+
+                $resource->update([
+                    'name' => $request->name,
+                    'type' => $request->type,
+                    'description' => $request->description,
+                    'unit' => $requiresQuantity ? $request->unit : null,
+                    'requires_quantity' => $requiresQuantity,
+                    'max_per_farmer' => $requiresQuantity ? $request->max_per_farmer : null,
+                    'total_stock' => $requiresQuantity ? $request->total_stock : null,
+                    'available_stock' => $requiresQuantity ? $request->total_stock : $resource->available_stock,
+                    'requires_payment' => (bool)$request->requires_payment,
+                    'original_price' => $originalPrice,
+                    'price' => $price,
+                    'form_fields' => $formFields,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Resource updated successfully',
+                    'redirect' => route('admin.resources.index')
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('Resource update failed: ' . $e->getMessage());
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating resource: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
+
+
+    /**
+     * Delete resource
+     */
     public function destroy(Resource $resource)
     {
+        // Prevent deletion of vendor resources
+        if ($resource->is_vendor_resource) {
+            return redirect()->back()
+                ->with('error', 'Vendor resources cannot be deleted. Use the review process to reject them.');
+        }
+
+        // Prevent deletion of resources with applications
+        if ($resource->applications()->count() > 0) {
+            return redirect()->back()
+                ->with('error', 'Cannot delete resource with existing applications.');
+        }
+
         try {
             $resource->delete();
+            
             return redirect()->route('admin.resources.index')
                 ->with('success', 'Resource deleted successfully');
         } catch (\Exception $e) {
+            Log::error('Resource deletion failed: ' . $e->getMessage());
+            
             return redirect()->back()
                 ->with('error', 'Error deleting resource: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Validation rules
+     */
+    
+    protected function validateResourceData(Request $request)
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|in:seed,fertilizer,equipment,pesticide,training,service,tractor_service,other',
+            'description' => 'required|string',
+            'requires_payment' => 'boolean',
+            'price' => 'required_if:requires_payment,true|nullable|numeric|min:0',
+            'form_fields' => 'nullable|json',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ];
+
+        // Only require quantity fields for physical resources
+        if (!in_array($request->type, ['service', 'training'])) {
+            $rules['unit'] = 'required|string|max:50';
+            $rules['max_per_farmer'] = 'required|integer|min:1';
+            $rules['total_stock'] = 'required|integer|min:1';
+        }
+
+        return Validator::make($request->all(), $rules);
     }
 }

@@ -11,16 +11,18 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The path to your application's "home" route.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
+     * The default home path (required for Laravel auth scaffolding).
+     * It must exist, even if we don't use it directly.
      */
-    public const HOME = '/profile/complete';
+    public const HOME = '/'; // safe fallback
 
     /**
-     * Define your route model bindings, pattern filters, and other route configuration.
+     * Default route for unauthenticated users.
+     */
+    public const GUEST_HOME = '/';
+
+    /**
+     * Register route model bindings, pattern filters, etc.
      */
     public function boot(): void
     {
@@ -36,5 +38,27 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+    }
+
+    /**
+     * Determine redirect path after authentication.
+     */
+    public static function redirectToHome($user): string
+    {
+        if (! $user) {
+            return self::GUEST_HOME;
+        }
+
+        if ($user->hasRole('Super Admin')) return route('super_admin.dashboard');
+        if ($user->hasRole('Governor')) return route('governor.dashboard');
+        if ($user->hasRole('Commissioner')) return route('commissioner.dashboard');
+        if ($user->hasRole('State Admin')) return route('admin.dashboard');
+        if ($user->hasRole('LGA Admin')) return route('lga_admin.dashboard');
+        if ($user->hasRole('Enrollment Agent')) return route('enrollment.dashboard');
+        if ($user->hasRole('Vendor Manager')) return route('vendor.dashboard');
+        if ($user->hasRole('Distribution Agent')) return route('vendor.distribution.dashboard');
+        if ($user->hasRole('User')) return route('farmer.dashboard');
+
+        return self::GUEST_HOME;
     }
 }

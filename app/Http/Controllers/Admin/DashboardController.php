@@ -8,7 +8,7 @@ use App\Models\Farmer;
 use App\Models\FarmLand;
 use App\Models\LGA;
 use App\Models\Cooperative;
-use Illuminate\Support\Facades\DB; // Add this import
+use Illuminate\Support\Facades\DB; 
 
 class DashboardController extends Controller
 {

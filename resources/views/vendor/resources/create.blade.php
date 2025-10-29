@@ -1,176 +1,162 @@
 @extends('layouts.vendor')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Propose New Resource</h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('vendor.dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('vendor.resources.index') }}">Resources</a></li>
-                    <li class="breadcrumb-item active">Propose</li>
-                </ol>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Propose New Resource</h4>
+                <p class="text-muted">Submit a resource proposal for State Admin review</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Information Alert -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading"><i class="ri-information-line me-2"></i>Proposal Process</h5>
+                        <p class="mb-0">
+                            1. Submit your resource details with your pricing<br>
+                            2. State Admin will review your proposal<br>
+                            3. Admin will set the subsidized price for farmers<br>
+                            4. Once approved and published, farmers can apply<br>
+                            5. You will receive full reimbursement from the Ministry
+                        </p>
+                    </div>
+
+                    <form action="{{ route('vendor.resources.store') }}" method="POST" x-data="vendorResourceForm()">
+                        @csrf
+                        
+                        <!-- Basic Information -->
+                        <h5 class="mb-3">Resource Information</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Resource Name *</label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                       name="name" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Resource Type *</label>
+                                <select class="form-select @error('type') is-invalid @enderror" 
+                                        name="type" x-model="resourceType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="seed">Seeds</option>
+                                    <option value="fertilizer">Fertilizer</option>
+                                    <option value="equipment">Equipment</option>
+                                    <option value="pesticide">Pesticide</option>
+                                    <option value="training">Training</option>
+                                    <option value="service">Service</option>
+                                    <option value="tractor_service">Tractor Service</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-control @error('description') is-invalid @enderror" 
+                                      name="description" rows="4" required>{{ old('description') }}</textarea>
+                            <small class="text-muted">Provide detailed description (minimum 20 characters)</small>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Pricing -->
+                        <h5 class="mb-3 mt-4 border-top pt-3">Pricing Information</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Your Price (₦) *</label>
+                                <input type="number" class="form-control @error('price') is-invalid @enderror" 
+                                       name="price" step="0.01" min="0" value="{{ old('price') }}" required>
+                                <small class="text-muted">Your selling price per unit</small>
+                                @error('price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="ri-alert-line me-2"></i>
+                            <strong>Note:</strong> The State Admin will set the subsidized price for farmers during review. 
+                            You will receive your full price as reimbursement from the Ministry.
+                        </div>
+
+                        <!-- Stock Management (Only for physical resources) -->
+                        <div x-show="requiresQuantity" x-transition>
+                            <h5 class="mb-3 mt-4 border-top pt-3">Stock Information</h5>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Unit of Measurement *</label>
+                                    <input type="text" class="form-control @error('unit') is-invalid @enderror" 
+                                           name="unit" value="{{ old('unit') }}"
+                                           placeholder="e.g., Kg, Bags, Pieces"
+                                           x-bind:required="requiresQuantity">
+                                    <small class="text-muted">How you measure this resource</small>
+                                    @error('unit')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Total Available Stock *</label>
+                                    <input type="number" class="form-control @error('total_stock') is-invalid @enderror" 
+                                           name="total_stock" min="1" value="{{ old('total_stock') }}"
+                                           x-bind:required="requiresQuantity">
+                                    <small class="text-muted">Total quantity you can supply</small>
+                                    @error('total_stock')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Maximum Per Farmer *</label>
+                                    <input type="number" class="form-control @error('max_per_farmer') is-invalid @enderror" 
+                                           name="max_per_farmer" min="1" value="{{ old('max_per_farmer') }}"
+                                           x-bind:required="requiresQuantity">
+                                    <small class="text-muted">Max a farmer can request</small>
+                                    @error('max_per_farmer')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+                            <a href="{{ route('vendor.resources.index') }}" class="btn btn-light">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-send-plane-line me-1"></i> Submit Proposal
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<form action="{{ route('vendor.resources.store') }}" method="POST">
-    @csrf
-    
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">Resource Information</h4>
-
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Resource Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                               id="name" name="name" value="{{ old('name') }}" 
-                               placeholder="e.g., Certified Maize Seeds (Oba Super 2)" required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="type" class="form-label">Resource Type <span class="text-danger">*</span></label>
-                            <select class="form-select @error('type') is-invalid @enderror" 
-                                    id="type" name="type" required>
-                                <option value="">Select Type</option>
-                                <option value="seed" {{ old('type') === 'seed' ? 'selected' : '' }}>Seed</option>
-                                <option value="fertilizer" {{ old('type') === 'fertilizer' ? 'selected' : '' }}>Fertilizer</option>
-                                <option value="equipment" {{ old('type') === 'equipment' ? 'selected' : '' }}>Equipment</option>
-                                <option value="pesticide" {{ old('type') === 'pesticide' ? 'selected' : '' }}>Pesticide</option>
-                                <option value="training" {{ old('type') === 'training' ? 'selected' : '' }}>Training</option>
-                                <option value="tractor_service" {{ old('type') === 'tractor_service' ? 'selected' : '' }}>Tractor Service</option>
-                                <option value="other" {{ old('type') === 'other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="unit" class="form-label">Unit of Measurement <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('unit') is-invalid @enderror" 
-                                   id="unit" name="unit" value="{{ old('unit') }}" 
-                                   placeholder="e.g., kg, bag, piece, hectare" required>
-                            @error('unit')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" 
-                                  id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
-                        <small class="text-muted">Provide detailed information about the resource</small>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">Pricing & Stock Information</h4>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="co_payment_price" class="form-label">Farmer Co-Payment Price (₦) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" class="form-control @error('co_payment_price') is-invalid @enderror" 
-                                   id="co_payment_price" name="co_payment_price" value="{{ old('co_payment_price') }}" required>
-                            <small class="text-muted">Amount farmer pays per unit</small>
-                            @error('co_payment_price')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="vendor_reimbursement_price" class="form-label">Vendor Reimbursement (₦) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" class="form-control @error('vendor_reimbursement_price') is-invalid @enderror" 
-                                   id="vendor_reimbursement_price" name="vendor_reimbursement_price" value="{{ old('vendor_reimbursement_price') }}" required>
-                            <small class="text-muted">Government subsidy per unit</small>
-                            @error('vendor_reimbursement_price')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="total_stock" class="form-label">Total Stock Available <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('total_stock') is-invalid @enderror" 
-                                   id="total_stock" name="total_stock" value="{{ old('total_stock') }}" required>
-                            @error('total_stock')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="max_per_farmer" class="form-label">Maximum Per Farmer <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('max_per_farmer') is-invalid @enderror" 
-                                   id="max_per_farmer" name="max_per_farmer" value="{{ old('max_per_farmer') }}" required>
-                            <small class="text-muted">Allocation ceiling per farmer</small>
-                            @error('max_per_farmer')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="ri-information-line me-2"></i>
-                        <strong>Pricing Example:</strong> If co-payment is ₦10,000 and reimbursement is ₦15,000, 
-                        the total resource value is ₦25,000 per unit (farmer pays ₦10,000, government subsidizes ₦15,000).
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Submission Guidelines</h5>
-                    
-                    <div class="mb-3">
-                        <h6><i class="ri-check-line text-success me-1"></i> What Happens Next?</h6>
-                        <ol class="ps-3">
-                            <li>Your proposal is submitted with status "Proposed"</li>
-                            <li>State Admin reviews your submission</li>
-                            <li>Admin may approve, edit parameters, or reject</li>
-                            <li>If approved, resource becomes "Active" for farmers</li>
-                            <li>If rejected, you can edit and resubmit</li>
-                        </ol>
-                    </div>
-
-                    <div class="mb-3">
-                        <h6><i class="ri-lightbulb-line text-warning me-1"></i> Tips</h6>
-                        <ul class="ps-3">
-                            <li>Provide clear, detailed descriptions</li>
-                            <li>Ensure pricing is competitive and accurate</li>
-                            <li>Set realistic stock quantities</li>
-                            <li>Consider farmer capacity for max allocation</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ri-send-plane-line me-1"></i> Submit Proposal
-                        </button>
-                        <a href="{{ route('vendor.resources.index') }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
 @endsection
+
+@push('scripts')
+    <script>
+        function vendorResourceForm() {
+            return {
+                resourceType: '{{ old("type") }}',
+
+                get requiresQuantity() {
+                    return !['service', 'training'].includes(this.resourceType);
+                }
+            };
+        }
+    </script>
+@endpush
