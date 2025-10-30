@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use App\Models\Farmer;
 use App\Models\Resource;
 use App\Models\ResourceApplication;
 use Illuminate\Http\Request;
@@ -12,40 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class DistributionFulfillmentController extends Controller
 {
     /**
-     * FIXED: Search interface for distribution agents
-     */
-    public function searchInterface()
-    {
-        $user = Auth::user();
-        $vendor = $user->vendor;
-
-        if (!$vendor) {
-            return redirect()->route('vendor.distribution.dashboard')
-                ->with('error', 'No vendor account found.');
-        }
-
-        // Get vendor's active resources for filter dropdown
-        $resources = $vendor->resources()
-            ->where('status', 'active')
-            ->withCount([
-                'applications as paid_count' => function($query) {
-                    $query->where('status', 'paid');
-                },
-                'applications as fulfilled_count' => function($query) {
-                    $query->where('status', 'fulfilled');
-                }
-            ])
-            ->get();
-
-        return view('vendor.distribution.search-interface', compact('vendor', 'resources'));
-    }
-
-    /**
-     * REMOVED: searchResults() - now using unified searchFarmer() in ResourceController
-     */
-
-    /**
-     * View assigned resources
+     * UPDATED: Now shows only assigned resources OR all if no assignments
      */
     public function assignedResources()
     {
@@ -57,24 +23,43 @@ class DistributionFulfillmentController extends Controller
                 ->with('error', 'No vendor account found.');
         }
 
-        // Get all vendor's active resources with paid applications
-        $resources = $vendor->resources()
-            ->where('status', 'active')
-            ->withCount([
-                'applications as paid_count' => function($query) {
-                    $query->where('status', 'paid');
-                },
-                'applications as fulfilled_count' => function($query) {
-                    $query->where('status', 'fulfilled');
-                }
-            ])
-            ->get();
+        // Check if this agent has specific resource assignments
+        $hasAssignments = $user->assignedResources()->exists();
 
-        return view('vendor.distribution.assigned-resources', compact('vendor', 'resources'));
+        if ($hasAssignments) {
+            // Show only assigned resources
+            $resources = $user->assignedResources()
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'active')
+                ->withCount([
+                    'applications as paid_count' => function($query) {
+                        $query->where('status', 'paid');
+                    },
+                    'applications as fulfilled_count' => function($query) {
+                        $query->where('status', 'fulfilled');
+                    }
+                ])
+                ->get();
+        } else {
+            // No assignments = show all vendor resources (backward compatible)
+            $resources = $vendor->resources()
+                ->where('status', 'active')
+                ->withCount([
+                    'applications as paid_count' => function($query) {
+                        $query->where('status', 'paid');
+                    },
+                    'applications as fulfilled_count' => function($query) {
+                        $query->where('status', 'fulfilled');
+                    }
+                ])
+                ->get();
+        }
+
+        return view('vendor.distribution.assigned-resources', compact('vendor', 'resources', 'hasAssignments'));
     }
 
     /**
-     * View applications for specific resource
+     * UPDATED: Verify agent has access to resource applications
      */
     public function resourceApplications(Resource $resource)
     {
@@ -92,6 +77,14 @@ class DistributionFulfillmentController extends Controller
                 ->with('error', 'Unauthorized access.');
         }
 
+        // Check if agent has access to this resource
+        $hasAssignments = $user->assignedResources()->exists();
+        
+        if ($hasAssignments && !$user->isAssignedToResource($resource->id)) {
+            return redirect()->route('vendor.distribution.resources')
+                ->with('error', 'You are not assigned to this resource.');
+        }
+
         $applications = ResourceApplication::with(['farmer', 'user'])
             ->where('resource_id', $resource->id)
             ->whereIn('status', ['paid', 'approved'])
@@ -102,7 +95,7 @@ class DistributionFulfillmentController extends Controller
     }
 
     /**
-     * FIXED: Quick fulfillment interface
+     * UPDATED: Verify agent can fulfill this application
      */
     public function fulfillInterface(ResourceApplication $application)
     {
@@ -116,11 +109,66 @@ class DistributionFulfillmentController extends Controller
 
         $application->load(['resource', 'user', 'farmer', 'payment']);
         
-        // Verify agent has access to this vendor's resources
+        // Verify resource belongs to vendor
         if ($application->resource->vendor_id !== $vendor->id) {
-            abort(403, 'Unauthorized access');
+            abort(403, 'Unauthorized access to this vendor\'s resources');
+        }
+
+        // Check if agent has access to this resource
+        $hasAssignments = $user->assignedResources()->exists();
+        
+        if ($hasAssignments && !$user->isAssignedToResource($application->resource_id)) {
+            abort(403, 'You are not assigned to fulfill this resource');
         }
 
         return view('vendor.distribution.fulfill', compact('application', 'vendor'));
+    }
+
+    /**
+     * UPDATED: Search interface with resource filtering based on assignments
+     */
+    public function searchInterface()
+    {
+        $user = Auth::user();
+        $vendor = $user->vendor;
+
+        if (!$vendor) {
+            return redirect()->route('vendor.distribution.dashboard')
+                ->with('error', 'No vendor account found.');
+        }
+
+        // Check if agent has specific assignments
+        $hasAssignments = $user->assignedResources()->exists();
+
+        if ($hasAssignments) {
+            // Show only assigned resources in filter
+            $resources = $user->assignedResources()
+                ->where('vendor_id', $vendor->id)
+                ->where('status', 'active')
+                ->withCount([
+                    'applications as paid_count' => function($query) {
+                        $query->where('status', 'paid');
+                    },
+                    'applications as fulfilled_count' => function($query) {
+                        $query->where('status', 'fulfilled');
+                    }
+                ])
+                ->get();
+        } else {
+            // Show all vendor resources
+            $resources = $vendor->resources()
+                ->where('status', 'active')
+                ->withCount([
+                    'applications as paid_count' => function($query) {
+                        $query->where('status', 'paid');
+                    },
+                    'applications as fulfilled_count' => function($query) {
+                        $query->where('status', 'fulfilled');
+                    }
+                ])
+                ->get();
+        }
+
+        return view('vendor.distribution.search-interface', compact('vendor', 'resources', 'hasAssignments'));
     }
 }

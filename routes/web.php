@@ -44,6 +44,7 @@ use App\Http\Controllers\Vendor\ResourceController as VendorResourceController;
 use App\Http\Controllers\Vendor\TeamController as VendorTeamController;
 use App\Http\Controllers\Vendor\DistributionFulfillmentController;
 use App\Http\Controllers\Vendor\AnalyticsController as VendorAnalyticsController;
+use App\Http\Controllers\Vendor\AgentAssignmentController;
 use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 
@@ -642,6 +643,15 @@ Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vend
     Route::get('/analytics', [VendorAnalyticsController::class, 'index'])->name('analytics');
     Route::post('/analytics/export', [VendorAnalyticsController::class, 'export'])->name('analytics.export');
     Route::get('/payouts', [VendorPayoutController::class, 'index'])->name('payouts');
+
+
+    // Agent Resource Assignment Routes
+    Route::prefix('team/assignments')->name('team.assignments.')->group(function () {
+        Route::get('/', [AgentAssignmentController::class, 'index'])->name('index');
+        Route::post('/assign', [AgentAssignmentController::class, 'assign'])->name('assign');
+        Route::post('/unassign', [AgentAssignmentController::class, 'unassign'])->name('unassign');
+        Route::post('/bulk-assign', [AgentAssignmentController::class, 'bulkAssign'])->name('bulk-assign');
+    });
 });
 
 /*

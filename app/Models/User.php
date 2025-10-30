@@ -238,4 +238,42 @@ public function scopeForVendor($query, $vendorId)
     return $query->where('vendor_id', $vendorId);
 }
 
+
+
+/**
+ * Resources assigned to this distribution agent
+ */
+public function assignedResources()
+{
+    return $this->belongsToMany(
+        Resource::class,
+        'agent_resource_assignments',
+        'agent_id',
+        'resource_id'
+    )
+    ->withPivot(['assigned_by', 'assigned_at', 'is_active', 'notes'])
+    ->withTimestamps()
+    ->wherePivot('is_active', true);
+}
+
+/**
+ * Check if user is assigned to a specific resource
+ */
+public function isAssignedToResource($resourceId): bool
+{
+    return $this->assignedResources()
+        ->where('resources.id', $resourceId)
+        ->exists();
+}
+
+/**
+ * Check if this agent has any resource assignments
+ */
+public function hasResourceAssignments(): bool
+{
+    return \App\Models\AgentResourceAssignment::where('agent_id', $this->id)
+        ->where('is_active', true)
+        ->exists();
+}
+
 }

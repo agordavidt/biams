@@ -317,4 +317,32 @@ class Resource extends Model
 
         return 'Ministry of Agriculture';
     }
+
+
+    /**
+     * Distribution agents assigned to this resource
+     */
+    public function assignedAgents()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'agent_resource_assignments',
+            'resource_id',
+            'agent_id'
+        )
+        ->withPivot(['assigned_by', 'assigned_at', 'is_active', 'notes'])
+        ->withTimestamps()
+        ->wherePivot('is_active', true);
+    }
+
+    /**
+     * Check if agent is assigned to this resource
+     */
+    public function hasAssignedAgent($agentId): bool
+    {
+        return $this->assignedAgents()
+            ->where('users.id', $agentId)
+            ->exists();
+    }
+    
 }
