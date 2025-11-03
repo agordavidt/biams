@@ -182,7 +182,7 @@
             <div class="card-body">
                 <h5 class="card-title mb-4">Approve Application</h5>
 
-                <form action="{{ route('admin.applications.approve', $application) }}" method="POST">
+                <form action="{{ route('admin.resources.applications.grant', $application) }}" method="POST">
                     @csrf
                     @method('PATCH')
 
@@ -277,7 +277,7 @@
 <div class="modal fade" id="rejectModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('admin.applications.reject', $application) }}" method="POST">
+            <form action="{{ route('admin.resources.applications.decline', $application) }}" method="POST">
                 @csrf
                 @method('PATCH')
                 <div class="modal-header">

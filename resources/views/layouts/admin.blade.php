@@ -228,12 +228,12 @@
                                 </ul>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('admin.partners.index') }}" class="waves-effect">
                                     <i class="ri-group-line me-2"></i>
                                     <span>Partners</span>
                                 </a>
-                            </li>  
+                            </li>   -->
                             <li>
                                 <a href="{{ route('admin.vendors.index') }}" class="waves-effect">
                                     <i class="ri-store-3-line me-2"></i>

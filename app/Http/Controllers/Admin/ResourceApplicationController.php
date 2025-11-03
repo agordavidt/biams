@@ -98,13 +98,13 @@ class ResourceApplicationController extends Controller
             ->join('vendors', 'resources.vendor_id', '=', 'vendors.id')
             ->select(
                 'vendors.id',
-                'vendors.business_name',
+                'vendors.legal_name',
                 DB::raw('COUNT(resource_applications.id) as total_applications'),
                 DB::raw('SUM(CASE WHEN resource_applications.status = "paid" THEN 1 ELSE 0 END) as paid_count'),
                 DB::raw('SUM(CASE WHEN resource_applications.status = "fulfilled" THEN 1 ELSE 0 END) as fulfilled_count'),
                 DB::raw('SUM(CASE WHEN resource_applications.status IN ("paid", "fulfilled") THEN resource_applications.amount_paid ELSE 0 END) as total_revenue')
             )
-            ->groupBy('vendors.id', 'vendors.business_name')
+            ->groupBy('vendors.id', 'vendors.legal_name')
             ->having('total_applications', '>', 0)
             ->orderByDesc('total_revenue')
             ->limit(10)
@@ -429,7 +429,7 @@ class ResourceApplicationController extends Controller
             ->whereBetween('resource_applications.created_at', [$dateFrom, $dateTo])
             ->select(
                 'vendors.id',
-                'vendors.business_name',
+                'vendors.legal_name',
                 DB::raw('COUNT(resource_applications.id) as total_applications'),
                 DB::raw('SUM(CASE WHEN resource_applications.status = "paid" THEN 1 ELSE 0 END) as paid_count'),
                 DB::raw('SUM(CASE WHEN resource_applications.status = "fulfilled" THEN 1 ELSE 0 END) as fulfilled_count'),
@@ -437,7 +437,7 @@ class ResourceApplicationController extends Controller
                 DB::raw('AVG(TIMESTAMPDIFF(HOUR, resource_applications.reviewed_at, resource_applications.fulfilled_at)) as avg_fulfillment_time'),
                 DB::raw('SUM(CASE WHEN resource_applications.status IN ("paid", "fulfilled") THEN resource_applications.amount_paid ELSE 0 END) as total_revenue')
             )
-            ->groupBy('vendors.id', 'vendors.business_name')
+            ->groupBy('vendors.id', 'vendors.legal_name')
             ->orderByDesc('total_revenue')
             ->get();
 
@@ -610,7 +610,7 @@ class ResourceApplicationController extends Controller
                     $app->farmer ? $app->farmer->phone_number : ($app->user->phone ?? 'N/A'),
                     $app->farmer ? $app->farmer->nin : 'N/A',
                     $app->resource->name,
-                    $app->resource->vendor ? $app->resource->vendor->business_name : 'Ministry',
+                    $app->resource->vendor ? $app->resource->vendor->legal_name : 'Ministry',
                     $app->quantity_requested ?? 'N/A',
                     $app->quantity_approved ?? 'N/A',
                     $app->quantity_fulfilled ?? 'N/A',

@@ -80,22 +80,33 @@
                     <h5 class="mb-3">Pricing & Stock</h5>
 
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="price" class="form-label">Farmer Co-Payment (₦) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" 
-                                   id="price" name="price" value="{{ old('price', $resource->price) }}" required>
-                            <small class="text-muted">Amount farmer pays per unit</small>
-                            @error('price')
+                        <div class="col-md-4">
+                            <label for="original_price" class="form-label">Vendor's Original Price (₦) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control @error('original_price') is-invalid @enderror" 
+                                id="original_price" name="original_price" 
+                                value="{{ old('original_price', $resource->original_price) }}" required readonly>
+                            <small class="text-muted">Vendor's listed price (read-only)</small>
+                            @error('original_price')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col-md-6">
-                            <label for="vendor_reimbursement_price" class="form-label">Vendor Reimbursement (₦) <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" class="form-control @error('vendor_reimbursement_price') is-invalid @enderror" 
-                                   id="vendor_reimbursement_price" name="vendor_reimbursement_price" 
-                                   value="{{ old('vendor_reimbursement_price', $resource->vendor_reimbursement_price) }}" required>
+                        <div class="col-md-4">
+                            <label for="subsidized_price" class="form-label">Farmer Co-Payment (₦) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control @error('subsidized_price') is-invalid @enderror" 
+                                id="subsidized_price" name="subsidized_price" 
+                                value="{{ old('subsidized_price', $resource->subsidized_price) }}" required>
+                            <small class="text-muted">Amount farmer pays per unit</small>
+                            @error('subsidized_price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="vendor_reimbursement" class="form-label">Vendor Reimbursement (₦) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control @error('vendor_reimbursement') is-invalid @enderror" 
+                                id="vendor_reimbursement" name="vendor_reimbursement" 
+                                value="{{ old('vendor_reimbursement', $resource->vendor_reimbursement) }}" required>
                             <small class="text-muted">Government subsidy per unit</small>
-                            @error('vendor_reimbursement_price')
+                            @error('vendor_reimbursement')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

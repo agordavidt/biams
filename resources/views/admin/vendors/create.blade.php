@@ -284,8 +284,8 @@
                 </div>
             </div>
 
-            <!-- Status -->
-            <div class="card">
+            <!-- Status: temporary removed because of isues -->
+            <!-- <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">Status</h4>
                     
@@ -297,7 +297,7 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Action Buttons -->
             <div class="card">

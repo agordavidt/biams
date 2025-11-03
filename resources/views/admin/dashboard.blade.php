@@ -189,7 +189,7 @@
 
                     <!-- Partners Module -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="{{ route('admin.partners.index') }}" class="text-decoration-none">
+                        <a href="{{ route('admin.vendors.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
@@ -197,7 +197,7 @@
                                             <i class="ri-handshake-line text-warning"></i>
                                         </span>
                                     </div>
-                                    <h6 class="mb-2 text-dark">Partners</h6>
+                                    <h6 class="mb-2 text-dark">Vendors</h6>
                                     <p class="text-muted mb-0 font-size-13">
                                         Strategic partnerships
                                     </p>

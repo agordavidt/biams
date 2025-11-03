@@ -85,7 +85,8 @@ class ResourceReviewController extends Controller
             'type' => 'required|string|in:seed,fertilizer,equipment,pesticide,training,service,tractor_service,other',
             'description' => 'required|string',
             'unit' => 'nullable|string|max:50',
-            'original_price' => 'required|numeric|min:0', 
+            'subsidized_price' => 'required|numeric|min:0|lte:original_price',
+            'vendor_reimbursement' => 'required|numeric|min:0',
             'max_per_farmer' => 'nullable|integer|min:1',
             'total_stock' => 'nullable|integer|min:1',
         ]);
@@ -99,12 +100,14 @@ class ResourceReviewController extends Controller
         try {
             $requiresQuantity = !in_array($request->type, ['service', 'training']);
 
-            $resource->update([
+           $resource->update([
                 'name' => $request->name,
                 'type' => $request->type,
                 'description' => $request->description,
                 'unit' => $requiresQuantity ? $request->unit : null,
-                'original_price' => $request->original_price, 
+                'subsidized_price' => $request->subsidized_price,
+                'price' => $request->subsidized_price, // Sync
+                'vendor_reimbursement' => $request->vendor_reimbursement,
                 'max_per_farmer' => $requiresQuantity ? $request->max_per_farmer : null,
                 'total_stock' => $requiresQuantity ? $request->total_stock : null,
                 'available_stock' => $requiresQuantity ? $request->total_stock : null,

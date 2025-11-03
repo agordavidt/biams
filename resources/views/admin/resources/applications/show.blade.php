@@ -1,4 +1,3 @@
-{{-- resources/views/admin/resources/applications/show.blade.php --}}
 @extends('layouts.admin')
 
 @section('content')
@@ -365,7 +364,7 @@
                         @endif
 
                         @if(in_array($application->status, ['pending', 'payment_pending']))
-                            <form action="{{ route('admin.resources.applications.approve', $application) }}" method="POST" class="mb-3">
+                            <form action="{{ route('admin.resources.applications.grant', $application) }}" method="POST" class="mb-3">
                                 @csrf
                                 @if($application->resource->requires_quantity)
                                     <div class="mb-3">
@@ -404,13 +403,13 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100"
                                         onclick="return confirm('Are you sure you want to mark this as fulfilled?')">
-                                    <i class="ri-checkbox-circle-line me-1"></i> Admin Override: Fulfill
+                                   Admin Override: Fulfill
                                 </button>
                             </form>
                         @endif
 
                         @if(in_array($application->status, ['pending', 'payment_pending']))
-                            <form action="{{ route('admin.resources.applications.reject', $application) }}" method="POST">
+                            <form action="{{ route('admin.resources.applications.decline', $application) }}" method="POST">
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label">Rejection Reason <span class="text-danger">*</span></label>
@@ -419,7 +418,7 @@
                                 </div>
                                 <button type="submit" class="btn btn-danger w-100"
                                         onclick="return confirm('Are you sure you want to reject this application?')">
-                                    <i class="ri-close-line me-1"></i> Reject Application
+                                    Reject Application
                                 </button>
                             </form>
                         @endif
