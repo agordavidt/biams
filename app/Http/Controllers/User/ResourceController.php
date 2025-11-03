@@ -311,26 +311,76 @@ class ResourceController extends Controller
                 $existingPayment = Payment::where('reference', $transRef)->first();
                 
                 if (!$existingPayment) {
-                    $amount = data_get($paymentData, 'amount', 0) / 100;
+                    // Extract nested payment data correctly
+                    $transactionData = data_get($data, 'data.data') 
+                        ?? data_get($data, 'data') 
+                        ?? $paymentData;
+                    
+                    // Debug: Log raw amounts from Credo
+                    Log::info('Raw Credo payment data:', [
+                        'amount' => data_get($transactionData, 'amount'),
+                        'fee' => data_get($transactionData, 'fee'),
+                        'total' => data_get($transactionData, 'total'),
+                        'transAmount' => data_get($transactionData, 'transAmount'),
+                        'transFee' => data_get($transactionData, 'transFee'),
+                    ]);
+                    
+                    // Get amounts in kobo from Credo
+                    $amountInKobo = data_get($transactionData, 'amount') 
+                        ?? data_get($transactionData, 'transAmount') 
+                        ?? data_get($paymentData, 'amount') 
+                        ?? 0;
+                    
+                    $feeInKobo = data_get($transactionData, 'fee') 
+                        ?? data_get($transactionData, 'transFee') 
+                        ?? data_get($paymentData, 'fee') 
+                        ?? 0;
+                    
+                    $totalInKobo = data_get($transactionData, 'total') 
+                        ?? data_get($transactionData, 'transTotal') 
+                        ?? ($amountInKobo + $feeInKobo);
+                    
+                    // Convert from kobo to Naira
+                    $transAmount = $amountInKobo / 100;
+                    $transFee = $feeInKobo / 100;
+                    $transTotal = $totalInKobo / 100;
+                    
+                    Log::info('Payment amounts converted to Naira:', [
+                        'amountInKobo' => $amountInKobo,
+                        'feeInKobo' => $feeInKobo,
+                        'totalInKobo' => $totalInKobo,
+                        'transAmount' => $transAmount,
+                        'transFee' => $transFee,
+                        'transTotal' => $transTotal,
+                    ]);
                     
                     // Log payment
                     Payment::create([
                         'businessName' => 'BIAMS',
                         'reference' => $transRef,
-                        'transAmount' => $amount,
-                        'transFee' => data_get($paymentData, 'fee') ?? 0,
-                        'transTotal' => $amount,
+                        'transAmount' => $transAmount,
+                        'transFee' => $transFee,
+                        'transTotal' => $transTotal,
                         'transDate' => now(),
-                        'settlementAmount' => $amount,
+                        'settlementAmount' => $transAmount, // Settlement is usually transaction amount
                         'status' => 'success',
-                        'statusMessage' => data_get($paymentData, 'message') ?? 'Payment successful',
+                        'statusMessage' => data_get($transactionData, 'message') 
+                            ?? data_get($transactionData, 'statusMessage') 
+                            ?? data_get($paymentData, 'message') 
+                            ?? 'Payment successful',
                         'customerId' => $userId,
                         'resourceId' => $resource->id,
                         'resourceOwnerId' => $resource->vendor_id ?? $resource->partner_id ?? 1,
-                        'channelId' => data_get($paymentData, 'channel') ?? 'WEB',
+                        'channelId' => data_get($transactionData, 'channel') 
+                            ?? data_get($transactionData, 'channelId') 
+                            ?? data_get($paymentData, 'channel') 
+                            ?? 'WEB',
                         'currencyCode' => 'NGN',
-                        'credo_reference' => $transRef,
-                        'payment_data' => $paymentData
+                    ]);
+                    
+                    Log::info('Payment record created successfully', [
+                        'reference' => $transRef,
+                        'amount' => $transAmount,
                     ]);
                 }
                 
@@ -361,7 +411,6 @@ class ResourceController extends Controller
                 ->with('error', 'Error processing payment. Please contact support.');
         }
     }
-
     /**
      * Verify payment with Credo API
      */
