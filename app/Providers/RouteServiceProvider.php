@@ -11,13 +11,12 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The default home path (required for Laravel auth scaffolding).
-     * It must exist, even if we don't use it directly.
+     * The path to the "home" route for your application (for authenticated users).
      */
-    public const HOME = '/'; // safe fallback
-
+    public const HOME = '/dashboard'; // ← Change this to a dashboard route
+    
     /**
-     * Default route for unauthenticated users.
+     * Default route for unauthenticated users (public landing page).
      */
     public const GUEST_HOME = '/';
 

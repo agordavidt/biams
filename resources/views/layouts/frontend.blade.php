@@ -274,7 +274,7 @@
     </div>
 
     <!-- Header -->
-    <header>
+   <header>
         <div class="header__area header-area-white">
             <div class="header__area-top-bar header-2-top-bar theme-bg-primary-h1">
                 <div class="container">
@@ -296,7 +296,7 @@
                     <div class="row align-items-center">
                         <div class="col-xl-3 col-lg-3 col-md-8 col-8">
                             <div class="logo">
-                                <a href="">
+                                <a href="{{ url('/') }}">
                                     <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
                                     <span class="text-success">BSSADMS</span>
                                 </a>
@@ -307,7 +307,7 @@
                                 <nav id="mobile-menu">
                                     <ul>
                                         <li><a href="{{ url('/') }}" class="active">Home</a></li>
-                                         <li><a href="{{ route('about') }}">About Us</a></li>  
+                                        <li><a href="{{ route('about') }}">About Us</a></li>  
                                         <li><a href="">Data</a></li>                                        
                                         <li><a href="{{ route('marketplace.index') }}">Marketplace</a></li>     
                                         <li><a href="">News</a></li>
@@ -320,7 +320,13 @@
                             </div>
                             <div class="header-cta">
                                 <div class="phone-number">
-                                    <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
+                                    @auth
+                                        <a href="{{ App\Providers\RouteServiceProvider::redirectToHome(auth()->user()) }}" class="tp-btn-h1">
+                                            Dashboard
+                                        </a>
+                                    @else
+                                        <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
+                                    @endauth
                                 </div>
                             </div>
                         </div>
