@@ -227,6 +227,12 @@
                                     </a></li>
                                 </ul>
                             </li>
+                            <li>
+                                <a href="{{ route('admin.cooperatives.index') }}" class="waves-effect">
+                                    <i class="ri-community-line me-2"></i>
+                                    <span>Cooperatives</span>                                    
+                                </a>
+                            </li>
 
                             <!-- <li>
                                 <a href="{{ route('admin.partners.index') }}" class="waves-effect">

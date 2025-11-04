@@ -170,7 +170,7 @@
 
                     <!-- Cooperatives Module -->
                     <div class="col-xl-3 col-md-6">
-                        <a href="#" class="text-decoration-none">
+                        <a href="{{ route('admin.cooperatives.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">

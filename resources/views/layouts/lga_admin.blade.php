@@ -173,7 +173,7 @@
                         </li>
 
                         <li>
-                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <a href="{{ route('lga_admin.farmers.index') }}" class="has-arrow waves-effect">
                                 <i class="ri-user-line"></i>
                                 <span>Farmer Management</span>
                             </a>
