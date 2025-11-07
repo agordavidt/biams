@@ -25,7 +25,7 @@
       overflow: hidden;
     }
     .left-photo {
-      background: url('{{ asset('frontend/assets/img/farm_photo.jpeg') }}') center/cover no-repeat;
+      background: url('{{ asset('frontend/assets/img/gove.jpeg') }}') center/cover no-repeat;
       min-height: 360px;
     }
     .login-col {
@@ -155,9 +155,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // --- Pre-launch access control (client-side only) ---
-    const DEMO_PASSWORD = "AgriPortalTest"; // Change this before launch
-
+    
+    const DEMO_PASSWORD = "AgriPortalTest"; 
     const passwordInput = document.getElementById('passwordInput');
     const togglePwd = document.getElementById('togglePwd');
     const passwordForm = document.getElementById('passwordForm');
