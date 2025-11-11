@@ -36,13 +36,14 @@
         }
         
         .banner-area {
-          height: 70vh;
+          min-height: 70vh;
           display: flex;
           align-items: center;
           background-size: cover;
           background-position: center center;
           background-repeat: no-repeat;
           background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('{{ asset('frontend/assets/img/hero_pages.jpg') }}');
+          padding: 60px 0;
         }
         
         .banner-content * {
@@ -58,121 +59,27 @@
         }
         
         .banner-title {
-          font-size: 3rem;
+          font-size: clamp(1.75rem, 5vw, 3rem);
           font-weight: 700;
+          line-height: 1.3;
+          margin-bottom: 15px;
         }
 
-        /* Hero Section - Responsive & Professional */
-.banner-area {
-  height: 70vh;
-  min-height: 500px;
-  display: flex;
-  align-items: center;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('{{ asset('frontend/assets/img/hero_pages.jpg') }}');
-  padding: 0 20px;
-}
+        /* New subtitle style for project title */
+        .banner-subtitle {
+          font-size: clamp(1rem, 4vw, 1.5rem);
+          font-weight: 600;
+          color: #FFFFFF !important;
+          text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+          margin-bottom: 20px;
+          letter-spacing: 0.5px;
+        }
 
-.banner-content {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.banner-info {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.banner-icon i {
-  font-size: 48px;
-  margin-bottom: 15px;
-  color: #38761D !important;
-}
-
-.banner-title-h1 {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 15px;
-  color: white !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-}
-
-.banner-subtitle {
-  font-size: clamp(16px, 2vw, 20px);
-  font-weight: 400;
-  margin-bottom: 25px;
-  color: white !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-}
-
-.banner-button {
-  margin-top: 30px;
-}
-
-.banner-button a.tp-btn-h1 {
-  padding: 12px 30px;
-  font-size: 16px;
-  color: #FFFFFF !important;
-  background-color: #38761D;
-  border-color: #38761D;
-  text-shadow: none;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.banner-button a.tp-btn-h1:hover {
-  background-color: #2F5F17 !important;
-  border-color: #2F5F17 !important;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-  .banner-area {
-    height: 60vh;
-    min-height: 450px;
-  }
-  .banner-title-h1 {
-    font-size: clamp(24px, 5vw, 36px);
-  }
-  .banner-subtitle {
-    font-size: clamp(14px, 3vw, 18px);
-  }
-}
-
-@media (max-width: 768px) {
-  .banner-area {
-    height: 50vh;
-    min-height: 400px;
-    padding: 0 15px;
-  }
-  .banner-title-h1 {
-    font-size: clamp(22px, 6vw, 32px);
-    line-height: 1.1;
-  }
-  .banner-subtitle {
-    font-size: clamp(14px, 3.5vw, 16px);
-    line-height: 1.4;
-  }
-  .banner-button a.tp-btn-h1 {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 576px) {
-  .banner-area {
-    height: 45vh;
-    min-height: 350px;
-  }
-  .banner-title-h1 {
-    font-size: clamp(20px, 7vw, 28px);
-  }
-}
+        .banner-description {
+          font-size: clamp(0.9rem, 2.5vw, 1.125rem);
+          line-height: 1.6;
+          margin-bottom: 10px;
+        }
         
         .tp-btn-h1,
         .theme-bg,
@@ -345,37 +252,200 @@
         }
 
         .hero-title {
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
+          line-height: 1.2;
+          margin-bottom: 20px;
+        }
 
-.hero-text {
-    line-height: 1.6;
-}
+        .hero-text {
+          line-height: 1.6;
+        }
 
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 32px;
-        line-height: 1.1;
-        padding-right: 20px;
-        padding-left: 20px;
-    }
+        /* Improved mobile and tablet responsiveness */
+        @media (max-width: 1200px) {
+          .organic-product-content {
+            padding-left: 40px !important;
+          }
+          
+          .video-content {
+            padding-left: 40px !important;
+          }
+        }
 
-    .hero-text {
-        font-size: 14px;
-        line-height: 1.4;
-        padding-right: 15px;
-        padding-left: 15px;
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-    }
+        @media (max-width: 992px) {
+          .banner-area {
+            min-height: 60vh;
+            padding: 50px 20px;
+          }
 
-    .index-banner-area {
-        padding-top: 80px;
-        padding-bottom: 80px;
-    }
-}
+          .banner-icon {
+            margin-bottom: 15px;
+          }
+
+          .banner-icon i {
+            font-size: 48px;
+          }
+
+          .banner-button {
+            margin-top: 25px;
+          }
+
+          .organic-product-content {
+            padding-left: 0 !important;
+            margin-top: 40px !important;
+          }
+
+          .video-content {
+            padding-left: 0 !important;
+          }
+
+          .tp-features-list-item {
+            margin-bottom: 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .banner-area {
+            min-height: 55vh;
+            padding: 40px 15px;
+          }
+
+          .banner-title {
+            font-size: 28px;
+            line-height: 1.2;
+          }
+
+          .banner-subtitle {
+            font-size: 18px;
+            margin-bottom: 15px;
+          }
+
+          .banner-description {
+            font-size: 14px;
+          }
+
+          .hero-title {
+            font-size: 32px;
+            line-height: 1.1;
+            padding-right: 20px;
+            padding-left: 20px;
+          }
+
+          .hero-text {
+            font-size: 14px;
+            line-height: 1.4;
+            padding-right: 15px;
+            padding-left: 15px;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .index-banner-area {
+            padding-top: 80px;
+            padding-bottom: 80px;
+          }
+
+          .tp-about-content-1 {
+            padding-top: 30px !important;
+          }
+
+          .tp-section-wrap {
+            margin-bottom: 30px;
+          }
+
+          .organic-image img,
+          .video-area-2 .video-area {
+            margin-bottom: 30px;
+          }
+
+          .company-features-item {
+            margin-bottom: 20px;
+          }
+
+          .features-item {
+            padding: 20px;
+          }
+
+          .company-features-list .row {
+            gap: 20px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .banner-area {
+            min-height: 50vh;
+            padding: 30px 12px;
+          }
+
+          .banner-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+          }
+
+          .banner-subtitle {
+            font-size: 16px;
+            margin-bottom: 12px;
+          }
+
+          .banner-icon i {
+            font-size: 40px;
+          }
+
+          .banner-button {
+            margin-top: 20px;
+          }
+
+          .banner-button a {
+            padding: 12px 20px !important;
+            font-size: 14px;
+          }
+
+          .tp-section-title {
+            font-size: 24px !important;
+          }
+
+          .tp-section-wrap p {
+            font-size: 14px;
+          }
+
+          .col-xl-4,
+          .col-lg-4,
+          .col-md-4 {
+            flex: 0 0 100%;
+          }
+
+          .col-xl-6,
+          .col-lg-6,
+          .col-md-6 {
+            flex: 0 0 100%;
+          }
+
+          .organic-product-title {
+            font-size: 20px;
+            margin-top: 25px;
+          }
+
+          .organic-features-info,
+          .organic-features-list a {
+            font-size: 14px;
+          }
+
+          .video-features-title {
+            font-size: 14px;
+          }
+
+          .company-features-item {
+            border-radius: 8px;
+          }
+
+          .features-item {
+            padding: 15px;
+          }
+
+          .footer-top .footer-widget {
+            margin-bottom: 25px !important;
+          }
+        }
     </style>
 </head>
 <body>
@@ -384,7 +454,6 @@
             <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
         </svg>
     </div>
-
     <!-- Header -->
    <header>
         <div class="header__area header-area-white">
@@ -447,7 +516,6 @@
             </div>
         </div>
     </header>
-
     <!-- Sidebar -->
     <div class="sidebar__area">
         <div class="sidebar__wrapper">
@@ -478,12 +546,10 @@
             </div>
         </div>
     </div>
-
     <!-- Main Content -->
     <main>
         @yield('content')
     </main>
-
     <!-- Footer -->
     <footer>
         <div class="footer-top footer-top-2 pt-40 pb-20">
@@ -544,7 +610,6 @@
             </div>
         </div>
     </footer>
-
     <!-- JS Scripts -->
     <script src="{{ asset('frontend/assets/js/vendor/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/vendor/waypoints.min.js') }}"></script>

@@ -1,37 +1,39 @@
 @extends('layouts.frontend')
-
-@section('title', 'Benue Agri-Data Platform: The Food Basket Reimagined')
-
+@section('title', 'Benue State Smart Agriculture System and Data Management Portal')
 @section('content')
     <!-- Banner -->
-    <!-- Banner -->
-<div class="banner-area">
-  <div class="banner-content">
-    <div class="banner-info">
-      <div class="banner-icon">
-        <i class="flaticon-statistics"></i>
-      </div>
-      <p class="banner-subtitle">Benue State Smart Agricultural System and Data Management Portal</p>
-      <h3 class="banner-title-h1">Empowering Farmers, Boosting Productivity, Driving Growth</h3>
-      <p class="banner-subtitle">Transforming Benue Agriculture Through Data & Innovation</p>
-      <div class="banner-button">
-        <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
-      </div>
+    <div class="banner-area">
+        <div class="container">
+            <div class="row justify-content-start">
+                <div class="col-xl-7 col-lg-7 col-md-9 col-12">
+                    <div class="banner-content banner-content-2">
+                        <div class="banner-info text-center">
+                            <div class="banner-icon">
+                                <i class="flaticon-statistics"></i>
+                            </div>
+                            <!-- Added project title as subtitle in hero section -->
+                            <p class="banner-description">Transforming Benue Agriculture Through Data & Innovation</p>
+                            <h3 class="banner-subtitle"></h3>
+                            <h3 class="banner-title-h1 banner-title">Benue State Smart Agricultural System and Data Management Portal</h3>
+                            <div class="banner-button mt-30">
+                                <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-
     <!-- About Area -->
     <div class="tp-about-area about-area-2 pt-110 pb-45">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-xxl-4 col-xl-4 col-lg-4">
+                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12">
                     <div class="tp-section-wrap">                   
                         <h3 class="tp-section-title">The Digital Gateway to Benue's Agri-Future</h3>
                     </div>
                 </div> 
-                <div class="col-xxl-7 col-xl-7 col-lg-7 align-items-end">
+                <div class="col-xxl-7 col-xl-7 col-lg-7 col-md-12 col-sm-12 align-items-end">
                     <div class="tp-about-content-1">
                         <p>Benue State, the Food Basket of the Nation, is revolutionizing agriculture with BSSADMS. Our platform captures verified farmer data, enables transparent input distribution, and provides real-time analytics for better decision-making. From registration to marketplace sales, we empower over 500,000 farmers across 23 LGAs.</p>
                         <p class="mt-15">Join us in fostering inclusive growth, attracting investments, and ensuring food security through technology.</p>
@@ -46,12 +48,11 @@
             </div>
         </div>
     </div>
-
     <!-- Features List -->
     <div class="tp-features-list-area mb-90">
         <div class="container">
             <div class="row justify-content-end">
-                <div class="col-xl-7 col-lg-8">
+                <div class="col-xl-7 col-lg-8 col-md-12 col-sm-12">
                     <div class="tp-features-list">
                         <div class="tp-list-item mb-30">
                             <i class="flaticon-user-1"></i>
@@ -78,17 +79,16 @@
             </div>
         </div>
     </div>
-
     <!-- Organic Product -->
     <div class="orgainc-product pt-120 pb-120 h2-gray-bg position-relative">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-xl-6 col-lg-6">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                     <div class="organic-image">
                         <img src="{{ asset('frontend/assets/img/fish_girl.jpg') }}" class="img-fluid" alt="Satellite imagery overlaying farmland" loading="lazy">
                     </div>
                 </div>
-                <div class="col-xl-6 col-lg-6">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                     <div class="organic-product-content pl-80 mt-50">
                         <div class="tp-section-wrap">
                             <span><i class="flaticon-statistics"></i></span>
@@ -97,10 +97,10 @@
                         </div>
                         <h5 class="organic-product-title mt-40">Guaranteed Data Integrity</h5>
                         <div class="row g-0">
-                            <div class="col-xl-6 col-lg-6">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
                                 <p class="organic-features-info">We ensure every data point is linked to a unique farmer profile and geotagged farm asset, mitigating fraud and de-risking high-value policy planning and private investment.</p>
                             </div>
-                            <div class="col-xl-6 col-lg-6">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
                                 <div class="organic-features-list">
                                     <a href="data-guide.html">- Geospatial Asset Mapping</a>
                                     <a href="data-guide.html">- NIN/BVN-Linked Farmer Profiles</a>
@@ -114,7 +114,6 @@
             </div>
         </div>
     </div>
-
     <!-- Company Features -->
     <div class="company-features pt-120 pb-90">
         <div class="container">
@@ -124,7 +123,7 @@
             </div>
             <div class="company-features-list mt-50">
                 <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
                                 <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Analytics icon" loading="lazy">
@@ -136,7 +135,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
                                 <img src="{{ asset('frontend/assets/img/data_anlytics.jpg') }}" alt="Handshake icon" loading="lazy">
@@ -148,7 +147,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                         <div class="company-features-item mb-30">
                             <div class="features-item text-center">
                                 <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Market cart icon" loading="lazy">
@@ -164,12 +163,11 @@
             </div>
         </div>
     </div>
-
     <!-- Video Area -->
     <div class="video-area-2 position-relative mt-50">
         <div class="video-area play-area" style="background-image: url('{{ asset('frontend/assets/img/survey_1.jpg') }}');"></div>
         <div class="row g-0 justify-content-end">
-            <div class="col-xl-6 col-lg-6 video-col col-md-6 col-12">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 video-col">
                 <div class="video-box theme-bg pt-120 pb-90">
                     <div class="video-content pl-120">
                         <div class="tp-section-wrap tp-section-wrap-video">                        
@@ -212,18 +210,17 @@
             </div>
         </div>
     </div>
-
     <!-- Latest News -->
     <div class="latest-news-area-2 latest-news-area pt-120 pb-90 fix">
         <div class="container container-fluid">
             <div class="row">
-                <div class="col-xl-4 col-lg-4">
+                <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
                     <div class="tp-section-wrap blog-slider-content mb-30">                    
                         <h3 class="tp-section-title">System Insights & Guides</h3>
                         <p>Stay updated on platform enhancements, data collection best practices, and digital literacy guidance for all enrolled farmers and agents.</p>
                     </div>
                 </div>
-                <div class="col-xl-8 col-lg-8">
+                <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12">
                     <div class="blog-slider blog-slider_active owl-carousel">
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
