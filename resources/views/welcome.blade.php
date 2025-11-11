@@ -4,26 +4,23 @@
 
 @section('content')
     <!-- Banner -->
-    <div class="banner-area">
-        <div class="container">
-            <div class="row justify-content-start">
-                <div class="col-xl-7 col-lg-7 col-md-9 col-12">
-                    <div class="banner-content banner-content-2">
-                        <div class="banner-info text-center">
-                            <div class="banner-icon">
-                                <i class="flaticon-statistics"></i>
-                            </div>
-                            <p>Transforming Benue Agriculture Through Data & Innovation</p>
-                            <h3 class="banner-title-h1 banner-title">Empowering Farmers, Boosting Productivity, Driving Growth</h3>
-                            <div class="banner-button mt-30">
-                                <a href="{{ route('login') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Banner -->
+<div class="banner-area">
+  <div class="banner-content">
+    <div class="banner-info">
+      <div class="banner-icon">
+        <i class="flaticon-statistics"></i>
+      </div>
+      <p class="banner-subtitle">Benue State Smart Agricultural System and Data Management Portal</p>
+      <h3 class="banner-title-h1">Empowering Farmers, Boosting Productivity, Driving Growth</h3>
+      <p class="banner-subtitle">Transforming Benue Agriculture Through Data & Innovation</p>
+      <div class="banner-button">
+        <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
+      </div>
     </div>
+  </div>
+</div>
+
 
     <!-- About Area -->
     <div class="tp-about-area about-area-2 pt-110 pb-45">

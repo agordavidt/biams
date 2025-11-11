@@ -61,6 +61,118 @@
           font-size: 3rem;
           font-weight: 700;
         }
+
+        /* Hero Section - Responsive & Professional */
+.banner-area {
+  height: 70vh;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('{{ asset('frontend/assets/img/hero_pages.jpg') }}');
+  padding: 0 20px;
+}
+
+.banner-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.banner-info {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.banner-icon i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: #38761D !important;
+}
+
+.banner-title-h1 {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 15px;
+  color: white !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.banner-subtitle {
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 400;
+  margin-bottom: 25px;
+  color: white !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.banner-button {
+  margin-top: 30px;
+}
+
+.banner-button a.tp-btn-h1 {
+  padding: 12px 30px;
+  font-size: 16px;
+  color: #FFFFFF !important;
+  background-color: #38761D;
+  border-color: #38761D;
+  text-shadow: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.banner-button a.tp-btn-h1:hover {
+  background-color: #2F5F17 !important;
+  border-color: #2F5F17 !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .banner-area {
+    height: 60vh;
+    min-height: 450px;
+  }
+  .banner-title-h1 {
+    font-size: clamp(24px, 5vw, 36px);
+  }
+  .banner-subtitle {
+    font-size: clamp(14px, 3vw, 18px);
+  }
+}
+
+@media (max-width: 768px) {
+  .banner-area {
+    height: 50vh;
+    min-height: 400px;
+    padding: 0 15px;
+  }
+  .banner-title-h1 {
+    font-size: clamp(22px, 6vw, 32px);
+    line-height: 1.1;
+  }
+  .banner-subtitle {
+    font-size: clamp(14px, 3.5vw, 16px);
+    line-height: 1.4;
+  }
+  .banner-button a.tp-btn-h1 {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .banner-area {
+    height: 45vh;
+    min-height: 350px;
+  }
+  .banner-title-h1 {
+    font-size: clamp(20px, 7vw, 28px);
+  }
+}
         
         .tp-btn-h1,
         .theme-bg,
