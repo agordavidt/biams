@@ -298,14 +298,30 @@
                         <li class="menu-title">System</li>
 
                         <!-- Support -->
-                        @can('view_support_chats')
+                        <!-- @can('view_support_chats')
                         <li class="{{ request()->routeIs('admin.support.*') ? 'mm-active' : '' }}">
                             <a href="{{ route('admin.support.index') }}" class="waves-effect">
                                 <i class="ri-customer-service-2-line"></i>
                                 <span>Support Chats</span>
                             </a>
                         </li>
-                        @endcan
+                        @endcan -->
+
+                        <!-- Resources Overview -->
+                        <li class="{{ request()->routeIs('governor.resources.*') ? 'mm-active' : '' }}">
+                            <a href="{{ route('governor.resources.index') }}" class="waves-effect">
+                                <i class="ri-database-2-line"></i>
+                                <span>Resources</span>
+                            </a>
+                        </li>
+
+                        <!-- Vendors Overview -->
+                        <li class="{{ request()->routeIs('governor.vendors.*') ? 'mm-active' : '' }}">
+                            <a href="{{ route('governor.vendors.index') }}" class="waves-effect">
+                                <i class="ri-store-2-line"></i>
+                                <span>Vendors</span>
+                            </a>
+                        </li>
 
                         <!-- Logout -->
                         <form action="{{ route('logout') }}" method="POST" id="logout-form">

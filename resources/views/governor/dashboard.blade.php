@@ -144,13 +144,13 @@
 </div>
 @endif
 
-<!-- Analytical Modules -->
+<!-- Quick Access Modules -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="ri-bar-chart-box-line me-1"></i> Policy & Analytics Hub
+                    <i class="ri-apps-line me-1"></i> Quick Access
                 </h5>
             </div>
             <div class="card-body">
@@ -193,14 +193,52 @@
                         </a>
                     </div>
 
+                    <!-- Resources Overview -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.resources.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
+                                            <i class="ri-database-2-line text-info"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Resources</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Distribution & beneficiaries
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Vendors Overview -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.vendors.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
+                                            <i class="ri-store-2-line text-warning"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Vendors</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Partner performance & impact
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
                     <!-- LGA Comparison -->
                     <div class="col-xl-3 col-md-6">
                         <a href="{{ route('governor.lga_comparison.index') }}" class="text-decoration-none">
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
-                                            <i class="ri-map-2-line text-info"></i>
+                                        <span class="avatar-title rounded-circle bg-soft-secondary fs-3">
+                                            <i class="ri-map-2-line text-secondary"></i>
                                         </span>
                                     </div>
                                     <h6 class="mb-2 text-dark">LGA Comparison</h6>
@@ -218,13 +256,51 @@
                             <div class="card module-card border h-100">
                                 <div class="card-body text-center">
                                     <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
-                                            <i class="ri-line-chart-line text-warning"></i>
+                                        <span class="avatar-title rounded-circle bg-soft-danger fs-3">
+                                            <i class="ri-line-chart-line text-danger"></i>
                                         </span>
                                     </div>
                                     <h6 class="mb-2 text-dark">Trends</h6>
                                     <p class="text-muted mb-0 font-size-13">
                                         Temporal patterns & forecasts
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Cooperatives Overview -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.cooperatives.overview') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                            <i class="ri-community-line text-success"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Cooperatives</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Organization performance
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Export Data -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('analytics.export') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                            <i class="ri-download-2-line text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Export Data</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Download state reports
                                     </p>
                                 </div>
                             </div>
@@ -238,7 +314,7 @@
 
 <!-- Top Performing LGAs Snapshot -->
 <div class="row">
-    <div class="col-xl-8">
+    <div class="col-xl-12">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0">
@@ -288,43 +364,7 @@
             </div>
         </div>
     </div>
-
-    <div class="col-xl-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="ri-flashlight-line me-1"></i> Quick Insights
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('governor.policy_insights.demographic_analysis') }}?gender=Female" class="btn btn-soft-primary text-start">
-                        <i class="ri-women-line align-middle me-2"></i>
-                        <span class="fw-medium">Female Farmers Analysis</span>
-                    </a>
-                    <a href="{{ route('governor.policy_insights.youth_engagement') }}" class="btn btn-soft-success text-start">
-                        <i class="ri-user-heart-line align-middle me-2"></i>
-                        <span class="fw-medium">Youth Engagement</span>
-                    </a>
-                    <a href="{{ route('governor.policy_insights.yield_projections') }}" class="btn btn-soft-info text-start">
-                        <i class="ri-seedling-line align-middle me-2"></i>
-                        <span class="fw-medium">Yield Projections</span>
-                    </a>
-                    <a href="{{ route('governor.interventions.coverage_analysis') }}" class="btn btn-soft-warning text-start">
-                        <i class="ri-radar-line align-middle me-2"></i>
-                        <span class="fw-medium">Coverage Gaps</span>
-                    </a>
-                    <a href="{{ route('analytics.export') }}" class="btn btn-soft-secondary text-start">
-                        <i class="ri-download-2-line align-middle me-2"></i>
-                        <span class="fw-medium">Export State Data</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-
-
 @endsection
 
 @push('scripts')

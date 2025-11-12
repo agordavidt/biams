@@ -232,6 +232,15 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
             ->name('export_overview')
             ->middleware('permission:view_cooperative_overview');
     });
+
+ 
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Governor\ResourcesController::class, 'index'])->name('index');
+    });   
+
+    Route::prefix('vendors')->name('vendors.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Governor\VendorsController::class, 'index'])->name('index');
+    });
 });
 
 /*
