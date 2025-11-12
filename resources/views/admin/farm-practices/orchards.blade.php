@@ -122,17 +122,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($orchardStats['treeTypes'] as $tree)
+                            @forelse($orchardStats['treeTypes'] as $tree)
                             <tr>
                                 <td><strong>{{ ucfirst($tree->tree_type) }}</strong></td>
                                 <td class="text-center">
                                     <span class="badge badge-soft-primary fs-6">{{ number_format($tree->farm_count) }}</span>
                                 </td>
                                 <td class="text-end"><strong>{{ number_format($tree->total_trees) }}</strong></td>
-                                <td class="text-end">{{ number_format($tree->total_trees / $tree->farm_count, 0) }}</td>
+                                <td class="text-end">{{ number_format($tree->total_trees / max($tree->farm_count, 1), 0) }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No tree type data available</td>
+                            </tr>
+                            @endforelse
                         </tbody>
+                        @if($orchardStats['treeTypes']->isNotEmpty())
                         <tfoot class="table-light">
                             <tr>
                                 <th>Total</th>
@@ -141,6 +146,7 @@
                                 <th class="text-end">{{ number_format($orchardStats['avgTreesPerOrchard'], 0) }}</th>
                             </tr>
                         </tfoot>
+                        @endif
                     </table>
                 </div>
             </div>
@@ -159,14 +165,18 @@
                 <div class="table-responsive mt-3">
                     <table class="table table-sm table-borderless mb-0">
                         <tbody>
-                            @foreach($orchardStats['maturityDistribution'] as $maturity)
+                            @forelse($orchardStats['maturityDistribution'] as $maturity)
                             <tr>
                                 <td><strong>{{ ucfirst(str_replace('_', ' ', $maturity->maturity_stage)) }}</strong></td>
                                 <td class="text-end">
                                     <span class="badge badge-soft-success">{{ number_format($maturity->count) }}</span>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">No maturity data available</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -249,7 +259,7 @@
                                 <td>{{ $orchard->farmLand->farmer->lga->name ?? 'N/A' }}</td>
                                 <td><span class="badge badge-soft-primary">{{ ucfirst($orchard->tree_type) }}</span></td>
                                 <td class="text-center"><strong>{{ number_format($orchard->number_of_trees) }}</strong></td>
-                                <td class="text-end">{{ number_format($orchard->farmLand->total_size_hectares, 2) }}</td>
+                                <td class="text-end">{{ number_format($orchard->farmLand->total_size_hectares ?? 0, 2) }}</td>
                                 <td>
                                     <span class="badge badge-soft-success">
                                         {{ ucfirst(str_replace('_', ' ', $orchard->maturity_stage)) }}
@@ -267,9 +277,11 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Safe Pagination -->
                 @if($orchards->hasPages())
                 <div class="mt-3">
-                    {{ $orchards->links() }}
+                    {{ $orchards->onEachSide(1)->links() }}
                 </div>
                 @endif
             </div>
@@ -280,40 +292,54 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const maturityCtx = document.getElementById('maturityChart');
-if (maturityCtx) {
-    const maturityData = @json($orchardStats['maturityDistribution']);
-    new Chart(maturityCtx, {
-        type: 'doughnut',
-        data: {
-            labels: maturityData.map(m => m.maturity_stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')),
-            datasets: [{
-                data: maturityData.map(m => m.count),
-                backgroundColor: [
-                    'rgba(52, 195, 143, 0.8)',
-                    'rgba(244, 184, 59, 0.8)',
-                    'rgba(85, 110, 230, 0.8)',
-                    'rgba(80, 165, 241, 0.8)'
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 10,
-                        font: { size: 11 }
+document.addEventListener('DOMContentLoaded', function() {
+    const maturityCtx = document.getElementById('maturityChart');
+    if (maturityCtx) {
+        const maturityData = @json($orchardStats['maturityDistribution']);
+        
+        // Only create chart if we have data
+        if (maturityData && maturityData.length > 0) {
+            new Chart(maturityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: maturityData.map(m => {
+                        const stage = m.maturity_stage || 'unknown';
+                        return stage.replace(/_/g, ' ')
+                            .split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+                    }),
+                    datasets: [{
+                        data: maturityData.map(m => m.count || 0),
+                        backgroundColor: [
+                            'rgba(52, 195, 143, 0.8)',
+                            'rgba(244, 184, 59, 0.8)',
+                            'rgba(85, 110, 230, 0.8)',
+                            'rgba(80, 165, 241, 0.8)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                font: { size: 11 }
+                            }
+                        }
                     }
                 }
-            }
+            });
+        } else {
+            maturityCtx.parentElement.innerHTML = '<div class="text-center text-muted py-4">No maturity data available for chart</div>';
         }
-    });
-}
+    }
+});
 </script>
 @endpush
 @endsection

@@ -1,105 +1,567 @@
-==== routes ===
-/*
-|--------------------------------------------------------------------------
-| Governor Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('dashboard');
-    
-    // Policy Insights
-    Route::prefix('policy-insights')->name('policy_insights.')->group(function () {
-        Route::get('/', [PolicyInsightController::class, 'index'])->name('index');
-        Route::get('/demographic-analysis', [PolicyInsightController::class, 'getDemographicAnalysis'])->name('demographic_analysis');
-        Route::get('/youth-engagement', [PolicyInsightController::class, 'getYouthEngagement'])->name('youth_engagement');
-        Route::get('/yield-projections', [PolicyInsightController::class, 'getYieldProjections'])->name('yield_projections');
-        Route::get('/production-patterns', [PolicyInsightController::class, 'getProductionPatterns'])->name('production_patterns');
-    });
-    
-    // Intervention Tracking
-    Route::prefix('interventions')->name('interventions.')->group(function () {
-        Route::get('/', [InterventionTrackingController::class, 'index'])->name('index');
-        Route::get('/beneficiary-report', [InterventionTrackingController::class, 'getBeneficiaryReport'])->name('beneficiary_report');
-        Route::get('/partner-activities', [InterventionTrackingController::class, 'getPartnerActivities'])->name('partner_activities');
-        Route::get('/coverage-analysis', [InterventionTrackingController::class, 'getCoverageAnalysis'])->name('coverage_analysis');
-    });
-    
-    // LGA Comparison
-    Route::prefix('lga-comparison')->name('lga_comparison.')->group(function () {
-        Route::get('/', [LgaComparisonController::class, 'index'])->name('index');
-        Route::get('/performance-ranking', [LgaComparisonController::class, 'getPerformanceRanking'])->name('performance_ranking');
-        Route::get('/capacity-analysis', [LgaComparisonController::class, 'getCapacityAnalysis'])->name('capacity_analysis');
-        Route::post('/compare', [LgaComparisonController::class, 'compareLgas'])->name('compare');
-        Route::get('/geographic-analysis', [LgaComparisonController::class, 'getGeographicAnalysis'])->name('geographic_analysis');
-    });
-    
-    // Trend Analysis
-    Route::prefix('trends')->name('trends.')->group(function () {
-        Route::get('/', [TrendAnalysisController::class, 'index'])->name('index');
-        Route::get('/enrollment', [TrendAnalysisController::class, 'getEnrollmentTrends'])->name('enrollment');
-        Route::get('/production', [TrendAnalysisController::class, 'getProductionTrends'])->name('production');
-        Route::get('/resource-utilization', [TrendAnalysisController::class, 'getResourceUtilizationTrends'])->name('resource_utilization');
-        Route::get('/gender-parity', [TrendAnalysisController::class, 'getGenderParityTrends'])->name('gender_parity');
-    });
+=== layout ====
+<!DOCTYPE html>
+<html lang="en">
 
-    // Cooperative Overview
-    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
-        Route::get('/overview', [CooperativeOverviewController::class, 'index'])
-            ->name('overview')
-            ->middleware('permission:view_cooperative_overview');
-        Route::get('/lga-comparison', [CooperativeOverviewController::class, 'lgaComparison'])
-            ->name('lga_comparison')
-            ->middleware('permission:view_cooperative_overview');
-        Route::get('/export-overview', [CooperativeOverviewController::class, 'exportOverview'])
-            ->name('export_overview')
-            ->middleware('permission:view_cooperative_overview');
-    });
-});
+        <head>
+            <meta charset="utf-8" />
+            <title>Admin | Benue State Smart Agricultural System and Data Management</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
+            <meta name="csrf-token" content="{{ csrf_token() }}">
+            
+            <meta content="BDIC Team" name="author" />
+
+            <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
+
+             <!-- Preload critical assets -->
+            <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
+            <link rel="preload" href="{{ asset('dashboard/js/app.js') }}" as="script">
+
+            <!-- Consolidated CSS bundles -->
+            <link href="{{ asset('dashboard/css/vendor-bundle.css') }}" rel="stylesheet">
+            <link href="{{ asset('dashboard/css/app-bundle.css') }}" rel="stylesheet">
+
+            <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/libs/datatables.net-select-bs4/css//select.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+            <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
+            <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+            <style>
+             .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            .status-pending {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+            .status-approved {
+                background-color: #dcfce7;
+                color: #166534;
+            }
+            .status-rejected {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+            #map {
+                height: 500px;
+                width: 100%;
+                border-radius: 0.5rem;
+                border: 1px solid #e5e7eb;
+            }
+            .action-btn {
+                padding: 0.25rem;
+                border-radius: 0.375rem;
+                border: none;
+                background: transparent;
+            }
+            .action-btn:hover {
+                background-color: #f3f4f6;
+            }
+            .approve-btn:hover {
+                color: #059669;
+                background-color: #ecfdf5;
+            }
+            .reject-btn:hover {
+                color: #dc2626;
+                background-color: #fef2f2;
+            }
+            /* Badge soft colors */
+            .badge-soft-primary { background-color: #e0e7ff; color: #4f46e5; }
+            .badge-soft-success { background-color: #dcfce7; color: #166534; }
+            .badge-soft-warning { background-color: #fef3c7; color: #92400e; }
+            .badge-soft-danger { background-color: #fee2e2; color: #991b1b; }
+            .badge-soft-info { background-color: #dbeafe; color: #1e40af; }
+            .badge-soft-secondary { background-color: #f3f4f6; color: #4b5563; }
+            .badge-soft-dark { background-color: #e5e7eb; color: #1f2937; }
+        </style>
+        </head>
+
+    <body data-topbar="dark">
+    
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <header id="page-topbar" style="background: #38761D;">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+                            <a href="#" class="logo logo-dark">
+                                <span class="logo-sm">
+                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+                                </span>
+                            </a>
+
+                            <a href="#" class="logo logo-light">
+                                <span class="logo-sm">
+                                
+                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
+                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
+
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                            <i class="ri-menu-2-line align-middle"></i>
+                        </button>
+
+                        <!-- App Search-->
+                        <form class="app-search d-none d-lg-block">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" placeholder="Search...">
+                                <span class="ri-search-line"></span>
+                            </div>
+                        </form>
+
+                      
+                    </div>
+
+                    <div class="d-flex">
+
+                        <div class="dropdown d-inline-block d-lg-none ms-2">
+                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ri-search-line"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                aria-labelledby="page-header-search-dropdown">
+                    
+                                <form class="p-3">
+                                    <div class="mb-3 m-0">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search ...">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+
+                       <div class="dropdown d-inline-block user-dropdown">
+                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <!-- <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
+                                    alt="Header Avatar"> -->
+                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
+                                <!-- <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i> -->
+                            </button>
+                          
+                        </div>                        
+            
+                    </div>
+                </div>
+            </header>
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu">
+
+                <div data-simplebar class="h-100">
+                   
+
+                   <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">Menu</li>                            
+
+                            <li>
+                                <a href="{{ route('admin.dashboard') }}" class="waves-effect">
+                                    <i class="ri-dashboard-line me-2"></i>
+                                    <span class="badge rounded-pill bg-success float-end"></span>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('admin.users.index') }}" class="waves-effect">
+                                    <i class="ri-team-line me-2"></i>
+                                    <span>System Staff</span>
+                                </a>                               
+                            </li>
+
+                            <!-- Farm Practices Menu -->
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-plant-line me-2"></i>
+                                    <span>Farm Practices</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('admin.farm-practices.index') }}">
+                                        <i class="ri-dashboard-line me-1"></i> Overview
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.crops') }}">
+                                        <i class="ri-seedling-line me-1"></i> Crop Farming
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.livestock') }}">
+                                        <i class="ri-bear-smile-line me-1"></i> Livestock
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.fisheries') }}">
+                                        <i class="ri-ship-line me-1"></i> Fisheries
+                                    </a></li>
+                                    <li><a href="{{ route('admin.farm-practices.orchards') }}">
+                                        <i class="ri-plant-line me-1"></i> Orchards
+                                    </a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.cooperatives.index') }}" class="waves-effect">
+                                    <i class="ri-community-line me-2"></i>
+                                    <span>Cooperatives</span>                                    
+                                </a>
+                            </li>
+
+                            <!-- <li>
+                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
+                                    <i class="ri-group-line me-2"></i>
+                                    <span>Partners</span>
+                                </a>
+                            </li>   -->
+                            <li>
+                                <a href="{{ route('admin.vendors.index') }}" class="waves-effect">
+                                    <i class="ri-store-3-line me-2"></i>
+                                    <span>Vendors</span>
+                                </a>
+                            </li> 
+                            <!-- Resources Menu - Unified -->
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-database-2-line me-2"></i>
+                                    <span>Resources</span>
+                                    @php
+                                        $pendingReviewCount = \App\Models\Resource::vendorResources()->where('status', 'proposed')->count();
+                                        $pendingApplications = \App\Models\ResourceApplication::where('status', 'pending')->count();
+                                    @endphp
+                                    @if($pendingReviewCount > 0 || $pendingApplications > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">
+                                            {{ $pendingReviewCount + $pendingApplications }}
+                                        </span>
+                                    @endif
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li>
+                                        <a href="{{ route('admin.resources.index') }}" class="waves-effect">
+                                            <i class="ri-list-check me-2"></i>
+                                            <span>All Resources</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
+                                            <i class="ri-file-list-3-line me-2"></i>
+                                            <span>Vendor Review</span>
+                                            @if($pendingReviewCount > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingReviewCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.applications.index') }}" class="waves-effect">
+                                            <i class="ri-file-check-line me-2"></i>
+                                            <span>Applications</span>
+                                            @if($pendingApplications > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingApplications }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.resources.create') }}" class="waves-effect">
+                                            <i class="ri-add-line me-2"></i>
+                                            <span>Create Resource</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                         
+                            <li class="nav-item">
+                                <a href="{{ route('admin.resources.applications.index') }}" class="nav-link">
+                                    <i class="ri-file-list-line"></i> Applications
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
+                                    <i class="ri-customer-service-2-line me-2"></i>
+                                    <span>Support System</span>
+                                </a>
+                            </li>
+
+                            <!-- Marketplace Menu -->
+                            @can('manage_supplier_catalog')
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-store-2-line me-2"></i>
+                                    <span>Marketplace</span>
+                                    @php
+                                        $pendingCount = \App\Models\Market\MarketplaceListing::where('status', 'pending_review')->count();
+                                    @endphp
+                                    @if($pendingCount > 0)
+                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
+                                    @endif
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.dashboard') }}">
+                                            <i class="ri-dashboard-line me-1"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.listings') }}">
+                                            <i class="ri-shopping-bag-line me-1"></i> Listings
+                                            @if($pendingCount > 0)
+                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.categories') }}">
+                                            <i class="ri-list-check me-1"></i> Categories
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.subscriptions') }}">
+                                            <i class="ri-vip-crown-line me-1"></i> Subscriptions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('admin.marketplace.analytics') }}">
+                                            <i class="ri-line-chart-line me-1"></i> Analytics
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endcan
+                            
+                            <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
+                                @csrf 
+                                <li> 
+                                    <a class="text-danger" href="#" id="logout-link"> 
+                                        <i class="ri-shut-down-line align-middle me-1 text-danger"></i> 
+                                        <span>Logout</span> 
+                                    </a> 
+                                </li> 
+                            </form>
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+            </div>
+            <!-- Left Sidebar End -->
+              <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                    <!-- Flash Messages -->
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="ri-checkbox-circle-line me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="ri-alert-line me-2"></i>
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="ri-information-line me-2"></i>
+                            {{ session('info') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            <strong>Validation Errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @yield('content')
+
+                <!-- container-fluid -->   
+                    </div> 
+                    </div>
+                <!-- End Page-content -->
+
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <script>document.write(new Date().getFullYear())</script> © Benue State Smart Agricultural System and Data Management.
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Powered by BDIC
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+                </div>
+                <!-- end main content-->
+
+                </div>
+                <!-- END layout-wrapper -->
+
+        <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/simplebar/simplebar.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/node-waves/waves.min.js') }}"></script>
+
+        <script src="{{ asset('dashboard/libs/apexcharts/apexcharts.min.js') }}"></script>
+
+        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js') }}"></script>
+
+        <script src="{{ asset('dashboard/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/jszip/jszip.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-select/js/dataTables.select.min.js') }}"></script>
+
+        <script src="{{ asset('dashboard/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+        <script src="{{ asset('dashboard/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+
+        <script src="{{ asset('dashboard/js/pages/datatables.init.js') }}"></script>
+
+        <script src="{{ asset('dashboard/js/app.js') }}"></script>
+
+        <script src="{{ asset('dashboard/libs/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+
+        <script src="{{ asset('dashboard/js/pages/lightbox.init.js') }}"></script>
+        <!-- Optimized Script Loading -->
+        <script src="{{ asset('dashboard/js/vendor-bundle.js') }}" defer></script>
+        <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+        <!-- Add Alpine.js for form interactions -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
+
+        <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
+        <!--- sweet alert ---->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+        <script> 
+        document.getElementById('logout-link').addEventListener('click', function(event) { 
+            event.preventDefault(); 
+            document.getElementById('logout-form').submit(); 
+        }); 
+        </script>
+
+        <!-- Auto-hide alerts after 5 seconds -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+        </script>
+
+        @stack('scripts')
+    </body>
+
+</html>
 
 
 
-==== governor dashboard ===
-@extends('layouts.governor')
+
+=== farm-practice/orchard view ==
+@extends('layouts.admin')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Governor's Dashboard</h4>
+            <h4 class="mb-sm-0">Orchard Farming Analytics</h4>
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('governor.dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.farm-practices.index') }}">Farm Practices</a></li>
+                    <li class="breadcrumb-item active">Orchards</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
-<!-- State-Wide KPIs -->
+<!-- Statistics -->
 <div class="row">
     <div class="col-xl-3 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Farmers</p>
-                        <h4 class="mb-0">
-                            <span class="counter-value" data-target="{{ $stateKpis['total_farmers'] }}">0</span>
-                        </h4>
-                        <p class="text-muted mb-0 mt-2">
-                            <span class="badge badge-soft-{{ $recentTrends['new_farmers']['change_percentage'] >= 0 ? 'success' : 'danger' }}">
-                                <i class="ri-{{ $recentTrends['new_farmers']['change_percentage'] >= 0 ? 'arrow-up' : 'arrow-down' }}-line align-middle"></i>
-                                {{ abs($recentTrends['new_farmers']['change_percentage']) }}%
-                            </span>
-                            <span class="ms-1 text-muted font-size-12">vs last month</span>
-                        </p>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Orchards</p>
+                        <h4 class="mb-0">{{ number_format($orchardStats['totalOrchards']) }}</h4>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-primary rounded-circle fs-3">
-                                <i class="ri-user-line text-primary"></i>
+                                <i class="ri-plant-line text-primary"></i>
                             </span>
                         </div>
                     </div>
@@ -113,18 +575,14 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Hectares</p>
-                        <h4 class="mb-0">
-                            <span class="counter-value" data-target="{{ number_format($stateKpis['total_hectares'], 0) }}">0</span>
-                        </h4>
-                        <p class="text-muted mb-0 mt-2">
-                            <span class="text-muted font-size-12">Under cultivation</span>
-                        </p>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Trees</p>
+                        <h4 class="mb-0">{{ number_format($orchardStats['totalTrees']) }}</h4>
+                        <p class="text-muted mb-0 mt-1"><small>All species</small></p>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-success rounded-circle fs-3">
-                                <i class="ri-plant-line text-success"></i>
+                                <i class="ri-leaf-line text-success"></i>
                             </span>
                         </div>
                     </div>
@@ -138,21 +596,13 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Active Resources</p>
-                        <h4 class="mb-0">
-                            <span class="counter-value" data-target="{{ $stateKpis['active_resources'] }}">0</span>
-                        </h4>
-                        <p class="text-muted mb-0 mt-2">
-                            <span class="badge badge-soft-warning">
-                                <span class="counter-value" data-target="{{ $stateKpis['pending_applications'] }}">0</span>
-                            </span>
-                            <span class="ms-1 text-muted font-size-12">Pending</span>
-                        </p>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Avg Trees per Orchard</p>
+                        <h4 class="mb-0">{{ number_format($orchardStats['avgTreesPerOrchard'], 0) }}</h4>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-info rounded-circle fs-3">
-                                <i class="ri-database-2-line text-info"></i>
+                                <i class="ri-bar-chart-line text-info"></i>
                             </span>
                         </div>
                     </div>
@@ -166,18 +616,14 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Cooperatives</p>
-                        <h4 class="mb-0">
-                            <span class="counter-value" data-target="{{ $stateKpis['total_cooperatives'] }}">0</span>
-                        </h4>
-                        <p class="text-muted mb-0 mt-2">
-                            <span class="text-muted font-size-12">Active organizations</span>
-                        </p>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Tree Species</p>
+                        <h4 class="mb-0">{{ $orchardStats['treeTypes']->count() }}</h4>
+                        <p class="text-muted mb-0 mt-1"><small>Types cultivated</small></p>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-warning rounded-circle fs-3">
-                                <i class="ri-community-line text-warning"></i>
+                                <i class="ri-list-check text-warning"></i>
                             </span>
                         </div>
                     </div>
@@ -187,160 +633,69 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
     </div>
 </div>
 
-<!-- Critical Alerts -->
-@if($criticalAlerts['expiring_resources'] > 0 || $criticalAlerts['pending_approvals'] > 0)
+<!-- Tree Type & Maturity Distribution -->
 <div class="row">
-    <div class="col-12">
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <i class="ri-alert-line me-2"></i>
-            <strong>Attention Required:</strong>
-            @if($criticalAlerts['expiring_resources'] > 0)
-                <span class="me-3">{{ $criticalAlerts['expiring_resources'] }} resource(s) expiring within 7 days</span>
-            @endif
-            @if($criticalAlerts['pending_approvals'] > 0)
-                <span>{{ $criticalAlerts['pending_approvals'] }} farmer(s) awaiting LGA review</span>
-            @endif
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-@endif
-
-<!-- Analytical Modules -->
-<div class="row">
-    <div class="col-12">
+    <div class="col-lg-8">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header bg-soft-primary">
                 <h5 class="card-title mb-0">
-                    <i class="ri-bar-chart-box-line me-1"></i> Policy & Analytics Hub
+                    <i class="ri-bar-chart-box-line me-1"></i> Tree Type Distribution
                 </h5>
             </div>
             <div class="card-body">
-                <div class="row g-3">
-                    <!-- Policy Insights -->
-                    <div class="col-xl-3 col-md-6">
-                        <a href="{{ route('governor.policy_insights.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
-                                            <i class="ri-lightbulb-line text-primary"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Policy Insights</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Demographics & production analysis
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Intervention Tracking -->
-                    <div class="col-xl-3 col-md-6">
-                        <a href="{{ route('governor.interventions.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
-                                            <i class="ri-heart-pulse-line text-success"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Interventions</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Program effectiveness & reach
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- LGA Comparison -->
-                    <div class="col-xl-3 col-md-6">
-                        <a href="{{ route('governor.lga_comparison.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
-                                            <i class="ri-map-2-line text-info"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">LGA Comparison</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Regional performance ranking
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-
-                    <!-- Trend Analysis -->
-                    <div class="col-xl-3 col-md-6">
-                        <a href="{{ route('governor.trends.index') }}" class="text-decoration-none">
-                            <div class="card module-card border h-100">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
-                                            <i class="ri-line-chart-line text-warning"></i>
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-2 text-dark">Trends</h6>
-                                    <p class="text-muted mb-0 font-size-13">
-                                        Temporal patterns & forecasts
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tree Type</th>
+                                <th class="text-center">Number of Orchards</th>
+                                <th class="text-end">Total Trees</th>
+                                <th class="text-end">Avg Trees per Orchard</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($orchardStats['treeTypes'] as $tree)
+                            <tr>
+                                <td><strong>{{ ucfirst($tree->tree_type) }}</strong></td>
+                                <td class="text-center">
+                                    <span class="badge badge-soft-primary fs-6">{{ number_format($tree->farm_count) }}</span>
+                                </td>
+                                <td class="text-end"><strong>{{ number_format($tree->total_trees) }}</strong></td>
+                                <td class="text-end">{{ number_format($tree->total_trees / $tree->farm_count, 0) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th>Total</th>
+                                <th class="text-center">{{ number_format($orchardStats['totalOrchards']) }}</th>
+                                <th class="text-end">{{ number_format($orchardStats['totalTrees']) }}</th>
+                                <th class="text-end">{{ number_format($orchardStats['avgTreesPerOrchard'], 0) }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Top Performing LGAs Snapshot -->
-<div class="row">
-    <div class="col-xl-8">
+    <div class="col-lg-4">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header bg-soft-success">
                 <h5 class="card-title mb-0">
-                    <i class="ri-trophy-line me-1"></i> Top Performing LGAs
+                    <i class="ri-timer-line me-1"></i> Maturity Stage
                 </h5>
-                <a href="{{ route('governor.lga_comparison.index') }}" class="btn btn-sm btn-soft-primary">
-                    View Full Comparison
-                </a>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Rank</th>
-                                <th>LGA</th>
-                                <th class="text-end">Farmers</th>
-                                <th class="text-end">Hectares</th>
-                                <th class="text-end">Avg. Farm Size</th>
-                            </tr>
-                        </thead>
+                <canvas id="maturityChart" height="300"></canvas>
+                <div class="table-responsive mt-3">
+                    <table class="table table-sm table-borderless mb-0">
                         <tbody>
-                            @foreach($lgaSnapshot as $index => $lga)
+                            @foreach($orchardStats['maturityDistribution'] as $maturity)
                             <tr>
-                                <td>
-                                    <span class="badge badge-soft-{{ $index === 0 ? 'success' : ($index === 1 ? 'info' : 'secondary') }}">
-                                        #{{ $index + 1 }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <h6 class="mb-0">{{ $lga['lga_name'] }}</h6>
-                                </td>
+                                <td><strong>{{ ucfirst(str_replace('_', ' ', $maturity->maturity_stage)) }}</strong></td>
                                 <td class="text-end">
-                                    <span class="fw-semibold">{{ number_format($lga['farmer_count']) }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="text-muted">-</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="text-muted">-</span>
+                                    <span class="badge badge-soft-success">{{ number_format($maturity->count) }}</span>
                                 </td>
                             </tr>
                             @endforeach
@@ -350,99 +705,147 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
             </div>
         </div>
     </div>
+</div>
 
-    <div class="col-xl-4">
+<!-- Farm Details with Filters -->
+<div class="row">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="ri-flashlight-line me-1"></i> Quick Insights
-                </h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <h5 class="card-title mb-0">Orchard Details</h5>
+                    </div>
+                    <div class="col-md-8">
+                        <form method="GET" class="row g-2">
+                            <div class="col-md-4">
+                                <select name="tree_type" class="form-select">
+                                    <option value="">All Tree Types</option>
+                                    @foreach($orchardStats['treeTypes'] as $tree)
+                                        <option value="{{ $tree->tree_type }}" {{ request('tree_type') == $tree->tree_type ? 'selected' : '' }}>
+                                            {{ ucfirst($tree->tree_type) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="maturity_stage" class="form-select">
+                                    <option value="">All Stages</option>
+                                    @foreach($orchardStats['maturityDistribution'] as $stage)
+                                        <option value="{{ $stage->maturity_stage }}" {{ request('maturity_stage') == $stage->maturity_stage ? 'selected' : '' }}>
+                                            {{ ucfirst(str_replace('_', ' ', $stage->maturity_stage)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="lga_id" class="form-select">
+                                    <option value="">All LGAs</option>
+                                    @foreach($lgas as $lga)
+                                        <option value="{{ $lga->id }}" {{ request('lga_id') == $lga->id ? 'selected' : '' }}>
+                                            {{ $lga->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="ri-filter-line"></i> Filter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ route('governor.policy_insights.demographic_analysis') }}?gender=Female" class="btn btn-soft-primary text-start">
-                        <i class="ri-women-line align-middle me-2"></i>
-                        <span class="fw-medium">Female Farmers Analysis</span>
-                    </a>
-                    <a href="{{ route('governor.policy_insights.youth_engagement') }}" class="btn btn-soft-success text-start">
-                        <i class="ri-user-heart-line align-middle me-2"></i>
-                        <span class="fw-medium">Youth Engagement</span>
-                    </a>
-                    <a href="{{ route('governor.policy_insights.yield_projections') }}" class="btn btn-soft-info text-start">
-                        <i class="ri-seedling-line align-middle me-2"></i>
-                        <span class="fw-medium">Yield Projections</span>
-                    </a>
-                    <a href="{{ route('governor.interventions.coverage_analysis') }}" class="btn btn-soft-warning text-start">
-                        <i class="ri-radar-line align-middle me-2"></i>
-                        <span class="fw-medium">Coverage Gaps</span>
-                    </a>
-                    <a href="{{ route('analytics.export') }}" class="btn btn-soft-secondary text-start">
-                        <i class="ri-download-2-line align-middle me-2"></i>
-                        <span class="fw-medium">Export State Data</span>
-                    </a>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Farm Name</th>
+                                <th>Farmer</th>
+                                <th>LGA</th>
+                                <th>Tree Type</th>
+                                <th class="text-center">Number of Trees</th>
+                                <th class="text-end">Farm Size (Ha)</th>
+                                <th>Maturity Stage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($orchards as $orchard)
+                            <tr>
+                                <td>{{ $loop->iteration + ($orchards->currentPage() - 1) * $orchards->perPage() }}</td>
+                                <td><strong>{{ $orchard->farmLand->name ?? 'Unnamed' }}</strong></td>
+                                <td>{{ $orchard->farmLand->farmer->full_name ?? 'N/A' }}</td>
+                                <td>{{ $orchard->farmLand->farmer->lga->name ?? 'N/A' }}</td>
+                                <td><span class="badge badge-soft-primary">{{ ucfirst($orchard->tree_type) }}</span></td>
+                                <td class="text-center"><strong>{{ number_format($orchard->number_of_trees) }}</strong></td>
+                                <td class="text-end">{{ number_format($orchard->farmLand->total_size_hectares, 2) }}</td>
+                                <td>
+                                    <span class="badge badge-soft-success">
+                                        {{ ucfirst(str_replace('_', ' ', $orchard->maturity_stage)) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="ri-plant-line fs-1 d-block mb-2"></i>
+                                    <p class="mb-0">No orchard data found</p>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+                @if($orchards->hasPages())
+                <div class="mt-3">
+                    {{ $orchards->links() }}
+                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-
-@endsection
-
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Module Card Hover Effects
-    const moduleCards = document.querySelectorAll('.module-card');
-    moduleCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
-            this.style.borderColor = '#556ee6';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '';
-            this.style.borderColor = '#e5e7eb';
-        });
-    });
-
-    // Counter animation
-    const counters = document.querySelectorAll('.counter-value');
-    const speed = 200;
-
-    counters.forEach(counter => {
-        const animate = () => {
-            const value = +counter.getAttribute('data-target');
-            const data = +counter.innerText.replace(/,/g, '');
-            const time = value / speed;
-            
-            if(data < value) {
-                counter.innerText = Math.ceil(data + time).toLocaleString();
-                setTimeout(animate, 1);
-            } else {
-                counter.innerText = value.toLocaleString();
+const maturityCtx = document.getElementById('maturityChart');
+if (maturityCtx) {
+    const maturityData = @json($orchardStats['maturityDistribution']);
+    new Chart(maturityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: maturityData.map(m => m.maturity_stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')),
+            datasets: [{
+                data: maturityData.map(m => m.count),
+                backgroundColor: [
+                    'rgba(52, 195, 143, 0.8)',
+                    'rgba(244, 184, 59, 0.8)',
+                    'rgba(85, 110, 230, 0.8)',
+                    'rgba(80, 165, 241, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 10,
+                        font: { size: 11 }
+                    }
+                }
             }
         }
-        
-        animate();
     });
-});
+}
 </script>
-
-<style>
-.module-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.card-animate {
-    transition: all 0.3s ease;
-}
-
-.card-animate:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-</style>
 @endpush
+@endsection

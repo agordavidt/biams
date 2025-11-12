@@ -489,9 +489,9 @@
                                     <ul>
                                         <li><a href="{{ url('/') }}" class="active">Home</a></li>
                                         <li><a href="{{ route('about') }}">About Us</a></li>  
-                                        <li><a href="">Data</a></li>                                        
+                                        <!-- <li><a href="">Data</a></li>                                         -->
                                         <li><a href="{{ route('marketplace.index') }}">Marketplace</a></li>     
-                                        <li><a href="">News</a></li>
+                                        <!-- <li><a href="">News</a></li> -->
                                         <li><a href="{{ route('contact') }}">Contact</a></li>
                                     </ul>
                                 </nav>
