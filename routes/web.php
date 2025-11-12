@@ -153,6 +153,27 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
             Route::get('/', [ManagementController::class, 'lgas'])->name('index');
         });
     });
+    
+    // =====================================================================
+    // NEW: Vendors Module
+    // =====================================================================
+    Route::prefix('vendors')->name('vendors.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\VendorController::class, 'index'])->name('index');
+        Route::get('/{vendor}', [\App\Http\Controllers\SuperAdmin\VendorController::class, 'show'])->name('show');
+        Route::patch('/{vendor}/toggle-status', [\App\Http\Controllers\SuperAdmin\VendorController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/export', [\App\Http\Controllers\SuperAdmin\VendorController::class, 'export'])->name('export');
+    });
+
+    // =====================================================================
+    // NEW: Resources Module
+    // =====================================================================
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'index'])->name('index');
+        Route::get('/analytics', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'analytics'])->name('analytics');
+        Route::get('/export', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'export'])->name('export');
+        Route::get('/{resource}', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'show'])->name('show');
+        Route::get('/{resource}/applications', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'applications'])->name('applications');
+    });
 });
 
 /*

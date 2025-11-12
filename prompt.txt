@@ -1,489 +1,106 @@
-=====   \views\layouts\frontend.blade.php
-
-<!doctype html>
-<html class="no-js" lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>@yield('title', 'Benue Agri-Data Platform: The Food Basket Reimagined')</title>
-    <meta name="description" content="Official platform showcasing Benue State's verified agricultural data, farmer profiles, and investment opportunities.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/assets/img/favicon.png') }}">
+==== routes ===
+/*
+|--------------------------------------------------------------------------
+| Governor Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('dashboard');
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    // Policy Insights
+    Route::prefix('policy-insights')->name('policy_insights.')->group(function () {
+        Route::get('/', [PolicyInsightController::class, 'index'])->name('index');
+        Route::get('/demographic-analysis', [PolicyInsightController::class, 'getDemographicAnalysis'])->name('demographic_analysis');
+        Route::get('/youth-engagement', [PolicyInsightController::class, 'getYouthEngagement'])->name('youth_engagement');
+        Route::get('/yield-projections', [PolicyInsightController::class, 'getYieldProjections'])->name('yield_projections');
+        Route::get('/production-patterns', [PolicyInsightController::class, 'getProductionPatterns'])->name('production_patterns');
+    });
     
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/preloader.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/meanmenu.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/animate.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/owl.carousel.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/swiper-bundle.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/backToTop.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/magnific-popup.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/nice-select.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/flaticon/flaticon.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/fontAwesome5Pro.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/default.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/assets/css/style.css') }}">
+    // Intervention Tracking
+    Route::prefix('interventions')->name('interventions.')->group(function () {
+        Route::get('/', [InterventionTrackingController::class, 'index'])->name('index');
+        Route::get('/beneficiary-report', [InterventionTrackingController::class, 'getBeneficiaryReport'])->name('beneficiary_report');
+        Route::get('/partner-activities', [InterventionTrackingController::class, 'getPartnerActivities'])->name('partner_activities');
+        Route::get('/coverage-analysis', [InterventionTrackingController::class, 'getCoverageAnalysis'])->name('coverage_analysis');
+    });
     
-    @stack('styles')
+    // LGA Comparison
+    Route::prefix('lga-comparison')->name('lga_comparison.')->group(function () {
+        Route::get('/', [LgaComparisonController::class, 'index'])->name('index');
+        Route::get('/performance-ranking', [LgaComparisonController::class, 'getPerformanceRanking'])->name('performance_ranking');
+        Route::get('/capacity-analysis', [LgaComparisonController::class, 'getCapacityAnalysis'])->name('capacity_analysis');
+        Route::post('/compare', [LgaComparisonController::class, 'compareLgas'])->name('compare');
+        Route::get('/geographic-analysis', [LgaComparisonController::class, 'getGeographicAnalysis'])->name('geographic_analysis');
+    });
     
-    <style>
-        body {
-          font-family: 'Inter', sans-serif;
-        }
-        
-        .banner-area {
-          height: 70vh;
-          display: flex;
-          align-items: center;
-          background-size: cover;
-          background-position: center center;
-          background-repeat: no-repeat;
-          background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('{{ asset('frontend/assets/img/hero_pages.jpg') }}');
-        }
-        
-        .banner-content * {
-          color: white !important;
-          text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-        }
-        
-        .banner-button a.tp-btn-h1 {
-          color: #FFFFFF !important;
-          background-color: #007bff;
-          border-color: #007bff;
-          text-shadow: none;
-        }
-        
-        .banner-title {
-          font-size: 3rem;
-          font-weight: 700;
-        }
-        
-        .tp-btn-h1,
-        .theme-bg,
-        .theme-bg-primary-h1 {
-          background-color: #38761D !important;
-          border-color: #38761D !important;
-          color: #ffffff !important;
-        }
-        
-        .tp-btn-h1:hover {
-          background-color: #2F5F17 !important;
-          border-color: #2F5F17 !important;
-        }
-        
-        .text-success,
-        a:hover,
-        .features-btn {
-          color: #38761D !important;
-        }
-        
-        .banner-icon i,
-        .flaticon-statistics,
-        .tp-section-wrap span i {
-          color: #38761D !important;
-        }
-        
-        img {
-          border-radius: 8px;
-        }
-        
-        .company-features-item {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          border: 1px solid #e0e0e0;
-          border-radius: 12px;
-          overflow: hidden;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-          background-color: #ffffff;
-        }
-        
-        .company-features-item:hover {
-          box-shadow: 0 8px 25px rgba(56, 118, 29, 0.15);
-          transform: translateY(-5px);
-        }
-        
-        .features-item {
-          flex-grow: 1;
-          padding: 30px;
-        }
-        
-        .features-item-btton {
-          margin-top: auto;
-          padding: 15px 30px;
-          border-top: 1px solid #f0f0f0;
-        }
-        
-        .features-item img {
-          height: 60px;
-          width: 60px;
-          object-fit: cover;
-          margin-bottom: 15px;
-          border-radius: 50%;
-          border: 3px solid #E6F0E3;
-          padding: 5px;
-        }
-        
-        .latest-blog {
-          height: 100%;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          transition: all 0.3s ease;
-          background-color: #ffffff;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .latest-blog-content {
-          flex-grow: 1;
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .blog-btn {
-          margin-top: auto;
-        }
-        
-        .footer-top-2 {
-          padding-top: 40px !important;
-          padding-bottom: 20px !important;
-        }
-        
-        .footer-top .footer-widget {
-          margin-bottom: 20px !important;
-        }
-        
-        .footer-top .footer-widget p {
-          margin-bottom: 10px;
-          font-size: 14px;
-        }
-        
-        .footer-top .footer-title-h1 {
-          margin-bottom: 15px !important;
-        }
-        
-        .footer-top .footer-menu-2 ul li a {
-          padding-top: 3px;
-          padding-bottom: 3px;
-          font-size: 14px;
-        }
-        
-        .copy-right-area {
-          padding-top: 15px !important;
-          padding-bottom: 15px !important;
-        }
-        
-        .copy-right-text-1 {
-          margin-bottom: 0 !important;
-        }
-        
-        .page__title {
-          background-image: url('{{ asset('frontend/assets/img/hero_pages.jpg') }}') !important;
-          background-size: cover !important;
-          background-position: center center !important;
-          background-repeat: no-repeat !important;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .page__title::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.4);
-          z-index: -1;
-        }
-        
-        .page__title-content,
-        .page_title__bread-crumb {
-          position: relative;
-          z-index: 2;
-        }
-        
-        .page__title .breadcrumb-title,
-        .page__title .breadcrumb-trail span,
-        .page__title .breadcrumb-trail a span {
-          color: #ffffff;
-        }
-        
-        .map-wrapper {
-          position: relative;
-          width: 100%;
-          padding-bottom: 56.25%;
-          height: 0;
-          overflow: hidden;
-        }
-        
-        .map-wrapper iframe {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border: 0;
-        }
+    // Trend Analysis
+    Route::prefix('trends')->name('trends.')->group(function () {
+        Route::get('/', [TrendAnalysisController::class, 'index'])->name('index');
+        Route::get('/enrollment', [TrendAnalysisController::class, 'getEnrollmentTrends'])->name('enrollment');
+        Route::get('/production', [TrendAnalysisController::class, 'getProductionTrends'])->name('production');
+        Route::get('/resource-utilization', [TrendAnalysisController::class, 'getResourceUtilizationTrends'])->name('resource_utilization');
+        Route::get('/gender-parity', [TrendAnalysisController::class, 'getGenderParityTrends'])->name('gender_parity');
+    });
 
-        .hero-title {
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
-
-.hero-text {
-    line-height: 1.6;
-}
-
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 32px;
-        line-height: 1.1;
-        padding-right: 20px;
-        padding-left: 20px;
-    }
-
-    .hero-text {
-        font-size: 14px;
-        line-height: 1.4;
-        padding-right: 15px;
-        padding-left: 15px;
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .index-banner-area {
-        padding-top: 80px;
-        padding-bottom: 80px;
-    }
-}
-    </style>
-</head>
-<body>
-    <div class="progress-wrap">
-        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
-            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
-        </svg>
-    </div>
-
-    <!-- Header -->
-   <header>
-        <div class="header__area header-area-white">
-            <div class="header__area-top-bar header-2-top-bar theme-bg-primary-h1">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-xl-6 col-lg-6 col-md-8 col-sm-6">
-                            <div class="headerinfo">
-                                <ul>
-                                    <li><a href="mailto:agridata@benue.gov.ng"><i class="fal fa-envelope"></i>agridata@benue.gov.ng</a></li>
-                                    <li class="d-none d-md-inline-block"><a href=""><i class="fal fa-map-marker-alt"></i>Ministry of Agriculture, Makurdi</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-4 col-sm-6"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="header-white-area theme-bg-secondary-h1" id="header-sticky">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-xl-3 col-lg-3 col-md-8 col-8">
-                            <div class="logo">
-                                <a href="{{ url('/') }}">
-                                    <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
-                                    <span class="text-success">BSSADMS</span>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-9 col-lg-9 col-md-4 col-4 d-flex align-items-center justify-content-end">
-                            <div class="main-menu-h1 main-menu main-menu-white text-center">
-                                <nav id="mobile-menu">
-                                    <ul>
-                                        <li><a href="{{ url('/') }}" class="active">Home</a></li>
-                                        <li><a href="{{ route('about') }}">About Us</a></li>  
-                                        <li><a href="">Data</a></li>                                        
-                                        <li><a href="{{ route('marketplace.index') }}">Marketplace</a></li>     
-                                        <li><a href="">News</a></li>
-                                        <li><a href="{{ route('contact') }}">Contact</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                            <div class="side-menu-icon d-lg-none text-end">
-                                <a href="javascript:void(0)" class="info-toggle-btn f-right sidebar-toggle-btn"><i class="fal fa-bars"></i></a>
-                            </div>
-                            <div class="header-cta">
-                                <div class="phone-number">
-                                    @auth
-                                        <a href="{{ App\Providers\RouteServiceProvider::redirectToHome(auth()->user()) }}" class="tp-btn-h1">
-                                            Dashboard
-                                        </a>
-                                    @else
-                                        <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
-                                    @endauth
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Sidebar -->
-    <div class="sidebar__area">
-        <div class="sidebar__wrapper">
-            <div class="sidebar__close">
-                <button class="sidebar__close-btn" id="sidebar__close-btn">
-                    <i class="fal fa-times"></i>
-                </button>
-            </div>
-            <div class="sidebar__content">
-                <div class="sidebar__logo mb-40">
-                    <a href="">
-                        <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
-                        <span class="text-success">BSSADMS</span>
-                    </a>
-                </div>
-                <div class="mobile-menu fix"></div>
-                <div class="sidebar__contact mt-30 mb-20">
-                    <ul>                   
-                        <li class="d-flex align-items-center">                        
-                            <div class="sidebar__contact-text">
-                                <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="sidebar__social">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main>
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-top footer-top-2 pt-40 pb-20">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <div class="footer-widget footer-col-1 mb-20">
-                            <div class="footer-logo mb-15">
-                                <a href="">
-                                    <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
-                                    <span class="text-success">BSSADMS</span>
-                                </a>
-                            </div>
-                            <p>The official data platform of the Benue State Ministry of Agriculture. We provide verifiable data and geospatial mapping to guide policy and attract strategic investors.</p>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
-                        <div class="footer-widget footer-col-5 mb-20">
-                            <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Key Resources</h5>
-                            <div class="footer-menu footer-menu-2">
-                                <ul>
-                                    <li><a href="">Agricultural Statistics</a></li>
-                                    <li><a href="">Geospatial Map</a></li>
-                                    <li><a href="">Support Programs</a></li>
-                                    <li><a href="">Cooperative Listings</a></li>
-                                    <li><a href="">News & Events</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-5 col-lg-5 col-md-4 col-sm-6">
-                        <div class="footer-widget footer-col-5 mb-20">
-                            <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Quick Links</h5>
-                            <ul class="footer-menu-1 footer-menu footer-menu-2 footer-menu-c">
-                                <li><a href="">Project Overview</a></li>
-                                <li><a href="{{ route('contact') }}">Contact Support</a></li>
-                                <li><a href="">Privacy Policy</a></li>
-                                <li><a href="">Farmer Portal Login</a></li>
-                                <li><a href="">Admin Login</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="copy-right-area theme-bg-common pt-15 pb-15">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                        <p class="mb-0 copy-right-text-1">
-                            © <script>document.write(new Date().getFullYear())</script> BSSADMS. Powered by 
-                            <a href=""><img src="{{ asset('frontend/assets/img/bdic_logo_small.png') }}" alt="BDIC Logo" loading="lazy" style="height: 20px; vertical-align: middle;"></a>
-                        </p>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JS Scripts -->
-    <script src="{{ asset('frontend/assets/js/vendor/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/vendor/waypoints.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/meanmenu.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/swiper-bundle.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/magnific-popup.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/parallax.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/backToTop.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/nice-select.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/counterup.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/ajax-form.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/wow.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/isotope.pkgd.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/imagesloaded.pkgd.min.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/jquery.appear.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/jquery.knob.js') }}"></script>
-    <script src="{{ asset('frontend/assets/js/main.js') }}"></script>
-    
-    @stack('scripts')
-</body>
-</html>
+    // Cooperative Overview
+    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
+        Route::get('/overview', [CooperativeOverviewController::class, 'index'])
+            ->name('overview')
+            ->middleware('permission:view_cooperative_overview');
+        Route::get('/lga-comparison', [CooperativeOverviewController::class, 'lgaComparison'])
+            ->name('lga_comparison')
+            ->middleware('permission:view_cooperative_overview');
+        Route::get('/export-overview', [CooperativeOverviewController::class, 'exportOverview'])
+            ->name('export_overview')
+            ->middleware('permission:view_cooperative_overview');
+    });
+});
 
 
 
-
-==
-
-@extends('layouts.frontend')
-
-@section('title', 'Benue Agri-Data Platform: The Food Basket Reimagined')
+==== governor dashboard ===
+@extends('layouts.governor')
 
 @section('content')
-    <!-- Banner -->
-    <div class="banner-area">
-        <div class="container">
-            <div class="row justify-content-start">
-                <div class="col-xl-7 col-lg-7 col-md-9 col-12">
-                    <div class="banner-content banner-content-2">
-                        <div class="banner-info text-center">
-                            <div class="banner-icon">
-                                <i class="flaticon-statistics"></i>
-                            </div>
-                            <p>Transforming Benue Agriculture Through Data & Innovation</p>
-                            <h3 class="banner-title-h1 banner-title">Empowering Farmers, Boosting Productivity, Driving Growth</h3>
-                            <div class="banner-button mt-30">
-                                <a href="{{ route('login') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
-                            </div>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Governor's Dashboard</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{ route('governor.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- State-Wide KPIs -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Farmers</p>
+                        <h4 class="mb-0">
+                            <span class="counter-value" data-target="{{ $stateKpis['total_farmers'] }}">0</span>
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="badge badge-soft-{{ $recentTrends['new_farmers']['change_percentage'] >= 0 ? 'success' : 'danger' }}">
+                                <i class="ri-{{ $recentTrends['new_farmers']['change_percentage'] >= 0 ? 'arrow-up' : 'arrow-down' }}-line align-middle"></i>
+                                {{ abs($recentTrends['new_farmers']['change_percentage']) }}%
+                            </span>
+                            <span class="ms-1 text-muted font-size-12">vs last month</span>
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-primary rounded-circle fs-3">
+                                <i class="ri-user-line text-primary"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -491,56 +108,24 @@
         </div>
     </div>
 
-    <!-- About Area -->
-    <div class="tp-about-area about-area-2 pt-110 pb-45">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-xxl-4 col-xl-4 col-lg-4">
-                    <div class="tp-section-wrap">                   
-                        <h3 class="tp-section-title">The Digital Gateway to Benue's Agri-Future</h3>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Hectares</p>
+                        <h4 class="mb-0">
+                            <span class="counter-value" data-target="{{ number_format($stateKpis['total_hectares'], 0) }}">0</span>
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="text-muted font-size-12">Under cultivation</span>
+                        </p>
                     </div>
-                </div> 
-                <div class="col-xxl-7 col-xl-7 col-lg-7 align-items-end">
-                    <div class="tp-about-content-1">
-                        <p>Benue State, the Food Basket of the Nation, is revolutionizing agriculture with BSSADMS. Our platform captures verified farmer data, enables transparent input distribution, and provides real-time analytics for better decision-making. From registration to marketplace sales, we empower over 500,000 farmers across 23 LGAs.</p>
-                        <p class="mt-15">Join us in fostering inclusive growth, attracting investments, and ensuring food security through technology.</p>
-                        <div class="author-info mt-20">
-                            <div class="author-content">
-                                <h5>Benue State Ministry of Agriculture & Natural Resources</h5>
-                                <span>Platform Custodian</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Features List -->
-    <div class="tp-features-list-area mb-90">
-        <div class="container">
-            <div class="row justify-content-end">
-                <div class="col-xl-7 col-lg-8">
-                    <div class="tp-features-list">
-                        <div class="tp-list-item mb-30">
-                            <i class="flaticon-user-1"></i>
-                            <h5 class="features-title">Verified Farmer <br> Registry</h5>
-                        </div>
-                        <div class="tp-list-item mb-30">
-                            <i class="flaticon-map"></i>
-                            <h5 class="features-title">Geospatial <br> Intelligence</h5>
-                        </div>
-                        <div class="tp-list-item mb-30">
-                            <i class="flaticon-sapling-1"></i>
-                            <h5 class="features-title">Targeted MDA <br> Interventions</h5>
-                        </div>
-                        <div class="tp-list-item mb-30">
-                            <i class="flaticon-money"></i>
-                            <h5 class="features-title">Investment <br> Opportunities Showcased</h5>
-                        </div>
-                        <div class="tp-list-item mb-30">
-                            <i class="flaticon-hand-shake"></i>
-                            <h5 class="features-title">Buyer-Farmer <br> Produce Linkages</h5>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-success rounded-circle fs-3">
+                                <i class="ri-plant-line text-success"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -548,35 +133,27 @@
         </div>
     </div>
 
-    <!-- Organic Product -->
-    <div class="orgainc-product pt-120 pb-120 h2-gray-bg position-relative">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-xl-6 col-lg-6">
-                    <div class="organic-image">
-                        <img src="{{ asset('frontend/assets/img/fish_girl.jpg') }}" class="img-fluid" alt="Satellite imagery overlaying farmland" loading="lazy">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Active Resources</p>
+                        <h4 class="mb-0">
+                            <span class="counter-value" data-target="{{ $stateKpis['active_resources'] }}">0</span>
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="badge badge-soft-warning">
+                                <span class="counter-value" data-target="{{ $stateKpis['pending_applications'] }}">0</span>
+                            </span>
+                            <span class="ms-1 text-muted font-size-12">Pending</span>
+                        </p>
                     </div>
-                </div>
-                <div class="col-xl-6 col-lg-6">
-                    <div class="organic-product-content pl-80 mt-50">
-                        <div class="tp-section-wrap">
-                            <span><i class="flaticon-statistics"></i></span>
-                            <h3 class="tp-section-title">Verifiable Data: The New Foundation of Trust</h3>
-                            <p>Serious investment requires certainty. The Benue Agri-Data Platform moves beyond estimates, providing geospatially validated data on crops, farm yields, asset distribution, and farmer identity.</p>
-                        </div>
-                        <h5 class="organic-product-title mt-40">Guaranteed Data Integrity</h5>
-                        <div class="row g-0">
-                            <div class="col-xl-6 col-lg-6">
-                                <p class="organic-features-info">We ensure every data point is linked to a unique farmer profile and geotagged farm asset, mitigating fraud and de-risking high-value policy planning and private investment.</p>
-                            </div>
-                            <div class="col-xl-6 col-lg-6">
-                                <div class="organic-features-list">
-                                    <a href="data-guide.html">- Geospatial Asset Mapping</a>
-                                    <a href="data-guide.html">- NIN/BVN-Linked Farmer Profiles</a>
-                                    <a href="data-guide.html">- Real-time Intervention Monitoring</a>
-                                    <a href="data-guide.html">- Policy-Driven Data Standardization</a>
-                                </div>
-                            </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-info rounded-circle fs-3">
+                                <i class="ri-database-2-line text-info"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -584,195 +161,288 @@
         </div>
     </div>
 
-    <!-- Company Features -->
-    <div class="company-features pt-120 pb-90">
-        <div class="container">
-            <div class="tp-section-wrap text-center">                     
-                <h3 class="tp-section-title">The Pillars of Benue Agri-Strategy</h3>
-                <p>Our mandate is to centralize information, enabling precise policy implementation and direct market access, transforming potential into prosperity.</p>
-            </div>
-            <div class="company-features-list mt-50">
-                <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-6">
-                        <div class="company-features-item mb-30">
-                            <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Analytics icon" loading="lazy">
-                                <h4 class="features-item-title">Data & Policy Analytics</h4>
-                                <p>Access verifiable data on yield gaps, soil health, and production forecasts to guide strategic state and federal interventions (e.g., RAAMP, ACReSAL).</p>
-                            </div>
-                            <div class="features-item-btton">
-                                <a href="data-portal.html" class="features-btn">View Data Portal <i class="fal fa-arrow-right"></i></a>
-                            </div>
-                        </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Cooperatives</p>
+                        <h4 class="mb-0">
+                            <span class="counter-value" data-target="{{ $stateKpis['total_cooperatives'] }}">0</span>
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="text-muted font-size-12">Active organizations</span>
+                        </p>
                     </div>
-                    <div class="col-xl-4 col-lg-4 col-md-6">
-                        <div class="company-features-item mb-30">
-                            <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/data_anlytics.jpg') }}" alt="Handshake icon" loading="lazy">
-                                <h4 class="features-item-title">Intervention Transparency Hub</h4>
-                                <p>Track the reach and impact of all State and Partner programs (IFAD, BNARDA, BENTHA) ensuring resources reach the last mile farmer, not ghost accounts.</p>
-                            </div>
-                            <div class="features-item-btton">
-                                <a href="interventions.html" class="features-btn">Track Interventions <i class="fal fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-6">
-                        <div class="company-features-item mb-30">
-                            <div class="features-item text-center">
-                                <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Market cart icon" loading="lazy">
-                                <h4 class="features-item-title">Direct Market Linkage</h4>
-                                <p>Connect validated buyers directly to verified farmer cooperatives. Secure bulk off-take deals for **Yam, Cassava, Maize, and Soybean** at verifiable source prices.</p>
-                            </div>
-                            <div class="features-item-btton">
-                                <a href="{{ route('login') }}" class="features-btn">Go to Marketplace <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-warning rounded-circle fs-3">
+                                <i class="ri-community-line text-warning"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Video Area -->
-    <div class="video-area-2 position-relative mt-50">
-        <div class="video-area play-area" style="background-image: url('{{ asset('frontend/assets/img/survey_1.jpg') }}');"></div>
-        <div class="row g-0 justify-content-end">
-            <div class="col-xl-6 col-lg-6 video-col col-md-6 col-12">
-                <div class="video-box theme-bg pt-120 pb-90">
-                    <div class="video-content pl-120">
-                        <div class="tp-section-wrap tp-section-wrap-video">                        
-                            <h3 class="tp-section-title">Empowering Data-Driven Agricultural Policy</h3>
-                            <p>Our platform provides Benue State administrators with the verified, actionable intelligence needed to move beyond assumption and toward precision policy-making.</p>
-                        </div>
-                        <div class="video-features-list mt-50">
-                            <div class="row">
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-6">
-                                    <div class="video-features-item mb-30">
-                                        <i class="flaticon-save"></i>
-                                        <h5 class="video-features-title">Targeted Subsidies</h5>
+<!-- Critical Alerts -->
+@if($criticalAlerts['expiring_resources'] > 0 || $criticalAlerts['pending_approvals'] > 0)
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="ri-alert-line me-2"></i>
+            <strong>Attention Required:</strong>
+            @if($criticalAlerts['expiring_resources'] > 0)
+                <span class="me-3">{{ $criticalAlerts['expiring_resources'] }} resource(s) expiring within 7 days</span>
+            @endif
+            @if($criticalAlerts['pending_approvals'] > 0)
+                <span>{{ $criticalAlerts['pending_approvals'] }} farmer(s) awaiting LGA review</span>
+            @endif
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Analytical Modules -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-box-line me-1"></i> Policy & Analytics Hub
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Policy Insights -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.policy_insights.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                            <i class="ri-lightbulb-line text-primary"></i>
+                                        </span>
                                     </div>
-                                </div>
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-6">
-                                    <div class="video-features-item mb-30">
-                                        <i class="flaticon-digging"></i>
-                                        <h5 class="video-features-title">Precision Land Use</h5>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-6">
-                                    <div class="video-features-item mb-30">
-                                        <i class="flaticon-wheat-1"></i>
-                                        <h5 class="video-features-title">Improved Yield Forecast</h5>
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-lg-6 col-md-6 col-6">
-                                    <div class="video-features-item mb-30">
-                                        <i class="flaticon-box"></i>
-                                        <h5 class="video-features-title">Streamlined Extension</h5>
-                                    </div>
+                                    <h6 class="mb-2 text-dark">Policy Insights</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Demographics & production analysis
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="video-bg-image">
-                            <img src="{{ asset('frontend/assets/img/bg/bg-img-1.png') }}" alt="Background image" loading="lazy">
-                        </div>
+                        </a>
                     </div>
+
+                    <!-- Intervention Tracking -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.interventions.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                            <i class="ri-heart-pulse-line text-success"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Interventions</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Program effectiveness & reach
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- LGA Comparison -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.lga_comparison.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
+                                            <i class="ri-map-2-line text-info"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">LGA Comparison</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Regional performance ranking
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Trend Analysis -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('governor.trends.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
+                                            <i class="ri-line-chart-line text-warning"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Trends</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Temporal patterns & forecasts
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performing LGAs Snapshot -->
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
+                    <i class="ri-trophy-line me-1"></i> Top Performing LGAs
+                </h5>
+                <a href="{{ route('governor.lga_comparison.index') }}" class="btn btn-sm btn-soft-primary">
+                    View Full Comparison
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rank</th>
+                                <th>LGA</th>
+                                <th class="text-end">Farmers</th>
+                                <th class="text-end">Hectares</th>
+                                <th class="text-end">Avg. Farm Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($lgaSnapshot as $index => $lga)
+                            <tr>
+                                <td>
+                                    <span class="badge badge-soft-{{ $index === 0 ? 'success' : ($index === 1 ? 'info' : 'secondary') }}">
+                                        #{{ $index + 1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <h6 class="mb-0">{{ $lga['lga_name'] }}</h6>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-semibold">{{ number_format($lga['farmer_count']) }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-muted">-</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-muted">-</span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Latest News -->
-    <div class="latest-news-area-2 latest-news-area pt-120 pb-90 fix">
-        <div class="container container-fluid">
-            <div class="row">
-                <div class="col-xl-4 col-lg-4">
-                    <div class="tp-section-wrap blog-slider-content mb-30">                    
-                        <h3 class="tp-section-title">System Insights & Guides</h3>
-                        <p>Stay updated on platform enhancements, data collection best practices, and digital literacy guidance for all enrolled farmers and agents.</p>
-                    </div>
-                </div>
-                <div class="col-xl-8 col-lg-8">
-                    <div class="blog-slider blog-slider_active owl-carousel">
-                        <div class="latest-blog mb-30">
-                            <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/news_2.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
-                                <div class="top-catagory">
-                                    <a href="shop-details.html" class="postbox__meta">data</a>
-                                </div>
-                            </div>
-                            <div class="latest-blog-content">
-                                <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">July 17, 2025</a></span>
-                                </div>
-                                <h3 class="latest-blog-title">
-                                    <a href="news-details.html">Guide: Submitting Your Farm GPS Coordinates</a>
-                                </h3>
-                                <div class="blog-btn mt-20">
-                                    <a href="">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="latest-blog mb-30">
-                            <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/poultry.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
-                                <div class="top-catagory">
-                                    <a href="shop-details.html" class="postbox__meta">verification</a>
-                                </div>
-                            </div>
-                            <div class="latest-blog-content">
-                                <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">november 21, 2025</a></span>
-                                </div>
-                                <h3 class="latest-blog-title">
-                                    <a href="news-details.html">How LGA Admins Verify Farmer Data for Approval</a>
-                                </h3>
-                                <div class="blog-btn mt-20">
-                                    <a href="">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="latest-blog mb-30">
-                            <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/news_1.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
-                                <div class="top-catagory">
-                                    <a href="shop-details.html" class="postbox__meta">enrollment</a>
-                                </div>
-                            </div>
-                            <div class="latest-blog-content">
-                                <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="">October 7, 2025</a></span>
-                                </div>
-                                <h3 class="latest-blog-title">
-                                    <a href="news-details.html">Understanding the Role of the Enrollment Officer (EO)</a>
-                                </h3>
-                                <div class="blog-btn mt-20">
-                                    <a href="">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="latest-blog mb-30">
-                            <div class="latest-blog-img">
-                                <a href="news-details.html"><img src="{{ asset('frontend/assets/img/pigs_photo.jpg') }}" class="img-fluid" alt="Insights image" loading="lazy"></a>
-                                <div class="top-catagory">
-                                    <a href="shop-details.html" class="postbox__meta">data</a>
-                                </div>
-                            </div>
-                            <div class="latest-blog-content">
-                                <div class="latest-post-meta mb-15">
-                                    <span class="blog-date"><a href="news-details.html">August 28, 2025</a></span>
-                                </div>
-                                <h3 class="latest-blog-title">
-                                    <a href="news-details.html">Guide: Submitting Your Farm GPS Coordinates</a>
-                                </h3>
-                                <div class="blog-btn mt-20">
-                                    <a href="">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-flashlight-line me-1"></i> Quick Insights
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ route('governor.policy_insights.demographic_analysis') }}?gender=Female" class="btn btn-soft-primary text-start">
+                        <i class="ri-women-line align-middle me-2"></i>
+                        <span class="fw-medium">Female Farmers Analysis</span>
+                    </a>
+                    <a href="{{ route('governor.policy_insights.youth_engagement') }}" class="btn btn-soft-success text-start">
+                        <i class="ri-user-heart-line align-middle me-2"></i>
+                        <span class="fw-medium">Youth Engagement</span>
+                    </a>
+                    <a href="{{ route('governor.policy_insights.yield_projections') }}" class="btn btn-soft-info text-start">
+                        <i class="ri-seedling-line align-middle me-2"></i>
+                        <span class="fw-medium">Yield Projections</span>
+                    </a>
+                    <a href="{{ route('governor.interventions.coverage_analysis') }}" class="btn btn-soft-warning text-start">
+                        <i class="ri-radar-line align-middle me-2"></i>
+                        <span class="fw-medium">Coverage Gaps</span>
+                    </a>
+                    <a href="{{ route('analytics.export') }}" class="btn btn-soft-secondary text-start">
+                        <i class="ri-download-2-line align-middle me-2"></i>
+                        <span class="fw-medium">Export State Data</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Module Card Hover Effects
+    const moduleCards = document.querySelectorAll('.module-card');
+    moduleCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
+            this.style.borderColor = '#556ee6';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+            this.style.borderColor = '#e5e7eb';
+        });
+    });
+
+    // Counter animation
+    const counters = document.querySelectorAll('.counter-value');
+    const speed = 200;
+
+    counters.forEach(counter => {
+        const animate = () => {
+            const value = +counter.getAttribute('data-target');
+            const data = +counter.innerText.replace(/,/g, '');
+            const time = value / speed;
+            
+            if(data < value) {
+                counter.innerText = Math.ceil(data + time).toLocaleString();
+                setTimeout(animate, 1);
+            } else {
+                counter.innerText = value.toLocaleString();
+            }
+        }
+        
+        animate();
+    });
+});
+</script>
+
+<style>
+.module-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card-animate {
+    transition: all 0.3s ease;
+}
+
+.card-animate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
+@endpush

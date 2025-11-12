@@ -236,10 +236,46 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>                           
+                            </li>    
+                            
+                            <!-- Vendors Module -->
+                            <li class="{{ request()->routeIs('super_admin.vendors.*') ? 'mm-active' : '' }}">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-store-2-line"></i>
+                                    <span>Vendors</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li class="{{ request()->routeIs('super_admin.vendors.index') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.vendors.index') }}" class="submenu-item">
+                                            All Vendors
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- Resources Module -->
+                            <li class="{{ request()->routeIs('super_admin.resources.*') ? 'mm-active' : '' }}">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-database-2-line"></i>
+                                    <span>Resources</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li class="{{ request()->routeIs('super_admin.resources.index') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.resources.index') }}" class="submenu-item">
+                                            All Resources
+                                        </a>
+                                    </li>
+                                    <li class="{{ request()->routeIs('super_admin.resources.analytics') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('super_admin.resources.analytics') }}" class="submenu-item">
+                                            Analytics
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
 
                             <!-- Analytics -->
-                            @can('view_analytics')
+                            <!-- @can('view_analytics')
                             <li class="{{ request()->routeIs('analytics.*') ? 'mm-active' : '' }}">
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-line-chart-line"></i>
@@ -251,7 +287,7 @@
                                             <i class="ri-dashboard-3-line me-1"></i> Dashboard
                                         </a>
                                     </li>
-                                    <!-- <li class="{{ request()->routeIs('analytics.demographics') ? 'mm-active' : '' }}">
+                                    <li class="{{ request()->routeIs('analytics.demographics') ? 'mm-active' : '' }}">
                                         <a href="{{ route('analytics.demographics') }}" class="submenu-item">
                                             <i class="ri-group-line me-1"></i> Demographics
                                         </a>
@@ -290,13 +326,13 @@
                                         <a href="{{ route('analytics.lga_comparison') }}" class="submenu-item">
                                             <i class="ri-pie-chart-line me-1"></i> LGA Comparison
                                         </a>
-                                    </li> -->
+                                    </li>
                                 </ul>
                             </li>
-                            @endcan
+                            @endcan -->
 
                             <!-- Advanced Analytics -->
-                            @can('view_analytics')
+                            <!-- @can('view_analytics')
                             <li class="{{ request()->routeIs('analytics.advanced.*') ? 'mm-active' : '' }}">
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-bar-chart-box-line"></i>
@@ -315,10 +351,10 @@
                                     </li>
                                 </ul>
                             </li>
-                            @endcan
+                            @endcan -->
 
                             <!-- Reports -->
-                            @can('export_analytics')
+                            <!-- @can('export_analytics')
                             <li class="{{ request()->routeIs('analytics.export') ? 'mm-active' : '' }}">
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
                                     <i class="ri-file-list-line"></i>
@@ -347,37 +383,37 @@
                                     </li>
                                 </ul>
                             </li>
-                            @endcan
+                            @endcan -->
 
                             <!-- Support System -->
-                            @can('view_support_chats')
+                            <!-- @can('view_support_chats')
                             <li class="{{ request()->routeIs('admin.support.*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('admin.support.index') }}" class="waves-effect">
                                     <i class="ri-customer-service-2-line"></i>
                                     <span>Support System</span>
                                 </a>
                             </li>
-                            @endcan
+                            @endcan -->
 
                             <!-- Audit Logs -->
-                            @can('view_audit_logs')
+                            <!-- @can('view_audit_logs')
                             <li>
                                 <a href="#" class="waves-effect">
                                     <i class="ri-history-line"></i>
                                     <span>Audit Logs</span>
                                 </a>
                             </li>
-                            @endcan
+                            @endcan -->
 
                             <!-- System Settings -->
-                            @can('system_settings')
+                            <!-- @can('system_settings')
                             <li>
                                 <a href="#" class="waves-effect">
                                     <i class="ri-settings-3-line"></i>
                                     <span>System Settings</span>
                                 </a>
                             </li>
-                            @endcan
+                            @endcan -->
                                                       
                             <!-- Logout -->
                             <form action="{{ route('logout') }}" method="POST" id="logout-form">

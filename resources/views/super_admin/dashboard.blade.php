@@ -273,6 +273,7 @@
 
                     <!-- Resources Management -->
                     <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('super_admin.resources.index') }}" class="text-decoration-none">
                         <div class="card module-card border h-100" style="cursor: pointer;">
                             <div class="card-body text-center">
                                 <div class="avatar-sm mx-auto mb-3">
@@ -283,16 +284,15 @@
                                 <h6 class="mb-2 text-dark">Resources</h6>
                                 <p class="text-muted mb-0 font-size-13">
                                     Resources & beneficiaries
-                                </p>
-                                <div class="mt-2">
-                                    <span class="badge badge-soft-info">Coming Soon</span>
-                                </div>
+                                </p>                               
                             </div>
                         </div>
+                        </a>
                     </div>
 
                     <!-- Partners Management -->
                     <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('super_admin.vendors.index') }}" class="text-decoration-none">
                         <div class="card module-card border h-100" style="cursor: pointer;">
                             <div class="card-body text-center">
                                 <div class="avatar-sm mx-auto mb-3">
@@ -300,15 +300,13 @@
                                         <i class="ri-handshake-line text-danger"></i>
                                     </span>
                                 </div>
-                                <h6 class="mb-2 text-dark">Partners</h6>
+                                <h6 class="mb-2 text-dark">Vendors</h6>
                                 <p class="text-muted mb-0 font-size-13">
-                                    Partner activities & impact
-                                </p>
-                                <div class="mt-2">
-                                    <span class="badge badge-soft-info">Coming Soon</span>
-                                </div>
+                                    Vendors activities & impact
+                                </p>                                
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -424,7 +422,7 @@
 <!-- Distribution Tables -->
 <div class="row">
     <!-- Top Departments -->
-    <div class="col-xl-4">
+    <!-- <div class="col-xl-4">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0">
@@ -462,10 +460,10 @@
                 @endforelse
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Top Agencies -->
-    <div class="col-xl-4">
+    <!-- <div class="col-xl-4">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0">
@@ -501,10 +499,10 @@
                 @endforelse
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Top LGAs -->
-    <div class="col-xl-4">
+    <!-- <div class="col-xl-4">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="card-title mb-0">
@@ -542,7 +540,7 @@
                 @endforelse
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 @endsection
 
