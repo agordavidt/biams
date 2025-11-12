@@ -1,567 +1,42 @@
-=== layout ====
-<!DOCTYPE html>
-<html lang="en">
-
-        <head>
-            <meta charset="utf-8" />
-            <title>Admin | Benue State Smart Agricultural System and Data Management</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta content="Benue State Smart Agricultural System and Data Management" name="description" />
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            
-            <meta content="BDIC Team" name="author" />
-
-            <link rel="shortcut icon" href="{{ asset('dashboard/images/favicon.ico') }}">
-
-             <!-- Preload critical assets -->
-            <link rel="preload" href="{{ asset('dashboard/css/bootstrap.min.css') }}" as="style">
-            <link rel="preload" href="{{ asset('dashboard/js/app.js') }}" as="script">
-
-            <!-- Consolidated CSS bundles -->
-            <link href="{{ asset('dashboard/css/vendor-bundle.css') }}" rel="stylesheet">
-            <link href="{{ asset('dashboard/css/app-bundle.css') }}" rel="stylesheet">
-
-            <link href="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/libs/datatables.net-select-bs4/css//select.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-            <link href="{{ asset('dashboard/libs/magnific-popup/magnific-popup.css') }}" rel="stylesheet" type="text/css" />
-            <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
-            <style>
-             .status-badge {
-                padding: 0.25rem 0.5rem;
-                border-radius: 9999px;
-                font-size: 0.75rem;
-                font-weight: 500;
-            }
-            .status-pending {
-                background-color: #fef3c7;
-                color: #92400e;
-            }
-            .status-approved {
-                background-color: #dcfce7;
-                color: #166534;
-            }
-            .status-rejected {
-                background-color: #fee2e2;
-                color: #991b1b;
-            }
-            #map {
-                height: 500px;
-                width: 100%;
-                border-radius: 0.5rem;
-                border: 1px solid #e5e7eb;
-            }
-            .action-btn {
-                padding: 0.25rem;
-                border-radius: 0.375rem;
-                border: none;
-                background: transparent;
-            }
-            .action-btn:hover {
-                background-color: #f3f4f6;
-            }
-            .approve-btn:hover {
-                color: #059669;
-                background-color: #ecfdf5;
-            }
-            .reject-btn:hover {
-                color: #dc2626;
-                background-color: #fef2f2;
-            }
-            /* Badge soft colors */
-            .badge-soft-primary { background-color: #e0e7ff; color: #4f46e5; }
-            .badge-soft-success { background-color: #dcfce7; color: #166534; }
-            .badge-soft-warning { background-color: #fef3c7; color: #92400e; }
-            .badge-soft-danger { background-color: #fee2e2; color: #991b1b; }
-            .badge-soft-info { background-color: #dbeafe; color: #1e40af; }
-            .badge-soft-secondary { background-color: #f3f4f6; color: #4b5563; }
-            .badge-soft-dark { background-color: #e5e7eb; color: #1f2937; }
-        </style>
-        </head>
-
-    <body data-topbar="dark">
-    
-    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
-        <!-- Begin page -->
-        <div id="layout-wrapper">
-
-            
-            <header id="page-topbar" style="background: #38761D;">
-                <div class="navbar-header">
-                    <div class="d-flex">
-                        <!-- LOGO -->
-                        <div class="navbar-brand-box">
-                            <a href="#" class="logo logo-dark">
-                                <span class="logo-sm">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
-                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
-                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
-                                </span>
-                            </a>
-
-                            <a href="#" class="logo logo-light">
-                                <span class="logo-sm">
-                                
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
-                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="Benue Agro Market Logo" height="40">
-                                {{-- <img src="{{ asset('dashboard/images/B-lgo-2.png') }}" alt="logo-light"> --}}
-
-                                </span>
-                            </a>
-                        </div>
-
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                            <i class="ri-menu-2-line align-middle"></i>
-                        </button>
-
-                        <!-- App Search-->
-                        <form class="app-search d-none d-lg-block">
-                            <div class="position-relative">
-                                <input type="text" class="form-control" placeholder="Search...">
-                                <span class="ri-search-line"></span>
-                            </div>
-                        </form>
-
-                      
-                    </div>
-
-                    <div class="d-flex">
-
-                        <div class="dropdown d-inline-block d-lg-none ms-2">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-search-line"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                aria-labelledby="page-header-search-dropdown">
-                    
-                                <form class="p-3">
-                                    <div class="mb-3 m-0">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search ...">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        
-
-                       <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <!-- <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
-                                    alt="Header Avatar"> -->
-                                <span class="d-none d-xl-inline-block ms-1">{{ auth()->user()->name }}</span>
-                                <!-- <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i> -->
-                            </button>
-                          
-                        </div>                        
-            
-                    </div>
-                </div>
-            </header>
-
-            <!-- ========== Left Sidebar Start ========== -->
-            <div class="vertical-menu">
-
-                <div data-simplebar class="h-100">
-                   
-
-                   <!--- Sidemenu -->
-                    <div id="sidebar-menu">
-                        <!-- Left Menu Start -->
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>                            
-
-                            <li>
-                                <a href="{{ route('admin.dashboard') }}" class="waves-effect">
-                                    <i class="ri-dashboard-line me-2"></i>
-                                    <span class="badge rounded-pill bg-success float-end"></span>
-                                    <span>Dashboard</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="{{ route('admin.users.index') }}" class="waves-effect">
-                                    <i class="ri-team-line me-2"></i>
-                                    <span>System Staff</span>
-                                </a>                               
-                            </li>
-
-                            <!-- Farm Practices Menu -->
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-plant-line me-2"></i>
-                                    <span>Farm Practices</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('admin.farm-practices.index') }}">
-                                        <i class="ri-dashboard-line me-1"></i> Overview
-                                    </a></li>
-                                    <li><a href="{{ route('admin.farm-practices.crops') }}">
-                                        <i class="ri-seedling-line me-1"></i> Crop Farming
-                                    </a></li>
-                                    <li><a href="{{ route('admin.farm-practices.livestock') }}">
-                                        <i class="ri-bear-smile-line me-1"></i> Livestock
-                                    </a></li>
-                                    <li><a href="{{ route('admin.farm-practices.fisheries') }}">
-                                        <i class="ri-ship-line me-1"></i> Fisheries
-                                    </a></li>
-                                    <li><a href="{{ route('admin.farm-practices.orchards') }}">
-                                        <i class="ri-plant-line me-1"></i> Orchards
-                                    </a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.cooperatives.index') }}" class="waves-effect">
-                                    <i class="ri-community-line me-2"></i>
-                                    <span>Cooperatives</span>                                    
-                                </a>
-                            </li>
-
-                            <!-- <li>
-                                <a href="{{ route('admin.partners.index') }}" class="waves-effect">
-                                    <i class="ri-group-line me-2"></i>
-                                    <span>Partners</span>
-                                </a>
-                            </li>   -->
-                            <li>
-                                <a href="{{ route('admin.vendors.index') }}" class="waves-effect">
-                                    <i class="ri-store-3-line me-2"></i>
-                                    <span>Vendors</span>
-                                </a>
-                            </li> 
-                            <!-- Resources Menu - Unified -->
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-database-2-line me-2"></i>
-                                    <span>Resources</span>
-                                    @php
-                                        $pendingReviewCount = \App\Models\Resource::vendorResources()->where('status', 'proposed')->count();
-                                        $pendingApplications = \App\Models\ResourceApplication::where('status', 'pending')->count();
-                                    @endphp
-                                    @if($pendingReviewCount > 0 || $pendingApplications > 0)
-                                        <span class="badge rounded-pill bg-warning float-end">
-                                            {{ $pendingReviewCount + $pendingApplications }}
-                                        </span>
-                                    @endif
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li>
-                                        <a href="{{ route('admin.resources.index') }}" class="waves-effect">
-                                            <i class="ri-list-check me-2"></i>
-                                            <span>All Resources</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
-                                            <i class="ri-file-list-3-line me-2"></i>
-                                            <span>Vendor Review</span>
-                                            @if($pendingReviewCount > 0)
-                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingReviewCount }}</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.applications.index') }}" class="waves-effect">
-                                            <i class="ri-file-check-line me-2"></i>
-                                            <span>Applications</span>
-                                            @if($pendingApplications > 0)
-                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingApplications }}</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.resources.create') }}" class="waves-effect">
-                                            <i class="ri-add-line me-2"></i>
-                                            <span>Create Resource</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                         
-                            <li class="nav-item">
-                                <a href="{{ route('admin.resources.applications.index') }}" class="nav-link">
-                                    <i class="ri-file-list-line"></i> Applications
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.support.index') }}" class="waves-effect">
-                                    <i class="ri-customer-service-2-line me-2"></i>
-                                    <span>Support System</span>
-                                </a>
-                            </li>
-
-                            <!-- Marketplace Menu -->
-                            @can('manage_supplier_catalog')
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-store-2-line me-2"></i>
-                                    <span>Marketplace</span>
-                                    @php
-                                        $pendingCount = \App\Models\Market\MarketplaceListing::where('status', 'pending_review')->count();
-                                    @endphp
-                                    @if($pendingCount > 0)
-                                        <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
-                                    @endif
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li>
-                                        <a href="{{ route('admin.marketplace.dashboard') }}">
-                                            <i class="ri-dashboard-line me-1"></i> Dashboard
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.marketplace.listings') }}">
-                                            <i class="ri-shopping-bag-line me-1"></i> Listings
-                                            @if($pendingCount > 0)
-                                                <span class="badge rounded-pill bg-warning float-end">{{ $pendingCount }}</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.marketplace.categories') }}">
-                                            <i class="ri-list-check me-1"></i> Categories
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.marketplace.subscriptions') }}">
-                                            <i class="ri-vip-crown-line me-1"></i> Subscriptions
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.marketplace.analytics') }}">
-                                            <i class="ri-line-chart-line me-1"></i> Analytics
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            @endcan
-                            
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form"> 
-                                @csrf 
-                                <li> 
-                                    <a class="text-danger" href="#" id="logout-link"> 
-                                        <i class="ri-shut-down-line align-middle me-1 text-danger"></i> 
-                                        <span>Logout</span> 
-                                    </a> 
-                                </li> 
-                            </form>
-                        </ul>
-                    </div>
-                    <!-- Sidebar -->
-                </div>
-            </div>
-            <!-- Left Sidebar End -->
-              <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
-            <div class="main-content">
-
-                <div class="page-content">
-                    <div class="container-fluid">
-
-                    <!-- Flash Messages -->
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="ri-checkbox-circle-line me-2"></i>
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="ri-error-warning-line me-2"></i>
-                            {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @if(session('warning'))
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <i class="ri-alert-line me-2"></i>
-                            {{ session('warning') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @if(session('info'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <i class="ri-information-line me-2"></i>
-                            {{ session('info') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="ri-error-warning-line me-2"></i>
-                            <strong>Validation Errors:</strong>
-                            <ul class="mb-0 mt-2">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @yield('content')
-
-                <!-- container-fluid -->   
-                    </div> 
-                    </div>
-                <!-- End Page-content -->
-
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © Benue State Smart Agricultural System and Data Management.
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Powered by BDIC
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-
-                </div>
-                <!-- end main content-->
-
-                </div>
-                <!-- END layout-wrapper -->
-
-        <script src="{{ asset('dashboard/libs/jquery/jquery.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/metismenu/metisMenu.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/simplebar/simplebar.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/node-waves/waves.min.js') }}"></script>
-
-        <script src="{{ asset('dashboard/libs/apexcharts/apexcharts.min.js') }}"></script>
-
-        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js') }}"></script>
-
-        <script src="{{ asset('dashboard/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/jszip/jszip.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/pdfmake/build/pdfmake.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/pdfmake/build/vfs_fonts.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-select/js/dataTables.select.min.js') }}"></script>
-
-        <script src="{{ asset('dashboard/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dashboard/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-
-        <script src="{{ asset('dashboard/js/pages/datatables.init.js') }}"></script>
-
-        <script src="{{ asset('dashboard/js/app.js') }}"></script>
-
-        <script src="{{ asset('dashboard/libs/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
-
-        <script src="{{ asset('dashboard/js/pages/lightbox.init.js') }}"></script>
-        <!-- Optimized Script Loading -->
-        <script src="{{ asset('dashboard/js/vendor-bundle.js') }}" defer></script>
-        <script src="{{ asset('dashboard/js/app-bundle.js') }}" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-        <!-- Add Alpine.js for form interactions -->
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js" defer></script>
-
-        <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
-        <!--- sweet alert ---->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-        <script> 
-        document.getElementById('logout-link').addEventListener('click', function(event) { 
-            event.preventDefault(); 
-            document.getElementById('logout-form').submit(); 
-        }); 
-        </script>
-
-        <!-- Auto-hide alerts after 5 seconds -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                var alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    var bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
-        </script>
-
-        @stack('scripts')
-    </body>
-
-</html>
-
-
-
-
-=== farm-practice/orchard view ==
+=== admin dashboard ==
 @extends('layouts.admin')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">Orchard Farming Analytics</h4>
+            <h4 class="mb-sm-0">State Admin Dashboard</h4>
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('admin.farm-practices.index') }}">Farm Practices</a></li>
-                    <li class="breadcrumb-item active">Orchards</li>
+                    <li class="breadcrumb-item active">Dashboard</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Statistics -->
+<!-- Quick Stats -->
 <div class="row">
     <div class="col-xl-3 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Orchards</p>
-                        <h4 class="mb-0">{{ number_format($orchardStats['totalOrchards']) }}</h4>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Farmers</p>
+                        <h4 class="mb-0">{{ number_format($stats['totalFarmers']) }}</h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="badge badge-soft-success">
+                                <i class="ri-arrow-up-line align-middle"></i>
+                                {{ number_format($stats['activeFarmers']) }}
+                            </span>
+                            <span class="ms-1 text-muted font-size-12">Active</span>
+                        </p>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-primary rounded-circle fs-3">
-                                <i class="ri-plant-line text-primary"></i>
+                                <i class="ri-user-3-line text-primary"></i>
                             </span>
                         </div>
                     </div>
@@ -575,34 +50,17 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Total Trees</p>
-                        <h4 class="mb-0">{{ number_format($orchardStats['totalTrees']) }}</h4>
-                        <p class="text-muted mb-0 mt-1"><small>All species</small></p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="avatar-sm">
-                            <span class="avatar-title bg-soft-success rounded-circle fs-3">
-                                <i class="ri-leaf-line text-success"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Avg Trees per Orchard</p>
-                        <h4 class="mb-0">{{ number_format($orchardStats['avgTreesPerOrchard'], 0) }}</h4>
+                        <p class="text-uppercase fw-medium text-muted mb-1">System Staff</p>
+                        <h4 class="mb-0">{{ number_format($stats['totalStaff']) }}</h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="badge badge-soft-info">{{ number_format($stats['lgaAdmins']) }} Admins</span>
+                            <span class="badge badge-soft-success ms-1">{{ number_format($stats['enrollmentAgents']) }} Agents</span>
+                        </p>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-info rounded-circle fs-3">
-                                <i class="ri-bar-chart-line text-info"></i>
+                                <i class="ri-team-line text-info"></i>
                             </span>
                         </div>
                     </div>
@@ -616,14 +74,43 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <p class="text-uppercase fw-medium text-muted mb-1">Tree Species</p>
-                        <h4 class="mb-0">{{ $orchardStats['treeTypes']->count() }}</h4>
-                        <p class="text-muted mb-0 mt-1"><small>Types cultivated</small></p>
+                        <p class="text-uppercase fw-medium text-muted mb-1">Total Farmlands</p>
+                        <h4 class="mb-0">{{ number_format($stats['totalFarmLands']) }}</h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="text-muted font-size-12">
+                                {{ number_format($stats['totalLandSize'], 2) }} Hectares
+                            </span>
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-success rounded-circle fs-3">
+                                <i class="ri-landscape-line text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="text-uppercase fw-medium text-muted mb-1">Pending Approvals</p>
+                        <h4 class="mb-0">{{ number_format($stats['pendingApproval']) }}</h4>
+                        <p class="text-muted mb-0 mt-2">
+                            <span class="badge badge-soft-warning">
+                                <i class="ri-time-line align-middle"></i> Needs Attention
+                            </span>
+                        </p>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="avatar-sm">
                             <span class="avatar-title bg-soft-warning rounded-circle fs-3">
-                                <i class="ri-list-check text-warning"></i>
+                                <i class="ri-file-list-line text-warning"></i>
                             </span>
                         </div>
                     </div>
@@ -633,177 +120,350 @@
     </div>
 </div>
 
-<!-- Tree Type & Maturity Distribution -->
+<!-- System Modules -->
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
-            <div class="card-header bg-soft-primary">
+            <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="ri-bar-chart-box-line me-1"></i> Tree Type Distribution
+                    <i class="ri-apps-line me-1"></i> System Modules
                 </h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tree Type</th>
-                                <th class="text-center">Number of Orchards</th>
-                                <th class="text-end">Total Trees</th>
-                                <th class="text-end">Avg Trees per Orchard</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orchardStats['treeTypes'] as $tree)
-                            <tr>
-                                <td><strong>{{ ucfirst($tree->tree_type) }}</strong></td>
-                                <td class="text-center">
-                                    <span class="badge badge-soft-primary fs-6">{{ number_format($tree->farm_count) }}</span>
-                                </td>
-                                <td class="text-end"><strong>{{ number_format($tree->total_trees) }}</strong></td>
-                                <td class="text-end">{{ number_format($tree->total_trees / $tree->farm_count, 0) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <th>Total</th>
-                                <th class="text-center">{{ number_format($orchardStats['totalOrchards']) }}</th>
-                                <th class="text-end">{{ number_format($orchardStats['totalTrees']) }}</th>
-                                <th class="text-end">{{ number_format($orchardStats['avgTreesPerOrchard'], 0) }}</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+                <div class="row g-3">
+                    <!-- Farm Practices Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.farm-practices.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                            <i class="ri-plant-line text-success"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Farm Practices</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Agricultural analytics & insights
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
 
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header bg-soft-success">
-                <h5 class="card-title mb-0">
-                    <i class="ri-timer-line me-1"></i> Maturity Stage
-                </h5>
-            </div>
-            <div class="card-body">
-                <canvas id="maturityChart" height="300"></canvas>
-                <div class="table-responsive mt-3">
-                    <table class="table table-sm table-borderless mb-0">
-                        <tbody>
-                            @foreach($orchardStats['maturityDistribution'] as $maturity)
-                            <tr>
-                                <td><strong>{{ ucfirst(str_replace('_', ' ', $maturity->maturity_stage)) }}</strong></td>
-                                <td class="text-end">
-                                    <span class="badge badge-soft-success">{{ number_format($maturity->count) }}</span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <!-- System Staff Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.users.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                            <i class="ri-team-line text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">System Staff</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        LGA Admins & Enrollment Agents
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Cooperatives Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.cooperatives.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
+                                            <i class="ri-community-line text-info"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Cooperatives</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Farmer cooperatives management
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Partners Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.vendors.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-warning fs-3">
+                                            <i class="ri-handshake-line text-warning"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Vendors</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Strategic partnerships
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Resources Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.resources.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-danger fs-3">
+                                            <i class="ri-database-2-line text-danger"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Resources</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Agricultural resources & inputs
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Marketplace Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.marketplace.dashboard') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-success fs-3">
+                                            <i class="ri-store-line text-success"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Marketplace</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Agricultural trading platform
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Abattoirs Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="#" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-info fs-3">
+                                            <i class="ri-building-line text-info"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Abattoirs</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Abattoir & livestock management
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Support Module -->
+                    <div class="col-xl-3 col-md-6">
+                        <a href="{{ route('admin.support.index') }}" class="text-decoration-none">
+                            <div class="card module-card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <span class="avatar-title rounded-circle bg-soft-primary fs-3">
+                                            <i class="ri-customer-service-2-line text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="mb-2 text-dark">Support System</h6>
+                                    <p class="text-muted mb-0 font-size-13">
+                                        Help desk & user support
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Farm Details with Filters -->
+<!-- Farm Type Distribution & Recent Activity -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-xl-6">
         <div class="card">
             <div class="card-header">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <h5 class="card-title mb-0">Orchard Details</h5>
+                <h5 class="card-title mb-0">
+                    <i class="ri-pie-chart-line me-1"></i> Farm Type Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                @if($farmTypeDistribution->isNotEmpty())
+                    <div class="mb-3">
+                        <canvas id="farmTypeChart" height="250"></canvas>
                     </div>
-                    <div class="col-md-8">
-                        <form method="GET" class="row g-2">
-                            <div class="col-md-4">
-                                <select name="tree_type" class="form-select">
-                                    <option value="">All Tree Types</option>
-                                    @foreach($orchardStats['treeTypes'] as $tree)
-                                        <option value="{{ $tree->tree_type }}" {{ request('tree_type') == $tree->tree_type ? 'selected' : '' }}>
-                                            {{ ucfirst($tree->tree_type) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select name="maturity_stage" class="form-select">
-                                    <option value="">All Stages</option>
-                                    @foreach($orchardStats['maturityDistribution'] as $stage)
-                                        <option value="{{ $stage->maturity_stage }}" {{ request('maturity_stage') == $stage->maturity_stage ? 'selected' : '' }}>
-                                            {{ ucfirst(str_replace('_', ' ', $stage->maturity_stage)) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select name="lga_id" class="form-select">
-                                    <option value="">All LGAs</option>
-                                    @foreach($lgas as $lga)
-                                        <option value="{{ $lga->id }}" {{ request('lga_id') == $lga->id ? 'selected' : '' }}>
-                                            {{ $lga->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="ri-filter-line"></i> Filter
-                                </button>
-                            </div>
-                        </form>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                @foreach($farmTypeDistribution as $type => $count)
+                                <tr>
+                                    <td style="width: 60%">
+                                        @php
+                                            $icons = [
+                                                'Crops' => 'ri-seedling-line text-success',
+                                                'Livestock' => 'ri-bear-smile-line text-warning',
+                                                'Fisheries' => 'ri-ship-line text-info',
+                                                'Orchards' => 'ri-plant-line text-primary'
+                                            ];
+                                        @endphp
+                                        <i class="{{ $icons[$type] ?? 'ri-plant-line' }} me-2"></i>
+                                        <strong>{{ $type }}</strong>
+                                    </td>
+                                    <td class="text-end" style="width: 40%">
+                                        <span class="badge badge-soft-primary">{{ number_format($count) }} farms</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="border-top">
+                                <tr>
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-end">
+                                        <strong>{{ number_format($farmTypeDistribution->sum()) }} farms</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                </div>
+                @else
+                    <div class="text-center py-4 text-muted">
+                        <i class="ri-plant-line fs-1 d-block mb-2"></i>
+                        <p class="mb-0">No farm data available yet</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-user-add-line me-1"></i> Recent Staff Registrations
+                </h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover table-nowrap align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
-                                <th>Farm Name</th>
-                                <th>Farmer</th>
-                                <th>LGA</th>
-                                <th>Tree Type</th>
-                                <th class="text-center">Number of Trees</th>
-                                <th class="text-end">Farm Size (Ha)</th>
-                                <th>Maturity Stage</th>
+                                <th>Staff Member</th>
+                                <th>Role</th>
+                                <th>Unit</th>
+                                <th>Date Added</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($orchards as $orchard)
+                            @forelse($recentStaff as $staff)
                             <tr>
-                                <td>{{ $loop->iteration + ($orchards->currentPage() - 1) * $orchards->perPage() }}</td>
-                                <td><strong>{{ $orchard->farmLand->name ?? 'Unnamed' }}</strong></td>
-                                <td>{{ $orchard->farmLand->farmer->full_name ?? 'N/A' }}</td>
-                                <td>{{ $orchard->farmLand->farmer->lga->name ?? 'N/A' }}</td>
-                                <td><span class="badge badge-soft-primary">{{ ucfirst($orchard->tree_type) }}</span></td>
-                                <td class="text-center"><strong>{{ number_format($orchard->number_of_trees) }}</strong></td>
-                                <td class="text-end">{{ number_format($orchard->farmLand->total_size_hectares, 2) }}</td>
                                 <td>
-                                    <span class="badge badge-soft-success">
-                                        {{ ucfirst(str_replace('_', ' ', $orchard->maturity_stage)) }}
-                                    </span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 me-2">
+                                            <div class="avatar-xs">
+                                                <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-6">
+                                                    {{ strtoupper(substr($staff->name, 0, 1)) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0 font-size-14">{{ $staff->name }}</h6>
+                                            <small class="text-muted">{{ $staff->email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if($staff->hasRole('LGA Admin'))
+                                        <span class="badge badge-soft-primary">LGA Admin</span>
+                                    @elseif($staff->hasRole('Enrollment Agent'))
+                                        <span class="badge badge-soft-success">Enrollment Agent</span>
+                                    @else
+                                        <span class="badge badge-soft-secondary">Staff</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($staff->administrativeUnit)
+                                        <small>{{ $staff->administrativeUnit->name }}</small>
+                                    @else
+                                        <small class="text-muted">Not assigned</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <small>{{ $staff->created_at->format('M d, Y') }}</small>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">
-                                    <i class="ri-plant-line fs-1 d-block mb-2"></i>
-                                    <p class="mb-0">No orchard data found</p>
+                                <td colspan="4" class="text-center py-3 text-muted">
+                                    No recent registrations
                                 </td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                @if($orchards->hasPages())
-                <div class="mt-3">
-                    {{ $orchards->links() }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-box-line me-1"></i> System Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3 border-end">
+                            <h4 class="mb-1 text-primary">{{ number_format($stats['totalLGAs']) }}</h4>
+                            <p class="text-muted mb-0">LGAs</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3 border-end">
+                            <h4 class="mb-1 text-success">{{ number_format($stats['totalCooperatives']) }}</h4>
+                            <p class="text-muted mb-0">Cooperatives</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3 border-end">
+                            <h4 class="mb-1 text-info">{{ number_format($stats['totalMembers']) }}</h4>
+                            <p class="text-muted mb-0">Coop Members</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3 border-end">
+                            <h4 class="mb-1 text-warning">{{ number_format($stats['lgaAdmins']) }}</h4>
+                            <p class="text-muted mb-0">LGA Admins</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3 border-end">
+                            <h4 class="mb-1 text-primary">{{ number_format($stats['enrollmentAgents']) }}</h4>
+                            <p class="text-muted mb-0">Agents</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6">
+                        <div class="py-3">
+                            <h4 class="mb-1 text-success">{{ number_format($stats['totalLandSize'], 2) }}</h4>
+                            <p class="text-muted mb-0">Total Hectares</p>
+                        </div>
+                    </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>
@@ -812,40 +472,458 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const maturityCtx = document.getElementById('maturityChart');
-if (maturityCtx) {
-    const maturityData = @json($orchardStats['maturityDistribution']);
-    new Chart(maturityCtx, {
-        type: 'doughnut',
-        data: {
-            labels: maturityData.map(m => m.maturity_stage.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')),
-            datasets: [{
-                data: maturityData.map(m => m.count),
-                backgroundColor: [
-                    'rgba(52, 195, 143, 0.8)',
-                    'rgba(244, 184, 59, 0.8)',
-                    'rgba(85, 110, 230, 0.8)',
-                    'rgba(80, 165, 241, 0.8)'
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 10,
-                        font: { size: 11 }
+// Module Card Hover Effects
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleCards = document.querySelectorAll('.module-card');
+    moduleCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
+            this.style.borderColor = '#556ee6';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+            this.style.borderColor = '#e5e7eb';
+        });
+    });
+});
+
+// Farm Type Distribution Chart
+const farmTypeCtx = document.getElementById('farmTypeChart');
+if (farmTypeCtx) {
+    const farmTypeData = @json($farmTypeDistribution);
+    
+    if (Object.keys(farmTypeData).length > 0) {
+        new Chart(farmTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(farmTypeData),
+                datasets: [{
+                    data: Object.values(farmTypeData),
+                    backgroundColor: [
+                        'rgba(52, 195, 143, 0.8)',   // Success - Crops
+                        'rgba(244, 184, 59, 0.8)',   // Warning - Livestock
+                        'rgba(80, 165, 241, 0.8)',   // Info - Fisheries
+                        'rgba(85, 110, 230, 0.8)'    // Primary - Orchards
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                            }
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 }
 </script>
+
+<style>
+.module-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card-animate {
+    transition: all 0.3s ease;
+}
+
+.card-animate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
 @endpush
 @endsection
+
+
+=== state admin dashboard ===
+/*
+|--------------------------------------------------------------------------
+| State Admin Routes (UPDATED FOR STREAMLINED WORKFLOW)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [StateAdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Users Module
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    
+    // Farm Practices
+    Route::prefix('farm-practices')->name('farm-practices.')->group(function () {
+        Route::get('/', [FarmPracticeController::class, 'index'])->name('index');
+        Route::get('/crops', [FarmPracticeController::class, 'crops'])->name('crops');
+        Route::get('/livestock', [FarmPracticeController::class, 'livestock'])->name('livestock');
+        Route::get('/fisheries', [FarmPracticeController::class, 'fisheries'])->name('fisheries');
+        Route::get('/orchards', [FarmPracticeController::class, 'orchards'])->name('orchards');
+    });
+
+    // Partner Management
+    Route::prefix('partners')->name('partners.')->group(function () {
+        Route::get('/', [PartnerController::class, 'index'])->name('index');
+        Route::get('/create', [PartnerController::class, 'create'])->name('create');
+        Route::post('/', [PartnerController::class, 'store'])->name('store');
+        Route::get('/{partner}', [PartnerController::class, 'show'])->name('show');
+        Route::get('/{partner}/edit', [PartnerController::class, 'edit'])->name('edit');
+        Route::put('/{partner}', [PartnerController::class, 'update'])->name('update');
+        Route::delete('/{partner}', [PartnerController::class, 'destroy'])->name('destroy');
+    });
+
+    // Vendor Management
+    Route::prefix('vendors')->name('vendors.')->group(function () {
+        Route::get('/', [VendorController::class, 'index'])->name('index');
+        Route::get('/create', [VendorController::class, 'create'])->name('create');
+        Route::post('/', [VendorController::class, 'store'])->name('store');
+        Route::get('/{vendor}', [VendorController::class, 'show'])->name('show');
+        Route::get('/{vendor}/edit', [VendorController::class, 'edit'])->name('edit');
+        Route::put('/{vendor}', [VendorController::class, 'update'])->name('update');
+        Route::delete('/{vendor}', [VendorController::class, 'destroy'])->name('destroy');
+        Route::patch('/{vendor}/toggle-status', [VendorController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Resource Review Routes
+    Route::prefix('resources/review')->name('resources.review.')->group(function () {
+        Route::get('/', [ResourceReviewController::class, 'index'])->name('index');
+        Route::get('/{resource}', [ResourceReviewController::class, 'show'])->name('show');
+        Route::get('/{resource}/edit', [ResourceReviewController::class, 'edit'])->name('edit');
+        Route::put('/{resource}', [ResourceReviewController::class, 'update'])->name('update');
+        Route::patch('/{resource}/approve', [ResourceReviewController::class, 'approve'])->name('approve');
+        Route::patch('/{resource}/reject', [ResourceReviewController::class, 'reject'])->name('reject');
+        Route::patch('/{resource}/publish', [ResourceReviewController::class, 'publish'])->name('publish');
+        Route::patch('/{resource}/unpublish', [ResourceReviewController::class, 'unpublish'])->name('unpublish');
+        Route::patch('/{resource}/mark-under-review', [ResourceReviewController::class, 'markUnderReview'])->name('mark-under-review');
+    });
+
+    // Resource Management Routes
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::get('/', [ResourceController::class, 'index'])->name('index');
+        Route::get('/create', [ResourceController::class, 'create'])->name('create');
+        Route::post('/', [ResourceController::class, 'store'])->name('store');
+        Route::get('/{resource}/edit', [ResourceController::class, 'edit'])->name('edit');
+        Route::put('/{resource}', [ResourceController::class, 'update'])->name('update');
+        Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
+    });
+    
+    // =====================================================================
+    // UPDATED: Resource Applications - Admin Oversight (Streamlined)
+    // =====================================================================
+    Route::prefix('applications')->name('applications.')->group(function () {
+        // Main listing with filters
+        Route::get('/', [ResourceApplicationController::class, 'index'])->name('index');
+        
+        // NEW: Analytics dashboard for oversight
+        Route::get('/analytics', [ResourceApplicationController::class, 'analytics'])->name('analytics');
+        
+        // Export functionality
+        Route::get('/export', [ResourceApplicationController::class, 'export'])->name('export');
+        
+        // Individual application view
+        Route::get('/{application}', [ResourceApplicationController::class, 'show'])->name('show');
+        
+        // Admin actions (primarily for ministry resources or emergency override)
+        Route::post('/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('grant');
+        Route::post('/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('decline');
+        Route::post('/{application}/fulfill', [ResourceApplicationController::class, 'fulfill'])->name('fulfill');
+        
+        // NEW: Payment verification tool for admin oversight
+        Route::get('/{application}/verify-payment', [ResourceApplicationController::class, 'verifyPayment'])->name('verify-payment');
+        
+        // Bulk operations
+        Route::post('/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('bulk-update');
+    });
+
+    // Alternative naming for backward compatibility (keeping both paths)
+    Route::prefix('resources')->name('resources.')->group(function () {
+        Route::prefix('applications')->name('applications.')->group(function () {
+            Route::get('/', [ResourceApplicationController::class, 'index'])->name('index');
+            Route::get('/analytics', [ResourceApplicationController::class, 'analytics'])->name('analytics');
+            Route::get('/export', [ResourceApplicationController::class, 'export'])->name('export');
+            Route::get('/{application}', [ResourceApplicationController::class, 'show'])->name('show');
+            Route::post('/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('grant');
+            Route::post('/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('decline');
+            Route::post('/{application}/fulfill', [ResourceApplicationController::class, 'fulfill'])->name('fulfill');
+            Route::get('/{application}/verify-payment', [ResourceApplicationController::class, 'verifyPayment'])->name('verify-payment');
+            Route::post('/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('bulk-update');
+        });
+    });
+
+    // Cooperative Viewing
+    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
+        Route::get('/', [CooperativeViewController::class, 'index'])
+            ->name('index')
+            ->middleware('permission:view_all_cooperatives');
+        Route::get('/{cooperative}', [CooperativeViewController::class, 'show'])
+            ->name('show')
+            ->middleware('permission:view_cooperative_details');
+        Route::get('/export', [CooperativeViewController::class, 'export'])
+            ->name('export')
+            ->middleware('permission:export_cooperatives');
+    });
+
+    // Marketplace Management
+    Route::prefix('marketplace')->name('marketplace.')->middleware('permission:manage_supplier_catalog')->group(function () {
+        Route::get('/dashboard', [MarketplaceAdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/listings', [MarketplaceAdminController::class, 'listings'])->name('listings');
+        Route::post('/listings/{listing}/approve', [MarketplaceAdminController::class, 'approveListing'])->name('approve');
+        Route::post('/listings/{listing}/reject', [MarketplaceAdminController::class, 'rejectListing'])->name('reject');
+        Route::delete('/listings/{listing}', [MarketplaceAdminController::class, 'removeListing'])->name('remove');
+        Route::get('/categories', [MarketplaceAdminController::class, 'categories'])->name('categories');
+        Route::post('/categories', [MarketplaceAdminController::class, 'storeCategory'])->name('categories.store');
+        Route::put('/categories/{category}', [MarketplaceAdminController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{category}', [MarketplaceAdminController::class, 'deleteCategory'])->name('categories.destroy');
+        Route::get('/subscriptions', [MarketplaceAdminController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/subscriptions/export', [MarketplaceAdminController::class, 'exportSubscriptions'])->name('subscriptions.export');
+        Route::get('/analytics', [MarketplaceAdminController::class, 'analytics'])->name('analytics');
+        Route::get('/reports/export', [MarketplaceAdminController::class, 'exportReport'])->name('reports.export');
+    });
+
+    // Support
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/{chat}', [ChatController::class, 'show'])->name('show');
+        Route::post('/{chat}/messages', [ChatController::class, 'sendMessage'])->name('send-message');
+        Route::post('/{chat}/assign', [ChatController::class, 'assign'])->name('assign');
+        Route::post('/{chat}/resolve', [ChatController::class, 'resolve'])->name('resolve');
+        Route::get('/{chat}/poll', [ChatController::class, 'poll'])->name('poll');
+    });
+});
+/*
+
+
+
+
+
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Cooperative;
+use App\Models\LGA;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
+class CooperativeViewController extends Controller
+{
+    /**
+     * Display a listing of all cooperatives in the state
+     */
+
+    public function index(Request $request)
+    {
+        // Base query with optimized relationships
+        $query = Cooperative::with([
+            'lga:id,name',
+            'registeredBy:id,name',
+        ])->withCount([
+            'members as total_members_count',
+            'primaryFarmers as primary_farmers_count'
+        ]);
+
+        // Add active members count using direct subquery (most reliable approach)
+        $query->addSelect([
+            'active_members_count' => function($query) {
+                $query->select(DB::raw('COUNT(*)'))
+                    ->from('cooperative_farmer')
+                    ->whereColumn('cooperative_farmer.cooperative_id', 'cooperatives.id')
+                    ->where('cooperative_farmer.membership_status', 'active');
+            }
+        ]);
+
+        // Search functionality with optimized indexing
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('cooperatives.name', 'like', "%{$search}%")
+                ->orWhere('cooperatives.registration_number', 'like', "%{$search}%")
+                ->orWhere('cooperatives.contact_person', 'like', "%{$search}%")
+                ->orWhere('cooperatives.email', 'like', "%{$search}%")
+                ->orWhereHas('lga', function($lgaQuery) use ($search) {
+                    $lgaQuery->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // LGA filter
+        if ($request->filled('lga_id')) {
+            $query->where('lga_id', $request->lga_id);
+        }
+
+        // Activity filter with JSON column handling
+        if ($request->filled('activity')) {
+            $query->whereJsonContains('primary_activities', $request->activity);
+        }
+
+        // Sort options with validation
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('direction', 'desc');
+        
+        // Validate sort columns to prevent SQL injection
+        $allowedSorts = ['created_at', 'name', 'total_member_count', 'total_land_size'];
+        $sort = in_array($sort, $allowedSorts) ? $sort : 'created_at';
+        $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
+        
+        $query->orderBy($sort, $direction);
+
+        $cooperatives = $query->paginate(20)->withQueryString();
+
+        // Get all LGAs for filter dropdown (cached for performance)
+        $lgas = Cache::remember('lgas_list', 3600, function () {
+            return LGA::orderBy('name')->get(['id', 'name']);
+        });
+
+        // State-wide statistics (cached for better performance)
+        $stats = Cache::remember('state_cooperative_stats', 300, function () {
+            $totalCooperatives = Cooperative::count();
+            $totalMembers = DB::table('cooperative_farmer')->count();
+            $activeMembers = DB::table('cooperative_farmer')
+                ->where('membership_status', 'active')
+                ->count();
+            $totalLand = Cooperative::sum('total_land_size');
+            
+            return [
+                'total_cooperatives' => $totalCooperatives,
+                'total_members' => $totalMembers,
+                'active_members' => $activeMembers,
+                'total_land_managed' => $totalLand,
+                'cooperatives_with_land' => Cooperative::where('total_land_size', '>', 0)->count(),
+                'average_members_per_cooperative' => $totalCooperatives > 0 ? $totalMembers / $totalCooperatives : 0,
+                'member_activity_rate' => $totalMembers > 0 ? ($activeMembers / $totalMembers) * 100 : 0,
+            ];
+        });
+
+        // LGA-wise distribution (cached)
+        $lgaDistribution = Cache::remember('lga_cooperative_distribution', 300, function () {
+            return Cooperative::select('lga_id', DB::raw('count(*) as count'))
+                ->with('lga:id,name')
+                ->groupBy('lga_id')
+                ->orderBy('count', 'desc')
+                ->get();
+        });
+
+        // Activity distribution for filters
+        $activityOptions = Cache::remember('cooperative_activity_options', 3600, function () {
+            return [
+                'Input Procurement',
+                'Output Marketing',
+                'Processing',
+                'Storage',
+                'Transportation',
+                'Credit/Finance',
+                'Training/Extension',
+                'Equipment Sharing',
+                'Bulk Purchasing',
+                'Market Linkage',
+            ];
+        });
+
+        return view('admin.cooperatives.index', compact(
+            'cooperatives',
+            'lgas',
+            'stats',
+            'lgaDistribution',
+            'activityOptions'
+        ));
+    }
+
+    /**
+     * Display the specified cooperative with detailed information
+     */
+    public function show(Cooperative $cooperative)
+    {
+        $cooperative->load([
+            'lga:id,name,code',
+            'registeredBy:id,name,email',
+            'members' => function($query) {
+                $query->select('farmers.id', 'farmers.full_name', 'farmers.phone_primary', 'farmers.status', 'farmers.ward')
+                    ->withPivot('membership_number', 'joined_date', 'membership_status', 'position')
+                    ->orderBy('cooperative_farmer.joined_date', 'desc');
+            },
+            'primaryFarmers:id,full_name,phone_primary,status'
+        ]);
+
+        // Member statistics
+        $memberStats = [
+            'total_members' => $cooperative->members->count(),
+            'active_members' => $cooperative->members->where('pivot.membership_status', 'active')->count(),
+            'inactive_members' => $cooperative->members->where('pivot.membership_status', 'inactive')->count(),
+            'leadership_positions' => $cooperative->members->where('pivot.position')->count(),
+        ];
+
+        // Activity breakdown
+        $activities = $cooperative->primary_activities ?? [];
+        
+        // Cooperative performance metrics
+        $performance = [
+            'member_retention_rate' => $memberStats['total_members'] > 0 ? 
+                ($memberStats['active_members'] / $memberStats['total_members']) * 100 : 0,
+            'land_per_member' => $memberStats['active_members'] > 0 ? 
+                $cooperative->total_land_size / $memberStats['active_members'] : 0,
+        ];
+
+        return view('admin.cooperatives.show', compact(
+            'cooperative',
+            'memberStats',
+            'activities',
+            'performance'
+        ));
+    }
+
+    /**
+     * Export cooperatives data
+     */
+    public function export(Request $request)
+    {
+        // Implementation for Excel/PDF export
+        // You can use Laravel Excel package here
+        
+        return response()->json([
+            'message' => 'Export functionality will be implemented soon',
+            'filters' => $request->all()
+        ]);
+    }
+
+    /**
+     * Get activity options for filters
+     */
+    private function getActivityOptions(): array
+    {
+        return [
+            'Input Procurement',
+            'Output Marketing',
+            'Processing',
+            'Storage',
+            'Transportation',
+            'Credit/Finance',
+            'Training/Extension',
+            'Equipment Sharing',
+            'Bulk Purchasing',
+            'Market Linkage',
+        ];
+    }
+}

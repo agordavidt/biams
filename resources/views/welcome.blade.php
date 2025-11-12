@@ -215,12 +215,12 @@
         <div class="container container-fluid">
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
-                    <div class="tp-section-wrap blog-slider-content mb-30">                    
+                    <!-- <div class="tp-section-wrap blog-slider-content mb-30">                    
                         <h3 class="tp-section-title">System Insights & Guides</h3>
                         <p>Stay updated on platform enhancements, data collection best practices, and digital literacy guidance for all enrolled farmers and agents.</p>
-                    </div>
+                    </div> -->
                 </div>
-                <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12">
+                <!-- <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12">
                     <div class="blog-slider blog-slider_active owl-carousel">
                         <div class="latest-blog mb-30">
                             <div class="latest-blog-img">
@@ -299,7 +299,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

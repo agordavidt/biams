@@ -570,13 +570,13 @@
                         <div class="footer-widget footer-col-5 mb-20">
                             <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Key Resources</h5>
                             <div class="footer-menu footer-menu-2">
-                                <ul>
+                                <!-- <ul>
                                     <li><a href="">Agricultural Statistics</a></li>
                                     <li><a href="">Geospatial Map</a></li>
                                     <li><a href="">Support Programs</a></li>
                                     <li><a href="">Cooperative Listings</a></li>
                                     <li><a href="">News & Events</a></li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </div>
                     </div>
@@ -584,11 +584,11 @@
                         <div class="footer-widget footer-col-5 mb-20">
                             <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Quick Links</h5>
                             <ul class="footer-menu-1 footer-menu footer-menu-2 footer-menu-c">
-                                <li><a href="">Project Overview</a></li>
+                                <!-- <li><a href="">Project Overview</a></li> -->
                                 <li><a href="{{ route('contact') }}">Contact Support</a></li>
-                                <li><a href="">Privacy Policy</a></li>
-                                <li><a href="">Farmer Portal Login</a></li>
-                                <li><a href="">Admin Login</a></li>
+                                <!-- <li><a href="">Privacy Policy</a></li>
+                                <li><a href="">Farmer Portal Login</a></li> -->
+                                <!-- <li><a href="">Admin Login</a></li> -->
                             </ul>
                         </div>
                     </div>
