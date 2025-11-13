@@ -66,17 +66,17 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('enrollment.dashboard');
             }
 
-            // NEW: Vendor Manager Route
+          
             if ($user->hasRole('Vendor Manager')) {
                 return redirect()->route('vendor.dashboard');
             }
 
-            // NEW: Distribution Agent Route
+           
             if ($user->hasRole('Distribution Agent')) {
                 return redirect()->route('vendor.distribution.dashboard');
             }
             
-            // Farmer-Specific Login Flow
+       
             if ($user->hasRole('User')) { 
                 $farmer = $user->farmerProfile;
 
