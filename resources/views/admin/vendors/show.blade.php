@@ -49,13 +49,12 @@
                         </span>
                         <div class="btn-group">
                             <a href="{{ route('admin.vendors.edit', $vendor) }}" class="btn btn-sm btn-primary">
-                                <i class="ri-edit-line me-1"></i> Edit
+                                Edit
                             </a>
                             <form action="{{ route('admin.vendors.toggle-status', $vendor) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-{{ $vendor->is_active ? 'warning' : 'success' }}">
-                                    <i class="ri-toggle-{{ $vendor->is_active ? 'line' : 'fill' }} me-1"></i>
+                                <button type="submit" class="btn btn-sm btn-{{ $vendor->is_active ? 'warning' : 'success' }}">                                    
                                     {{ $vendor->is_active ? 'Deactivate' : 'Activate' }}
                                 </button>
                             </form>
@@ -318,7 +317,7 @@
                     <a href="{{ Storage::url($vendor->registration_certificate) }}" 
                        target="_blank" 
                        class="btn btn-primary btn-block w-100">
-                        <i class="ri-file-download-line me-1"></i> View Certificate
+                         View Certificate
                     </a>
                 @else
                     <p class="text-muted mb-0">No certificate uploaded</p>

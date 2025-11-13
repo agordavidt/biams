@@ -22,7 +22,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title">All Registered Vendors</h4>
                     <a href="{{ route('admin.vendors.create') }}" class="btn btn-primary">
-                        <i class="ri-add-line me-1"></i> Register New Vendor
+                       Register New Vendor
                     </a>
                 </div>
 

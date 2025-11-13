@@ -234,7 +234,7 @@
                         <a href="{{ Storage::url($vendor->registration_certificate) }}" 
                            target="_blank" 
                            class="btn btn-sm btn-outline-primary">
-                            <i class="ri-file-line me-1"></i> View Current
+                            View Current
                         </a>
                     </div>
                     @endif
@@ -273,7 +273,7 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-line me-1"></i> Update Vendor
+                             Update Vendor
                         </button>
                         <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-secondary">
                             <i class="ri-close-line me-1"></i> Cancel

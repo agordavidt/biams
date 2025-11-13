@@ -304,10 +304,10 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-line me-1"></i> Register Vendor
+                           Register Vendor
                         </button>
                         <a href="{{ route('admin.vendors.index') }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
+                           Cancel
                         </a>
                     </div>
                 </div>
