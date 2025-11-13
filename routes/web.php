@@ -84,13 +84,13 @@ Route::get('/about', function () {
     return view('about_us');
 })->name('about');
 
-Route::get('/news', function () {
-    return view('news');
-})->name('news');
+// Route::get('/news', function () {
+//     return view('news');
+// })->name('news');
 
-Route::get('/data', function () {
-    return view('data');
-})->name('data');
+// Route::get('/data', function () {
+//     return view('data');
+// })->name('data');
 
 Route::get('/contact', function () {
     return view('contact');
