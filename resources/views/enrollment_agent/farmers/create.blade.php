@@ -73,10 +73,13 @@
                                         <label for="nin" class="form-label">NIN (National ID) <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control @error('nin') is-invalid @enderror" 
                                                id="nin" name="nin" value="{{ old('nin') }}" required 
-                                               maxlength="15" placeholder="e.g., 12345678901">
+                                               maxlength="11" minlength="11" pattern="[0-9]{11}" 
+                                               placeholder="e.g., 12345678901"
+                                               title="NIN must be exactly 11 digits">
                                         @error('nin')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                        <small class="text-muted">Must be exactly 11 digits</small>
                                     </div>
 
                                     <div class="col-md-4 mb-3">
@@ -103,30 +106,37 @@
                                         <label for="phone_primary" class="form-label">Primary Phone <span class="text-danger">*</span></label>
                                         <input type="tel" class="form-control @error('phone_primary') is-invalid @enderror" 
                                                id="phone_primary" name="phone_primary" value="{{ old('phone_primary') }}" 
-                                               required placeholder="080XXXXXXXX">
+                                               required placeholder="080XXXXXXXX"
+                                               maxlength="11" minlength="11" pattern="0[0-9]{10}"
+                                               title="Phone number must be 11 digits starting with 0">
                                         @error('phone_primary')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                        <small class="text-muted">Must be 11 digits starting with 0</small>
                                     </div>
 
                                     <div class="col-md-4 mb-3">
                                         <label for="phone_secondary" class="form-label">Secondary Phone</label>
                                         <input type="tel" class="form-control @error('phone_secondary') is-invalid @enderror" 
                                                id="phone_secondary" name="phone_secondary" value="{{ old('phone_secondary') }}" 
-                                               placeholder="080XXXXXXXX">
+                                               placeholder="080XXXXXXXX"
+                                               maxlength="11" minlength="11" pattern="0[0-9]{10}"
+                                               title="Phone number must be 11 digits starting with 0">
                                         @error('phone_secondary')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                        <small class="text-muted">Must be 11 digits starting with 0</small>
                                     </div>
 
                                     <div class="col-md-4 mb-3">
                                         <label for="date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" 
                                                id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" 
-                                               required max="{{ date('Y-m-d') }}">
+                                               required max="">
                                         @error('date_of_birth')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                        <small class="text-muted">Must be at least 18 years old</small>
                                     </div>
                                 </div>
 
@@ -645,6 +655,70 @@ document.addEventListener('DOMContentLoaded', function() {
     const enrollmentForm = document.getElementById('enrollment-form');
     const submitBtn = document.getElementById('submit-btn');
 
+    // Set maximum date for date of birth (18 years ago from today)
+    const dobField = document.getElementById('date_of_birth');
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    const maxDateString = maxDate.toISOString().split('T')[0];
+    dobField.setAttribute('max', maxDateString);
+
+    // Add input validation for NIN - only allow digits, max 11
+    const ninField = document.getElementById('nin');
+    ninField.addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '').substring(0, 11);
+    });
+
+    // Add input validation for phone numbers - only allow digits starting with 0, max 11
+    const phonePrimary = document.getElementById('phone_primary');
+    const phoneSecondary = document.getElementById('phone_secondary');
+
+    function validatePhoneInput(field) {
+        field.addEventListener('input', function(e) {
+            // Remove all non-digits
+            let value = this.value.replace(/\D/g, '');
+            
+            // Ensure it starts with 0
+            if (value.length > 0 && value[0] !== '0') {
+                value = '0' + value;
+            }
+            
+            // Limit to 11 digits
+            value = value.substring(0, 11);
+            
+            this.value = value;
+        });
+
+        // Additional validation on blur
+        field.addEventListener('blur', function(e) {
+            if (this.value.length > 0 && this.value.length < 11) {
+                this.setCustomValidity('Phone number must be exactly 11 digits starting with 0');
+                this.reportValidity();
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+
+    validatePhoneInput(phonePrimary);
+    validatePhoneInput(phoneSecondary);
+
+    // Validate date of birth on change
+    dobField.addEventListener('change', function(e) {
+        const selectedDate = new Date(this.value);
+        const today = new Date();
+        const age = today.getFullYear() - selectedDate.getFullYear();
+        const monthDiff = today.getMonth() - selectedDate.getMonth();
+        
+        if (age < 18 || (age === 18 && monthDiff < 0) || 
+            (age === 18 && monthDiff === 0 && today.getDate() < selectedDate.getDate())) {
+            this.setCustomValidity('Farmer must be at least 18 years old');
+            this.reportValidity();
+            this.value = '';
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
     function updateProgress(step) {
         const width = (step / 3) * 100;
         progressBar.style.width = width + '%';
@@ -743,6 +817,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Validate NIN length
+        if (ninField.value.length > 0 && ninField.value.length !== 11) {
+            ninField.classList.add('is-invalid');
+            isValid = false;
+            if (!firstInvalidField) firstInvalidField = ninField;
+        }
+
+        // Validate phone numbers
+        if (phonePrimary.value.length > 0 && phonePrimary.value.length !== 11) {
+            phonePrimary.classList.add('is-invalid');
+            isValid = false;
+            if (!firstInvalidField) firstInvalidField = phonePrimary;
+        }
+
+        if (phoneSecondary.value.length > 0 && phoneSecondary.value.length !== 11) {
+            phoneSecondary.classList.add('is-invalid');
+            isValid = false;
+            if (!firstInvalidField) firstInvalidField = phoneSecondary;
+        }
+
         if (primaryOccupationSelect.value === 'other') {
             const otherOccupationField = document.getElementById('other_occupation');
             if (!otherOccupationField.value.trim()) {
@@ -754,7 +848,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!isValid && firstInvalidField) {
             firstInvalidField.focus();
-            alert('Please fill in all required fields in Step 1');
+            alert('Please fill in all required fields correctly in Step 1');
         }
 
         return isValid;

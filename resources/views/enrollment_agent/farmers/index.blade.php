@@ -7,7 +7,7 @@
             <h4 class="mb-sm-0">All Farmer Submissions</h4>
             <div class="page-title-right">
                 <a href="{{ route('enrollment.farmers.create') }}" class="btn btn-primary waves-effect waves-light">
-                    <i class="ri-add-line align-middle me-1"></i> Enroll New Farmer
+                    Enroll New Farmer
                 </a>
             </div>
         </div>

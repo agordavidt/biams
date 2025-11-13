@@ -154,7 +154,7 @@
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm w-100"
                                                         @click="removeField(index)">
-                                                    <i class="ri-delete-bin-line"></i> Remove
+                                                     Remove
                                                 </button>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@
                             </template>
 
                             <button type="button" class="btn btn-success btn-sm" @click="addField">
-                                <i class="ri-add-line me-1"></i> Add Form Field
+                               Add Form Field
                             </button>
                             <small class="text-muted ms-2">Optional - Add custom fields if needed</small>
                         </div>
@@ -181,7 +181,7 @@
                         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
                             <a href="{{ route('admin.resources.index') }}" class="btn btn-light">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="ri-save-line me-1"></i> Create Resource
+                                 Create Resource
                             </button>
                         </div>
                     </form>

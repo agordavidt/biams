@@ -308,7 +308,7 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
+                                            <!-- <div class="flex-shrink-0">
                                                 @if($farmer->farmer_photo)
                                                     <img src="{{ Storage::disk('public')->url($farmer->farmer_photo) }}" 
                                                          alt="{{ $farmer->full_name }}" 
@@ -320,7 +320,7 @@
                                                         </span>
                                                     </div>
                                                 @endif
-                                            </div>
+                                            </div> -->
                                             <div class="flex-grow-1 ms-2">
                                                 <h6 class="mb-0 font-size-14">{{ $farmer->full_name }}</h6>
                                                 <p class="text-muted mb-0 font-size-12">
