@@ -264,6 +264,44 @@
           line-height: 1.6;
         }
 
+     
+        .organic-features-list ul {
+            list-style: none; 
+            padding-left: 0; 
+            margin-bottom: 0; 
+        }
+
+        
+        .organic-features-list li {
+            margin-bottom: 10px; 
+        }
+
+        /* Base list cleanup */
+        .styled-list-icons ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 20px;
+            margin-bottom: 0;
+        }
+
+
+        .styled-list-icons li {
+            display: flex; 
+            align-items: flex-start;
+            margin-bottom: 15px; 
+            font-size: 16px;
+            line-height: 1.4;
+            color: #333; 
+        }
+
+        .styled-list-icons li i.fas {
+            color: #5b8c51; 
+            font-size: 18px;
+            margin-right: 12px;    
+            width: 20px; 
+            text-align: center;    
+        }
+
         /* Improved mobile and tablet responsiveness */
         @media (max-width: 1200px) {
           .organic-product-content {
@@ -512,11 +550,11 @@
                             <div class="header-cta">
                                 <div class="phone-number">
                                     @auth
-                                        <a href="{{ App\Providers\RouteServiceProvider::redirectToHome(auth()->user()) }}" class="tp-btn-h1">
+                                        <a href="{{ App\Providers\RouteServiceProvider::redirectToHome(auth()->user()) }}" class="tp-btn-h1" style="border-radius: 20px; padding: 15px;">
                                             Dashboard
                                         </a>
                                     @else
-                                        <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
+                                        <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 20px; padding: 15px;">Visit Portal</a>
                                     @endauth
                                 </div>
                             </div>
@@ -546,7 +584,7 @@
                     <ul>                   
                         <li class="d-flex align-items-center">                        
                             <div class="sidebar__contact-text">
-                                <a href="{{ route('login') }}" class="tp-btn-h1">Visit Portal</a>
+                                <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 20px; padding: 15px;">Visit Portal</a>
                             </div>
                         </li>
                     </ul>

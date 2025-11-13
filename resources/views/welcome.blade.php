@@ -93,19 +93,22 @@
                         <div class="tp-section-wrap">
                             <span><i class="flaticon-statistics"></i></span>
                             <h3 class="tp-section-title">Verifiable Data: The New Foundation of Trust</h3>
-                            <p>Serious investment requires certainty. The Benue Agri-Data Platform moves beyond estimates, providing geospatially validated data on crops, farm yields, asset distribution, and farmer identity.</p>
-                        </div>
-                        <h5 class="organic-product-title mt-40">Guaranteed Data Integrity</h5>
+                            <p style="text-align: justify;">Serious investment requires certainty. The Benue State Smart Agriculture and Data Management Platform moves beyond estimates, providing geospatially validated data on crops, farm yields, asset distribution, and farmer identity.</p>
+                            <p style="text-align: justify;">We ensure every data point is linked to a unique farmer profile and geotagged farm asset, mitigating fraud and de-risking high-value policy planning and private investment.</p>
+                        </div>                       
                         <div class="row g-0">
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-                                <p class="organic-features-info">We ensure every data point is linked to a unique farmer profile and geotagged farm asset, mitigating fraud and de-risking high-value policy planning and private investment.</p>
-                            </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-                                <div class="organic-features-list">
-                                    <a href="data-guide.html">- Geospatial Asset Mapping</a>
-                                    <a href="data-guide.html">- NIN/BVN-Linked Farmer Profiles</a>
-                                    <a href="data-guide.html">- Real-time Intervention Monitoring</a>
-                                    <a href="data-guide.html">- Policy-Driven Data Standardization</a>
+                            <div class="row g-0">
+                                <div class="col-12">
+                                    <p class="organic-features-info">We ensure every data point is linked to a unique farmer profile and geotagged farm asset, mitigating fraud and de-risking high-value policy planning and private investment.</p>
+                                    
+                                    <div class="organic-features-list styled-list-icons">
+                                        <ul>
+                                            <li><i class="fas fa-map-marked-alt"></i> Geospatial Asset Mapping</li>
+                                            <li><i class="fas fa-id-card"></i> NIN/BVN-Linked Farmer Profiles</li>
+                                            <li><i class="fas fa-eye"></i> Real-time Intervention Monitoring</li>
+                                            <li><i class="fas fa-clipboard-check"></i> Policy-Driven Data Standardization</li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -129,10 +132,7 @@
                                 <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Analytics icon" loading="lazy">
                                 <h4 class="features-item-title">Data & Policy Analytics</h4>
                                 <p>Access verifiable data on yield gaps, soil health, and production forecasts to guide strategic state and federal interventions (e.g., RAAMP, ACReSAL).</p>
-                            </div>
-                            <!-- <div class="features-item-btton">
-                                <a href="data-portal.html" class="features-btn">View Data Portal <i class="fal fa-arrow-right"></i></a>
-                            </div> -->
+                            </div>                            
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
@@ -141,10 +141,7 @@
                                 <img src="{{ asset('frontend/assets/img/data_anlytics.jpg') }}" alt="Handshake icon" loading="lazy">
                                 <h4 class="features-item-title">Intervention Transparency Hub</h4>
                                 <p>Track the reach and impact of all State and Partner programs (IFAD, BNARDA, BENTHA) ensuring resources reach the last mile farmer, not ghost accounts.</p>
-                            </div>
-                            <!-- <div class="features-item-btton">
-                                <a href="interventions.html" class="features-btn">Track Interventions <i class="fal fa-arrow-right"></i></a>
-                            </div> -->
+                            </div>                           
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
@@ -153,10 +150,7 @@
                                 <img src="{{ asset('frontend/assets/img/icon_image.jpg') }}" alt="Market cart icon" loading="lazy">
                                 <h4 class="features-item-title">Direct Market Linkage</h4>
                                 <p>Connect validated buyers directly to verified farmer cooperatives. Secure bulk off-take deals for **Yam, Cassava, Maize, and Soybean** at verifiable source prices.</p>
-                            </div>
-                            <!-- <div class="features-item-btton">
-                                <a href="{{ route('login') }}" class="features-btn">Go to Marketplace <i class="fal fa-arrow-right"></i></a>
-                            </div> -->
+                            </div>                           
                         </div>
                     </div>
                 </div>
