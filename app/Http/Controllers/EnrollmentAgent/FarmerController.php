@@ -125,7 +125,7 @@ class FarmerController extends Controller
     /**
      * Create practice-specific details based on farm type
      */
-    private function createPracticeDetails(FarmLand $farmLand, StoreFarmerRequest $request)
+    private function createPracticeDetails(FarmLand $farmLand, Request $request)
     {
         switch ($farmLand->farm_type) {
             case 'crops':

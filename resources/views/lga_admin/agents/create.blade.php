@@ -128,10 +128,10 @@
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-line align-middle me-1"></i> Create Enrollment Agent
+                            Create Enrollment Agent
                         </button>
                         <a href="{{ route('lga_admin.agents.index') }}" class="btn btn-secondary">
-                            <i class="ri-close-line align-middle me-1"></i> Cancel
+                             Cancel
                         </a>
                     </div>
                 </form>

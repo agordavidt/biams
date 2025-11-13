@@ -54,10 +54,10 @@
         <div class="d-flex gap-2">
             @if($farmer->status === 'pending_lga_review')
                 <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#approveModal">
-                    <i class="ri-check-line me-1"></i> Approve & Create Account
+                    Approve & Create Account
                 </button>
                 <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                    <i class="ri-forbid-line me-1"></i> Reject & Send Back
+                   Reject & Send Back
                 </button>
             @elseif(in_array($farmer->status, ['pending_activation', 'active']))
                 <a href="{{ route('lga_admin.farmers.view-credentials', $farmer) }}" class="btn btn-info waves-effect waves-light">

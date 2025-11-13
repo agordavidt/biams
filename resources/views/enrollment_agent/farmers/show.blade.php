@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    @if(session('success'))
+    <!-- @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="ri-check-line me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -29,7 +29,7 @@
             <i class="ri-error-warning-line me-2"></i>{{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @endif
+    @endif -->
 
     <!-- Enhanced Status Alert with Actions -->
     <div class="row">
@@ -78,7 +78,7 @@
                             @if($farmer->status === 'pending_activation' || $farmer->status === 'active')
                                 <a href="{{ route('enrollment.farmers.credentials', $farmer) }}" 
                                    class="btn btn-sm btn-outline-{{ $farmer->status === 'pending_activation' ? 'info' : 'success' }}">
-                                    <i class="ri-key-line me-1"></i> View Credentials
+                                     View Credentials
                                 </a>
                             @endif
                         </div>
@@ -127,17 +127,17 @@
                     
                     @if(in_array($farmer->status, ['pending_activation', 'active']))
                         <a href="{{ route('enrollment.farmers.credentials', $farmer) }}" class="btn btn-info waves-effect waves-light">
-                            <i class="ri-key-line align-middle me-1"></i> View Credentials
+                             View Credentials
                         </a>
                         
                         <a href="{{ route('enrollment.farmers.farmlands.create', $farmer) }}" class="btn btn-primary waves-effect waves-light">
-                            <i class="ri-add-circle-line align-middle me-1"></i> Add Farmland
+                             Add Farmland
                         </a>
                     @endif
                     
                     @if(in_array($farmer->status, ['pending_lga_review', 'rejected']))
                         <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            <i class="ri-delete-bin-line align-middle me-1"></i> Delete
+                             Delete
                         </button>
                     @endif
                 </div>
@@ -307,7 +307,7 @@
                                                     <div>
                                                         @if($farmer->farmer_photo)
                                                             <a href="{{ Storage::url($farmer->farmer_photo) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                                <i class="ri-eye-line me-1"></i> View Photo
+                                                                View Photo
                                                             </a>
                                                         @else
                                                             <span class="text-muted">Not uploaded</span>
@@ -319,7 +319,7 @@
                                                     <div>
                                                         @if(isset($farmer->additional_info['farm_photo_path']))
                                                             <a href="{{ Storage::url($farmer->additional_info['farm_photo_path']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                                <i class="ri-eye-line me-1"></i> View Farm Photo
+                                                                 View Farm Photo
                                                             </a>
                                                         @else
                                                             <span class="text-muted">Not uploaded</span>
@@ -339,7 +339,7 @@
                                 <h5 class="card-title mb-0">Farmland Details</h5>
                                 @if(in_array($farmer->status, ['pending_activation', 'active']))
                                     <a href="{{ route('enrollment.farmers.farmlands.create', $farmer) }}" class="btn btn-primary btn-sm">
-                                        <i class="ri-add-circle-line me-1"></i> Add New Farmland
+                                         Add New Farmland
                                     </a>
                                 @endif
                             </div>
