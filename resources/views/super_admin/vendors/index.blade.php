@@ -132,14 +132,25 @@
                                 <td>{{ $vendor->users_count }}</td>
                                 <td>{{ $vendor->resources_count }}</td>
                                 <td>
-                                    <a href="{{ route('super_admin.vendors.show', $vendor) }}" class="btn btn-sm btn-primary">View</a>
-                                    <form action="{{ route('super_admin.vendors.toggle-status', $vendor) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-warning">
-                                            {{ $vendor->is_active ? 'Deactivate' : 'Activate' }}
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
                                         </button>
-                                    </form>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('super_admin.vendors.show', $vendor) }}">View</a>
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('super_admin.vendors.toggle-status', $vendor) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="dropdown-item border-0 bg-transparent text-dark">
+                                                        {{ $vendor->is_active ? 'Deactivate' : 'Activate' }}
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                             @empty

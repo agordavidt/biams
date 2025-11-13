@@ -9,7 +9,7 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">User Management</h4>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                        <i class="ri-user-add-line"></i> Create User
+                         Create User
                     </button>
                 </div>
             </div>

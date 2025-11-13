@@ -4,12 +4,11 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ManagementController;
-use App\Http\Controllers\Governor\DashboardController as GovernorDashboardController;
-use App\Http\Controllers\Governor\PolicyInsightController;
-use App\Http\Controllers\Governor\InterventionTrackingController;
-use App\Http\Controllers\Governor\LgaComparisonController;
-use App\Http\Controllers\Governor\TrendAnalysisController;
-use App\Http\Controllers\Governor\CooperativeOverviewController;
+use App\Http\Controllers\Governor\GovernorDashboardController;
+use App\Http\Controllers\Governor\GovernorOverviewController;
+use App\Http\Controllers\Governor\GovernorFarmerAnalyticsController;
+use App\Http\Controllers\Governor\GovernorProductionAnalyticsController;
+use App\Http\Controllers\Governor\GovernorLgaAnalyticsController;
 use App\Http\Controllers\Admin\DashboardController as StateAdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FarmPracticeController;
@@ -85,9 +84,13 @@ Route::get('/about', function () {
     return view('about_us');
 })->name('about');
 
-Route::get('/services', function () {
-    return view('services');
-})->name('services');
+Route::get('/news', function () {
+    return view('news');
+})->name('news');
+
+Route::get('/data', function () {
+    return view('data');
+})->name('data');
 
 Route::get('/contact', function () {
     return view('contact');
@@ -185,59 +188,28 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
     // Dashboard
     Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('dashboard');
     
-    // Policy Insights
-    Route::prefix('policy-insights')->name('policy_insights.')->group(function () {
-        Route::get('/', [PolicyInsightController::class, 'index'])->name('index');
-        Route::get('/demographic-analysis', [PolicyInsightController::class, 'getDemographicAnalysis'])->name('demographic_analysis');
-        Route::get('/youth-engagement', [PolicyInsightController::class, 'getYouthEngagement'])->name('youth_engagement');
-        Route::get('/yield-projections', [PolicyInsightController::class, 'getYieldProjections'])->name('yield_projections');
-        Route::get('/production-patterns', [PolicyInsightController::class, 'getProductionPatterns'])->name('production_patterns');
-    });
+    // Overview & Analytics
+    Route::get('/overview', [GovernorOverviewController::class, 'index'])->name('overview');
+    Route::get('/overview/export', [GovernorOverviewController::class, 'export'])->name('overview.export');
     
-    // Intervention Tracking
-    Route::prefix('interventions')->name('interventions.')->group(function () {
-        Route::get('/', [InterventionTrackingController::class, 'index'])->name('index');
-        Route::get('/beneficiary-report', [InterventionTrackingController::class, 'getBeneficiaryReport'])->name('beneficiary_report');
-        Route::get('/partner-activities', [InterventionTrackingController::class, 'getPartnerActivities'])->name('partner_activities');
-        Route::get('/coverage-analysis', [InterventionTrackingController::class, 'getCoverageAnalysis'])->name('coverage_analysis');
-    });
+    // Farmer Analytics
+    Route::get('/farmers', [GovernorFarmerAnalyticsController::class, 'index'])->name('farmers');
+    Route::get('/farmers/export', [GovernorFarmerAnalyticsController::class, 'export'])->name('farmers.export');
+    
+    // Farm Production Analytics
+    Route::get('/production', [GovernorProductionAnalyticsController::class, 'index'])->name('production');
+    Route::get('/production/export', [GovernorProductionAnalyticsController::class, 'export'])->name('production.export');
     
     // LGA Comparison
-    Route::prefix('lga-comparison')->name('lga_comparison.')->group(function () {
-        Route::get('/', [LgaComparisonController::class, 'index'])->name('index');
-        Route::get('/performance-ranking', [LgaComparisonController::class, 'getPerformanceRanking'])->name('performance_ranking');
-        Route::get('/capacity-analysis', [LgaComparisonController::class, 'getCapacityAnalysis'])->name('capacity_analysis');
-        Route::post('/compare', [LgaComparisonController::class, 'compareLgas'])->name('compare');
-        Route::get('/geographic-analysis', [LgaComparisonController::class, 'getGeographicAnalysis'])->name('geographic_analysis');
-    });
+    Route::get('/lgas', [GovernorLgaAnalyticsController::class, 'index'])->name('lgas');
+    Route::get('/lgas/export', [GovernorLgaAnalyticsController::class, 'export'])->name('lgas.export');
     
-    // Trend Analysis
-    Route::prefix('trends')->name('trends.')->group(function () {
-        Route::get('/', [TrendAnalysisController::class, 'index'])->name('index');
-        Route::get('/enrollment', [TrendAnalysisController::class, 'getEnrollmentTrends'])->name('enrollment');
-        Route::get('/production', [TrendAnalysisController::class, 'getProductionTrends'])->name('production');
-        Route::get('/resource-utilization', [TrendAnalysisController::class, 'getResourceUtilizationTrends'])->name('resource_utilization');
-        Route::get('/gender-parity', [TrendAnalysisController::class, 'getGenderParityTrends'])->name('gender_parity');
-    });
-
-    // Cooperative Overview
-    Route::prefix('cooperatives')->name('cooperatives.')->group(function () {
-        Route::get('/overview', [CooperativeOverviewController::class, 'index'])
-            ->name('overview')
-            ->middleware('permission:view_cooperative_overview');
-        Route::get('/lga-comparison', [CooperativeOverviewController::class, 'lgaComparison'])
-            ->name('lga_comparison')
-            ->middleware('permission:view_cooperative_overview');
-        Route::get('/export-overview', [CooperativeOverviewController::class, 'exportOverview'])
-            ->name('export_overview')
-            ->middleware('permission:view_cooperative_overview');
-    });
-
- 
+    // Resources already has dedicated implementation
     Route::prefix('resources')->name('resources.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Governor\ResourcesController::class, 'index'])->name('index');
     });   
 
+    // Vendors already has dedicated implementation
     Route::prefix('vendors')->name('vendors.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Governor\VendorsController::class, 'index'])->name('index');
     });

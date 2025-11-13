@@ -34,7 +34,11 @@
         body {
           font-family: 'Inter', sans-serif;
         }
-        
+        .headerinfo li,
+        .headerinfo li a,
+        .headerinfo li a i {
+            color: white !important;
+        }
         .banner-area {
           min-height: 70vh;
           display: flex;
@@ -463,8 +467,8 @@
                         <div class="col-xl-6 col-lg-6 col-md-8 col-sm-6">
                             <div class="headerinfo">
                                 <ul>
-                                    <li><a href="mailto:agridata@benue.gov.ng"><i class="fal fa-envelope"></i>agridata@benue.gov.ng</a></li>
-                                    <li class="d-none d-md-inline-block"><a href=""><i class="fal fa-map-marker-alt"></i>Ministry of Agriculture, Makurdi</a></li>
+                                    <li><a href="mailto:agridata@benue.gov.ng" class="text-white"><i class="fal fa-envelope" class="text-white"></i>agridata@benue.gov.ng</a></li>
+                                    <li class="d-none d-md-inline-block" ><a href=""><i class="fal fa-map-marker-alt" class="text-white"></i>Ministry of Agriculture, Makurdi</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -489,9 +493,9 @@
                                     <ul>
                                         <li><a href="{{ url('/') }}" class="active">Home</a></li>
                                         <li><a href="{{ route('about') }}">About Us</a></li>  
-                                        <!-- <li><a href="">Data</a></li>                                         -->
+                                        <li><a href="{{ route('data') }}">Data</a></li>                                        
                                         <li><a href="{{ route('marketplace.index') }}">Marketplace</a></li>     
-                                        <!-- <li><a href="">News</a></li> -->
+                                        <li><a href="{{ route('news') }}">News</a></li>
                                         <li><a href="{{ route('contact') }}">Contact</a></li>
                                     </ul>
                                 </nav>
@@ -570,13 +574,13 @@
                         <div class="footer-widget footer-col-5 mb-20">
                             <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Key Resources</h5>
                             <div class="footer-menu footer-menu-2">
-                                <!-- <ul>
+                                <ul>
                                     <li><a href="">Agricultural Statistics</a></li>
                                     <li><a href="">Geospatial Map</a></li>
                                     <li><a href="">Support Programs</a></li>
                                     <li><a href="">Cooperative Listings</a></li>
                                     <li><a href="">News & Events</a></li>
-                                </ul> -->
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -584,11 +588,11 @@
                         <div class="footer-widget footer-col-5 mb-20">
                             <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Quick Links</h5>
                             <ul class="footer-menu-1 footer-menu footer-menu-2 footer-menu-c">
-                                <!-- <li><a href="">Project Overview</a></li> -->
+                                <li><a href="">Project Overview</a></li>
                                 <li><a href="{{ route('contact') }}">Contact Support</a></li>
-                                <!-- <li><a href="">Privacy Policy</a></li>
-                                <li><a href="">Farmer Portal Login</a></li> -->
-                                <!-- <li><a href="">Admin Login</a></li> -->
+                                <li><a href="">Privacy Policy</a></li>
+                                <li><a href="">Farmer Portal Login</a></li>
+                                <li><a href="">Admin Login</a></li>
                             </ul>
                         </div>
                     </div>

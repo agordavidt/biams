@@ -130,9 +130,9 @@
                                 <h4 class="features-item-title">Data & Policy Analytics</h4>
                                 <p>Access verifiable data on yield gaps, soil health, and production forecasts to guide strategic state and federal interventions (e.g., RAAMP, ACReSAL).</p>
                             </div>
-                            <div class="features-item-btton">
+                            <!-- <div class="features-item-btton">
                                 <a href="data-portal.html" class="features-btn">View Data Portal <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
@@ -142,9 +142,9 @@
                                 <h4 class="features-item-title">Intervention Transparency Hub</h4>
                                 <p>Track the reach and impact of all State and Partner programs (IFAD, BNARDA, BENTHA) ensuring resources reach the last mile farmer, not ghost accounts.</p>
                             </div>
-                            <div class="features-item-btton">
+                            <!-- <div class="features-item-btton">
                                 <a href="interventions.html" class="features-btn">Track Interventions <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
@@ -154,9 +154,9 @@
                                 <h4 class="features-item-title">Direct Market Linkage</h4>
                                 <p>Connect validated buyers directly to verified farmer cooperatives. Secure bulk off-take deals for **Yam, Cassava, Maize, and Soybean** at verifiable source prices.</p>
                             </div>
-                            <div class="features-item-btton">
+                            <!-- <div class="features-item-btton">
                                 <a href="{{ route('login') }}" class="features-btn">Go to Marketplace <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

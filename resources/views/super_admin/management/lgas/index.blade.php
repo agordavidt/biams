@@ -14,9 +14,9 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="alert alert-info">
+                        <!-- <div class="alert alert-info">
                             <i class="ri-information-line"></i> LGAs are predefined and managed at system level. Contact system administrator for modifications.
-                        </div>
+                        </div> -->
                         <div class="table-responsive">
                             <table id="lgasTable" class="table table-bordered dt-responsive nowrap w-100">
                                 <thead class="table-light">

@@ -158,11 +158,7 @@
                             <div class="col-12">
                                 <div class="text-center py-5">
                                     <i class="fal fa-inbox" style="font-size: 60px; color: #ccc;"></i>
-                                    <h4 class="mt-4">No Products Found</h4>
-                                    <p class="text-muted">Try adjusting your filters or search for something else.</p>
-                                    <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 mt-3">
-                                        <i class="fal fa-list me-2"></i>Browse All
-                                    </a>
+                                    <h4 class="mt-4">No Products Found</h4>                                    
                                 </div>
                             </div>
                             @endforelse

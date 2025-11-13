@@ -8,7 +8,7 @@
                     <h4 class="mb-sm-0">Department Management</h4>
                     <div class="page-title-right">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-                            <i class="ri-add-line align-middle me-1"></i> Add Department
+                            Add Department
                         </button>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="ri-save-line align-middle me-1"></i> Save
+                        Save
                     </button>
                 </div>
             </form>
@@ -122,7 +122,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="ri-save-line align-middle me-1"></i> Update
+                        Update
                     </button>
                 </div>
             </form>
