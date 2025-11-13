@@ -491,12 +491,18 @@
                             <div class="main-menu-h1 main-menu main-menu-white text-center">
                                 <nav id="mobile-menu">
                                     <ul>
-                                        <li><a href="{{ url('/') }}" class="active">Home</a></li>
-                                        <li><a href="{{ route('about') }}">About Us</a></li> 
-                                                                              
-                                        <li><a href="{{ route('marketplace.index') }}">Marketplace</a></li>     
-                                       
-                                        <li><a href="{{ route('contact') }}">Contact</a></li>
+                                        <li>
+                                            <a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Home</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('about') }}" class="{{ Route::is('about') ? 'active' : '' }}">About Us</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('marketplace.index') }}" class="{{ Route::is('marketplace.index') || Request::is('marketplace/*') ? 'active' : '' }}">Marketplace</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('contact') }}" class="{{ Route::is('contact') ? 'active' : '' }}">Contact</a>
+                                        </li>
                                     </ul>
                                 </nav>
                             </div>
@@ -555,65 +561,51 @@
         @yield('content')
     </main>
     <!-- Footer -->
-    <footer>
-        <div class="footer-top footer-top-2 pt-40 pb-20">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <div class="footer-widget footer-col-1 mb-20">
-                            <div class="footer-logo mb-15">
-                                <a href="">
-                                    <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
-                                    <span class="text-success">BSSADMS</span>
-                                </a>
-                            </div>
-                            <p>The official data platform of the Benue State Ministry of Agriculture. We provide verifiable data and geospatial mapping to guide policy and attract strategic investors.</p>
+<footer>
+    <div class="footer-top footer-top-2 pt-40 pb-20"> <div class="container">
+            <div class="row align-items-center">
+                <div class="col-xl-6 col-lg-6 col-md-6 mb-3 mb-md-0">
+                    <div class="footer-widget footer-col-1">
+                        <div class="footer-logo mb-15">
+                            <a href="{{ url('/') }}" class="d-inline-flex align-items-center text-decoration-none">
+                                <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
+                                <span class="text-success fw-bold ms-2 h5 mb-0">BSSADMS</span> </a>
                         </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
-                        <div class="footer-widget footer-col-5 mb-20">
-                            <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Key Resources</h5>
-                            <div class="footer-menu footer-menu-2">
-                                <ul>
-                                    <li><a href="">Agricultural Statistics</a></li>
-                                    <li><a href="">Geospatial Map</a></li>
-                                    <li><a href="">Support Programs</a></li>
-                                    <li><a href="">Cooperative Listings</a></li>
-                                    <li><a href="">News & Events</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-5 col-lg-5 col-md-4 col-sm-6">
-                        <div class="footer-widget footer-col-5 mb-20">
-                            <h5 class="footer-title-h1 footer-title mb-20 footer-sm-title">Quick Links</h5>
-                            <ul class="footer-menu-1 footer-menu footer-menu-2 footer-menu-c">
-                                <li><a href="">Project Overview</a></li>
-                                <li><a href="{{ route('contact') }}">Contact Support</a></li>
-                                <li><a href="">Privacy Policy</a></li>
-                                <li><a href="">Farmer Portal Login</a></li>
-                                <li><a href="">Admin Login</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="copy-right-area theme-bg-common pt-15 pb-15">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                        <p class="mb-0 copy-right-text-1">
-                            © <script>document.write(new Date().getFullYear())</script> BSSADMS. Powered by 
-                            <a href=""><img src="{{ asset('frontend/assets/img/bdic_logo_small.png') }}" alt="BDIC Logo" loading="lazy" style="height: 20px; vertical-align: middle;"></a>
+                        <p class="text-muted small mb-0">
+                            The official data platform of the Benue State Ministry of Agriculture.<br> Transforming potential into prosperity through verified data.
                         </p>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                </div>
+
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="footer-widget footer-col-5 text-md-end">
+                        <h5 class="footer-title-h1 footer-title mb-20 text-dark fw-bold">Site Navigation</h5>
+                        <ul class="list-unstyled d-flex justify-content-md-end justify-content-center flex-wrap gap-3 mb-0">
+                            <li><a href="{{ url('/') }}" class="text-decoration-none text-secondary small active">Home</a></li>
+                            <li><a href="{{ route('about') }}" class="text-decoration-none text-secondary small">About Us</a></li>
+                            <li><a href="{{ route('marketplace.index') }}" class="text-decoration-none text-secondary small">Marketplace</a></li>
+                            <li><a href="{{ route('contact') }}" class="text-decoration-none text-secondary small">Contact</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+    
+    <div class="copy-right-area theme-bg-common pt-15 pb-15"> <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12 text-center">
+                    <p class="mb-0 copy-right-text-1 text-white"> © <script>document.write(new Date().getFullYear())</script> BSSADMS. All rights reserved. 
+                        | Powered by 
+                        <a href="#" class="text-decoration-none">
+                            <img src="{{ asset('frontend/assets/img/bdic_logo_small.png') }}" alt="BDIC Logo" loading="lazy" style="height: 20px; vertical-align: middle;">
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
     <!-- JS Scripts -->
     <script src="{{ asset('frontend/assets/js/vendor/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/vendor/waypoints.min.js') }}"></script>

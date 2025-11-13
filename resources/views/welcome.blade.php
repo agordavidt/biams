@@ -35,7 +35,7 @@
                 </div> 
                 <div class="col-xxl-7 col-xl-7 col-lg-7 col-md-12 col-sm-12 align-items-end">
                     <div class="tp-about-content-1">
-                        <p>Benue State, the Food Basket of the Nation, is revolutionizing agriculture with BSSADMS. Our platform captures verified farmer data, enables transparent input distribution, and provides real-time analytics for better decision-making. From registration to marketplace sales, we empower over 500,000 farmers across 23 LGAs.</p>
+                        <p style="text-align: justify;">Benue State, the Food Basket of the Nation, is revolutionizing agriculture with BSSADMS. Our platform captures verified farmer data, enables transparent input distribution, and provides real-time analytics for better decision-making. From registration to marketplace sales, we empower farmers across all the Local Government Areas of the state.</p>
                         <p class="mt-15">Join us in fostering inclusive growth, attracting investments, and ensuring food security through technology.</p>
                         <div class="author-info mt-20">
                             <div class="author-content">

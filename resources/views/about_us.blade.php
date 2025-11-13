@@ -30,17 +30,16 @@
             <div class="row">
                 <div class="col-xl-6 col-lg-6">
                     <div class="tp-section-wrap">
-                        <span class="asub-title grace-span">- Our Story: Digital Transformation</span>
+                        <!-- <span class="asub-title grace-span">- Our Story: Digital Transformation</span> -->
                         <h3 class="tp-section-title">Modernizing Benue's Agriculture with Data Intelligence</h3>
                     </div>
                 </div>
                 <div class="col-xl-6 col-lg-6">
                     <div class="about-info">
-                        <p>The Benue State Ministry of Agriculture Data Management System (BSSADMS) is the flagship digital platform of the Ministry, designed to transform the state's agricultural 
+                        <p style="text-align: justify;">The Benue State Ministry of Agriculture Data Management System (BSSADMS) is the flagship digital platform of the Ministry, designed to transform the state's agricultural 
                          sector into Africa's leading data hub. Our vision is a fully digital ecosystem where every farmer is verified, every input is tracked, and every opportunity is data-driven.</p>
-                        <p>Launched in 2024, BSSADMS addresses critical challenges like fragmented data, inefficient program distribution, and limited market access. By integrating 
-                         geospatial mapping, AI analytics, and mobile tools, we empower our vast network of farmers to increase yields and attract investments exceeding NGN 5 Billion annually.</p>
-                        <p>We are committed to making Benue The Food Basket of the Nation a reality through transparency and verifiable data.</p>
+                        <p style="text-align: justify;">BSSADMS addresses critical challenges like fragmented data, inefficient program distribution, and limited market access. By integrating 
+                         geospatial mapping, AI analytics, and mobile tools, we empower our vast network of farmers to increase yields and attract investments.</p>                      
                         <div class="about-button mt-30">
                             <a href="{{ route('contact') }}" class="tp-btn-ab">Get In Touch <i class="fal fa-long-arrow-right"></i></a>
                         </div>
@@ -66,9 +65,7 @@
                                 <h4 class="features-item-title">Verified Database</h4>
                                 <p>NIN-linked farmer profiles and **geo-tagged farm boundaries** for accurate planning and precise program targeting.</p>
                             </div>
-                            <div class="features-item-btton">
-                                <a href="data-insights.html" class="features-btn">Explore Data <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6">
@@ -78,9 +75,7 @@
                                 <h4 class="features-item-title">Transparent Distribution</h4>
                                 <p>Track subsidies, fertilizer, and logistics in real-time, completely eliminating fraudulent claims and ghost beneficiaries.</p>
                             </div>
-                            <div class="features-item-btton">
-                                <a href="how-it-works.html" class="features-btn">See Programs <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-6">
@@ -90,9 +85,7 @@
                                 <h4 class="features-item-title">Investment & Growth</h4>
                                 <p>Provide investors with verified performance metrics** and forecasts to facilitate Public-Private Partnerships (PPP) and market growth.</p>
                             </div>
-                            <div class="features-item-btton">
-                                <a href="investor-hub.html" class="features-btn">Invest Now <i class="fal fa-arrow-right"></i></a>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
