@@ -254,7 +254,7 @@
             </div>
 
             <!-- Status -->
-            <div class="card">
+            <!-- <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-4">Status</h4>
                     
@@ -266,7 +266,7 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Action Buttons -->
             <div class="card">
@@ -276,7 +276,7 @@
                              Update Vendor
                         </button>
                         <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
+                             Cancel
                         </a>
                     </div>
                 </div>

@@ -33,12 +33,12 @@
                                 <th>Legal Name</th>
                                 <th>Organization Type</th>
                                 <th>Contact Person</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Team Members</th>
+                                <!-- <th>Phone</th>
+                                <th>Email</th> -->
+                                <th>Team</th>
                                 <th>Resources</th>
                                 <th>Status</th>
-                                <th>Registered By</th>
+                                <!-- <th>Registered By</th> -->
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -47,14 +47,14 @@
                             <tr>
                                 <td>
                                     <strong>{{ $vendor->legal_name }}</strong>
-                                    @if($vendor->registration_number)
+                                    <!-- @if($vendor->registration_number)
                                     <br><small class="text-muted">Reg: {{ $vendor->registration_number }}</small>
-                                    @endif
+                                    @endif -->
                                 </td>
                                 <td>{{ ucwords(str_replace('_', ' ', $vendor->organization_type)) }}</td>
                                 <td>{{ $vendor->contact_person_name }}</td>
-                                <td>{{ $vendor->contact_person_phone }}</td>
-                                <td>{{ $vendor->contact_person_email }}</td>
+                                <!-- <td>{{ $vendor->contact_person_phone }}</td>
+                                <td>{{ $vendor->contact_person_email }}</td> -->
                                 <td>
                                     <span class="badge badge-soft-primary">{{ $vendor->users_count }}</span>
                                 </td>
@@ -66,11 +66,11 @@
                                         {{ $vendor->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
-                                <td>
+                                <!-- <td>
                                     <small>{{ $vendor->registeredBy->name ?? 'System' }}</small>
                                     <br>
                                     <small class="text-muted">{{ $vendor->created_at->format('M d, Y') }}</small>
-                                </td>
+                                </td> -->
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('admin.vendors.show', $vendor) }}" 

@@ -19,7 +19,6 @@
                           x-data="resourceForm()" @submit.prevent="submitForm">
                         @csrf
                         
-                        <!-- Basic Information -->
                         <h5 class="mb-3">Basic Information</h5>
                         
                         <div class="row mb-3">
@@ -48,7 +47,6 @@
                             <textarea class="form-control" name="description" rows="3" required></textarea>
                         </div>
 
-                        <!-- Stock Management (Only for physical resources) -->
                         <div x-show="requiresQuantity" x-transition>
                             <h5 class="mb-3 mt-4 border-top pt-3">Stock Management</h5>
                             
@@ -56,31 +54,31 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Unit of Measurement *</label>
                                     <input type="text" class="form-control" name="unit" 
-                                           placeholder="e.g., Kg, Bags, Pieces"
-                                           x-bind:required="requiresQuantity">
+                                            placeholder="e.g., Kg, Bags, Pieces"
+                                            :required="requiresQuantity">
                                     <small class="text-muted">How this resource is measured</small>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Total Stock *</label>
                                     <input type="number" class="form-control" name="total_stock" 
-                                           min="1" x-bind:required="requiresQuantity">
+                                            min="1" :required="requiresQuantity">
                                     <small class="text-muted">Total quantity available</small>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Maximum Per Farmer *</label>
                                     <input type="number" class="form-control" name="max_per_farmer" 
-                                           min="1" x-bind:required="requiresQuantity">
+                                            min="1" :required="requiresQuantity">
                                     <small class="text-muted">Max a farmer can request</small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Payment Settings -->
                         <h5 class="mb-3 mt-4 border-top pt-3">Payment Settings</h5>
                         
                         <div class="form-check form-switch mb-3">
+                            <input type="hidden" name="requires_payment" value="0">
                             <input type="checkbox" class="form-check-input" id="requires_payment"
-                                   name="requires_payment" x-model="requiresPayment">
+                                    name="requires_payment" value="1" x-model="requiresPayment">
                             <label class="form-check-label" for="requires_payment">
                                 This resource requires payment from farmers
                             </label>
@@ -90,8 +88,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Price (₦) *</label>
-                                    <input type="number" class="form-control" name="price"
-                                           step="0.01" min="0" x-bind:required="requiresPayment">
+                                    <input type="text" class="form-control" id="price_input" name="price_display" 
+                                            x-model="priceValue"
+                                            placeholder="0.00" :required="requiresPayment" 
+                                            @input="formatPrice($event.target)">
+                                    <input type="hidden" name="price" :value="rawPrice"> 
                                     <small class="text-muted">Amount farmers will pay</small>
                                 </div>
                             </div>
@@ -101,23 +102,22 @@
                             </div>
                         </div>
 
-                        <!-- Organization & Availability -->
                         <h5 class="mb-3 mt-4 border-top pt-3">Organization & Availability</h5>
                         
-                        <div class="row mb-3">                            
+                        <div class="row mb-3">                        
                             <div class="col-md-4">
                                 <label class="form-label">Start Date</label>
-                                <input type="date" class="form-control" name="start_date">
+                                <input type="date" class="form-control" name="start_date" x-model="startDate">
                                 <small class="text-muted">Leave blank for immediate</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">End Date</label>
-                                <input type="date" class="form-control" name="end_date">
+                                <input type="date" class="form-control" name="end_date" 
+                                        x-model="endDate" :min="startDate || ''">
                                 <small class="text-muted">Leave blank for no expiration</small>
                             </div>
                         </div>
 
-                        <!-- Application Form Fields -->
                         <h5 class="mb-3 mt-4 border-top pt-3">Application Form Fields</h5>
                         <p class="text-muted">Define additional information farmers will provide when applying</p>
 
@@ -129,7 +129,7 @@
                                             <div class="col-md-4">
                                                 <label class="form-label">Field Label *</label>
                                                 <input type="text" class="form-control"
-                                                       x-model="field.label" required>
+                                                        x-model="field.label" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Field Type *</label>
@@ -145,7 +145,7 @@
                                             <div class="col-md-3">
                                                 <div class="form-check mt-3">
                                                     <input type="checkbox" class="form-check-input"
-                                                           x-model="field.required" :id="'required-' + index">
+                                                            x-model="field.required" :id="'required-' + index">
                                                     <label class="form-check-label" :for="'required-' + index">
                                                         Required Field
                                                     </label>
@@ -154,7 +154,7 @@
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm w-100"
                                                         @click="removeField(index)">
-                                                     Remove
+                                                    Remove
                                                 </button>
                                             </div>
                                         </div>
@@ -163,7 +163,7 @@
                                             <div class="col-12">
                                                 <label class="form-label">Dropdown Options *</label>
                                                 <input type="text" class="form-control"
-                                                       x-model="field.options" placeholder="Option 1, Option 2, Option 3">
+                                                        x-model="field.options" placeholder="Option 1, Option 2, Option 3">
                                                 <small class="text-muted">Separate options with commas</small>
                                             </div>
                                         </div>
@@ -172,16 +172,15 @@
                             </template>
 
                             <button type="button" class="btn btn-success btn-sm" @click="addField">
-                               Add Form Field
+                                Add Form Field
                             </button>
                             <small class="text-muted ms-2">Optional - Add custom fields if needed</small>
                         </div>
 
-                        <!-- Form Actions -->
                         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
                             <a href="{{ route('admin.resources.index') }}" class="btn btn-light">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                 Create Resource
+                                Create Resource
                             </button>
                         </div>
                     </form>
@@ -193,91 +192,180 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script>
-        function resourceForm() {
-            return {
-                requiresPayment: false,
-                resourceType: '',
-                fields: [],
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script>
+    function resourceForm() {
+        return {
+            requiresPayment: false,
+            resourceType: '',
+            startDate: '',
+            endDate: '',
+            fields: [],
+            // ADDED: Alpine.js properties for price management
+            priceValue: '', // Displayed, formatted value
+            rawPrice: 0.00, // Actual numerical value for submission
+            
+            init() {
+                // Initialize the formatted price if there is an old value (not strictly necessary here but good practice)
+                this.$watch('priceValue', (value) => {
+                    this.rawPrice = this.cleanCurrency(value);
+                });
+            },
 
-                get requiresQuantity() {
-                    // Services and training don't require quantity
-                    return !['service', 'training'].includes(this.resourceType);
-                },
+            // ADDED: Function to clean and convert to a number
+            cleanCurrency(value) {
+                // Remove commas and ensure only one decimal point
+                const cleaned = String(value).replace(/[^0-9.]/g, '');
+                return cleaned === '' ? 0.00 : parseFloat(cleaned);
+            },
 
-                addField() {
-                    this.fields.push({
-                        label: '',
-                        type: 'text',
-                        required: false,
-                        options: ''
-                    });
-                },
-
-                removeField(index) {
-                    this.fields.splice(index, 1);
-                },
-
-                submitForm(e) {
-                    const form = e.target;
-                    const formData = new FormData(form);
-
-                    // Add form fields JSON
-                    if (this.fields.length > 0) {
-                        formData.delete('form_fields');
-                        formData.append('form_fields', JSON.stringify(
-                            this.fields.map(field => ({
-                                label: field.label,
-                                type: field.type,
-                                required: field.required,
-                                options: field.type === 'select' ? field.options : null
-                            }))
-                        ));
-                    }
-
-                    // Clear price if not required
-                    if (!this.requiresPayment) {
-                        formData.set('price', '0');
-                    }
-
-                    // Clear quantity fields for services/training
-                    if (!this.requiresQuantity) {
-                        formData.delete('unit');
-                        formData.delete('total_stock');
-                        formData.delete('max_per_farmer');
-                    }
-
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            toastr.success(data.message || 'Resource created successfully');
-                            setTimeout(() => {
-                                window.location.href = data.redirect;
-                            }, 1000);
-                        } else {
-                            const errorMessages = data.errors ? 
-                                Object.values(data.errors).flat().join('<br>') : 
-                                (data.message || 'An error occurred');
-                            toastr.error(errorMessages);
-                        }
-                    })
-                    .catch(error => {
-                        toastr.error('An error occurred: ' + error.message);
-                    });
+            // ADDED: Function to format the price input
+            formatPrice(element) {
+                let value = element.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except decimal
+                
+                // Prevent multiple decimals
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
                 }
-            };
-        }
-    </script>
+
+                // Update the raw price for submission
+                this.rawPrice = this.cleanCurrency(value);
+
+                // Format for display
+                let formatted = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                
+                // Keep the cursor position stable
+                const cursor = element.selectionStart;
+                const oldLength = element.value.length;
+                
+                element.value = formatted;
+
+                const newLength = element.value.length;
+                const newCursor = cursor + (newLength - oldLength);
+                element.setSelectionRange(newCursor, newCursor);
+            },
+
+            get requiresQuantity() {
+                return !['service', 'training'].includes(this.resourceType);
+            },
+
+            addField() {
+                this.fields.push({
+                    label: '',
+                    type: 'text',
+                    required: false,
+                    options: ''
+                });
+            },
+
+            removeField(index) {
+                this.fields.splice(index, 1);
+            },
+
+            submitForm(e) {
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                // Ensure the raw price is used for the 'price' field
+                formData.set('price', this.rawPrice.toFixed(2));
+                // Remove the display field which holds the formatted value
+                formData.delete('price_display');
+
+
+                // Handle requires_payment checkbox properly
+                const paymentCheckbox = document.getElementById('requires_payment');
+                if (paymentCheckbox && paymentCheckbox.checked) {
+                    formData.set('requires_payment', '1');
+                } else {
+                    formData.set('requires_payment', '0');
+                }
+
+                // Validate date logic
+                if (this.startDate && this.endDate) {
+                    if (new Date(this.endDate) < new Date(this.startDate)) {
+                        toastr.error('End date must be after start date');
+                        return;
+                    }
+                }
+
+                // Validate payment price (using the rawPrice property)
+                if (this.requiresPayment) {
+                    if (this.rawPrice <= 0) {
+                        toastr.error('Please enter a valid price');
+                        return;
+                    }
+                } else {
+                    // Ensure price is set to 0 when payment not required
+                    formData.set('price', '0');
+                }
+
+                // Validate quantity fields for physical resources
+                if (this.requiresQuantity) {
+                    const unit = formData.get('unit');
+                    const totalStock = formData.get('total_stock');
+                    const maxPerFarmer = formData.get('max_per_farmer');
+
+                    if (!unit || !totalStock || !maxPerFarmer) {
+                        toastr.error('Please fill in all stock management fields');
+                        return;
+                    }
+                } else {
+                    // Remove quantity fields for services/training
+                    formData.delete('unit');
+                    formData.delete('total_stock');
+                    formData.delete('max_per_farmer');
+                }
+
+                // Add form fields JSON
+                if (this.fields.length > 0) {
+                    formData.delete('form_fields');
+                    formData.append('form_fields', JSON.stringify(
+                        this.fields.map(field => ({
+                            label: field.label,
+                            type: field.type,
+                            required: field.required,
+                            options: field.type === 'select' ? field.options : null
+                        }))
+                    ));
+                }
+                
+                // Log FormData for debugging (optional)
+                // for (const [key, value] of formData.entries()) {
+                //     console.log(`${key}: ${value}`);
+                // }
+
+                // Submit form
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message || 'Resource created successfully');
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    } else {
+                        const errorMessages = data.errors ? 
+                            Object.values(data.errors).flat().join('<br>') : 
+                            (data.message || 'An error occurred');
+                        toastr.error(errorMessages);
+                    }
+                })
+                .catch(error => {
+                    toastr.error('An error occurred: ' + error.message);
+                });
+            }
+        };
+    }
+</script>
 @endpush

@@ -1,654 +1,469 @@
-==== controllers ===
+===\config\session.php
 <?php
 
-namespace App\Http\Controllers\LGAAdmin;
+use Illuminate\Support\Str;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
+return [
 
-class ManagementController extends Controller
-{
-    /**
-     * Display a list of Enrollment Agents within the LGA.
-     */
-    public function index(): View
-    {
-        try {
-            $lgaAdmin = auth()->user();
-            
-            // Validate that LGA Admin has proper administrative assignment
-            if (!$lgaAdmin->administrative_id || !$lgaAdmin->administrative_type) {
-                Log::warning('LGA Admin lacks proper administrative assignment', [
-                    'user_id' => $lgaAdmin->id,
-                    'email' => $lgaAdmin->email
-                ]);
-                
-                return view('lga_admin.agents.index', [
-                    'agents' => collect([]),
-                    'error' => 'Your account is not properly configured. Please contact system administrator.'
-                ]);
-            }
-            
-            // Fetch enrollment agents for this specific LGA with eager loading
-            $agents = User::role('Enrollment Agent')
-                          ->where('administrative_id', $lgaAdmin->administrative_id)
-                          ->where('administrative_type', $lgaAdmin->administrative_type)
-                          ->with('administrativeUnit') // Eager load relationship
-                          ->latest()
-                          ->get();
-            
-            Log::info('LGA Admin viewed enrollment agents list', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'agents_count' => $agents->count(),
-                'lga_id' => $lgaAdmin->administrative_id
-            ]);
-                          
-            return view('lga_admin.agents.index', compact('agents'));
-            
-        } catch (\Exception $e) {
-            Log::error('Error fetching enrollment agents', [
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id()
-            ]);
-            
-            return view('lga_admin.agents.index', [
-                'agents' => collect([]),
-                'error' => 'Unable to load agents. Please try again later.'
-            ]);
-        }
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Default Session Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default session "driver" that will be used on
+    | requests. By default, we will use the lightweight native driver but
+    | you may specify any of the other wonderful drivers provided here.
+    |
+    | Supported: "file", "cookie", "database", "apc",
+    |            "memcached", "redis", "dynamodb", "array"
+    |
+    */
 
-    /**
-     * Show the form for creating a new Enrollment Agent.
-     */
-    public function create(): View
-    {
-        $lgaAdmin = auth()->user();
-        
-        // Validate proper administrative assignment
-        if (!$lgaAdmin->administrative_id || !$lgaAdmin->administrative_type) {
-            return redirect()->route('lga_admin.agents.index')
-                           ->with('error', 'Your account is not properly configured. Please contact system administrator.');
-        }
-        
-        return view('lga_admin.agents.create');
-    }
+    'driver' => env('SESSION_DRIVER', 'file'),
 
-    /**
-     * Store a newly created Enrollment Agent in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $lgaAdmin = auth()->user();
-        
-        // Pre-validation: Check administrative assignment
-        if (!$lgaAdmin->administrative_id || !$lgaAdmin->administrative_type) {
-            return redirect()->back()
-                           ->with('error', 'Your account is not properly configured. Please contact system administrator.');
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Session Lifetime
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the number of minutes that you wish the session
+    | to be allowed to remain idle before it expires. If you want them
+    | to immediately expire on the browser closing, set that option.
+    |
+    */
 
-        // Validation with custom messages
-        try {
-            $validated = $request->validate([
-                'name' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    'regex:/^[a-zA-Z\s]+$/' // Only letters and spaces
-                ],
-                'email' => [
-                    'required',
-                    'string',
-                    'email',
-                    'max:255',
-                    'unique:users,email',
-                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
-                ],
-                'phone_number' => [
-                    'nullable',
-                    'string',
-                    'max:20',
-                    'unique:users,phone_number',
-                    'regex:/^[0-9+\-\s()]+$/' // Allow phone number formats
-                ],
-                'password' => [
-                    'required',
-                    'string',
-                    'min:8',
-                    'confirmed',
-                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/' // At least 1 lowercase, 1 uppercase, 1 number
-                ],
-            ], [
-                'name.regex' => 'Name should only contain letters and spaces.',
-                'email.unique' => 'This email address is already registered.',
-                'email.regex' => 'Please provide a valid email address.',
-                'phone_number.unique' => 'This phone number is already registered.',
-                'phone_number.regex' => 'Please provide a valid phone number.',
-                'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
-            ]);
-            
-        } catch (ValidationException $e) {
-            Log::info('Validation failed for agent creation', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'errors' => $e->errors()
-            ]);
-            throw $e;
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Create the agent
-            $agent = User::create([
-                'name' => trim($validated['name']),
-                'email' => strtolower(trim($validated['email'])),
-                'phone_number' => $validated['phone_number'] ? trim($validated['phone_number']) : null,
-                'password' => Hash::make($validated['password']),
-                'status' => 'onboarded',
-                'administrative_id' => $lgaAdmin->administrative_id,
-                'administrative_type' => $lgaAdmin->administrative_type,
-                'email_verified_at' => now(),
-            ]);
-            
-            // Assign role
-            $agent->assignRole('Enrollment Agent');
-            
-            DB::commit();
-            
-            Log::info('Enrollment Agent created successfully', [
-                'agent_id' => $agent->id,
-                'agent_email' => $agent->email,
-                'created_by' => $lgaAdmin->id,
-                'lga_id' => $lgaAdmin->administrative_id
-            ]);
+    'lifetime' => env('SESSION_LIFETIME', 120),
 
-            return redirect()->route('lga_admin.agents.index')
-                           ->with('success', 'Enrollment Agent account created successfully.');
-                           
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            Log::error('Failed to create Enrollment Agent', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'lga_admin_id' => $lgaAdmin->id,
-                'data' => $request->except('password', 'password_confirmation')
-            ]);
-            
-            return redirect()->back()
-                           ->withInput($request->except('password', 'password_confirmation'))
-                           ->with('error', 'Failed to create agent account. Please try again or contact support if the problem persists.');
-        }
-    }
+    'expire_on_close' => false,
 
-    /**
-     * Show the form for editing an Enrollment Agent.
-     */
-    public function edit(User $agent): View|RedirectResponse
-    {
-        $lgaAdmin = auth()->user();
-        
-        // Authorization check: Ensure agent belongs to this LGA
-        if ($agent->administrative_id !== $lgaAdmin->administrative_id || 
-            $agent->administrative_type !== $lgaAdmin->administrative_type) {
-            
-            Log::warning('Unauthorized access attempt to edit agent', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'agent_id' => $agent->id,
-                'lga_admin_lga' => $lgaAdmin->administrative_id,
-                'agent_lga' => $agent->administrative_id
-            ]);
-            
-            abort(403, 'Unauthorized: This agent does not belong to your LGA.');
-        }
-        
-        // Verify the user is actually an Enrollment Agent
-        if (!$agent->hasRole('Enrollment Agent')) {
-            Log::warning('Attempt to edit non-agent user', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'user_id' => $agent->id,
-                'user_roles' => $agent->roles->pluck('name')
-            ]);
-            
-            abort(403, 'This user is not an Enrollment Agent.');
-        }
-        
-        return view('lga_admin.agents.edit', compact('agent'));
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Session Encryption
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to easily specify that all of your session data
+    | should be encrypted before it is stored. All encryption will be run
+    | automatically by Laravel and you can use the Session like normal.
+    |
+    */
 
-    /**
-     * Update the specified Enrollment Agent.
-     */
-    public function update(Request $request, User $agent): RedirectResponse
-    {
-        $lgaAdmin = auth()->user();
-        
-        // Authorization check: Ensure agent belongs to this LGA
-        if ($agent->administrative_id !== $lgaAdmin->administrative_id || 
-            $agent->administrative_type !== $lgaAdmin->administrative_type) {
-            
-            Log::warning('Unauthorized update attempt', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'agent_id' => $agent->id
-            ]);
-            
-            abort(403, 'Unauthorized: This agent does not belong to your LGA.');
-        }
-        
-        // Verify the user is actually an Enrollment Agent
-        if (!$agent->hasRole('Enrollment Agent')) {
-            abort(403, 'This user is not an Enrollment Agent.');
-        }
+    'encrypt' => false,
 
-        // Validation
-        try {
-            $validated = $request->validate([
-                'name' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    'regex:/^[a-zA-Z\s]+$/'
-                ],
-                'email' => [
-                    'required',
-                    'string',
-                    'email',
-                    'max:255',
-                    Rule::unique('users', 'email')->ignore($agent->id),
-                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
-                ],
-                'phone_number' => [
-                    'nullable',
-                    'string',
-                    'max:20',
-                    Rule::unique('users', 'phone_number')->ignore($agent->id),
-                    'regex:/^[0-9+\-\s()]+$/'
-                ],
-                'password' => [
-                    'nullable',
-                    'string',
-                    'min:8',
-                    'confirmed',
-                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
-                ],
-                'status' => [
-                    'required',
-                    'in:pending,onboarded,rejected'
-                ],
-            ], [
-                'name.regex' => 'Name should only contain letters and spaces.',
-                'email.unique' => 'This email address is already registered.',
-                'phone_number.unique' => 'This phone number is already registered.',
-                'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
-            ]);
-            
-        } catch (ValidationException $e) {
-            Log::info('Validation failed for agent update', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'agent_id' => $agent->id,
-                'errors' => $e->errors()
-            ]);
-            throw $e;
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            // Prepare update data
-            $updateData = [
-                'name' => trim($validated['name']),
-                'email' => strtolower(trim($validated['email'])),
-                'phone_number' => $validated['phone_number'] ? trim($validated['phone_number']) : null,
-                'status' => $validated['status'],
-            ];
-            
-            // Only update password if provided
-            if ($request->filled('password')) {
-                $updateData['password'] = Hash::make($validated['password']);
-            }
-            
-            // Update the agent
-            $agent->update($updateData);
-            
-            DB::commit();
-            
-            Log::info('Enrollment Agent updated successfully', [
-                'agent_id' => $agent->id,
-                'updated_by' => $lgaAdmin->id,
-                'updated_fields' => array_keys($updateData)
-            ]);
+    /*
+    |--------------------------------------------------------------------------
+    | Session File Location
+    |--------------------------------------------------------------------------
+    |
+    | When using the native session driver, we need a location where session
+    | files may be stored. A default has been set for you but a different
+    | location may be specified. This is only needed for file sessions.
+    |
+    */
 
-            return redirect()->route('lga_admin.agents.index')
-                           ->with('success', 'Enrollment Agent updated successfully.');
-                           
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            Log::error('Failed to update Enrollment Agent', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'agent_id' => $agent->id,
-                'lga_admin_id' => $lgaAdmin->id
-            ]);
-            
-            return redirect()->back()
-                           ->withInput($request->except('password', 'password_confirmation'))
-                           ->with('error', 'Failed to update agent account. Please try again or contact support if the problem persists.');
-        }
-    }
+    'files' => storage_path('framework/sessions'),
 
-    /**
-     * Remove the specified Enrollment Agent.
-     */
-    public function destroy(User $agent): RedirectResponse
-    {
-        $lgaAdmin = auth()->user();
-        
-        // Authorization check: Ensure agent belongs to this LGA
-        if ($agent->administrative_id !== $lgaAdmin->administrative_id || 
-            $agent->administrative_type !== $lgaAdmin->administrative_type) {
-            
-            Log::warning('Unauthorized delete attempt', [
-                'lga_admin_id' => $lgaAdmin->id,
-                'agent_id' => $agent->id
-            ]);
-            
-            abort(403, 'Unauthorized: This agent does not belong to your LGA.');
-        }
-        
-        // Verify the user is actually an Enrollment Agent
-        if (!$agent->hasRole('Enrollment Agent')) {
-            abort(403, 'This user is not an Enrollment Agent.');
-        }
-        
-        DB::beginTransaction();
-        
-        try {
-            $agentId = $agent->id;
-            $agentEmail = $agent->email;
-            
-            // Soft delete or hard delete based on your requirements
-            $agent->delete();
-            
-            DB::commit();
-            
-            Log::info('Enrollment Agent deleted successfully', [
-                'agent_id' => $agentId,
-                'agent_email' => $agentEmail,
-                'deleted_by' => $lgaAdmin->id,
-                'lga_id' => $lgaAdmin->administrative_id
-            ]);
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Connection
+    |--------------------------------------------------------------------------
+    |
+    | When using the "database" or "redis" session drivers, you may specify a
+    | connection that should be used to manage these sessions. This should
+    | correspond to a connection in your database configuration options.
+    |
+    */
 
-            return redirect()->route('lga_admin.agents.index')
-                           ->with('success', 'Enrollment Agent deleted successfully.');
-                           
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            Log::error('Failed to delete Enrollment Agent', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'agent_id' => $agent->id,
-                'lga_admin_id' => $lgaAdmin->id
-            ]);
-            
-            return redirect()->back()
-                           ->with('error', 'Failed to delete agent account. The agent may have associated records that prevent deletion.');
-        }
-    }
-}
+    'connection' => env('SESSION_CONNECTION'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Table
+    |--------------------------------------------------------------------------
+    |
+    | When using the "database" session driver, you may specify the table we
+    | should use to manage the sessions. Of course, a sensible default is
+    | provided for you; however, you are free to change this as needed.
+    |
+    */
+
+    'table' => 'sessions',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | While using one of the framework's cache driven session backends you may
+    | list a cache store that should be used for these sessions. This value
+    | must match with one of the application's configured cache "stores".
+    |
+    | Affects: "apc", "dynamodb", "memcached", "redis"
+    |
+    */
+
+    'store' => env('SESSION_STORE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Sweeping Lottery
+    |--------------------------------------------------------------------------
+    |
+    | Some session drivers must manually sweep their storage location to get
+    | rid of old sessions from storage. Here are the chances that it will
+    | happen on a given request. By default, the odds are 2 out of 100.
+    |
+    */
+
+    'lottery' => [2, 100],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the name of the cookie used to identify a session
+    | instance by ID. The name specified here will get used every time a
+    | new session cookie is created by the framework for every driver.
+    |
+    */
+
+    'cookie' => env(
+        'SESSION_COOKIE',
+        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Path
+    |--------------------------------------------------------------------------
+    |
+    | The session cookie path determines the path for which the cookie will
+    | be regarded as available. Typically, this will be the root path of
+    | your application but you are free to change this when necessary.
+    |
+    */
+
+    'path' => '/',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Domain
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the domain of the cookie used to identify a session
+    | in your application. This will determine which domains the cookie is
+    | available to in your application. A sensible default has been set.
+    |
+    */
+
+    'domain' => env('SESSION_DOMAIN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTPS Only Cookies
+    |--------------------------------------------------------------------------
+    |
+    | By setting this option to true, session cookies will only be sent back
+    | to the server if the browser has a HTTPS connection. This will keep
+    | the cookie from being sent to you when it can't be done securely.
+    |
+    */
+
+    'secure' => env('SESSION_SECURE_COOKIE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Access Only
+    |--------------------------------------------------------------------------
+    |
+    | Setting this value to true will prevent JavaScript from accessing the
+    | value of the cookie and the cookie will only be accessible through
+    | the HTTP protocol. You are free to modify this option if needed.
+    |
+    */
+
+    'http_only' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Same-Site Cookies
+    |--------------------------------------------------------------------------
+    |
+    | This option determines how your cookies behave when cross-site requests
+    | take place, and can be used to mitigate CSRF attacks. By default, we
+    | will set this value to "lax" since this is a secure default value.
+    |
+    | Supported: "lax", "strict", "none", null
+    |
+    */
+
+    'same_site' => 'lax',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Partitioned Cookies
+    |--------------------------------------------------------------------------
+    |
+    | Setting this value to true will tie the cookie to the top-level site for
+    | a cross-site context. Partitioned cookies are accepted by the browser
+    | when flagged "secure" and the Same-Site attribute is set to "none".
+    |
+    */
+
+    'partitioned' => false,
+
+];
+
 
 
 
 <?php
 
-namespace App\Http\Controllers\LGAAdmin;
+namespace App\Http;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Farmer;
-use App\Models\User;
-use App\Models\LGA;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use App\Notifications\FarmerAccountCreated;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
-
-
-class FarmerReviewController extends Controller
+class Kernel extends HttpKernel
 {
-    protected $cacheTTL = 300;
-    
-    /**
-     * Display a listing of farmers with optimized queries
+        /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array<int, class-string|string>
      */
-    public function index(Request $request)
-    {
-        $lgaId = auth()->user()->administrative_id;
+    protected $middleware = [
+        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array<string, array<int, class-string|string>>
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+
+    /**
+     * The application's middleware aliases.
+     *
+     * Aliases may be used instead of class names to conveniently assign middleware to routes and groups.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $middlewareAliases = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+        'signed' => \App\Http\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+        // 💡 Keep the logic-based middleware
+        'profile.incomplete' => \App\Http\Middleware\EnsureProfileIsIncomplete::class,
+        'onboarded' => \App\Http\Middleware\EnsureUserIsOnboarded::class,
         
-        $data = Cache::remember("lga_admin_farmers_{$lgaId}", $this->cacheTTL, function () use ($lgaId) {
-            return $this->getFarmerData($lgaId);
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+    ];
+}
+
+
+<?php
+
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Throwable;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * The list of the inputs that are never flashed to the session on validation exceptions.
+     *
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Register the exception handling callbacks for the application.
+     */
+    public function register(): void
+    {
+        $this->reportable(function (Throwable $e) {
+            //
         });
-
-        return view('lga_admin.farmers.index', $data);
-    }
-
-    /**
-     * Optimized data fetching
-     */
-    private function getFarmerData($lgaId)
-    {
-        $baseQuery = Farmer::forLGA($lgaId)
-            ->select(['id', 'full_name', 'nin', 'email', 'status', 'created_at', 'enrolled_by', 'approved_at', 'initial_password'])
-            ->with(['enrolledBy:id,name', 'approvedBy:id,name']);
-
-        $counts = [
-            'pending' => (clone $baseQuery)->pendingReview()->count(),
-            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
-            'active' => (clone $baseQuery)->where('status', 'active')->count(),
-            'pending_activation' => (clone $baseQuery)->where('status', 'pending_activation')->count(),
-        ];
-
-        $pendingFarmers = (clone $baseQuery)
-            ->pendingReview()
-            ->orderBy('created_at', 'asc')
-            ->paginate(20, ['*'], 'pending_page');
-
-        $reviewedFarmers = (clone $baseQuery)
-            ->whereIn('status', ['rejected', 'pending_activation', 'active', 'suspended'])
-            ->orderBy('approved_at', 'desc')
-            ->paginate(20, ['*'], 'reviewed_page');
-
-        return [
-            'pendingFarmers' => $pendingFarmers,
-            'reviewedFarmers' => $reviewedFarmers,
-            'counts' => $counts
-        ];
-    }
-
-    /**
-     * Display farmer profile
-     */
-    public function show(Farmer $farmer)
-    {
-        if ($farmer->lga_id !== auth()->user()->administrative_id) {
-            abort(403, 'Unauthorized access to farmer outside your LGA.');
-        }
-
-        $farmer->load([
-            'enrolledBy:id,name,email',
-            'approvedBy:id,name',
-            'cooperative:id,name',
-            'farmLands' => function ($query) {
-                $query->select(['id', 'farmer_id', 'name', 'farm_type', 'total_size_hectares', 'ownership_status', 'geolocation_geojson'])
-                    ->with([
-                        'cropPracticeDetails',
-                        'livestockPracticeDetails', 
-                        'fisheriesPracticeDetails',
-                        'orchardPracticeDetails'
-                    ]);
-            }
-        ]);
-
-        return view('lga_admin.farmers.show', compact('farmer'));
-    }
-
-    /**
-     * Approve farmer enrollment AND create user account immediately
-     */
-    public function approve(Farmer $farmer)
-    {
-        if (!$this->canProcessFarmer($farmer, 'pending_lga_review')) {
-            return back()->with('error', 'Enrollment is not eligible for approval.');
-        }
-
-        // Check if user already exists
-        if (User::where('email', $farmer->email)->exists()) {
-            return back()->with('error', 'A user account with this email already exists.');
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $admin = auth()->user();
-            
-            // 1. Create user account first
-            $user = $this->createFarmerUserAccount($farmer);
-            
-            // 2. Approve farmer and link to user account
-            $farmer->status = 'pending_activation';
-            $farmer->approved_by = $admin->id;
-            $farmer->approved_at = now();
-            $farmer->user_id = $user->id; // Link the user account
-            $farmer->save();
-
-            Log::info('Farmer approved and user account created', [
-                'farmer_id' => $farmer->id,
-                'user_id' => $user->id,
-                'admin_id' => $admin->id,
-            ]);
-
-            DB::commit();
-
-            $this->clearFarmerCache($farmer->lga_id);
-
-            try {
-                $user->notify(new FarmerAccountCreated($user, $farmer, $farmer->initial_password));
-                Log::info('Farmer account email sent successfully', [
-                    'farmer_id' => $farmer->id,
-                    'user_id' => $user->id
-                ]);
-            } catch (\Exception $e) {
-                // Log error but don't break the flow
-                Log::error('Failed to send farmer account email: ' . $e->getMessage(), [
-                    'farmer_id' => $farmer->id,
-                    'user_id' => $user->id
-                ]);
-            }
-            return back()->with('success', 
-                "Farmer profile approved and user account created!\n" .
-                "Login credentials have been sent to {$farmer->email}\n\n" .
-                "Credentials:\n" .
-                "Email: {$farmer->email}\n" .
-                "Password: {$farmer->initial_password}"
-            );            
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Farmer approval failed: ' . $e->getMessage());
-            return back()->with('error', 'Approval failed: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Reject farmer enrollment
-     */
-    public function reject(Request $request, Farmer $farmer)
-    {
-        $request->validate([
-            'rejection_reason' => ['required', 'string', 'min:10', 'max:500']
-        ]);
-
-        if (!$this->canProcessFarmer($farmer, 'pending_lga_review')) {
-            return back()->with('error', 'Enrollment is not eligible for rejection.');
-        }
-
-        DB::transaction(function () use ($farmer, $request) {
-            $admin = auth()->user();
-            $farmer->reject($admin, $request->rejection_reason);
-            
-            Log::info('Farmer enrollment rejected', [
-                'farmer_id' => $farmer->id,
-                'admin_id' => $admin->id,
-                'reason' => $request->rejection_reason,
-            ]);
-        });
-
-        $this->clearFarmerCache($farmer->lga_id);
-
-        return back()->with('success', 'Farmer profile rejected. Enrollment Officer can now resubmit.');
-    }
-
-   
-
-    /**
-     * Create farmer user account with proper user status
-     */
-    private function createFarmerUserAccount(Farmer $farmer): User
-    {
-        return User::create([
-            'name' => $farmer->full_name,
-            'email' => $farmer->email,
-            'phone_number' => $farmer->phone_primary,
-            'password' => Hash::make($farmer->initial_password),
-            'email_verified_at' => now(),
-            'status' => 'onboarded', // User status, not farmer status
-            'administrative_id' => $farmer->lga_id,
-            'administrative_type' => LGA::class,
-        ])->assignRole('User');
-    }
-
-    /**
-     * Check if farmer can be processed
-     */
-    private function canProcessFarmer(Farmer $farmer, string $requiredStatus): bool
-    {
-        return $farmer->lga_id === auth()->user()->administrative_id && 
-               $farmer->status === $requiredStatus;
-    }
-
-    /**
-     * Clear cache
-     */
-    private function clearFarmerCache($lgaId): void
-    {
-        Cache::forget("lga_admin_farmers_{$lgaId}");
-    }
-
-    /**
-     * View farmer credentials (for LGA Admin and Enrollment Agent access)
-     */
-    public function viewCredentials(Farmer $farmer)
-    {
-        if ($farmer->lga_id !== auth()->user()->administrative_id) {
-            abort(403, 'Unauthorized access.');
-        }
-
-        if (!in_array($farmer->status, ['pending_activation', 'active'])) {
-            return back()->with('error', 'Credentials are only available for approved farmers.');
-        }
-
-        return view('lga_admin.farmers.credentials', compact('farmer'));
     }
 }
+
+
+
+
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Defaults
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default authentication "guard" and password
+    | reset options for your application. You may change these defaults
+    | as required, but they're a perfect start for most applications.
+    |
+    */
+
+    'defaults' => [
+        'guard' => 'web',
+        'passwords' => 'users',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Guards
+    |--------------------------------------------------------------------------
+    |
+    | Next, you may define every authentication guard for your application.
+    | Of course, a great default configuration has been defined for you
+    | here which uses session storage and the Eloquent user provider.
+    |
+    | All authentication drivers have a user provider. This defines how the
+    | users are actually retrieved out of your database or other storage
+    | mechanisms used by this application to persist your user's data.
+    |
+    | Supported: "session"
+    |
+    */
+
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Providers
+    |--------------------------------------------------------------------------
+    |
+    | All authentication drivers have a user provider. This defines how the
+    | users are actually retrieved out of your database or other storage
+    | mechanisms used by this application to persist your user's data.
+    |
+    | If you have multiple user tables or models you may configure multiple
+    | sources which represent each model / table. These sources may then
+    | be assigned to any extra authentication guards you have defined.
+    |
+    | Supported: "database", "eloquent"
+    |
+    */
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resetting Passwords
+    |--------------------------------------------------------------------------
+    |
+    | You may specify multiple password reset configurations if you have more
+    | than one user table or model in the application and you want to have
+    | separate password reset settings based on the specific user types.
+    |
+    | The expiry time is the number of minutes that each reset token will be
+    | considered valid. This security feature keeps tokens short-lived so
+    | they have less time to be guessed. You may change this as needed.
+    |
+    | The throttle setting is the number of seconds a user must wait before
+    | generating more password reset tokens. This prevents the user from
+    | quickly generating a very large amount of password reset tokens.
+    |
+    */
+
+    'passwords' => [
+        'users' => [
+            'provider' => 'users',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Confirmation Timeout
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define the amount of seconds before a password confirmation
+    | times out and the user is prompted to re-enter their password via the
+    | confirmation screen. By default, the timeout lasts for three hours.
+    |
+    */
+
+    'password_timeout' => 10800,
+
+];
+
+
+
+
+==== middlewas ====
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Illuminate\Http\Request;
+
+class Authenticate extends Middleware
+{
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     */
+    protected function redirectTo(Request $request): ?string
+    {
+        return $request->expectsJson() ? null : route('login');
+    }
+}
+
+
