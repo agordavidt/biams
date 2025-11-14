@@ -12,6 +12,9 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\FarmerAccountCreated;
+
+
 
 class FarmerReviewController extends Controller
 {
@@ -130,13 +133,26 @@ class FarmerReviewController extends Controller
 
             $this->clearFarmerCache($farmer->lga_id);
 
+            try {
+                $user->notify(new FarmerAccountCreated($user, $farmer, $farmer->initial_password));
+                Log::info('Farmer account email sent successfully', [
+                    'farmer_id' => $farmer->id,
+                    'user_id' => $user->id
+                ]);
+            } catch (\Exception $e) {
+                // Log error but don't break the flow
+                Log::error('Failed to send farmer account email: ' . $e->getMessage(), [
+                    'farmer_id' => $farmer->id,
+                    'user_id' => $user->id
+                ]);
+            }
             return back()->with('success', 
                 "Farmer profile approved and user account created!\n" .
-                "Login credentials for the farmer:\n" .
+                "Login credentials have been sent to {$farmer->email}\n\n" .
+                "Credentials:\n" .
                 "Email: {$farmer->email}\n" .
-                "Password: {$farmer->initial_password}\n\n" .
-                "The farmer can now login and will be forced to change their password."
-            );
+                "Password: {$farmer->initial_password}"
+            );            
 
         } catch (\Exception $e) {
             DB::rollBack();

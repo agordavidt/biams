@@ -554,7 +554,7 @@
                                             Dashboard
                                         </a>
                                     @else
-                                        <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 20px; padding: 15px;">Visit Portal</a>
+                                        <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 5px; padding: 15px;">Visit Portal</a>
                                     @endauth
                                 </div>
                             </div>
@@ -584,7 +584,7 @@
                     <ul>                   
                         <li class="d-flex align-items-center">                        
                             <div class="sidebar__contact-text">
-                                <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 20px; padding: 15px;">Visit Portal</a>
+                                <a href="{{ route('login') }}" class="tp-btn-h1" style="border-radius: 5px; padding: 15px;">Visit Portal</a>
                             </div>
                         </li>
                     </ul>

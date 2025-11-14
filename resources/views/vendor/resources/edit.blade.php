@@ -200,15 +200,15 @@
                         <div class="d-flex justify-content-between gap-2 mt-4 border-top pt-3">
                             <div>
                                 <a href="{{ route('vendor.resources.show', $resource) }}" class="btn btn-light">
-                                    <i class="ri-arrow-left-line me-1"></i> Cancel
+                                    Cancel
                                 </a>
                             </div>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                                    <i class="ri-delete-bin-line me-1"></i> Delete
+                                     Delete
                                 </button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="ri-send-plane-line me-1"></i> Update & Resubmit
+                                     Update & Resubmit
                                 </button>
                             </div>
                         </div>

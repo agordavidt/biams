@@ -60,8 +60,8 @@
                                        name="phone_number" 
                                        id="phone_number" 
                                        class="form-control @error('phone_number') is-invalid @enderror" 
-                                       value="{{ old('phone_number') }}" 
-                                       placeholder="080XXXXXXXX">
+                                       value="{{ old('phone_number') }}"                                        
+                                        maxlength="11">
                                 @error('phone_number')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror

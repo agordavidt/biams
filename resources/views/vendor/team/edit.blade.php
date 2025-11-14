@@ -78,10 +78,10 @@
 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('vendor.team.index') }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
+                             Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-save-line me-1"></i> Update Member
+                             Update Member
                         </button>
                     </div>
                 </form>

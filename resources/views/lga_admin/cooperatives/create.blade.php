@@ -111,7 +111,7 @@
                                        id="phone" 
                                        name="phone" 
                                        value="{{ old('phone') }}" 
-                                       placeholder="e.g., 08012345678"
+                                       maxlength="11"
                                        required>
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -216,10 +216,10 @@
                         <div class="col-12">
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="{{ route('lga_admin.cooperatives.index') }}" class="btn btn-light">
-                                    <i class="ri-close-line me-1"></i>Cancel
+                                   Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="ri-save-line me-1"></i>Register Cooperative
+                                    Register Cooperative
                                 </button>
                             </div>
                         </div>

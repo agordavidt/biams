@@ -107,7 +107,7 @@
                     <div class="col-sm-12 col-md-6">
                         <div class="d-flex gap-2">
                             <a href="{{ route('lga_admin.cooperatives.create') }}" class="btn btn-primary">
-                                <i class="ri-add-line align-middle me-1"></i> Register New Cooperative
+                                Register New Cooperative
                             </a>
                         </div>
                     </div>

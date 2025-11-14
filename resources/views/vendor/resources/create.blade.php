@@ -136,7 +136,7 @@
                         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
                             <a href="{{ route('vendor.resources.index') }}" class="btn btn-light">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="ri-send-plane-line me-1"></i> Submit Proposal
+                                Submit Proposal
                             </button>
                         </div>
                     </form>

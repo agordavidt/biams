@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use App\Notifications\VendorAccountCreated;
+use Illuminate\Support\Facades\Log;
+
+
 
 class VendorController extends Controller
 {
@@ -118,12 +122,25 @@ class VendorController extends Controller
             $user->assignRole($vendorManagerRole);
 
             DB::commit();
+           
 
-            // Send notification email (optional)
-            // Mail::to($user->email)->send(new VendorAccountCreated($user, $request->manager_password));
+            // Send notification email (with error handling)
+            try {
+                $user->notify(new VendorAccountCreated($user, $vendor, $request->manager_password));
+                Log::info('Vendor account email sent successfully', [
+                    'vendor_id' => $vendor->id,
+                    'user_id' => $user->id
+                ]);
+            } catch (\Exception $e) {
+                // Log error but don't break the flow
+                Log::error('Failed to send vendor account email: ' . $e->getMessage(), [
+                    'vendor_id' => $vendor->id,
+                    'user_id' => $user->id
+                ]);
+            }
 
             return redirect()->route('admin.vendors.index')
-                ->with('success', 'Vendor and Manager account created successfully. Login credentials have been set.');
+                ->with('success', 'Vendor and Manager account created successfully. Login credentials have been sent to their email.');
 
         } catch (\Exception $e) {
             DB::rollBack();

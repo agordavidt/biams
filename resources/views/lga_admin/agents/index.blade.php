@@ -7,7 +7,7 @@
             <h4 class="mb-sm-0">Enrollment Agents</h4>
             <div class="page-title-right">
                 <a href="{{ route('lga_admin.agents.create') }}" class="btn btn-primary">
-                    <i class="ri-add-line align-middle me-1"></i> Create New Agent
+                    Create New Agent
                 </a>
             </div>
         </div>

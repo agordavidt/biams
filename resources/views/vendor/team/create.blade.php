@@ -46,7 +46,7 @@
                         <div class="col-md-6">
                             <label for="phone_number" class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <input type="tel" class="form-control @error('phone_number') is-invalid @enderror" 
-                                   id="phone_number" name="phone_number" value="{{ old('phone_number') }}" required>
+                                   id="phone_number" name="phone_number" value="{{ old('phone_number') }}" maxlength="11" required>
                             @error('phone_number')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -97,10 +97,10 @@
 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('vendor.team.index') }}" class="btn btn-secondary">
-                            <i class="ri-close-line me-1"></i> Cancel
+                           Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-user-add-line me-1"></i> Add Team Member
+                             Add Team Member
                         </button>
                     </div>
                 </form>

@@ -161,9 +161,8 @@
                                 <i class="ri-dashboard-line"></i>
                                 <span>Dashboard</span>
                             </a>
-                        </li>
-                        
-                        <li class="menu-title">Enrollment & Review</li>
+                        </li>                      
+
 
                         <li>
                             <a href="{{ route('lga_admin.farmers.index') }}" class="waves-effect">
@@ -189,8 +188,7 @@
                                 <i class="ri-customer-service-2-line"></i>
                                 <span>Corporatives</span>
                             </a>
-                        </li>
-                        <li class="menu-title">Administration</li>
+                        </li>                      
 
                         <li>
                             <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -202,15 +200,15 @@
                                 <li><a href="{{ route('lga_admin.agents.create') }}" class="submenu-item">Create New Agent</a></li>
                             </ul>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a href="{{ route('lga_admin.support.index') }}" class="waves-effect">
                                 <i class="ri-customer-service-2-line"></i>
                                 <span>Support Queue</span>
                             </a>
-                        </li>
+                        </li> -->
 
                         {{-- Logout Functionality --}}
-                        <li class="menu-title">System</li>
+                       
                         <form action="{{ route('logout') }}" method="POST" id="logout-form">
                             @csrf
                             <li>

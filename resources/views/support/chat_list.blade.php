@@ -16,7 +16,7 @@
 
             @if($scope['type'] === 'farmer')
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createChatModal">
-                    <i class="ri-add-line me-1"></i> New Support Request
+                     New Support Request
                 </button>
             @endif
         </div>
@@ -144,7 +144,7 @@
                                         <td>
                                             <a href="{{ route($scope['type'] === 'farmer' ? 'farmer.support.show' : ($scope['type'] === 'lga' ? 'lga_admin.support.show' : 'admin.support.show'), $chat) }}" 
                                                class="btn btn-sm btn-primary">
-                                                <i class="ri-message-3-line"></i> View
+                                                 View
                                             </a>
                                         </td>
                                     </tr>

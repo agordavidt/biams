@@ -16,7 +16,7 @@
                             <h3 class="banner-subtitle"></h3>
                             <h3 class="banner-title-h1 banner-title">Benue State Smart Agricultural System and Data Management Portal</h3>
                             <div class="banner-button mt-30">
-                                <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 ms-2">Explore Marketplace</a>
+                                <a href="{{ route('marketplace.index') }}" class="tp-btn-h1 ms-2" style="border-radius: 5px;">Explore Marketplace</a>
                             </div>
                         </div>
                     </div>

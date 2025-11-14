@@ -81,14 +81,17 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                       <div class="col-md-6">
                             <label for="website" class="form-label">Website</label>
-                            <input type="url" class="form-control @error('website') is-invalid @enderror" 
-                                   id="website" name="website" value="{{ old('website') }}">
+                            <input type="text" class="form-control @error('website') is-invalid @enderror" 
+                                id="website" name="website" 
+                                value="{{ old('website') }}"
+                                placeholder="https://example.com">                           
                             @error('website')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="col-md-6">
                             <label for="tax_identification_number" class="form-label">Tax ID Number</label>
                             <input type="text" class="form-control @error('tax_identification_number') is-invalid @enderror" 
@@ -158,13 +161,18 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="contact_person_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                            <input type="tel" class="form-control @error('contact_person_phone') is-invalid @enderror" 
-                                   id="contact_person_phone" name="contact_person_phone" value="{{ old('contact_person_phone') }}" required>
-                            @error('contact_person_phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <label for="contact_person_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control @error('contact_person_phone') is-invalid @enderror" 
+                            id="contact_person_phone" name="contact_person_phone" 
+                            value="{{ old('contact_person_phone') }}" 
+                            pattern="0[0-9]{10}" 
+                            maxlength="11"                            
+                            title="Phone number must be 11 digits starting with 0"
+                            required>                        
+                        @error('contact_person_phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                         <div class="col-md-6">
                             <label for="contact_person_email" class="form-label">Email Address <span class="text-danger">*</span></label>
                             <input type="email" class="form-control @error('contact_person_email') is-invalid @enderror" 
@@ -202,13 +210,18 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="manager_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                            <input type="tel" class="form-control @error('manager_phone') is-invalid @enderror" 
-                                   id="manager_phone" name="manager_phone" value="{{ old('manager_phone') }}" required>
-                            @error('manager_phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <label for="manager_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control @error('manager_phone') is-invalid @enderror" 
+                            id="manager_phone" name="manager_phone" 
+                            value="{{ old('manager_phone') }}" 
+                            pattern="0[0-9]{10}" 
+                            maxlength="11"                             
+                            title="Phone number must be 11 digits starting with 0"
+                            required>                        
+                        @error('manager_phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     </div>
 
                     <div class="row mb-3">
@@ -315,4 +328,27 @@
         </div>
     </div>
 </form>
+
+<script>
+    // Phone number validation - only allow digits
+    document.querySelectorAll('input[type="tel"]').forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            // Remove any non-digit characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 11 digits
+            if (this.value.length > 11) {
+                this.value = this.value.slice(0, 11);
+            }
+        });
+        
+        // Prevent paste of non-digit content
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleaned = pastedText.replace(/[^0-9]/g, '').slice(0, 11);
+            this.value = cleaned;
+        });
+    });
+</script>
 @endsection

@@ -35,10 +35,10 @@
                     <div class="flex-shrink-0">
                         <div class="d-flex gap-2">
                             <a href="{{ route('lga_admin.cooperatives.members', $cooperative) }}" class="btn btn-success">
-                                <i class="ri-team-line me-1"></i>Manage Members
+                                Manage Members
                             </a>
                             <a href="{{ route('lga_admin.cooperatives.edit', $cooperative) }}" class="btn btn-warning">
-                                <i class="ri-pencil-line me-1"></i>Edit
+                                Edit
                             </a>
                             <a href="{{ route('lga_admin.cooperatives.index') }}" class="btn btn-light">
                                 <i class="ri-arrow-left-line me-1"></i>Back

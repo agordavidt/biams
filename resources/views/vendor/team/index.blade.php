@@ -36,7 +36,7 @@
                     </div>
                     <div>
                         <a href="{{ route('vendor.team.assignments.index') }}" class="btn btn-primary btn-lg">
-                            <i class="ri-settings-3-line me-2"></i>Manage Resource Assignments
+                            Manage Resource Assignments
                         </a>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title mb-0">Team Members</h4>
                     <a href="{{ route('vendor.team.create') }}" class="btn btn-success">
-                        <i class="ri-user-add-line me-1"></i> Add Team Member
+                         Add Team Member
                     </a>
                 </div>
 

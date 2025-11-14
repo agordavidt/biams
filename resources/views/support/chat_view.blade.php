@@ -17,14 +17,14 @@
                 </span>
                 
                 @if($scope['type'] !== 'farmer' && $chat->status !== 'resolved')
-                    @if(!$chat->assigned_admin_id || $chat->assigned_admin_id !== auth()->id())
+                    <!-- @if(!$chat->assigned_admin_id || $chat->assigned_admin_id !== auth()->id())
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="assignChat({{ $chat->id }})">
-                            <i class="ri-user-add-line"></i> Assign to Me
+                           Assign to Me
                         </button>
-                    @endif
+                    @endif -->
                     
                     <button type="button" class="btn btn-sm btn-success" onclick="resolveChat({{ $chat->id }})">
-                        <i class="ri-check-line"></i> Mark Resolved
+                         Mark Resolved
                     </button>
                 @endif
             </div>
