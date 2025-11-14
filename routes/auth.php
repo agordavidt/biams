@@ -35,8 +35,8 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
-// Authenticated routes (require authentication only - no email verification)
-Route::middleware(['auth'])->group(function () {
+// ✅ UPDATED: Authenticated routes with cache prevention
+Route::middleware(['auth', 'prevent.back'])->group(function () {
     // Password confirmation routes
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);

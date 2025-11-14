@@ -103,7 +103,7 @@ require __DIR__.'/auth.php';
 | Authenticated User Routes (Base Level)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {    
+Route::middleware(['auth', 'prevent.back'])->group(function () {    
     Route::get('/password/force-change', [PasswordController::class, 'forceChangePasswordForm'])
          ->name('password.force_change');
     Route::post('/password/update-initial', [PasswordController::class, 'updateInitialPassword'])
@@ -117,7 +117,7 @@ Route::middleware(['auth'])->group(function () {
 | Super Admin Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->prefix('super-admin')->name('super_admin.')->group(function () {
+Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users', 'prevent.back'])->prefix('super-admin')->name('super_admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -184,7 +184,7 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users'])->pref
 | Governor Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor.')->group(function () {
+Route::middleware(['auth', 'role:Governor', 'prevent.back'])->prefix('governor')->name('governor.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [GovernorDashboardController::class, 'index'])->name('dashboard');
     
@@ -220,7 +220,7 @@ Route::middleware(['auth', 'role:Governor'])->prefix('governor')->name('governor
 | State Admin Routes (UPDATED FOR STREAMLINED WORKFLOW)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:State Admin', 'prevent.back'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [StateAdminDashboardController::class, 'index'])->name('dashboard');
     
@@ -371,7 +371,7 @@ Route::middleware(['auth', 'role:State Admin'])->prefix('admin')->name('admin.')
 | LGA Admin Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
+Route::middleware(['auth', 'permission:view_lga_dashboard', 'prevent.back'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -426,7 +426,7 @@ Route::middleware(['auth', 'permission:view_lga_dashboard'])->prefix('lga-admin'
 | Enrollment Agent Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Enrollment Agent'])->prefix('enrollment')->name('enrollment.')->group(function () {
+Route::middleware(['auth', 'role:Enrollment Agent', 'prevent.back'])->prefix('enrollment')->name('enrollment.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [EnrollmentDashboardController::class, 'index'])->name('dashboard');
     
@@ -450,7 +450,7 @@ Route::middleware(['auth', 'role:Enrollment Agent'])->prefix('enrollment')->name
 | Farmer/User Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:User'])->prefix('farmer')->name('farmer.')->group(function () {
+Route::middleware(['auth', 'role:User', 'prevent.back'])->prefix('farmer')->name('farmer.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
@@ -564,7 +564,7 @@ Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(func
 | Commissioner Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Commissioner'])->prefix('commissioner')->name('commissioner.')->group(function () {
+Route::middleware(['auth', 'role:Commissioner', 'prevent.back'])->prefix('commissioner')->name('commissioner.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [CommissionerDashboardController::class, 'index'])->name('dashboard');
     
@@ -610,7 +610,7 @@ Route::middleware(['auth', 'role:Commissioner'])->prefix('commissioner')->name('
 | Vendor Manager Routes (FIXED)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vendor.')->group(function () {
+Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vendor')->name('vendor.')->group(function () {
     // Dashboard with new statistics
     Route::get('/dashboard', [VendorResourceController::class, 'dashboard'])->name('dashboard');
     
@@ -685,7 +685,7 @@ Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vend
 | Distribution Agent Routes (FIXED)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Distribution Agent'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
+Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
     
@@ -736,7 +736,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
 
 
 // Farmer Marketplace Routes
-Route::middleware(['auth', 'role:User'])->prefix('farmer/marketplace')->name('farmer.marketplace.')->group(function () {
+Route::middleware(['auth', 'role:User', 'prevent.back'])->prefix('farmer/marketplace')->name('farmer.marketplace.')->group(function () {
     // My Listings Dashboard
     Route::get('/my-listings', [MarketplaceController::class, 'myListings'])->name('my-listings');
     
@@ -814,7 +814,7 @@ Route::middleware(['auth', 'role:State Admin', 'permission:manage_supplier_catal
 | Vendor Manager Routes (FIXED)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vendor.')->group(function () {
+Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vendor')->name('vendor.')->group(function () {
     // Dashboard with new statistics
     Route::get('/dashboard', [VendorResourceController::class, 'dashboard'])->name('dashboard');
     
@@ -880,7 +880,7 @@ Route::middleware(['auth', 'role:Vendor Manager'])->prefix('vendor')->name('vend
 | Distribution Agent Routes (FIXED)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:Distribution Agent'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
+Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
     

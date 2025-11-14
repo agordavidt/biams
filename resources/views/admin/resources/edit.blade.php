@@ -217,9 +217,8 @@
             },
 
             init() {
-                if (this.fields.length === 0) {
-                    this.addField();
-                }
+                // Don't force adding a field if none existed originally
+                // Users can manually add fields if needed
             },
 
             addField() {

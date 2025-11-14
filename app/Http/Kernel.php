@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-        /**
+    /**
      * The application's global HTTP middleware stack.
      *
      * These middleware are run during every request to your application.
@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CheckSessionExpiry::class, // ✅ NEW: Check session expiry
         ],
 
         'api' => [
@@ -64,12 +65,14 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-        // 💡 Keep the logic-based middleware
         'profile.incomplete' => \App\Http\Middleware\EnsureProfileIsIncomplete::class,
         'onboarded' => \App\Http\Middleware\EnsureUserIsOnboarded::class,
         
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        
+       
+        'prevent.back' => \App\Http\Middleware\PreventBackHistory::class,
     ];
 }

@@ -32,6 +32,10 @@ class AuthenticatedSessionController extends Controller
             
             $user = auth()->user();
             
+            // ✅ NEW: Initialize session activity tracking
+            $request->session()->put('last_activity_time', time());
+            $request->session()->put('user_role', $user->roles->first()->name ?? 'N/A');
+            
             $this->logLoginAttempt($email, $user, $ipAddress, $userAgent, 'success');
             
             Log::info('User login attempt:', [
@@ -41,7 +45,6 @@ class AuthenticatedSessionController extends Controller
             ]);
             
             // Role-based redirects
-            
             if ($user->hasRole('Super Admin')) {
                 return redirect()->route('super_admin.dashboard');
             }
@@ -66,17 +69,14 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('enrollment.dashboard');
             }
 
-          
             if ($user->hasRole('Vendor Manager')) {
                 return redirect()->route('vendor.dashboard');
             }
 
-           
             if ($user->hasRole('Distribution Agent')) {
                 return redirect()->route('vendor.distribution.dashboard');
             }
             
-       
             if ($user->hasRole('User')) { 
                 $farmer = $user->farmerProfile;
 
@@ -99,15 +99,29 @@ class AuthenticatedSessionController extends Controller
     {
         $user = auth()->user();
         
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
+        // Log the logout before destroying session
         if ($user) {
             $this->logLoginAttempt($user->email, $user, $request->ip(), $request->userAgent(), 'logout');
         }
-
-        return redirect('/');
+        
+        // Complete session cleanup
+        Auth::guard('web')->logout();
+        
+        // Invalidate the session
+        $request->session()->invalidate();
+        
+        // Regenerate CSRF token to prevent reuse
+        $request->session()->regenerateToken();
+        
+        // Clear any lingering session data
+        $request->session()->flush();
+        
+        //  Create response with cache prevention headers
+        return redirect('/')
+            ->with('status', 'You have been logged out successfully.')
+            ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
     
     private function logLoginAttempt($email, $user = null, $ipAddress = null, $userAgent = null, $status = 'failed', $failureReason = null)
