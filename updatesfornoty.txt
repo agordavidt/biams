@@ -1,0 +1,274 @@
+==== updates for distribution agent to send notifiacation ===
+<?php
+// =====================================================
+// File: App\Http\Controllers\Vendor\TeamController.php
+// UPDATE THE store() METHOD
+// =====================================================
+
+use App\Notifications\AgentAccountCreated;
+use App\Notifications\DistributionAgentAccountCreated;
+use App\Notifications\VendorAccountCreated;
+
+public function store(Request $request)
+{
+    $user = Auth::user();
+    $vendor = $user->vendor;
+
+    if (!$vendor) {
+        return redirect()->route('vendor.dashboard')->with('error', 'No vendor account found.');
+    }
+
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users,email',
+        'phone_number' => 'required|string|max:20',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|in:Vendor Manager,Distribution Agent',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    // ✅ Store plain password for email
+    $plainPassword = $request->password;
+
+    DB::beginTransaction();
+
+    try {
+        $role = Role::where('name', $request->role)->first();
+
+        $newUser = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => Hash::make($request->password),
+            'vendor_id' => $vendor->id,
+            'status' => 'onboarded',
+            'email_verified_at' => now(),
+        ]);
+
+        $newUser->assignRole($role);
+
+        DB::commit();
+
+        // ✅ Log successful creation
+        Log::info('Vendor team member created successfully', [
+            'user_id' => $newUser->id,
+            'user_email' => $newUser->email,
+            'role' => $request->role,
+            'vendor_id' => $vendor->id,
+            'created_by' => $user->id
+        ]);
+
+        // ✅ Send appropriate email notification based on role
+        try {
+            if ($request->role === 'Distribution Agent') {
+                $newUser->notify(new DistributionAgentAccountCreated($newUser, $vendor, $plainPassword));
+                
+                Log::info('Distribution Agent account email sent successfully', [
+                    'user_id' => $newUser->id,
+                    'email' => $newUser->email,
+                    'vendor_id' => $vendor->id
+                ]);
+            } else {
+                // Vendor Manager
+                $newUser->notify(new VendorAccountCreated($newUser, $vendor, $plainPassword));
+                
+                Log::info('Vendor Manager account email sent successfully', [
+                    'user_id' => $newUser->id,
+                    'email' => $newUser->email,
+                    'vendor_id' => $vendor->id
+                ]);
+            }
+        } catch (\Exception $e) {
+            // ✅ Log error but don't break the flow
+            Log::error('Failed to send team member account email: ' . $e->getMessage(), [
+                'user_id' => $newUser->id,
+                'email' => $newUser->email,
+                'role' => $request->role,
+                'error_trace' => $e->getTraceAsString()
+            ]);
+        }
+
+        return redirect()->route('vendor.team.index')
+            ->with('success', "Team member added successfully as {$request->role}. Login credentials have been sent to their email.");
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        Log::error('Failed to create vendor team member', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'role' => $request->role,
+            'vendor_id' => $vendor->id
+        ]);
+
+        return redirect()->back()
+            ->with('error', 'Error adding team member: ' . $e->getMessage())
+            ->withInput();
+    }
+}
+
+
+
+
+
+
+=== updates for superadmin to send notification =====
+
+
+
+<?php
+// =====================================================
+// File: App\Http\Controllers\SuperAdmin\ManagementController.php
+// UPDATE THE storeUser() METHOD
+// =====================================================
+
+use App\Notifications\LGAAdminAccountCreated;
+use App\Models\LGA;
+use App\Models\Department;
+use App\Models\Agency;
+
+public function storeUser(Request $request)
+{
+    if (!Auth::user()->can('manage_users')) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    // Log incoming request for debugging
+    Log::info('Store User Request', [
+        'role_id' => $request->input('role_id'),
+        'administrative_type' => $request->input('administrative_type'),
+        'administrative_id' => $request->input('administrative_id'),
+    ]);
+
+    // 1. Define Base Rules
+    $rules = [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email',
+        'password' => 'required|string|min:8|confirmed',
+        'role_id' => ['required', 'exists:roles,id'],
+    ];
+
+    $messages = [
+        'administrative_type.required' => 'This role requires an administrative unit type to be selected.',
+        'administrative_id.required' => 'Please select a specific administrative unit.',
+        'role_id.required' => 'Please select a role for this user.',
+    ];
+
+    // ✅ Store plain password for email
+    $plainPassword = $request->password;
+
+    // 2. Get the role to check if it requires administrative unit
+    $role = Role::find($request->input('role_id'));
+    
+    // 3. Add conditional rules if role requires unit
+    if ($role && !in_array($role->name, $this->globalRoles)) {
+        $rules['administrative_type'] = ['required', 'string', Rule::in(['Department', 'Agency', 'LGA'])];
+        $rules['administrative_id'] = ['required', 'integer', 'min:1'];
+    }
+
+    // 4. Run Validation
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    // 5. Custom validation in after callback
+    $validator->after(function ($validator) use ($request, $role) { 
+        if ($this->shouldValidateUnitFields($role)) {
+            $this->validateAdministrativeUnitExistence($validator, $request); 
+            $this->validateRoleUnitCompatibility($validator, $request, $role); 
+        }
+    });
+
+    // 6. Validate and get data
+    $data = $validator->validate();
+
+    // 7. Prepare administrative unit data
+    $administrativeType = null;
+    $administrativeId = null;
+    $administrativeUnit = null;
+    $administrativeUnitName = '';
+    
+    // KEY FIX: Check if role requires unit and data is provided
+    if ($role && !in_array($role->name, $this->globalRoles)) {
+        // For unit-based roles, these fields are required by validation
+        $shortType = $data['administrative_type']; // e.g., "Department", "Agency", "LGA"
+        $administrativeType = "App\\Models\\{$shortType}";
+        $administrativeId = $data['administrative_id'];
+        
+        // ✅ Fetch the administrative unit for email
+        switch ($shortType) {
+            case 'LGA':
+                $administrativeUnit = LGA::find($administrativeId);
+                $administrativeUnitName = $administrativeUnit ? $administrativeUnit->name . ' LGA' : 'LGA';
+                break;
+            case 'Department':
+                $administrativeUnit = Department::find($administrativeId);
+                $administrativeUnitName = $administrativeUnit ? $administrativeUnit->name : 'Department';
+                break;
+            case 'Agency':
+                $administrativeUnit = Agency::find($administrativeId);
+                $administrativeUnitName = $administrativeUnit ? $administrativeUnit->name : 'Agency';
+                break;
+        }
+        
+        // Additional safety check
+        if (!$administrativeId || $administrativeId < 1) {
+            return back()->withErrors([
+                'administrative_id' => 'A valid administrative unit must be selected for this role.'
+            ])->withInput();
+        }
+    }
+    
+    // 8. Create User with explicit field assignment
+    $user = User::create([
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($data['password']),
+        'status' => 'onboarded',
+        'administrative_type' => $administrativeType,
+        'administrative_id' => $administrativeId,
+        'email_verified_at' => now(),
+    ]);
+
+    // Log what was saved
+    Log::info('User Created', [
+        'user_id' => $user->id,
+        'administrative_type' => $user->administrative_type,
+        'administrative_id' => $user->administrative_id,
+    ]);
+
+    // 9. Assign Role
+    $user->assignRole($role);
+
+    // ✅ Send notification email (with error handling)
+    try {
+        $user->notify(new LGAAdminAccountCreated(
+            $user, 
+            $plainPassword, 
+            $administrativeUnit, 
+            $administrativeUnitName
+        ));
+        
+        Log::info('Admin account email sent successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $role->name,
+            'administrative_unit' => $administrativeUnitName
+        ]);
+    } catch (\Exception $e) {
+        // ✅ Log error but don't break the flow
+        Log::error('Failed to send admin account email: ' . $e->getMessage(), [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $role->name,
+            'error_trace' => $e->getTraceAsString()
+        ]);
+    }
+
+    return redirect()
+        ->route('super_admin.management.users.index')
+        ->with('success', 'User created successfully and is now active. Login credentials have been sent to their email.');
+}

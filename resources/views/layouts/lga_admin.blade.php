@@ -206,7 +206,13 @@
                                 <span>Support Queue</span>
                             </a>
                         </li> -->
-
+                         <li>
+                            <a href="{{ route('lga_admin.profile') }}" class="waves-effect">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+                       
                         {{-- Logout Functionality --}}
                        
                         <form action="{{ route('logout') }}" method="POST" id="logout-form">

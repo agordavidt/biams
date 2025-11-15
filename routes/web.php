@@ -44,71 +44,16 @@ use App\Http\Controllers\Vendor\TeamController as VendorTeamController;
 use App\Http\Controllers\Vendor\DistributionFulfillmentController;
 use App\Http\Controllers\Vendor\AnalyticsController as VendorAnalyticsController;
 use App\Http\Controllers\Vendor\AgentAssignmentController;
+use App\Http\Controllers\Profile\ProfilePasswordController;
+use App\Http\Controllers\LGAAdmin\ProfileController as LGAAdminProfileController;
+use App\Http\Controllers\EnrollmentAgent\ProfileController as EnrollmentProfileController;
+use App\Http\Controllers\Vendor\ProfileController as VendorProfileController;
+use App\Http\Controllers\Vendor\DistributionProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 
 
 
-use Illuminate\Support\Facades\Log;
-use App\Models\User;
-use App\Notifications\CustomResetPasswordNotification;
-use App\Notifications\AgentAccountCreated;
-
-
-Route::get('/test-password-facade', function() {
-    try {
-        $email = 'superadmin@benue.gov.ng';
-        
-        Log::info('=== TESTING PASSWORD FACADE ===', ['email' => $email]);
-        
-        // Check if user exists
-        $user = \App\Models\User::where('email', $email)->first();
-        
-        if (!$user) {
-            return "❌ User not found: {$email}";
-        }
-        
-        Log::info('User found', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'has_sendPasswordResetNotification' => method_exists($user, 'sendPasswordResetNotification')
-        ]);
-        
-        // Use Password facade (exactly like forgot password does)
-        $status = \Illuminate\Support\Facades\Password::sendResetLink(['email' => $email]);
-        
-        Log::info('Password facade result', [
-            'status' => $status,
-            'expected' => \Illuminate\Support\Facades\Password::RESET_LINK_SENT,
-            'matched' => $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-        ]);
-        
-        // Check if token was created
-        $token = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
-            ->where('email', $email)
-            ->latest('created_at')
-            ->first();
-            
-        Log::info('Token check', [
-            'token_exists' => $token ? 'YES' : 'NO',
-            'created_at' => $token ? $token->created_at : null
-        ]);
-        
-        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
-            return "✅ Password reset link sent! Check Mailtrap and logs.";
-        } else {
-            return "❌ Failed. Status: {$status}";
-        }
-        
-    } catch (\Exception $e) {
-        Log::error('Password facade test failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return "❌ Exception: {$e->getMessage()}";
-    }
-});
 
 /*  Prelauch routes */
 
@@ -160,6 +105,23 @@ Route::get('/contact', function () {
 })->name('contact');
 
 require __DIR__.'/auth.php';
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Profile/Account Settings Routes (All Authenticated Users)
+|--------------------------------------------------------------------------
+| Add these routes to your web.php file
+*/
+
+Route::middleware(['auth', 'prevent.back'])->prefix('profile')->name('profile.')->group(function () {
+    // Password update
+    Route::put('/password', [ProfilePasswordController::class, 'update'])
+        ->name('password.update');
+    
+   
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -429,14 +391,19 @@ Route::middleware(['auth', 'role:State Admin', 'prevent.back'])->prefix('admin')
         Route::get('/{chat}/poll', [ChatController::class, 'poll'])->name('poll');
     });
 });
-/*
-|--------------------------------------------------------------------------
-| LGA Admin Routes
-|--------------------------------------------------------------------------
-*/
+
+
+
+// =====================================================================
+// LGA Admin Profile Routes
+// =====================================================================
+
 Route::middleware(['auth', 'permission:view_lga_dashboard', 'prevent.back'])->prefix('lga-admin')->name('lga_admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [LGAAdminDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/profile', [LGAAdminProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [LGAAdminProfileController::class, 'update'])->name('profile.update');
 
     // Enrollment Agents Management
     Route::prefix('agents')->name('agents.')->middleware('permission:manage_lga_agents')->group(function () {
@@ -492,6 +459,9 @@ Route::middleware(['auth', 'permission:view_lga_dashboard', 'prevent.back'])->pr
 Route::middleware(['auth', 'role:Enrollment Agent', 'prevent.back'])->prefix('enrollment')->name('enrollment.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [EnrollmentDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/profile', [EnrollmentProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [EnrollmentProfileController::class, 'update'])->name('profile.update');
     
     // Farmer Enrollment
     Route::prefix('farmers')->name('farmers.')->group(function () {
@@ -676,6 +646,9 @@ Route::middleware(['auth', 'role:Commissioner', 'prevent.back'])->prefix('commis
 Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vendor')->name('vendor.')->group(function () {
     // Dashboard with new statistics
     Route::get('/dashboard', [VendorResourceController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/profile', [VendorProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [VendorProfileController::class, 'update'])->name('profile.update');
     
     // Team Management
     Route::prefix('team')->name('team.')->group(function () {
@@ -751,6 +724,10 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
 Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/profile', [DistributionProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [DistributionProfileController::class, 'update'])->name('profile.update');
+    
     
     // Distribution Fulfillment
     Route::get('/search', [DistributionFulfillmentController::class, 'searchInterface'])->name('search');

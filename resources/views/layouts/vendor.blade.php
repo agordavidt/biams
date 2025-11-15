@@ -89,10 +89,16 @@
                             </a>
                         </li>
 
-                        <li>
+                        <!-- <li>
                             <a href="{{ route('vendor.payouts') }}" class="waves-effect">
                                 <i class="ri-wallet-3-line me-2"></i>
                                 <span>Payouts</span>
+                            </a>
+                        </li> -->
+                         <li>
+                            <a href="{{ route('vendor.profile') }}" class="waves-effect">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Profile</span>
                             </a>
                         </li>
                         @endif
@@ -117,6 +123,12 @@
                             <a href="{{ route('vendor.distribution.resources') }}" class="waves-effect">
                                 <i class="ri-list-check me-2"></i>
                                 <span>Assigned Resources</span>
+                            </a>
+                        </li>
+                         <li>
+                            <a href="{{ route('vendor.distribution.profile') }}" class="waves-effect">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Profile</span>
                             </a>
                         </li>
                         @endif
