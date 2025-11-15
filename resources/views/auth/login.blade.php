@@ -1,3 +1,4 @@
+{{-- resources/views/auth/login.blade.php --}}
 @extends('layouts.loginregister')
 
 @section('title', 'Login - Benue State Smart Agricultural System and Data Management')
@@ -92,11 +93,12 @@
                                 <!-- <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label for="remember">Remember me</label> -->
                             </div>
-                            <!-- @if (Route::has('password.request'))
+                            {{-- ✅ UNCOMMENTED: Forgot Password Link --}}
+                            @if (Route::has('password.request'))
                                 <a href="{{ route('password.request') }}" class="forgot-password">
                                     Forgot Password?
                                 </a>
-                            @endif -->
+                            @endif
                         </div>
 
                         <button type="submit" class="login-btn">Login</button>                        
@@ -166,6 +168,7 @@
     color: #2a7d2e;
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
 }
 .forgot-password:hover {
     text-decoration: underline;

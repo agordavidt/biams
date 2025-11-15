@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +10,11 @@ use Spatie\Permission\Traits\HasRoles;
 use App\Models\Market\MarketplaceListing;
 use App\Models\Market\MarketplaceSubscription;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
+use App\Notifications\CustomResetPasswordNotification;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles; //  Use Spatie Trait
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'name',
@@ -39,13 +38,28 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * Send the password reset notification.
+     * 
+     * This overrides Laravel's default to use our custom branded email template.
+     * Email reset does NOT bypass force password change (Option A).
+     *
+     * @param string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token) 
+    {
+        $this->notify(new CustomResetPasswordNotification($token));
+    }
+
+    /**
      * Get the owning administrative unit (LGA, Department, or Agency).
      */
     public function administrativeUnit()
     {
-        // Define the polymorphic relationship for scoping the user
         return $this->morphTo('administrative');
     }
+    
+  
     
    public function scopeForAdministrativeUnit($query, $type, $id)
     {

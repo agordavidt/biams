@@ -47,6 +47,69 @@ use App\Http\Controllers\Vendor\AgentAssignmentController;
 use Illuminate\Support\Facades\Route;
 use App\Providers\RouteServiceProvider;
 
+
+
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use App\Notifications\CustomResetPasswordNotification;
+use App\Notifications\AgentAccountCreated;
+
+
+Route::get('/test-password-facade', function() {
+    try {
+        $email = 'superadmin@benue.gov.ng';
+        
+        Log::info('=== TESTING PASSWORD FACADE ===', ['email' => $email]);
+        
+        // Check if user exists
+        $user = \App\Models\User::where('email', $email)->first();
+        
+        if (!$user) {
+            return "❌ User not found: {$email}";
+        }
+        
+        Log::info('User found', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'has_sendPasswordResetNotification' => method_exists($user, 'sendPasswordResetNotification')
+        ]);
+        
+        // Use Password facade (exactly like forgot password does)
+        $status = \Illuminate\Support\Facades\Password::sendResetLink(['email' => $email]);
+        
+        Log::info('Password facade result', [
+            'status' => $status,
+            'expected' => \Illuminate\Support\Facades\Password::RESET_LINK_SENT,
+            'matched' => $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+        ]);
+        
+        // Check if token was created
+        $token = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->latest('created_at')
+            ->first();
+            
+        Log::info('Token check', [
+            'token_exists' => $token ? 'YES' : 'NO',
+            'created_at' => $token ? $token->created_at : null
+        ]);
+        
+        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+            return "✅ Password reset link sent! Check Mailtrap and logs.";
+        } else {
+            return "❌ Failed. Status: {$status}";
+        }
+        
+    } catch (\Exception $e) {
+        Log::error('Password facade test failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return "❌ Exception: {$e->getMessage()}";
+    }
+});
+
 /*  Prelauch routes */
 
 
