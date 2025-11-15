@@ -84,7 +84,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="BSIADAMS Logo">
+            <img src="{{ asset('dashboard/images/bsiadams_logo_new.png') }}" alt="BSSADAM Logo">
         </div>
         
         <div class="content">
@@ -121,7 +121,7 @@
             <p>If you need any assistance, please contact your local enrollment officer or LGA administrator.</p>
             
             <p>Best regards,<br>
-            <strong>BSIADAMS Team</strong></p>
+            <strong>BSSADAM Team</strong></p>
         </div>
         
         <div class="footer">

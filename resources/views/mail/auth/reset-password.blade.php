@@ -24,12 +24,12 @@
         .header {
             background: linear-gradient(135deg, #2a7d2e 0%, #1f5e22 100%);
             color: #ffffff;
-            padding: 30px 20px;
+            padding: 25px 18px;
             text-align: center;
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
         }
         .header img {
@@ -121,7 +121,7 @@
     <div class="email-container">
         <!-- Header -->
         <div class="header">
-            <h1>🌾 Benue State Agricultural System</h1>
+            <h1>Benue State Smart Agricultural and Data Management Platform</h1>
         </div>
 
         <!-- Content -->
@@ -130,7 +130,7 @@
             
             <p>Hello,</p>
             
-            <p>We received a request to reset the password for your account in the Benue State Smart Agricultural System and Data Management platform.</p>
+            <p>We received a request to reset the password for your account in the Benue State Smart Agriculture and Data Management platform.</p>
 
             <p>Click the button below to reset your password. This link will expire in <strong>60 minutes</strong> for security reasons.</p>
 
@@ -141,7 +141,7 @@
 
             <!-- Warning Box -->
             <div class="warning-box">
-                <p><strong>⚠️ Security Notice:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+                <p><strong>Security Notice:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
             </div>
 
             <div class="divider"></div>

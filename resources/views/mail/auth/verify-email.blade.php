@@ -102,14 +102,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('/dashboard/images/favicon.jpg') }}" style="width: 140px; height: 140px" alt="BSIADAMS_logo">
+            <img src="{{ asset('/dashboard/images/favicon.jpg') }}" style="width: 140px; height: 140px" alt="BSSADAM_logo">
         </div>
         
         <div class="content">
             <h2>Email Verification</h2>
             
             <div class="verification-box">
-                <h3>Verify Your Email Address 📧</h3>
+                <h3>Verify Your Email Address</h3>
                 <p>Hello {{ $user->name }}, welcome to BSIADAMS! Please verify your email to complete your registration.</p>
             </div>
             
@@ -123,18 +123,12 @@
             
             <p style="font-size: 14px; color: #666;">
                 <strong>Having trouble?</strong><br>
-                • Make sure you're clicking the link from the same device/browser where you registered<br>
-                • Check your spam/junk folder if you can't find this email<br>
+                • Make sure you're clicking the link from the same device/browser where you registered<br>              
                 • Contact our support team if you continue to have issues
             </p>
         </div>
         
-        <div class="footer">
-            <div class="social-links">
-                <a href="#">Facebook</a> |
-                <a href="#">Twitter</a> |
-                <a href="#">LinkedIn</a>
-            </div>
+        <div class="footer">           
             <p>© {{ date('Y') }} BSIADAMS. All rights reserved.</p>
             <p>Block 8 Suite 11-13 Makurdi/Gboko Road,<br>
                Behind Total Filing Station, SDP,<br>

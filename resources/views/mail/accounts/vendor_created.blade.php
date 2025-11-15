@@ -88,7 +88,7 @@
         </div>
         
         <div class="content">
-            <h2>Welcome to BSSADMS!</h2>
+            <h2>Welcome to BSSADM!</h2>
             
             <p>Dear {{ $user->name }},</p>
             
@@ -113,7 +113,7 @@
             <p>If you have any questions or need assistance, please contact the system administrator.</p>
             
             <p>Best regards,<br>
-            <strong>BSIADAMS Team</strong></p>
+            <strong>BSSADAM Team</strong></p>
         </div>
         
         <div class="footer">
