@@ -43,6 +43,25 @@ class TeamController extends Controller
         return view('vendor.team.create', compact('vendor'));
     }
 
+    /**
+     * Check if email is available (AJAX endpoint)
+     */
+    public function checkEmail(Request $request)
+    {
+        $email = $request->input('email');
+        
+        if (!$email) {
+            return response()->json(['available' => false, 'message' => 'Email is required']);
+        }
+
+        $exists = User::where('email', $email)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Email already exists' : 'Email is available'
+        ]);
+    }
+
     public function store(Request $request)
     {
         $user = Auth::user();

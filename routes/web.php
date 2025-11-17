@@ -650,6 +650,7 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
     Route::get('/profile', [VendorProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [VendorProfileController::class, 'update'])->name('profile.update');
     
+    
     // Team Management
     Route::prefix('team')->name('team.')->group(function () {
         Route::get('/', [VendorTeamController::class, 'index'])->name('index');
@@ -659,6 +660,8 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
         Route::put('/{teamMember}', [VendorTeamController::class, 'update'])->name('update');
         Route::delete('/{teamMember}', [VendorTeamController::class, 'destroy'])->name('destroy');
         Route::patch('/{teamMember}/reset-password', [VendorTeamController::class, 'resetPassword'])->name('reset-password');
+        // Inside your vendor routes group      
+        Route::post('/check-email', [VendorTeamController::class, 'checkEmail'])->name('check-email');
     });
     
     // Resource Management
