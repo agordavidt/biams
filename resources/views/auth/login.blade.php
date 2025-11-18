@@ -1,4 +1,3 @@
-{{-- resources/views/auth/login.blade.php --}}
 @extends('layouts.loginregister')
 
 @section('title', 'Login - Benue State Smart Agricultural System and Data Management')
