@@ -88,7 +88,7 @@
         </div>
         
         <div class="content">
-            <h2>🎉 Your Farmer Profile Has Been Approved!</h2>
+            <h2>Your Farmer Profile Has Been Approved!</h2>
             
             <p>Dear {{ $user->name }},</p>
             
@@ -102,7 +102,7 @@
             </div>
             
             <div class="warning">
-                <strong>⚠️ Important Security Notice:</strong><br>
+                <strong>Important Security Notice:</strong><br>
                 You will be required to change your password on your first login. Please keep your new password secure and do not share it with anyone.
             </div>
             

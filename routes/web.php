@@ -58,19 +58,19 @@ use App\Providers\RouteServiceProvider;
 /*  Prelauch routes */
 
 
-Route::get('/', function () {
-    return redirect()->route('pre_launch');
-});
+// Route::get('/', function () {
+//     return redirect()->route('pre_launch');
+// });
 
 
-Route::get('/pre_launch', function() {
-    return view('pre_launch');
-})->name('pre_launch');
+// Route::get('/pre_launch', function() {
+//     return view('pre_launch');
+// })->name('pre_launch');
 
 
-Route::get('/welcome', function () {
-    return view('welcome');
-})->name('welcome'); 
+// Route::get('/welcome', function () {
+//     return view('welcome');
+// })->name('welcome'); 
 
 
 
@@ -80,9 +80,9 @@ Route::get('/welcome', function () {
 |--------------------------------------------------------------------------
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::get('/pre_launch', function() {
     return view('pre_launch');
