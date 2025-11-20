@@ -12,10 +12,10 @@
                 </div>
                 <div>
                     <a href="{{ route('vendor.distribution.search') }}" class="btn btn-primary me-2">
-                        <i class="ri-search-line me-1"></i> Search Farmers
+                        Search Farmers
                     </a>
                     <a href="{{ route('vendor.distribution.dashboard') }}" class="btn btn-light">
-                        <i class="ri-dashboard-line me-1"></i> Dashboard
+                         Dashboard
                     </a>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                     @if($hasAssignments)
                         <div class="card-header bg-warning text-dark d-flex align-items-center justify-content-between">
                             <span class="badge bg-white text-warning">
-                                <i class="ri-shield-check-line me-1"></i>Assigned to You
+                                Assigned to You
                             </span>
                         </div>
                     @endif
@@ -149,7 +149,7 @@
                         <div class="d-grid gap-2">
                             <a href="{{ route('vendor.distribution.resource-applications', $resource) }}" 
                                class="btn btn-primary">
-                                <i class="ri-file-list-line me-1"></i> View Applications ({{ $resource->paid_count }})
+                               View Applications ({{ $resource->paid_count }})
                             </a>
                         </div>
                     </div>
@@ -183,7 +183,7 @@
                 <div class="card border-warning">
                     <div class="card-header bg-warning text-dark">
                         <h6 class="mb-0">
-                            <i class="ri-information-line me-2"></i>Your Resource Assignments
+                        Your Resource Assignments
                         </h6>
                     </div>
                     <div class="card-body">

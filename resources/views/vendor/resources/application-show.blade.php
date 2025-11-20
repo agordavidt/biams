@@ -19,7 +19,7 @@
     </div>
 
     <!-- Success/Error Messages -->
-    @if(session('success'))
+    <!-- @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
             <i class="ri-check-line me-1"></i> {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -31,7 +31,7 @@
             <i class="ri-error-warning-line me-1"></i> {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @endif
+    @endif -->
 
     <div class="row">
         <!-- Main Content -->
@@ -296,28 +296,28 @@
             <!-- Quick Actions -->
             @if(in_array($application->status, ['pending', 'payment_pending', 'paid', 'approved']))
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header" style="background: #ccc;">
                         <h5 class="card-title mb-0">
-                            <i class="ri-flashlight-line me-2"></i>Quick Actions
+                           Quick Actions
                         </h5>
                     </div>
                     <div class="card-body">
                         @if(in_array($application->status, ['pending', 'payment_pending']))
                             <!-- Verify & Approve Button -->
                             <button type="button" class="btn btn-success w-100 mb-2" onclick="showApproveModal()">
-                                <i class="ri-check-line me-1"></i> Verify Payment & Approve
+                                 Verify Payment & Approve
                             </button>
                             
                             <!-- Reject Button -->
                             <button type="button" class="btn btn-danger w-100" onclick="showRejectModal()">
-                                <i class="ri-close-line me-1"></i> Reject Application
+                                Reject Application
                             </button>
                         @endif
 
                         @if(in_array($application->status, ['paid', 'approved']))
                             <!-- Fulfill Button -->
-                            <button type="button" class="btn btn-primary w-100" onclick="showFulfillModal()">
-                                <i class="ri-checkbox-circle-line me-1"></i> Mark as Fulfilled
+                            <button type="button" class="btn w-100" onclick="showFulfillModal()" style="background: #66bb6a; color: #fff;">
+                                 Mark as Fulfilled
                             </button>
                         @endif
                     </div>
@@ -438,7 +438,7 @@
 <div class="modal fade" id="fulfillModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white" style="background: #66bb6a;">
                 <h5 class="modal-title">Confirm Fulfillment</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -468,8 +468,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="fulfillBtn">
-                        <i class="ri-checkbox-circle-line me-1"></i> Confirm Fulfillment
+                    <button type="submit" class="btn" id="fulfillBtn" style="background: #66bb6a;">
+                        Confirm Fulfillment
                     </button>
                 </div>
             </form>

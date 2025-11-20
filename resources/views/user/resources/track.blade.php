@@ -10,7 +10,7 @@
             </div>
             <div>
                 <a href="{{ route('farmer.resources.index') }}" class="btn btn-primary">
-                    <i class="ri-add-line me-1"></i> Apply for Resources
+                   Apply for Resources
                 </a>
             </div>
         </div>
@@ -138,7 +138,7 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="col-md-2 text-end">
+                        <!-- <div class="col-md-2 text-end">
                             <a href="{{ route('farmer.resources.applications.show', $application) }}" 
                                class="btn btn-light btn-sm mb-1 w-100">
                                 <i class="ri-eye-line me-1"></i> View
@@ -155,7 +155,7 @@
                                     </button>
                                 </form>
                             @endif
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Additional Info -->

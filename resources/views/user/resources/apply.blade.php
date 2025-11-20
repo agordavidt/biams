@@ -29,15 +29,27 @@
                     @if($resource->requires_quantity)
                     <div class="mb-3">
                         <label class="form-label">Quantity *</label>
-                        <input type="number" class="form-control" name="quantity" 
+                        <input type="number" class="form-control" name="quantity" id="paymentQuantity"
                                value="1" min="1" max="{{ $resource->max_per_farmer }}" required>
                         <small class="text-muted">Maximum: {{ $resource->max_per_farmer }} {{ $resource->unit }}</small>
                     </div>
                     @endif
 
-                    <div class="alert alert-warning">
-                        <strong>Amount to Pay:</strong> 
-                        ₦{{ number_format($resource->price * ($resource->requires_quantity ? 1 : 1), 2) }}
+                    <div class="card border bg-light mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Unit Price:</small>
+                                    <h5 class="mb-0">₦{{ number_format($resource->price, 2) }}</h5>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted">Total Amount:</small>
+                                    <h4 class="mb-0 text-primary" id="paymentTotalAmount">
+                                        ₦{{ number_format($resource->price * ($resource->requires_quantity ? 1 : 1), 2) }}
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">
@@ -137,10 +149,10 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-success">
-                            <i class="ri-send-plane-line me-1"></i> Submit Application
+                           Submit Application
                         </button>
                         <a href="{{ route('farmer.resources.show', $resource) }}" class="btn btn-light">
-                            <i class="ri-arrow-left-line me-1"></i> Back
+                           Back
                         </a>
                     </div>
                 </form>
@@ -149,5 +161,29 @@
     </div>
 </div>
 @endif
+
+@push('scripts')
+<script>
+    @if($resource->requires_payment && !$hasPaid && $resource->requires_quantity)
+    // Real-time cost calculation
+    const unitPrice = {{ $resource->price }};
+    const quantityInput = document.getElementById('paymentQuantity');
+    const totalAmountDisplay = document.getElementById('paymentTotalAmount');
+    
+    if (quantityInput && totalAmountDisplay) {
+        quantityInput.addEventListener('input', function() {
+            const quantity = parseInt(this.value) || 1;
+            const totalAmount = unitPrice * quantity;
+            
+            // Format with Nigerian Naira symbol and comma separators
+            totalAmountDisplay.textContent = '₦' + totalAmount.toLocaleString('en-NG', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        });
+    }
+    @endif
+</script>
+@endpush
 
 @endsection

@@ -11,7 +11,7 @@
                 </div>
                 <div>
                     <a href="{{ route('vendor.distribution.resources') }}" class="btn btn-info">
-                        <i class="ri-list-check me-1"></i> View Resources
+                        View Resources
                     </a>
                     <a href="{{ route('vendor.distribution.dashboard') }}" class="btn btn-light">
                         <i class="ri-dashboard-line me-1"></i> Dashboard
@@ -52,7 +52,7 @@
                             <button class="btn btn-primary btn-lg w-100" @click="searchFarmer()"
                                     :disabled="searching || searchQuery.length < 3">
                                 <span x-show="!searching">
-                                    <i class="ri-search-line me-1"></i> Search
+                                     Search
                                 </span>
                                 <span x-show="searching">
                                     <span class="spinner-border spinner-border-sm me-1"></span> Searching...

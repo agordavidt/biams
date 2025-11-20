@@ -4,8 +4,8 @@
     <!-- Page Title -->
     <div class="row mb-4">
         <div class="col-12">
-            <h4 class="mb-1">Vendor Dashboard</h4>
-            <p class="text-muted mb-0">Welcome back, {{ $vendor->business_name }}</p>
+            <h4 class="mb-1">{{ $vendor->legal_name}}</h4>
+            <p class="text-muted mb-0">Welcome back!</p>
         </div>
     </div>
 

@@ -45,14 +45,14 @@
                         
                         @if($hasAssignments)
                             <span>
-                                <i class="ri-lock-line me-1"></i>Restricted Access
+                                Restricted Access
                             </span>
                             <p class="text-muted mb-0 mt-1">
                                 <small>You can only access assigned resources</small>
                             </p>
                         @else
                             <span class="badge bg-success fs-6">
-                                <i class="ri-global-line me-1"></i>Full Access
+                                Full Access
                             </span>
                             <p class="text-muted mb-0 mt-1">
                                 <small>You can access all vendor resources</small>
@@ -72,7 +72,7 @@
         <div class="card border-warning">
             <div class="card-header">
                 <h6 class="mb-0">
-                    <i class="ri-information-line me-2"></i>Your Assigned Resources
+                    Your Assigned Resources
                 </h6>
             </div>
             <div class="card-body">
@@ -168,12 +168,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <a href="{{ route('vendor.distribution.search') }}" class="btn btn-primary btn-block w-100 mb-2">
-                            <i class="ri-search-line me-1"></i> Search Farmer by NIN/ID
+                             Search Farmer by NIN/ID
                         </a>
                     </div>
                     <div class="col-md-6">
                         <a href="{{ route('vendor.distribution.resources') }}" class="btn btn-info btn-block w-100 mb-2">
-                            <i class="ri-list-check me-1"></i> 
+                            
                             {{ $hasAssignments ? 'View My Resources' : 'View All Resources' }}
                         </a>
                     </div>
@@ -206,7 +206,7 @@
                 @if($hasAssignments)
                 <div class="alert alert-warning" role="alert">
                     <h6 class="alert-heading">
-                        <i class="ri-alert-line me-2"></i>Resource Assignment Notice
+                        Resource Assignment Notice
                     </h6>
                     <p class="mb-0">
                         You have been assigned specific resources by your vendor manager. 
