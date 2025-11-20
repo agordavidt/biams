@@ -19,7 +19,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
+    <!-- <div class="row mb-4">
         <div class="col-md-2">
             <div class="card card-stats">
                 <div class="card-body">
@@ -122,7 +122,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Filters and Search -->
     <div class="row mb-3">

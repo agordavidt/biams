@@ -112,12 +112,12 @@
                             </a>
                         </li>
 
-                        <li>
+                        <!-- <li>
                             <a href="{{ route('vendor.distribution.search') }}" class="waves-effect">
                                 <i class="ri-search-line me-2"></i>
                                 <span>Search Farmer</span>
                             </a>
-                        </li>
+                        </li> -->
 
                         <li>
                             <a href="{{ route('vendor.distribution.resources') }}" class="waves-effect">

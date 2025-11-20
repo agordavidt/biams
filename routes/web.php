@@ -724,23 +724,15 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
 | Distribution Agent Routes (FIXED)
 |--------------------------------------------------------------------------
 */
+
+
 Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
 
+    // Profile
     Route::get('/profile', [DistributionProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [DistributionProfileController::class, 'update'])->name('profile.update');
-    
-    
-    // Distribution Fulfillment
-    Route::get('/search', [DistributionFulfillmentController::class, 'searchInterface'])->name('search');
-    
-    // Use vendor's unified search endpoint
-    Route::post('/search-farmer', [VendorResourceController::class, 'searchFarmer'])->name('search-farmer');
-    
-    // Mark application as fulfilled
-    Route::post('/applications/{application}/fulfill', [VendorResourceController::class, 'fulfillApplication'])
-        ->name('mark-fulfilled');
     
     // View assigned resources
     Route::get('/resources', [DistributionFulfillmentController::class, 'assignedResources'])
@@ -750,7 +742,23 @@ Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('
     Route::get('/resources/{resource}/applications', [DistributionFulfillmentController::class, 'resourceApplications'])
         ->name('resource-applications');
     
-    // Quick fulfillment interface
+    // Search interface
+    Route::get('/search', [DistributionFulfillmentController::class, 'searchInterface'])
+        ->name('search');
+    
+    // Search farmer endpoint
+    Route::post('/search-farmer', [DistributionFulfillmentController::class, 'searchFarmer'])
+        ->name('search-farmer');
+    
+    // View individual application details
+    Route::get('/applications/{application}', [DistributionFulfillmentController::class, 'showApplication'])
+        ->name('application.show');
+    
+    // Mark application as fulfilled
+    Route::post('/applications/{application}/fulfill', [DistributionFulfillmentController::class, 'fulfillApplication'])
+        ->name('mark-fulfilled');
+    
+    // Optional: Quick fulfillment interface
     Route::get('/fulfill/{application}', [DistributionFulfillmentController::class, 'fulfillInterface'])
         ->name('fulfill');
 });
@@ -830,122 +838,3 @@ Route::middleware(['auth', 'role:State Admin', 'permission:manage_supplier_catal
     });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Vendor Manager Routes (FIXED)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vendor')->name('vendor.')->group(function () {
-    // Dashboard with new statistics
-    Route::get('/dashboard', [VendorResourceController::class, 'dashboard'])->name('dashboard');
-    
-    // Team Management
-    Route::prefix('team')->name('team.')->group(function () {
-        Route::get('/', [VendorTeamController::class, 'index'])->name('index');
-        Route::get('/create', [VendorTeamController::class, 'create'])->name('create');
-        Route::post('/', [VendorTeamController::class, 'store'])->name('store');
-        Route::get('/{teamMember}/edit', [VendorTeamController::class, 'edit'])->name('edit');
-        Route::put('/{teamMember}', [VendorTeamController::class, 'update'])->name('update');
-        Route::delete('/{teamMember}', [VendorTeamController::class, 'destroy'])->name('destroy');
-        Route::patch('/{teamMember}/reset-password', [VendorTeamController::class, 'resetPassword'])->name('reset-password');
-    });
-    
-    // Resource Management
-    Route::prefix('resources')->name('resources.')->group(function () {
-        // Resource CRUD
-        Route::get('/', [VendorResourceController::class, 'index'])->name('index');
-        Route::get('/create', [VendorResourceController::class, 'create'])->name('create');
-        Route::post('/', [VendorResourceController::class, 'store'])->name('store');
-        Route::get('/{resource}', [VendorResourceController::class, 'show'])->name('show');
-        Route::get('/{resource}/edit', [VendorResourceController::class, 'edit'])->name('edit');
-        Route::put('/{resource}', [VendorResourceController::class, 'update'])->name('update');
-        Route::delete('/{resource}', [VendorResourceController::class, 'destroy'])->name('destroy');
-        
-        // Application Management Routes
-        Route::get('/applications/all', [VendorResourceController::class, 'allApplications'])
-            ->name('all-applications');
-        
-        Route::get('/{resource}/applications', [VendorResourceController::class, 'applications'])
-            ->name('applications');
-        
-        // FIXED: Distribution search page - now uses controller method
-        Route::get('/{resource}/distribution', [VendorResourceController::class, 'distributionSearch'])
-            ->name('distribution.search');
-        
-        // Application Action Routes
-        Route::get('/applications/{application}', [VendorResourceController::class, 'showApplication'])
-            ->name('application.show');
-        
-        Route::post('/applications/{application}/verify-approve', [VendorResourceController::class, 'verifyAndApprove'])
-            ->name('application.verify-approve');
-        
-        Route::post('/applications/{application}/reject', [VendorResourceController::class, 'rejectApplication'])
-            ->name('application.reject');
-        
-        Route::post('/applications/{application}/fulfill', [VendorResourceController::class, 'fulfillApplication'])
-            ->name('application.fulfill');
-        
-        // Unified Farmer Search Endpoint
-        Route::post('/search-farmer', [VendorResourceController::class, 'searchFarmer'])
-            ->name('search-farmer');
-    });
-    
-    // Analytics & Payouts
-    Route::get('/analytics', [VendorAnalyticsController::class, 'index'])->name('analytics');
-    Route::post('/analytics/export', [VendorAnalyticsController::class, 'export'])->name('analytics.export');
-    Route::get('/payouts', [VendorPayoutController::class, 'index'])->name('payouts');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Distribution Agent Routes (FIXED)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
-    
-    // Distribution Fulfillment
-    Route::get('/search', [DistributionFulfillmentController::class, 'searchInterface'])->name('search');
-    
-    // Use vendor's unified search endpoint
-    Route::post('/search-farmer', [VendorResourceController::class, 'searchFarmer'])->name('search-farmer');
-    
-    // Mark application as fulfilled
-    Route::post('/applications/{application}/fulfill', [VendorResourceController::class, 'fulfillApplication'])
-        ->name('mark-fulfilled');
-    
-    // View assigned resources
-    Route::get('/resources', [DistributionFulfillmentController::class, 'assignedResources'])
-        ->name('resources');
-    
-    // View applications for specific resource
-    Route::get('/resources/{resource}/applications', [DistributionFulfillmentController::class, 'resourceApplications'])
-        ->name('resource-applications');
-    
-    // Quick fulfillment interface
-    Route::get('/fulfill/{application}', [DistributionFulfillmentController::class, 'fulfillInterface'])
-        ->name('fulfill');
-});

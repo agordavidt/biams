@@ -122,7 +122,7 @@
                             </button>
                         @else
                             <a href="{{ route('farmer.resources.show', $resource) }}" class="btn btn-primary">
-                                <i class="ri-eye-line me-1"></i> View Details & Apply
+                             View Details & Apply
                             </a>
                         @endif
                     </div>

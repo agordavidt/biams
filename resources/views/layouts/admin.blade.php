@@ -271,7 +271,7 @@
                                     <li>
                                         <a href="{{ route('admin.resources.review.index') }}" class="waves-effect">
                                             <i class="ri-file-list-3-line me-2"></i>
-                                            <span>Vendor Review</span>
+                                            <span>Review</span>
                                             @if($pendingReviewCount > 0)
                                                 <span class="badge rounded-pill bg-warning float-end">{{ $pendingReviewCount }}</span>
                                             @endif
