@@ -609,7 +609,7 @@
                                 <img src="{{ asset('frontend/assets/img/benue_logo.jpeg') }}" alt="Benue State Agri-Data Management System Logo" loading="lazy" style="height: 40px;">
                                 <span class="text-success fw-bold ms-2 h5 mb-0">BSSADMS</span> </a>
                         </div>
-                        <p class="text-muted small mb-0">
+                        <p class="small mb-0">
                             The official data platform of the Benue State Ministry of Agriculture.<br> Transforming potential into prosperity through verified data.
                         </p>
                     </div>
