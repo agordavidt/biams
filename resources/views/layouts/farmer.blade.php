@@ -46,7 +46,7 @@
     <div id="layout-wrapper">
 
         <!-- Header -->
-        <header id="page-topbar">
+        <header id="page-topbar" style="background: #38761D;">
             <div class="navbar-header">
                 <div class="d-flex">
                     <!-- LOGO -->

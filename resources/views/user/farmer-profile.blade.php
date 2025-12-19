@@ -60,10 +60,10 @@
                 </div>
                 
                 <div class="d-grid gap-2">
-                    <a href="#" class="btn btn-outline-primary btn-sm">
+                    <!-- <a href="#" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-qrcode me-1"></i>
                         View Farmer ID
-                    </a>
+                    </a> -->
                 </div>
             </div>
         </div>
@@ -187,8 +187,7 @@
                             <i class="fas fa-arrow-left me-1"></i>
                             Back to Dashboard
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>
+                        <button type="submit" class="btn btn-primary">                           
                             Update Profile
                         </button>
                     </div>

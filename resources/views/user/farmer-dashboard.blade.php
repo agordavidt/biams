@@ -215,7 +215,7 @@
 
                 <div class="mt-4">
                     <a href="{{ route('farmer.profile') }}" class="btn btn-primary w-100">
-                        <i class="ri-edit-line me-1"></i> Update Profile
+                         Update Profile
                     </a>
                 </div>
             </div>
