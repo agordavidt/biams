@@ -1,6 +1,6 @@
-# Benue State Smart Agricultural System: Feature Overview
+# Benue State Agricultural Data Assets Management System: Feature Overview
 
-This document provides a concise summary of the major implemented features, their purpose, and the established interaction flows within the system.
+Summary of the major implemented features, their purpose, and the established interaction flows within the system.
 
 ---
 
@@ -59,7 +59,7 @@ This document provides a concise summary of the major implemented features, thei
 
 ---
 
-## 📝 Notes
+## Notes
 
 - All real-time features use **Laravel Echo + Reverb** for push notifications and chat.
 - **Spatie Permissions** ensures flexible and scalable role management.
@@ -67,33 +67,21 @@ This document provides a concise summary of the major implemented features, thei
 
 ---
 
-## 📁 Tech Stack Highlights
+## Tech Stack Highlights
 
 - **Framework:** Laravel (PHP)
 - **Real-time:** Laravel Echo + Reverb
 - **RBAC:** Spatie Laravel-Permission
-- **Frontend:** Blade / Vue.js (if applicable)
-- **Database:** MySQL/PostgreSQL
+- **Frontend:** Blade 
+- **Database:** MySQL
 - **Notifications:** Broadcasting via Channels & Events
 
----
 
 
 
 
 
 
-## Issues to address
-1 - Super Admin Market Overview Controller, routes created but no views yet.
-2 - Super Admin Analytics for different features
-3 - Load LGAs on the governor dashboard policy analysis _ claude 7/10/2025
-4 - Factor in the isolated Data Analytics Features - 5/10/2025
-5 - Plan and execute market listing, farmers pay a token before their goods are listed.
-6. - Super Admin analytics
-7. - edit function
-
-
-password for roles: 'password' => Hash::make('M4r!neT1g3r!')
 
 
 
