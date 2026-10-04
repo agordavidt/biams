@@ -55,22 +55,6 @@ use App\Providers\RouteServiceProvider;
 
 
 
-/*  Prelauch routes */
-
-
-// Route::get('/', function () {
-//     return redirect()->route('pre_launch');
-// });
-
-
-// Route::get('/pre_launch', function() {
-//     return view('pre_launch');
-// })->name('pre_launch');
-
-
-// Route::get('/welcome', function () {
-//     return view('welcome');
-// })->name('welcome'); 
 
 
 
@@ -110,9 +94,9 @@ require __DIR__.'/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| Profile/Account Settings Routes (All Authenticated Users)
+| Profile/Account Settings Routes  for All Authenticated Users
 |--------------------------------------------------------------------------
-| Add these routes to your web.php file
+|
 */
 
 Route::middleware(['auth', 'prevent.back'])->prefix('profile')->name('profile.')->group(function () {
@@ -183,7 +167,7 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users', 'preve
     });
     
     // =====================================================================
-    // NEW: Vendors Module
+    // Vendors Module
     // =====================================================================
     Route::prefix('vendors')->name('vendors.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SuperAdmin\VendorController::class, 'index'])->name('index');
@@ -193,7 +177,7 @@ Route::middleware(['auth', 'role:Super Admin', 'permission:manage_users', 'preve
     });
 
     // =====================================================================
-    // NEW: Resources Module
+    // Resources Module
     // =====================================================================
     Route::prefix('resources')->name('resources.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SuperAdmin\ResourceController::class, 'index'])->name('index');
@@ -229,12 +213,12 @@ Route::middleware(['auth', 'role:Governor', 'prevent.back'])->prefix('governor')
     Route::get('/lgas', [GovernorLgaAnalyticsController::class, 'index'])->name('lgas');
     Route::get('/lgas/export', [GovernorLgaAnalyticsController::class, 'export'])->name('lgas.export');
     
-    // Resources already has dedicated implementation
+   
     Route::prefix('resources')->name('resources.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Governor\ResourcesController::class, 'index'])->name('index');
     });   
 
-    // Vendors already has dedicated implementation
+   
     Route::prefix('vendors')->name('vendors.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Governor\VendorsController::class, 'index'])->name('index');
     });
@@ -242,7 +226,7 @@ Route::middleware(['auth', 'role:Governor', 'prevent.back'])->prefix('governor')
 
 /*
 |--------------------------------------------------------------------------
-| State Admin Routes (UPDATED FOR STREAMLINED WORKFLOW)
+| State Admin Routes 
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:State Admin', 'prevent.back'])->prefix('admin')->name('admin.')->group(function () {
@@ -308,35 +292,21 @@ Route::middleware(['auth', 'role:State Admin', 'prevent.back'])->prefix('admin')
         Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
     });
     
-    // =====================================================================
-    // UPDATED: Resource Applications - Admin Oversight (Streamlined)
-    // =====================================================================
+
+    // Resource Applications   
     Route::prefix('applications')->name('applications.')->group(function () {
-        // Main listing with filters
-        Route::get('/', [ResourceApplicationController::class, 'index'])->name('index');
-        
-        // NEW: Analytics dashboard for oversight
+        Route::get('/', [ResourceApplicationController::class, 'index'])->name('index');  
         Route::get('/analytics', [ResourceApplicationController::class, 'analytics'])->name('analytics');
-        
-        // Export functionality
         Route::get('/export', [ResourceApplicationController::class, 'export'])->name('export');
-        
-        // Individual application view
         Route::get('/{application}', [ResourceApplicationController::class, 'show'])->name('show');
-        
-        // Admin actions (primarily for ministry resources or emergency override)
         Route::post('/{application}/grant', [ResourceApplicationController::class, 'grant'])->name('grant');
         Route::post('/{application}/decline', [ResourceApplicationController::class, 'decline'])->name('decline');
         Route::post('/{application}/fulfill', [ResourceApplicationController::class, 'fulfill'])->name('fulfill');
-        
-        // NEW: Payment verification tool for admin oversight
         Route::get('/{application}/verify-payment', [ResourceApplicationController::class, 'verifyPayment'])->name('verify-payment');
-        
-        // Bulk operations
         Route::post('/bulk-update', [ResourceApplicationController::class, 'bulkUpdate'])->name('bulk-update');
     });
 
-    // Alternative naming for backward compatibility (keeping both paths)
+
     Route::prefix('resources')->name('resources.')->group(function () {
         Route::prefix('applications')->name('applications.')->group(function () {
             Route::get('/', [ResourceApplicationController::class, 'index'])->name('index');
@@ -404,7 +374,6 @@ Route::middleware(['auth', 'permission:view_lga_dashboard', 'prevent.back'])->pr
 
     Route::get('/profile', [LGAAdminProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [LGAAdminProfileController::class, 'update'])->name('profile.update');
-
     // Enrollment Agents Management
     Route::prefix('agents')->name('agents.')->middleware('permission:manage_lga_agents')->group(function () {
         Route::get('/', [LGAAdminManagementController::class, 'index'])->name('index');
@@ -414,7 +383,6 @@ Route::middleware(['auth', 'permission:view_lga_dashboard', 'prevent.back'])->pr
         Route::put('/{agent}', [LGAAdminManagementController::class, 'update'])->name('update');
         Route::delete('/{agent}', [LGAAdminManagementController::class, 'destroy'])->name('destroy');
     });
-
     // Farmer Review
     Route::prefix('farmers')->name('farmers.')->group(function () {
         Route::get('/', [FarmerReviewController::class, 'index'])->name('index');
@@ -598,7 +566,7 @@ Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(func
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Commissioner', 'prevent.back'])->prefix('commissioner')->name('commissioner.')->group(function () {
-    // Dashboard
+   
     Route::get('/dashboard', [CommissionerDashboardController::class, 'index'])->name('dashboard');
     
     // Policy Insights
@@ -640,16 +608,13 @@ Route::middleware(['auth', 'role:Commissioner', 'prevent.back'])->prefix('commis
 
 /*
 |--------------------------------------------------------------------------
-| Vendor Manager Routes (FIXED)
+| Vendor Manager 
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vendor')->name('vendor.')->group(function () {
-    // Dashboard with new statistics
     Route::get('/dashboard', [VendorResourceController::class, 'dashboard'])->name('dashboard');
-
     Route::get('/profile', [VendorProfileController::class, 'index'])->name('profile');
-    Route::put('/profile', [VendorProfileController::class, 'update'])->name('profile.update');
-    
+    Route::put('/profile', [VendorProfileController::class, 'update'])->name('profile.update');    
     
     // Team Management
     Route::prefix('team')->name('team.')->group(function () {
@@ -660,7 +625,6 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
         Route::put('/{teamMember}', [VendorTeamController::class, 'update'])->name('update');
         Route::delete('/{teamMember}', [VendorTeamController::class, 'destroy'])->name('destroy');
         Route::patch('/{teamMember}/reset-password', [VendorTeamController::class, 'resetPassword'])->name('reset-password');
-        // Inside your vendor routes group      
         Route::post('/check-email', [VendorTeamController::class, 'checkEmail'])->name('check-email');
     });
     
@@ -682,7 +646,7 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
         Route::get('/{resource}/applications', [VendorResourceController::class, 'applications'])
             ->name('applications');
         
-        // FIXED: Distribution search page - now uses controller method
+        // Distribution search page - now uses controller method
         Route::get('/{resource}/distribution', [VendorResourceController::class, 'distributionSearch'])
             ->name('distribution.search');
         
@@ -721,13 +685,12 @@ Route::middleware(['auth', 'role:Vendor Manager', 'prevent.back'])->prefix('vend
 
 /*
 |--------------------------------------------------------------------------
-| Distribution Agent Routes (FIXED)
+| Distribution Agent Routes 
 |--------------------------------------------------------------------------
 */
 
 
 Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('vendor/distribution')->name('vendor.distribution.')->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DistributionDashboardController::class, 'index'])->name('dashboard');
 
     // Profile
@@ -772,15 +735,10 @@ Route::middleware(['auth', 'role:Distribution Agent', 'prevent.back'])->prefix('
 
 
 
-// Public Marketplace Routes (No Authentication Required)
+// Public Marketplace Routes
 Route::prefix('marketplace')->name('marketplace.')->group(function () {
-    // Browse listings (public)
     Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-    
-    // View single listing details (public)
     Route::get('/listings/{listing}', [MarketplaceController::class, 'show'])->name('show');
-    
-    // Contact farmer (lead generation - no auth required)
     Route::post('/listings/{listing}/contact', [MarketplaceController::class, 'contactFarmer'])->name('contact-farmer');
 });
 
@@ -813,7 +771,6 @@ Route::middleware(['auth', 'role:State Admin', 'permission:manage_supplier_catal
     ->prefix('admin/marketplace')
     ->name('admin.marketplace.')
     ->group(function () {
-        // Dashboard
         Route::get('/dashboard', [MarketplaceAdminController::class, 'dashboard'])->name('dashboard');
         
         // Listings Management

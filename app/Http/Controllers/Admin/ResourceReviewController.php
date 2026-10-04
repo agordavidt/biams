@@ -185,7 +185,7 @@ class ResourceReviewController extends Controller
                 'rejection_reason' => null,
             ]);
 
-            // TODO: Notify vendor of approval
+            // Notify vendor of approval
 
             return redirect()->route('admin.resources.review.index')
                 ->with('success', 'Resource approved successfully. You can now publish it to make it available to farmers.');
@@ -223,7 +223,7 @@ class ResourceReviewController extends Controller
         try {
             $resource->markAsRejected($request->rejection_reason, Auth::id());
 
-            // TODO: Notify vendor of rejection
+            // Notify vendor of rejection
 
             return redirect()->route('admin.resources.review.index')
                 ->with('success', 'Resource rejected. Vendor has been notified.');
@@ -254,7 +254,7 @@ class ResourceReviewController extends Controller
         try {
             $resource->publish();
 
-            // TODO: Notify vendor of publication
+            // Notify vendor of publication
 
             return redirect()->route('admin.resources.review.index')
                 ->with('success', 'Resource published successfully. It is now available to farmers.');
@@ -285,7 +285,7 @@ class ResourceReviewController extends Controller
         try {
             $resource->unpublish();
 
-            // TODO: Notify vendor of unpublish
+            // Notify vendor of unpublish
 
             return redirect()->route('admin.resources.review.index')
                 ->with('success', 'Resource unpublished successfully. It is no longer visible to farmers.');

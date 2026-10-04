@@ -124,7 +124,7 @@ class VendorController extends Controller
             DB::commit();
            
 
-            // Send notification email (with error handling)
+            // Send notification email 
             try {
                 $user->notify(new VendorAccountCreated($user, $vendor, $request->manager_password));
                 Log::info('Vendor account email sent successfully', [

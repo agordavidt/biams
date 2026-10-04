@@ -26,7 +26,7 @@ class CooperativeViewController extends Controller
             'primaryFarmers as primary_farmers_count'
         ]);
 
-        // Add active members count using direct subquery (most reliable approach)
+        
         $query->addSelect([
             'active_members_count' => function($query) {
                 $query->select(DB::raw('COUNT(*)'))
@@ -60,11 +60,9 @@ class CooperativeViewController extends Controller
             $query->whereJsonContains('primary_activities', $request->activity);
         }
 
-        // Sort options with validation
+        
         $sort = $request->get('sort', 'created_at');
         $direction = $request->get('direction', 'desc');
-        
-        // Validate sort columns to prevent SQL injection
         $allowedSorts = ['created_at', 'name', 'total_member_count', 'total_land_size'];
         $sort = in_array($sort, $allowedSorts) ? $sort : 'created_at';
         $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
@@ -73,12 +71,12 @@ class CooperativeViewController extends Controller
 
         $cooperatives = $query->paginate(20)->withQueryString();
 
-        // Get all LGAs for filter dropdown (cached for performance)
+        // Get all LGAs 
         $lgas = Cache::remember('lgas_list', 3600, function () {
             return LGA::orderBy('name')->get(['id', 'name']);
         });
 
-        // State-wide statistics (cached for better performance)
+        // State-wide statistics (cached)
         $stats = Cache::remember('state_cooperative_stats', 300, function () {
             $totalCooperatives = Cooperative::count();
             $totalMembers = DB::table('cooperative_farmer')->count();
@@ -133,7 +131,7 @@ class CooperativeViewController extends Controller
     }
 
     /**
-     * Display the specified cooperative with detailed information
+     * cooperatives with detailed information
      */
     public function show(Cooperative $cooperative)
     {
@@ -180,8 +178,6 @@ class CooperativeViewController extends Controller
      */
     public function export(Request $request)
     {
-        // Implementation for Excel/PDF export
-        // You can use Laravel Excel package here
         
         return response()->json([
             'message' => 'Export functionality will be implemented soon',

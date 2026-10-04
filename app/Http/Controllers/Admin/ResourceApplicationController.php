@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class ResourceApplicationController extends Controller
 {
     /**
-     * Display all applications (Admin oversight view)
+     * Display all applications
      */
     public function index(Request $request)
     {
@@ -168,8 +168,7 @@ class ResourceApplicationController extends Controller
     }
 
     /**
-     * Admin override: Approve application (Only when vendor hasn't acted)
-     * This should be rare - primarily for ministry resources or urgent cases
+     * Admin override: Approve application (Only when vendor hasn't acted)     
      */
     public function approve(Request $request, ResourceApplication $application)
     {
@@ -503,8 +502,7 @@ class ResourceApplicationController extends Controller
         DB::beginTransaction();
 
         try {
-            foreach ($applications as $application) {
-                // Skip vendor resources - they should handle their own
+            foreach ($applications as $application) {               
                 if ($application->resource->vendor_id) {
                     $vendorResourceSkipped++;
                     continue;

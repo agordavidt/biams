@@ -97,7 +97,7 @@ class ResourceController extends Controller
 
             // Set prices - for ministry resources, original_price = price
             $price = $request->requires_payment ? $request->price : 0;
-            $originalPrice = $price; // For ministry resources, they're the same
+            $originalPrice = $price; 
 
             // Create Ministry resource
             $resource = Resource::create([

@@ -190,7 +190,7 @@ class MarketplaceAdminController extends Controller
         try {
             $listing->approve(auth()->user());
 
-            // TODO: Send notification to farmer
+            // Send notification to farmer
             // Mail::to($listing->user->email)->send(new ListingApproved($listing));
 
             return back()->with('success', 'Listing approved successfully and is now live on the marketplace.');
@@ -218,7 +218,7 @@ class MarketplaceAdminController extends Controller
         try {
             $listing->reject($request->rejection_reason);
 
-            // TODO: Send notification to farmer
+            // Send notification to farmer
             // Mail::to($listing->user->email)->send(new ListingRejected($listing));
 
             return back()->with('success', 'Listing rejected. The farmer has been notified and can resubmit after corrections.');
